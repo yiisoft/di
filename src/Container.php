@@ -229,8 +229,11 @@ class Container implements ContainerInterface
      */
     protected function build(array $definition)
     {
-        /* @var $reflection ReflectionClass */
-        [$reflection, $dependencies] = $this->getDependencies($definition[self::TOKEN_CLASS]);
+        $class = $definition[self::TOKEN_CLASS];
+        $reflection = new ReflectionClass($class);
+
+
+        $dependencies = $this->getDependencies($reflection);
         unset($definition[self::TOKEN_CLASS]);
 
         if (isset($definition[self::TOKEN_CONSTRUCT])) {
@@ -266,13 +269,10 @@ class Container implements ContainerInterface
      * @param string $class class name, interface name or alias name
      * @return array the dependencies of the specified class.
      */
-    protected function getDependencies($class): array
+    protected function getDependencies(ReflectionClass $reflection): array
     {
         $dependencies = [];
-        $reflection = new ReflectionClass($class);
-
-        $constructor = $reflection->getConstructor();
-        if ($constructor !== null) {
+        if ($constructor = $reflection->getConstructor()) {
             foreach ($constructor->getParameters() as $param) {
                 if ($param->isDefaultValueAvailable()) {
                     $dependencies[] = $param->getDefaultValue();
@@ -282,11 +282,7 @@ class Container implements ContainerInterface
                 }
             }
         }
-        $this->dependencies[$class] = $dependencies;
-
-
-
-        return [$reflection, $dependencies];
+        return $dependencies;
     }
 
     /**
