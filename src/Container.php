@@ -82,6 +82,28 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Gets the definition by ID
+     * @param $id
+     * @return array|callable|null|object
+     */
+    private function getDefinition($id)
+    {
+        if (!isset($this->definitions[$id])) {
+            if ($this->parent !== null) {
+                return $this->parent->get($id);
+            }
+            return null;
+        }
+
+        $definition = $this->definitions[$id];
+        if (is_string($definition)) {
+            $definition = [self::TOKEN_CLASS => $definition];
+        }
+
+        return $definition;
+    }
+
+    /**
      * Creates the object definition
      * @param $definition
      * @return mixed|object
@@ -109,25 +131,18 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Gets the definition by ID
-     * @param $id
-     * @return array|callable|null|object
+     * Returns a value indicating whether the container has the definition of the specified name.
+     * @param string $id class name, interface name or alias name
+     * @return bool whether the container is able to provide instance of id specified.
+     * @see set()
      */
-    private function getDefinition($id)
+    public function has($id): bool
     {
-        if (!isset($this->definitions[$id])) {
-            if ($this->parent !== null) {
-                return $this->parent->get($id);
-            }
-            return null;
+        if (isset($this->aliases[$id])) {
+            $id = $this->aliases[$id];
         }
 
-        $definition = $this->definitions[$id];
-        if (is_string($definition)) {
-            $definition = [self::TOKEN_CLASS => $definition];
-        }
-
-        return $definition;
+        return isset($this->objects[$id]) || isset($this->definitions[$id]);
     }
 
     /**
@@ -201,20 +216,6 @@ class Container implements ContainerInterface
         $this->aliases[$id] = $referenceId;
     }
 
-    /**
-     * Returns a value indicating whether the container has the definition of the specified name.
-     * @param string $id class name, interface name or alias name
-     * @return bool whether the container is able to provide instance of id specified.
-     * @see set()
-     */
-    public function has($id): bool
-    {
-        if (isset($this->aliases[$id])) {
-            $id = $this->aliases[$id];
-        }
-
-        return isset($this->objects[$id]) || isset($this->definitions[$id]);
-    }
 
     /**
      * Creates an instance of the class defintion
