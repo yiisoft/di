@@ -11,6 +11,7 @@ use ReflectionClass;
 class Container implements ContainerInterface
 {
     const TOKEN_CONSTRUCT = '__construct()';
+
     const TOKEN_CLASS = '__class';
 
     /**
@@ -29,11 +30,6 @@ class Container implements ContainerInterface
      * @var array
      */
     private $aliases;
-    /**
-     * @var array cached dependencies indexed by class/interface names. Each class name
-     * is associated with a list of constructor parameter types or default values.
-     */
-    private $dependencies = [];
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -115,7 +111,7 @@ class Container implements ContainerInterface
             if (isset($definition[0], $definition[1])) {
                 $object = call_user_func([$definition[0], $definition[1]], $this);
             } else {
-                $object = $this->build($definition);
+                $object = $this->buildInstance($definition);
             }
         } elseif ($definition instanceof \Closure) {
             $object = $definition($this);
@@ -217,7 +213,6 @@ class Container implements ContainerInterface
         $this->aliases[$id] = $referenceId;
     }
 
-
     /**
      * Creates an instance of the class defintion
      * @param array $definition
@@ -227,30 +222,12 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function build(array $definition)
+    protected function buildInstance(array $definition)
     {
         $class = $definition[self::TOKEN_CLASS];
-        $reflection = new ReflectionClass($class);
-
-
-        $dependencies = $this->getDependencies($reflection);
         unset($definition[self::TOKEN_CLASS]);
 
-        if (isset($definition[self::TOKEN_CONSTRUCT])) {
-            foreach ($definition[self::TOKEN_CONSTRUCT] as $index => $param) {
-                $dependencies[$index] = $param;
-            }
-            unset($definition[self::TOKEN_CONSTRUCT]);
-        }
-
-
-        $dependencies = $this->resolveDependencies($dependencies, $reflection);
-        if (!$reflection->isInstantiable()) {
-            throw new NotInstantiableException($reflection->name);
-        }
-
-        $object = $reflection->newInstanceArgs($dependencies);
-
+        $object = $this->createObjectWithDependencies($class, $definition);
         foreach ($definition as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
@@ -265,12 +242,19 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Returns the dependencies of the specified class.
-     * @param string $class class name, interface name or alias name
-     * @return array the dependencies of the specified class.
+     * Create object with dependencies
+     * @param ReflectionClass $reflection
+     * @return array
+     * @throws InvalidConfigException
      */
-    protected function getDependencies(ReflectionClass $reflection): array
+    protected function createObjectWithDependencies($class, array $definition)
     {
+        $reflection = new ReflectionClass($class);
+        if (!$reflection->isInstantiable()) {
+            throw new NotInstantiableException($reflection->name);
+        }
+
+
         $dependencies = [];
         if ($constructor = $reflection->getConstructor()) {
             foreach ($constructor->getParameters() as $param) {
@@ -282,21 +266,14 @@ class Container implements ContainerInterface
                 }
             }
         }
-        return $dependencies;
-    }
 
-    /**
-     * Resolves dependencies by replacing them with the actual object instances.
-     * @param array $dependencies the dependencies
-     * @param ReflectionClass $reflection the class reflection associated with the dependencies
-     * @return array the resolved dependencies
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
-     * @throws NotFoundException
-     * @throws NotInstantiableException
-     */
-    protected function resolveDependencies($dependencies, $reflection = null): array
-    {
+        if (isset($definition[self::TOKEN_CONSTRUCT])) {
+            foreach ($definition[self::TOKEN_CONSTRUCT] as $index => $param) {
+                $dependencies[$index] = $param;
+            }
+            unset($definition[self::TOKEN_CONSTRUCT]);
+        }
+
         foreach ($dependencies as $index => $dependency) {
             if ($dependency instanceof Reference) {
                 if ($dependency->getId() !== null) {
@@ -309,6 +286,6 @@ class Container implements ContainerInterface
             }
         }
 
-        return $dependencies;
+        return $reflection->newInstanceArgs($dependencies);
     }
 }
