@@ -1,4 +1,5 @@
 <?php
+
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
@@ -13,11 +14,10 @@ class Container implements ContainerInterface
      * @var self
      */
     private $parent;
-
     /**
      * @var object[]
      */
-    private $instances;
+    private $objects;
 
     /**
      * @var array object definitions indexed by their types
@@ -77,8 +77,8 @@ class Container implements ContainerInterface
             $id = $this->aliases[$id];
         }
 
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
+        if (isset($this->objects[$id])) {
+            return $this->objects[$id];
         }
 
         if (isset($this->getting[$id])) {
@@ -115,7 +115,7 @@ class Container implements ContainerInterface
         }
 
 
-        $this->instances[$id] = $object;
+        $this->objects[$id] = $object;
 
         unset($this->getting[$id]);
 
@@ -161,7 +161,7 @@ class Container implements ContainerInterface
      */
     public function set(string $id, $defintion)
     {
-        $this->instances[$id] = null;
+        $this->objects[$id] = null;
 
         if (isset($this->aliases[$id])) {
             unset($this->aliases[$id]);
@@ -205,7 +205,7 @@ class Container implements ContainerInterface
             $id = $this->aliases[$id];
         }
 
-        return isset($this->instances[$id]) || isset($this->definitions[$id]);
+        return isset($this->objects[$id]) || isset($this->definitions[$id]);
     }
 
     /**
