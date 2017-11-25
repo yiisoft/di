@@ -111,7 +111,7 @@ class Container implements ContainerInterface
             if (isset($definition[0], $definition[1])) {
                 $object = call_user_func([$definition[0], $definition[1]], $this);
             } else {
-                $object = $this->createAndPopulateObjectByDefinition($definition);
+                $object = $this->createPopulatedObjectByDefinition($definition);
             }
         } elseif ($definition instanceof \Closure) {
             $object = $definition($this);
@@ -223,7 +223,7 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function createAndPopulateObjectByDefinition(array $definition)
+    protected function createPopulatedObjectByDefinition(array $definition)
     {
         $class = $definition[self::TOKEN_CLASS];
         unset($definition[self::TOKEN_CLASS]);
