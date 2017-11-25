@@ -26,10 +26,6 @@ class Container implements ContainerInterface
      */
     private $definitions;
     /**
-     * @var array cached ReflectionClass objects indexed by class/interface names
-     */
-    private $reflections = [];
-    /**
      * @var array
      */
     private $aliases;
@@ -272,13 +268,6 @@ class Container implements ContainerInterface
      */
     protected function getDependencies($class): array
     {
-
-        if (isset($this->reflections[$class])) {
-
-
-            return [$this->reflections[$class], $this->dependencies[$class]];
-        }
-
         $dependencies = [];
         $reflection = new ReflectionClass($class);
 
@@ -293,8 +282,6 @@ class Container implements ContainerInterface
                 }
             }
         }
-
-        $this->reflections[$class] = $reflection;
         $this->dependencies[$class] = $dependencies;
 
         return [$reflection, $dependencies];
