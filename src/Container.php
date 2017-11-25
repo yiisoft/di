@@ -11,6 +11,7 @@ use ReflectionClass;
 class Container implements ContainerInterface
 {
     const TOKEN_CONSTRUCT = '__construct()';
+    const TOKEN_CLASS = '__class';
 
     /**
      * @var self
@@ -20,7 +21,6 @@ class Container implements ContainerInterface
      * @var object[]
      */
     private $objects;
-
     /**
      * @var array object definitions indexed by their types
      */
@@ -29,7 +29,6 @@ class Container implements ContainerInterface
      * @var array cached ReflectionClass objects indexed by class/interface names
      */
     private $reflections = [];
-
     /**
      * @var array
      */
@@ -131,7 +130,7 @@ class Container implements ContainerInterface
 
         $definition = $this->definitions[$id];
         if (is_string($definition)) {
-            $definition = ['__class' => $definition];
+            $definition = [self::TOKEN_CLASS => $definition];
         }
 
         return $definition;
@@ -164,7 +163,7 @@ class Container implements ContainerInterface
      *
      * ```php
      * $container->set('full_definition', [
-     *     '__class' => EngineMarkOne::class,
+     *     self::TOKEN_CLASS => EngineMarkOne::class,
      *     '__construct()' => [42],
      *     'argName' => 'value',
      *     'setX()' => [42],
@@ -235,8 +234,8 @@ class Container implements ContainerInterface
     protected function build(array $definition)
     {
         /* @var $reflection ReflectionClass */
-        [$reflection, $dependencies] = $this->getDependencies($definition['__class']);
-        unset($definition['__class']);
+        [$reflection, $dependencies] = $this->getDependencies($definition[self::TOKEN_CLASS]);
+        unset($definition[self::TOKEN_CLASS]);
 
         if (isset($definition[self::TOKEN_CONSTRUCT])) {
             foreach ($definition[self::TOKEN_CONSTRUCT] as $index => $param) {
@@ -275,6 +274,8 @@ class Container implements ContainerInterface
     {
 
         if (isset($this->reflections[$class])) {
+
+
             return [$this->reflections[$class], $this->dependencies[$class]];
         }
 
