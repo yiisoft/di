@@ -18,24 +18,22 @@ class Container implements ContainerInterface
      */
     private $parent;
     /**
-     * @var object[]
-     */
-    private $objects;
-    /**
      * @var array object definitions indexed by their types
      */
     private $definitions;
     /**
+     * @var object[]
+     */
+    private $objects;
+    /**
      * @var array
      */
     private $aliases;
-
     /**
      * @var array cached dependencies indexed by class/interface names. Each class name
      * is associated with a list of constructor parameter types or default values.
      */
     private $dependencies = [];
-
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
