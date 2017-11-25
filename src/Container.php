@@ -124,7 +124,8 @@ class Container implements ContainerInterface
         }
 
         if (!isset($object)) {
-            throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
+            $definitionType = gettype($definition);
+            throw new InvalidConfigException("Object for definition type \"$definitionType\" cannot be created");
         }
 
         return $object;
@@ -282,6 +283,8 @@ class Container implements ContainerInterface
             }
         }
         $this->dependencies[$class] = $dependencies;
+
+
 
         return [$reflection, $dependencies];
     }
