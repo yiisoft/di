@@ -159,7 +159,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param mixed $defintion
      */
-    public function set(string $id, $defintion)
+    public function set(string $id, $defintion) : void
     {
         $this->objects[$id] = null;
 
@@ -174,7 +174,7 @@ class Container implements ContainerInterface
      * Sets multiple defintions at once
      * @param array $config defintions indexed by their ids
      */
-    public function configure($config)
+    public function configure($config) : void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
@@ -188,7 +188,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param string $referenceId
      */
-    public function setAlias(string $id, string $referenceId)
+    public function setAlias(string $id, string $referenceId) : void
     {
         $this->aliases[$id] = $referenceId;
     }
