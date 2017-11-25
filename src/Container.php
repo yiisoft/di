@@ -10,6 +10,8 @@ use ReflectionClass;
  */
 class Container implements ContainerInterface
 {
+    const TOKEN_CONSTRUCT = '__construct()';
+
     /**
      * @var self
      */
@@ -236,11 +238,11 @@ class Container implements ContainerInterface
         [$reflection, $dependencies] = $this->getDependencies($definition['__class']);
         unset($definition['__class']);
 
-        if (isset($definition['__construct()'])) {
-            foreach ($definition['__construct()'] as $index => $param) {
+        if (isset($definition[self::TOKEN_CONSTRUCT])) {
+            foreach ($definition[self::TOKEN_CONSTRUCT] as $index => $param) {
                 $dependencies[$index] = $param;
             }
-            unset($definition['__construct()']);
+            unset($definition[self::TOKEN_CONSTRUCT]);
         }
 
 
