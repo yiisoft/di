@@ -100,26 +100,33 @@ class Container implements ContainerInterface
             $definition = ['__class' => $definition];
         }
 
-        if (is_array($definition)) {
-            if (isset($definition[0], $definition[1])) {
-                $object = call_user_func([$definition[0], $definition[1]], $this);
-            } else {
-                $object = $this->build($definition);
-            }
-        } elseif ($definition instanceof \Closure) {
-            $object = $definition($this);
-        } elseif (is_object($definition)) {
-            $object = $definition;
-        } else {
+
+        if (!$object = $this->createObject($definition)) {
             throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
         }
 
-
         $this->objects[$id] = $object;
-
         unset($this->getting[$id]);
-
         return $object;
+    }
+
+    /**
+     * @param $definition
+     */
+    private function createObject($definition)
+    {
+        if (is_array($definition)) {
+            if (isset($definition[0], $definition[1])) {
+                return call_user_func([$definition[0], $definition[1]], $this);
+            } else {
+                return $this->build($definition);
+            }
+        } elseif ($definition instanceof \Closure) {
+            return $definition($this);
+        } elseif (is_object($definition)) {
+            return $definition;
+        }
+        return null;
     }
 
     /**
@@ -159,7 +166,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param mixed $defintion
      */
-    public function set(string $id, $defintion) : void
+    public function set(string $id, $defintion): void
     {
         $this->objects[$id] = null;
 
@@ -174,7 +181,7 @@ class Container implements ContainerInterface
      * Sets multiple defintions at once
      * @param array $config defintions indexed by their ids
      */
-    public function configure($config) : void
+    public function configure($config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
@@ -188,7 +195,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param string $referenceId
      */
-    public function setAlias(string $id, string $referenceId) : void
+    public function setAlias(string $id, string $referenceId): void
     {
         $this->aliases[$id] = $referenceId;
     }
