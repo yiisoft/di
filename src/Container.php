@@ -49,12 +49,12 @@ class Container implements ContainerInterface
     /**
      * Container constructor.
      *
-     * @param array $defintions
+     * @param array $definitions
      * @param Container|null $parent
      */
-    public function __construct(array $defintions = [], Container $parent = null)
+    public function __construct(array $definitions = [], Container $parent = null)
     {
-        $this->definitions = $defintions;
+        $this->definitions = $definitions;
         $this->parent = $parent;
     }
 
