@@ -111,7 +111,7 @@ class Container implements ContainerInterface
             if (isset($definition[0], $definition[1])) {
                 $object = call_user_func([$definition[0], $definition[1]], $this);
             } else {
-                $object = $this->buildInstance($definition);
+                $object = $this->createAndPopulateObjectByDefinition($definition);
             }
         } elseif ($definition instanceof \Closure) {
             $object = $definition($this);
@@ -214,7 +214,8 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Creates an instance of the class defintion
+     * Creates an instance of the class definition with populated dependencies
+     *
      * @param array $definition
      * @return object the newly created instance of the specified class
      * @throws CircularReferenceException
@@ -222,38 +223,15 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function buildInstance(array $definition)
+    protected function createAndPopulateObjectByDefinition(array $definition)
     {
         $class = $definition[self::TOKEN_CLASS];
         unset($definition[self::TOKEN_CLASS]);
 
-        $object = $this->createObjectWithDependencies($class, $definition);
-        foreach ($definition as $action => $arguments) {
-            if (substr($action, -2) === '()') {
-                // method call
-                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
-            } else {
-                // property
-                $object->$action = $arguments;
-            }
-        }
-
-        return $object;
-    }
-
-    /**
-     * Create object with dependencies
-     * @param ReflectionClass $reflection
-     * @return array
-     * @throws InvalidConfigException
-     */
-    protected function createObjectWithDependencies($class, array $definition)
-    {
         $reflection = new ReflectionClass($class);
         if (!$reflection->isInstantiable()) {
             throw new NotInstantiableException($reflection->name);
         }
-
 
         $dependencies = [];
         if ($constructor = $reflection->getConstructor()) {
@@ -286,6 +264,18 @@ class Container implements ContainerInterface
             }
         }
 
-        return $reflection->newInstanceArgs($dependencies);
+        $object = $reflection->newInstanceArgs($dependencies);
+
+        foreach ($definition as $action => $arguments) {
+            if (substr($action, -2) === '()') {
+                // method call
+                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
+            } else {
+                // property
+                $object->$action = $arguments;
+            }
+        }
+
+        return $object;
     }
 }
