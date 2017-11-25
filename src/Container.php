@@ -58,18 +58,12 @@ class Container implements ContainerInterface
         $this->parent = $parent;
     }
 
-
     /**
      * Returns an instance by either interface name or alias.
      *
      * Same instance of the class will be returned each time this method is called.
-     *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
-     * @return object an instance of the requested interface.
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundException if there is nothing registered with alias or interface specified
-     * @throws NotInstantiableException
+     * @param string $id
+     * @return object|void
      */
     public function get($id)
     {
@@ -77,56 +71,68 @@ class Container implements ContainerInterface
             $id = $this->aliases[$id];
         }
 
-        if (isset($this->objects[$id])) {
-            return $this->objects[$id];
-        }
-
-        if (isset($this->getting[$id])) {
-            throw new CircularReferenceException("Circular reference to \"$id\" detected.");
-        }
-        $this->getting[$id] = 1;
-
-        if (!isset($this->definitions[$id])) {
-            if ($this->parent !== null) {
-                return $this->parent->get($id);
+        if (!isset($this->objects[$id])) {
+            if (!$definition = $this->getDefinition($id)) {
+                throw new NotFoundException("No definition for \"$id\" found");
             }
+            if (isset($this->getting[$id])) {
+                throw new CircularReferenceException("Circular reference to \"$id\" detected.");
+            }
+            $this->getting[$id] = 1;
+            $this->objects[$id] = $this->createObject($definition);
 
-            throw new NotFoundException("No definition for \"$id\" found");
+            unset($this->getting[$id]);
         }
-
-        $definition = $this->definitions[$id];
-
-        if (is_string($definition)) {
-            $definition = ['__class' => $definition];
-        }
-
-
-        if (!$object = $this->createObject($definition)) {
-            throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
-        }
-
-        $this->objects[$id] = $object;
-        unset($this->getting[$id]);
-        return $object;
+        return $this->objects[$id];
     }
 
     /**
+     * Creates the object definition
      * @param $definition
+     * @return mixed|object
+     * @throws InvalidConfigException
      */
     private function createObject($definition)
     {
         if (is_array($definition)) {
             if (isset($definition[0], $definition[1])) {
-                return call_user_func([$definition[0], $definition[1]], $this);
+                $object = call_user_func([$definition[0], $definition[1]], $this);
             } else {
-                return $this->build($definition);
+                $object = $this->build($definition);
             }
         } elseif ($definition instanceof \Closure) {
-            return $definition($this);
+            $object = $definition($this);
         } elseif (is_object($definition)) {
-            return $definition;
+            $object = $definition;
         }
-        return null;
+
+        if (!isset($object)) {
+            throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
+        }
+
+        return $object;
+    }
+
+    /**
+     * Gets the definition by ID
+     * @param $id
+     * @return array|callable|null|object
+     */
+    private function getDefinition($id)
+    {
+        if (!isset($this->definitions[$id])) {
+            if ($this->parent !== null) {
+                return $this->parent->get($id);
+            }
+            return null;
+        }
+
+        $definition = $this->definitions[$id];
+        if (is_string($definition)) {
+            $definition = ['__class' => $definition];
+        }
+
+        return $definition;
     }
 
     /**
