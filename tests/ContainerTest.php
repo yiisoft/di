@@ -14,6 +14,7 @@ use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkOne;
 use yii\di\tests\code\EngineMarkTwo;
 use yii\di\tests\code\CarFactory;
+use yii\di\tests\code\InvokeableCarFactory;
 use yii\di\tests\code\MethodTestClass;
 use yii\di\tests\code\PropertyTestClass;
 use yii\di\tests\code\TreeItem;
@@ -163,6 +164,15 @@ class ContainerTest extends TestCase
         $container->set('engine', EngineMarkOne::class);
         $container->set('static', [CarFactory::class, 'create']);
         $object = $container->get('static');
+        $this->assertInstanceOf(Car::class, $object);
+    }
+
+    public function testInvokeable()
+    {
+        $container = new Container();
+        $container->set('engine', EngineMarkOne::class);
+        $container->set('invokeable', new InvokeableCarFactory());
+        $object = $container->get('invokeable');
         $this->assertInstanceOf(Car::class, $object);
     }
 }

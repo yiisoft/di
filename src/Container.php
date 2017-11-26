@@ -101,13 +101,9 @@ class Container implements ContainerInterface
             $definition = ['__class' => $definition];
         }
 
-        if (is_array($definition)) {
-            if (isset($definition[0], $definition[1])) {
-                $object = call_user_func([$definition[0], $definition[1]], $this);
-            } else {
-                $object = $this->build($definition);
-            }
-        } elseif ($definition instanceof \Closure) {
+        if (is_array($definition) && !isset($definition[0], $definition[1])) {
+            $object = $this->build($definition);
+        } elseif (is_callable($definition)) {
             $object = $definition($this);
         } elseif (is_object($definition)) {
             $object = $definition;
