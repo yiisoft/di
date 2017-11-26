@@ -10,7 +10,7 @@ use ReflectionClass;
 class Container implements ContainerInterface
 {
     /**
-     * @var self
+     * @var ContainerInterface
      */
     private $parent;
 
@@ -201,7 +201,7 @@ class Container implements ContainerInterface
             $id = $this->aliases[$id];
         }
 
-        return isset($this->instances[$id]) || isset($this->definitions[$id]);
+        return isset($this->definitions[$id]);
     }
 
     /**
