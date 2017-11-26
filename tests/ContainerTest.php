@@ -8,6 +8,7 @@ use yii\di\CircularReferenceException;
 use yii\di\Container;
 use yii\di\InvalidConfigException;
 use yii\di\NotFoundException;
+use yii\di\Reference;
 use yii\di\tests\code\Car;
 use yii\di\tests\code\ConstructorTestClass;
 use yii\di\tests\code\EngineInterface;
@@ -173,6 +174,19 @@ class ContainerTest extends TestCase
         $container->set('engine', EngineMarkOne::class);
         $container->set('invokeable', new InvokeableCarFactory());
         $object = $container->get('invokeable');
+        $this->assertInstanceOf(Car::class, $object);
+    }
+
+    public function testReference()
+    {
+        $container = new Container([
+            'engine' => EngineMarkOne::class,
+            'car' => [
+                '__class' => Car::class,
+                '__construct()' => [new Reference('engine')],
+            ],
+        ]);
+        $object = $container->get('car');
         $this->assertInstanceOf(Car::class, $object);
     }
 }
