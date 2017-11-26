@@ -1,7 +1,7 @@
 <?php
 
 namespace yii\di\tests\code;
-use yii\di\Container;
+use Psr\Container\ContainerInterface;
 
 /**
  * Produces cars
@@ -9,10 +9,10 @@ use yii\di\Container;
 class CarFactory
 {
     /**
-     * @param Container $container
+     * @param ContainerInterface $container
      * @return Car
      */
-    public static function create(Container $container): Car
+    public static function create(ContainerInterface $container): Car
     {
         /** @var EngineInterface $engine */
         $engine = $container->get('engine');

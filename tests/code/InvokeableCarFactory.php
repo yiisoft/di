@@ -1,12 +1,11 @@
 <?php
 namespace yii\di\tests\code;
 
-
-use yii\di\Container;
+use Psr\Container\ContainerInterface;
 
 class InvokeableCarFactory
 {
-    public function __invoke(Container $container): Car
+    public function __invoke(ContainerInterface $container): Car
     {
         /** @var EngineInterface $engine */
         $engine = $container->get('engine');
