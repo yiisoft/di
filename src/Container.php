@@ -23,6 +23,7 @@ class Container implements ContainerInterface
      * @var array object definitions indexed by their types
      */
     private $definitions;
+    
     /**
      * @var array cached ReflectionClass objects indexed by class/interface names
      */
@@ -49,12 +50,12 @@ class Container implements ContainerInterface
     /**
      * Container constructor.
      *
-     * @param array $defintions
+     * @param array $definitions
      * @param Container|null $parent
      */
-    public function __construct(array $defintions = [], Container $parent = null)
+    public function __construct(array $definitions = [], Container $parent = null)
     {
-        $this->definitions = $defintions;
+        $this->definitions = $definitions;
         $this->parent = $parent;
     }
 
@@ -114,7 +115,6 @@ class Container implements ContainerInterface
             throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
         }
 
-
         $this->instances[$id] = $object;
 
         unset($this->getting[$id]);
@@ -123,7 +123,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Sets a defintion to the container. Defintion may be defined multiple ways.
+     * Sets a definition to the container. Definition may be defined multiple ways.
      *
      * Interface name as string:
      *
@@ -139,13 +139,13 @@ class Container implements ContainerInterface
      * });
      * ```
      *
-     * Array-callable:
+     * A callable array:
      *
      * ```php
      * $container->set('static_call', [MyClass::class, 'create']);
      * ```
      *
-     * A defintion array:
+     * A definition array:
      *
      * ```php
      * $container->set('full_definition', [
@@ -157,9 +157,9 @@ class Container implements ContainerInterface
      * ```
      *
      * @param string $id
-     * @param mixed $defintion
+     * @param mixed $definition
      */
-    public function set(string $id, $defintion)
+    public function set(string $id, $definition)
     {
         $this->instances[$id] = null;
 
@@ -167,12 +167,12 @@ class Container implements ContainerInterface
             unset($this->aliases[$id]);
         }
 
-        $this->definitions[$id] = $defintion;
+        $this->definitions[$id] = $definition;
     }
 
     /**
-     * Sets multiple defintions at once
-     * @param array $config defintions indexed by their ids
+     * Sets multiple definitions at once
+     * @param array $config definitions indexed by their ids
      */
     public function configure($config)
     {
@@ -209,7 +209,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Creates an instance of the class defintion
+     * Creates an instance of the class definition
      * @param array $definition
      * @return object the newly created instance of the specified class
      * @throws CircularReferenceException
@@ -229,7 +229,6 @@ class Container implements ContainerInterface
             }
             unset($definition['__construct()']);
         }
-
 
         $dependencies = $this->resolveDependencies($dependencies, $reflection);
         if (!$reflection->isInstantiable()) {
@@ -258,7 +257,6 @@ class Container implements ContainerInterface
      */
     protected function getDependencies($class): array
     {
-
         if (isset($this->reflections[$class])) {
             return [$this->reflections[$class], $this->dependencies[$class]];
         }
