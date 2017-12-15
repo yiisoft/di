@@ -154,6 +154,10 @@ class Container implements ContainerInterface
      * ]);
      * ```
      *
+     * Note: you can use `class` token instead of `__class` for the class name specification, allowing
+     * backward compatibility with the old Yii notation. However this feature is deprecated and will be
+     * removed in future versions.
+     *
      * @param string $id
      * @param mixed $definition
      */
@@ -163,6 +167,13 @@ class Container implements ContainerInterface
 
         if (isset($this->aliases[$id])) {
             unset($this->aliases[$id]);
+        }
+
+        if (is_array($definition) && !isset($definition['__class']) && isset($definition['class'])) {
+            // Fallback to keep BC with old Yii notation
+            // will be removed in future versions
+            $definition['__class'] = $definition['class'];
+            unset($definition['class']);
         }
 
         $this->definitions[$id] = $definition;
