@@ -7,6 +7,8 @@ namespace yii\di\tests\code;
  */
 class EngineMarkOne implements EngineInterface
 {
+    public const NAME = 'Mark One';
+
     private $number;
 
 
@@ -15,7 +17,7 @@ class EngineMarkOne implements EngineInterface
      */
     public function getName(): string
     {
-        return 'Mark One';
+        return static::NAME;
     }
 
     /**

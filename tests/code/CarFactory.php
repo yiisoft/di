@@ -12,6 +12,8 @@ class CarFactory
     /**
      * @param ContainerInterface $container
      * @return Car
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public static function create(ContainerInterface $container): Car
     {
