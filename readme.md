@@ -1,9 +1,20 @@
-# Yii Dependency Injection
+<p align="center">
+    <a href="https://github.com/yiisoft" target="_blank">
+        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
+    </a>
+    <h1 align="center">Yii Dependency Injection</h1>
+    <br>
+</p>
 
 The library consists of two parts: [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection)
 container that is able to instantiate and configure classes resolving dependencies and an injector
 that is able to invoke methods resolving their dependencies via autowiring. Both are [PSR-11](http://www.php-fig.org/psr/psr-11/)
 compatible.
+
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
+[![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
+[![Build Status](https://travis-ci.org/yiisoft/di.svg?branch=master)](https://travis-ci.org/yiisoft/di)
+
 
 ## Features
 
