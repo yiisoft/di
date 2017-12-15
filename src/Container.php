@@ -172,7 +172,7 @@ class Container implements ContainerInterface
      * Sets multiple definitions at once
      * @param array $config definitions indexed by their ids
      */
-    public function configure($config)
+    public function setMultiple($config)
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
