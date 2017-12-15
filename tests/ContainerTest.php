@@ -128,7 +128,7 @@ class ContainerTest extends TestCase
 
         /** @var Car $car */
         $car = $container->get('car');
-        $this->assertEquals('Mark Two', $car->getEngineName());
+        $this->assertEquals(EngineMarkTwo::NAME, $car->getEngineName());
     }
 
     public function testCircularReference()

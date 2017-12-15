@@ -31,7 +31,7 @@ class Container implements ContainerInterface
      */
     private $definitions;
     /**
-     * @var array cached ReflectionClass objects indexed by class/interface names
+     * @var ReflectionClass[] cached ReflectionClass objects indexed by class/interface names
      */
     private $reflections = [];
     /**
@@ -157,7 +157,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param mixed $definition
      */
-    public function set(string $id, $definition)
+    public function set(string $id, $definition): void
     {
         $this->instances[$id] = null;
 
@@ -172,7 +172,7 @@ class Container implements ContainerInterface
      * Sets multiple definitions at once
      * @param array $config definitions indexed by their ids
      */
-    public function configure($config)
+    public function setMultiple($config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
@@ -186,7 +186,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @param string $referenceId
      */
-    public function setAlias(string $id, string $referenceId)
+    public function setAlias(string $id, string $referenceId): void
     {
         $this->aliases[$id] = $referenceId;
     }
@@ -207,7 +207,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Creates an instance of the class definition
+     * Creates an instance of the class definition with dependencies resolved
      * @param array $definition
      * @return object the newly created instance of the specified class
      * @throws CircularReferenceException
