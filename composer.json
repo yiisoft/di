@@ -1,5 +1,5 @@
 {
-    "name": "yii/di",
+    "name": "yiisoft/di",
     "type": "library",
     "description": "Yii DI container",
     "keywords": ["di", "dependency", "injection", "container", "injector", "autowiring", "psr-11"],
