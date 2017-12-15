@@ -63,6 +63,15 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
     }
 
+    public function testClassTokenFallback()
+    {
+        $container = new Container();
+        $container->set('engine', [
+            'class' => EngineMarkOne::class
+        ]);
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
+    }
+
     public function testClassConstructor()
     {
         $container = new Container();
