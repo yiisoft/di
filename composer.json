@@ -4,7 +4,7 @@
     "description": "Yii DI container",
     "keywords": ["di", "dependency", "injection", "container", "injector", "autowiring", "psr-11"],
     "homepage": "http://www.yiiframework.com/",
-    "license": "MIT",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Alexander Makarov",
