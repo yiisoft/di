@@ -2,13 +2,13 @@
 
 namespace yii\di\tests\code;
 
-
 /**
  * TreeItem
  */
 class TreeItem
 {
     private $treeItem;
+
 
     /**
      * TreeItem constructor.

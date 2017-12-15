@@ -2,13 +2,13 @@
 
 namespace yii\di\tests\code;
 
-
 /**
  * MethodTestClass
  */
 class MethodTestClass
 {
     private $value;
+
 
     /**
      * @return mixed
@@ -25,5 +25,4 @@ class MethodTestClass
     {
         $this->value = $value;
     }
-
 }

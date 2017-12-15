@@ -1,12 +1,21 @@
 <?php
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
 namespace yii\di;
+
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Injector is able to analyze callable dependencies based on
  * type hinting and inject them from any PSR-11 compatible container.
+ *
+ * @author Alexander Makarov <sam@rmcreative.ru>
+ * @since 1.0
  */
 class Injector
 {
@@ -111,5 +120,4 @@ class Injector
 
         return $args;
     }
-
 }

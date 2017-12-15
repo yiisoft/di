@@ -2,9 +2,24 @@
     "name": "yii/di",
     "type": "library",
     "description": "Yii DI container",
-    "keywords": [],
+    "keywords": ["di", "dependency", "injection", "container"],
     "homepage": "http://www.yiiframework.com/",
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Alexander Makarov",
+            "email": "sam@rmcreative.ru",
+            "homepage": "http://rmcreative.ru/",
+            "role": "Core framework development"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/yiisoft/di/issues?state=open",
+        "forum": "http://www.yiiframework.com/forum/",
+        "wiki": "http://www.yiiframework.com/wiki/",
+        "irc": "irc://irc.freenode.net/yii",
+        "source": "https://github.com/yiisoft/di"
+    },
     "require": {
         "php": "^7.1.0",
         "psr/container": "1.0.0"

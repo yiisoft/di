@@ -1,4 +1,5 @@
 <?php
+
 namespace yii\di\tests\code;
 
 use Psr\Container\ContainerInterface;

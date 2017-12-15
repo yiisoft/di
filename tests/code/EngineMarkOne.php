@@ -1,4 +1,5 @@
 <?php
+
 namespace yii\di\tests\code;
 
 /**
@@ -7,6 +8,7 @@ namespace yii\di\tests\code;
 class EngineMarkOne implements EngineInterface
 {
     private $number;
+
 
     /**
      * @return string

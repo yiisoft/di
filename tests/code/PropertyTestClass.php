@@ -2,7 +2,6 @@
 
 namespace yii\di\tests\code;
 
-
 /**
  * PropertyTestClass
  */

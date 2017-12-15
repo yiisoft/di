@@ -1,4 +1,10 @@
 <?php
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
+
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
@@ -6,6 +12,9 @@ use ReflectionClass;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
+ *
+ * @author Alexander Makarov <sam@rmcreative.ru>
+ * @since 1.0
  */
 class Container implements ContainerInterface
 {
@@ -13,33 +22,27 @@ class Container implements ContainerInterface
      * @var ContainerInterface
      */
     private $parent;
-
     /**
      * @var object[]
      */
     private $instances;
-
     /**
      * @var array object definitions indexed by their types
      */
     private $definitions;
-    
     /**
      * @var array cached ReflectionClass objects indexed by class/interface names
      */
     private $reflections = [];
-
     /**
      * @var array
      */
     private $aliases;
-
     /**
      * @var array cached dependencies indexed by class/interface names. Each class name
      * is associated with a list of constructor parameter types or default values.
      */
     private $dependencies = [];
-
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -58,7 +61,6 @@ class Container implements ContainerInterface
         $this->definitions = $definitions;
         $this->parent = $parent;
     }
-
 
     /**
      * Returns an instance by either interface name or alias.

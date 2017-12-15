@@ -2,7 +2,6 @@
 
 namespace yii\di\tests\code;
 
-
 /**
  * ConstructorTestClass
  */
@@ -10,6 +9,7 @@ class ConstructorTestClass
 {
     private $parameter;
 
+    
     /**
      * ConstructorTestClass constructor.
      * @param $parameter
