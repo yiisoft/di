@@ -235,6 +235,8 @@ class Container implements ContainerInterface
 
         $object = $reflection->newInstanceArgs($dependencies);
 
+        $definition = $this->resolveDependencies($definition);
+
         foreach ($definition as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call

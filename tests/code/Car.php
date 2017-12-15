@@ -7,6 +7,14 @@ namespace yii\di\tests\code;
  */
 class Car
 {
+    /**
+     * @var ColorInterface
+     */
+    public $color;
+
+    /**
+     * @var EngineInterface
+     */
     private $engine;
 
     /**

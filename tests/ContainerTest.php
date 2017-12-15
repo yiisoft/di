@@ -10,6 +10,7 @@ use yii\di\InvalidConfigException;
 use yii\di\NotFoundException;
 use yii\di\Reference;
 use yii\di\tests\code\Car;
+use yii\di\tests\code\ColorPink;
 use yii\di\tests\code\ConstructorTestClass;
 use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkOne;
@@ -181,12 +182,15 @@ class ContainerTest extends TestCase
     {
         $container = new Container([
             'engine' => EngineMarkOne::class,
+            'color' => ColorPink::class,
             'car' => [
                 '__class' => Car::class,
                 '__construct()' => [new Reference('engine')],
+                'color' => new Reference('color')
             ],
         ]);
         $object = $container->get('car');
         $this->assertInstanceOf(Car::class, $object);
+        $this->assertInstanceOf(ColorPink::class, $object->color);
     }
 }
