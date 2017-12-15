@@ -7,6 +7,8 @@ namespace yii\di\tests\code;
  */
 class Car
 {
+    public $class;
+
     private $engine;
 
     /**

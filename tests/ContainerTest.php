@@ -70,6 +70,16 @@ class ContainerTest extends TestCase
             'class' => EngineMarkOne::class
         ]);
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
+
+        $container = new Container();
+        $container->set('car', [
+            '__class' => Car::class,
+            '__construct()' => [new EngineMarkOne()],
+            'class' => 'lux',
+        ]);
+        $object = $container->get('car');
+        $this->assertInstanceOf(Car::class, $object);
+        $this->assertSame('lux', $object->class);
     }
 
     public function testClassConstructor()
