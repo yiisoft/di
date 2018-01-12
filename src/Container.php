@@ -9,6 +9,9 @@ namespace yii\di;
 
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
+use SplObjectStorage;
+use yii\di\contracts\DelayedServiceProviderInterface;
+use yii\di\contracts\ServiceProviderInterface;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -48,18 +51,38 @@ class Container implements ContainerInterface
      * to detect circular references
      */
     private $getting = [];
-
+    /**
+     * @var contracts\DelayedServiceProviderInterface[]|\SplObjectStorage list of providers
+     * delayed to register till their services would be requested
+     */
+    private $delayedProviders;
 
     /**
      * Container constructor.
      *
      * @param array $definitions
      * @param Container|null $parent
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     public function __construct(array $definitions = [], Container $parent = null)
     {
+        if (isset($definitions['providers'])) {
+            $providers = $definitions['providers'];
+            unset($definitions['providers']);
+        } else {
+            $providers = [];
+        }
         $this->definitions = $definitions;
         $this->parent = $parent;
+
+        $this->delayedProviders = new SplObjectStorage();
+        foreach ($providers as $provider) {
+            $this->addProvider($provider);
+        }
     }
 
     /**
@@ -88,6 +111,8 @@ class Container implements ContainerInterface
             throw new CircularReferenceException("Circular reference to \"$id\" detected.");
         }
         $this->getting[$id] = 1;
+
+        $this->registerProviderIfDelayedFor($id);
 
         if (!isset($this->definitions[$id])) {
             if ($this->parent !== null) {
@@ -118,6 +143,29 @@ class Container implements ContainerInterface
         unset($this->getting[$id]);
 
         return $object;
+    }
+
+    /**
+     * Register providers from {@link delayedProviders} if they provide
+     * definition for given identifier.
+     *
+     * @param string $id class or identifier of a service.
+     */
+    protected function registerProviderIfDelayedFor($id): void
+    {
+        $delayedProviders = $this->delayedProviders;
+        if ($delayedProviders->count() === 0) {
+            return;
+        }
+
+        foreach ($delayedProviders as $provider) {
+            if ($provider->hasDefinitionFor($id)) {
+                $provider->register();
+
+                // provider should be removed after registration to not be registered again
+                $delayedProviders->detach($provider);
+            }
+        }
     }
 
     /**
@@ -307,5 +355,66 @@ class Container implements ContainerInterface
         }
 
         return $dependencies;
+    }
+
+    /**
+     * Adds service provider to the container. Unless service provider is delayed
+     * it would be immediately registered.
+     *
+     * @param string|array $providerDefinition
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     *
+     * @see ServiceProvider
+     * @see DelayedServiceProvider
+     */
+    public function addProvider($providerDefinition): void
+    {
+        $provider = $this->buildProvider($providerDefinition);
+
+        if ($provider instanceof DelayedServiceProviderInterface) {
+            $this->delayedProviders->attach($provider);
+        } else {
+            $provider->register();
+        }
+    }
+
+    /**
+     * Builds service provider by definition.
+     *
+     * @param string|array $providerDefinition class name or definition of provider.
+     * @return ServiceProviderInterface instance of service provider;
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     */
+    protected function buildProvider($providerDefinition)
+    {
+        if (is_string($providerDefinition)) {
+            $provider = $this->build([
+                '__class' => $providerDefinition,
+                '__construct()' => [
+                    $this,
+                ]
+            ]);
+        } elseif (is_array($providerDefinition) && isset($providerDefinition['__class'])) {
+            $providerDefinition['__construct()'] = [
+                $this
+            ];
+            $provider = $this->build($providerDefinition);
+        } else {
+            throw new InvalidConfigException('Service provider definition should be a class name or array contains "__class" with a class name of provider.');
+        }
+
+        if (!($provider instanceof ServiceProviderInterface)) {
+            throw new InvalidConfigException('Service provider should be an instance of ' . ServiceProviderInterface::class);
+        }
+
+        return $provider;
     }
 }
