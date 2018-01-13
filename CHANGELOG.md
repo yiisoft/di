@@ -5,4 +5,3 @@ Yii Dependency Injection Change Log
 -----------------------
 
 - Initial release.
-- Added Service Providers support.
