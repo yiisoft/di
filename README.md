@@ -146,6 +146,150 @@ In the code above we feed out container to `Injector` when creating it. Any PSR-
 When `invoke` is called, injector reads method signature of the method invoked and, based on type hinting
 automatically obtains objects for corresponding interfaces from container. 
 
+## Using service providers
+
+A service provider is a special class that responsible for binding complex services or groups of dependencies 
+into the container including registering services with its references, event listeners, middleware etc.
+
+All service providers extend the `yii\di\support\ServiceProvider` class and contain a `register` method. 
+Within the register method, you should only bind things into the container. You should never attempt to 
+implement in a service provider any business logic, functionality related to environment bootstrap, 
+functionality that changes DB or anything else than not related to binding things into the container.
+To access the container in a service provider you should use `container` field. Container being passed
+to service provider through constructor and saved to `container` field.
+
+Typical service provider could look like:
+```php
+use yii\di\support\ServiceProvider;
+
+class CarFactoryProvider extends ServiceProvider
+{
+    public function register(): void
+    {
+        $this->registerDependencies();
+        $this->registerService();
+    }
+
+    protected function registerDependencies(): void
+    {
+        $container = $this->container;
+
+        $container->set(EngineInterface::class, SolarEngine::class);
+        $container->set(WheelInterface::class, [
+            '__class' => Wheel::class,
+            'color' => 'black',
+        ]);
+        $container->set(CarInterface::class, [
+            '__class' => BMW::class,
+            'model' => 'X5',
+        ]);
+    }
+
+    protected function registerService(): void
+    {
+        $this->container->set(CarFactory::class, [
+              '__class' => CarFactory::class,
+              'color' => 'red',
+        ]);
+    }
+}
+```
+To add service provider to the container you need either pass service provider class (or configuration array)
+to `addProvider` method of the container:
+```php
+$container->addProvider(CarFactoryProvider::class);
+```
+or pass it through configuration array using `providers` key:
+```php
+$container = new Container([
+    'providers' => [
+        CarFactoryProvider::class,
+    ],
+]);
+```
+In the code above we created service provider responsible for bootstrapping of a car factory with all its
+dependencies. Once a service providers is added through `addProvider` method or via configuration array, 
+`register` method of a service provider is immediately called and services got registered into the container.
+
+**Note**, service provider might decrease performance of your application if you would perform heavy operations
+inside the `register` method.
+
+## Using delayed service providers
+
+As stated before, service provider might decrease performance of your application registering heavy services. So
+to prevent performance decrease you can use so-called delayed service providers. 
+
+Delayed service providers extend the `yii\di\support\DelayedServiceProvider` and in addition to `register` method
+contain a `provides` method that returns array with names and identifiers of services service providers bind to 
+the container. Delayed service providers being added to the container the same way as regular service providers but 
+`register` method of delayed service provider got called only once one of the services listed in `provides` method 
+is requested from the container. Example:
+```php
+use yii\di\support\DelayedServiceProvider;
+
+class CarFactoryProvider extends DelayedServiceProvider
+{
+    public function provides(): array
+    {
+        return [
+            
+            CarFactory::class,
+            CarInterface::class,
+            EngineInterface::class,
+            WheelInterface::class,
+        ];
+    }
+    
+    public function register(): void
+    {
+        $this->registerDependencies();
+        $this->registerService();
+    }
+
+    protected function registerDependencies(): void
+    {
+        $container = $this->container;
+
+        $container->set(EngineInterface::class, SolarEngine::class);
+        $container->set(WheelInterface::class, [
+            '__class' => Wheel::class,
+            'color' => 'black',
+        ]);
+        $container->set(CarInterface::class, [
+            '__class' => BMW::class,
+            'model' => 'X5',
+        ]);
+    }
+
+    protected function registerService(): void
+    {
+        $this->container->set(CarFactory::class, [
+              '__class' => CarFactory::class,
+              'color' => 'red',
+        ]);
+    }
+}
+
+$container->addProvider(CarProvider::class);
+
+// returns false as provider wasn't registered
+$container->has(EngineInterface::class); 
+
+// returns SolarEngine, registered in the provider
+$engine = $container->get(EngineInterface::class); 
+
+// returns true as provider wasn registered when EngineInterface was requeted from the container
+$container->has(EngineInterface::class); 
+```
+
+In the code above we added `CarFactoryProvider` to the container but `register` method of `CarFactoryProvider` wasn't 
+executed till `EngineInterface` was requested from the container. When we requested `EngineInterface`, container looked at 
+`provides` list of the `CarFactoryProvider` and, as `EngineInterface` is listed in `provides`, container called `register`
+method of the `CarFactoryProvider`.
+
+**Note**, you can use delayed service providers not just to delay bootstrap of heavy services but also to register your 
+services to the container only when they are actually needed. 
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).

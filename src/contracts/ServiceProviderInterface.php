@@ -22,13 +22,20 @@ use Psr\Container\ContainerInterface;
  * ```php
  * class CarProvider implements ServiceProvider
  * {
- *    public function register()
+ *    protected $container;
+ *
+ *    public function __construct(ContainerInterface $container)
+ *    {
+ *        $this->container = $container;
+ *    }
+ *
+ *    public function register(): void
  *    {
  *        $this->registerDependencies();
  *        $this->registerService();
  *    }
  *
- *    protected function registerDependencies()
+ *    protected function registerDependencies(): void
  *    {
  *        $container = $this->container;
  *        $container->set(EngineInterface::class, SolarEngine::class);
@@ -38,7 +45,7 @@ use Psr\Container\ContainerInterface;
  *        ]);
  *    }
  *
- *    protected function registerService()
+ *    protected function registerService(): void
  *    {
  *        $this->container->set(Car::class, [
  *              '__class' => Car::class,

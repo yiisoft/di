@@ -23,15 +23,17 @@ use yii\di\contracts\ServiceProviderInterface;
  *
  * Example:
  * ```php
- * class CarProvider implements ServiceProvider
+ * use yii\di\support\ServiceProvider;
+ *
+ * class CarProvider extends ServiceProvider
  * {
- *    public function register()
+ *    public function register(): void
  *    {
  *        $this->registerDependencies();
  *        $this->registerService();
  *    }
  *
- *    protected function registerDependencies()
+ *    protected function registerDependencies(): void
  *    {
  *        $container = $this->container;
  *        $container->set(EngineInterface::class, SolarEngine::class);
@@ -41,7 +43,7 @@ use yii\di\contracts\ServiceProviderInterface;
  *        ]);
  *    }
  *
- *    protected function registerService()
+ *    protected function registerService(): void
  *    {
  *        $this->container->set(Car::class, [
  *              '__class' => Car::class,

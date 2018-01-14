@@ -20,6 +20,8 @@ use yii\di\contracts\DelayedServiceProviderInterface;
  * any definitions to the container till one of the classes listed in `provides` method would
  * be requested from container. Example:
  * ```php
+ * use yii\di\support\DelayedServiceProvider;
+ *
  * class CarProvider extends DelayedServiceProvider
  * {
  *     public function provides(): array
