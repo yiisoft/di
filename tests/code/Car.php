@@ -11,6 +11,10 @@ class Car
      * @var ColorInterface
      */
     public $color;
+    /**
+     * @var string
+     */
+    public $owner;
 
     /**
      * @var EngineInterface

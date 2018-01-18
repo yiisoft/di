@@ -10,6 +10,7 @@ namespace yii\di;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
+use yii\di\contracts\Decorator;
 use yii\di\contracts\DelayedServiceProviderInterface;
 use yii\di\contracts\ServiceProviderInterface;
 
@@ -56,6 +57,14 @@ class Container implements ContainerInterface
      * delayed to register till their services would be requested
      */
     private $delayedProviders;
+    /**
+     * @var contracts\Decorator[]|array
+     */
+    private $decorators;
+    /**
+     * @var Injector cached instance of {@link Injector} for internal usage.
+     */
+    private $injector;
 
     /**
      * Container constructor.
@@ -141,6 +150,8 @@ class Container implements ContainerInterface
         $this->instances[$id] = $object;
 
         unset($this->getting[$id]);
+
+        $this->runDecoratorsOnObject($id, $object);
 
         return $object;
     }
@@ -416,5 +427,59 @@ class Container implements ContainerInterface
         }
 
         return $provider;
+    }
+
+    public function addDecorator($id, $decorator)
+    {
+        if ($this->decoratorHasValidType($decorator)) {
+            $this->decorators[$id][] = $decorator;
+        } else {
+            throw new InvalidConfigException('Decorator should be a callable or implement ' . Decorator::class);
+        }
+    }
+
+    protected function decoratorHasValidType($decorator)
+    {
+        if (is_callable($decorator)) {
+            $isValid = true;
+        } elseif (is_object($decorator) && $decorator instanceof Decorator) {
+            $isValid = true;
+        } elseif (is_string($decorator) && class_exists($decorator) && (new ReflectionClass($decorator))->implementsInterface(Decorator::class)) {
+            $isValid = true;
+        } else {
+            $isValid = false;
+        }
+        return $isValid;
+    }
+
+    protected function runDecoratorsOnObject($decoratorsGroupName, $object)
+    {
+        if (!isset($this->decorators[$decoratorsGroupName]) || empty($this->decorators[$decoratorsGroupName])) {
+            return;
+        }
+        foreach ($this->decorators[$decoratorsGroupName] as $index => $decorator) {
+            if (is_callable($decorator)) {
+                $this->getInjector()
+                    ->invoke($decorator, [$object]);
+                continue;
+            }
+            if (!is_object($decorator)) {
+                $decorator = $this->build([
+                    '__class' => $decorator,
+                ]);
+
+                $this->decorators[$index] = $decorator;
+            }
+            $decorator->decorate($object);
+        }
+    }
+
+    protected function getInjector(): Injector
+    {
+        if (null === $this->injector) {
+            $this->injector = new Injector($this);
+        }
+
+        return $this->injector;
     }
 }
