@@ -4,7 +4,6 @@ namespace yii\di\tests\code;
 
 use yii\di\support\DelayedServiceProvider;
 
-
 class CarDelayedProvider extends DelayedServiceProvider
 {
     public function provides(): array

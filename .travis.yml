@@ -23,13 +23,16 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
+  - composer require squizlabs/php_codesniffer
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
       PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
     fi
 
 script:
-  - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
+  - |
+    vendor/bin/phpcs --standard=PSR2 src tests &&
+    vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
 
 after_script:
   - |

@@ -32,21 +32,33 @@ class ServiceProviderTest extends TestCase
     {
         $container = new Container();
 
-        $this->assertFalse($container->has(Car::class), 'Container should not have Car registered before service provider added.');
-        $this->assertFalse($container->has(CarFactory::class), 'Container should not have CarFactory registered before service provider added.');
+        $this->assertFalse(
+            $container->has(Car::class),
+            'Container should not have Car registered before service provider added.'
+        );
+        $this->assertFalse(
+            $container->has(CarFactory::class),
+            'Container should not have CarFactory registered before service provider added.'
+        );
 
         $container->addProvider($provider);
 
         // ensure addProvider invoked ServiceProviderInterface::register
-        $this->assertTrue($container->has(Car::class), 'CarProvider should have registered Car once it was added to container.');
-        $this->assertTrue($container->has(CarFactory::class), 'CarProvider should have registered CarFactory once it was added to container.');
-
+        $this->assertTrue(
+            $container->has(Car::class),
+            'CarProvider should have registered Car once it was added to container.'
+        );
+        $this->assertTrue(
+            $container->has(CarFactory::class),
+            'CarProvider should have registered CarFactory once it was added to container.'
+        );
     }
 
     public function testAddProviderRejectObject()
     {
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage('Service provider definition should be a class name or array contains "__class" with a class name of provider.');
+        $this->expectExceptionMessage('Service provider definition should be a class name ' .
+            'or array contains "__class" with a class name of provider.');
 
         $container = new Container();
         $container->addProvider(new CarProvider($container));
@@ -55,7 +67,8 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderRejectDefinitionWithoutClass()
     {
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage('Service provider definition should be a class name or array contains "__class" with a class name of provider.');
+        $this->expectExceptionMessage('Service provider definition should be a class name ' .
+            'or array contains "__class" with a class name of provider.');
 
         $container = new Container();
         $container->addProvider([
