@@ -124,18 +124,18 @@ class Container implements ContainerInterface
 
         $definition = $this->definitions[$id];
 
-        if (is_string($definition)) {
+        if (\is_string($definition)) {
             $definition = ['__class' => $definition];
         }
 
-        if (is_array($definition) && !isset($definition[0], $definition[1])) {
+        if (\is_array($definition) && !isset($definition[0], $definition[1])) {
             $object = $this->build($definition);
-        } elseif (is_callable($definition)) {
+        } elseif (\is_callable($definition)) {
             $object = $definition($this);
-        } elseif (is_object($definition)) {
+        } elseif (\is_object($definition)) {
             $object = $definition;
         } else {
-            throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
+            throw new InvalidConfigException('Unexpected object definition type: ' . \gettype($definition));
         }
 
         $this->instances[$id] = $object;
@@ -288,7 +288,7 @@ class Container implements ContainerInterface
         foreach ($definition as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
-                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
+                \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
                 $object->$action = $arguments;
@@ -395,16 +395,16 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function buildProvider($providerDefinition)
+    protected function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        if (is_string($providerDefinition)) {
+        if (\is_string($providerDefinition)) {
             $provider = $this->build([
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
                 ]
             ]);
-        } elseif (is_array($providerDefinition) && isset($providerDefinition['__class'])) {
+        } elseif (\is_array($providerDefinition) && isset($providerDefinition['__class'])) {
             $providerDefinition['__construct()'] = [
                 $this
             ];
