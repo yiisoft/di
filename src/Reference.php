@@ -41,7 +41,9 @@ class Reference
     public static function __set_state($state)
     {
         if (!isset($state['id'])) {
-            throw new InvalidConfigException('Failed to instantiate class "Instance". Required parameter "id" is missing');
+            throw new InvalidConfigException(
+                'Failed to instantiate class "Instance". Required parameter "id" is missing'
+            );
         }
 
         return new self($state['id']);

@@ -349,7 +349,9 @@ class Container implements ContainerInterface
                 } elseif ($reflection !== null) {
                     $name = $reflection->getConstructor()->getParameters()[$index]->getName();
                     $class = $reflection->getName();
-                    throw new InvalidConfigException("Missing required parameter \"$name\" when instantiating \"$class\".");
+                    throw new InvalidConfigException(
+                        "Missing required parameter \"$name\" when instantiating \"$class\"."
+                    );
                 }
             }
         }
@@ -408,11 +410,14 @@ class Container implements ContainerInterface
             ];
             $provider = $this->build($providerDefinition);
         } else {
-            throw new InvalidConfigException('Service provider definition should be a class name or array contains "__class" with a class name of provider.');
+            throw new InvalidConfigException('Service provider definition should be a class name ' .
+                'or array contains "__class" with a class name of provider.');
         }
 
         if (!($provider instanceof ServiceProviderInterface)) {
-            throw new InvalidConfigException('Service provider should be an instance of ' . ServiceProviderInterface::class);
+            throw new InvalidConfigException(
+                'Service provider should be an instance of ' . ServiceProviderInterface::class
+            );
         }
 
         return $provider;
