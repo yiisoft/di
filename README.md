@@ -214,20 +214,20 @@ dependencies. Once a service providers is added through `addProvider` method or 
 **Note**, service provider might decrease performance of your application if you would perform heavy operations
 inside the `register` method.
 
-## Using delayed service providers
+## Using deferred service providers
 
 As stated before, service provider might decrease performance of your application registering heavy services. So
-to prevent performance decrease you can use so-called delayed service providers. 
+to prevent performance decrease you can use so-called deferred service providers. 
 
-Delayed service providers extend the `yii\di\support\DelayedServiceProvider` and in addition to `register` method
+deferred service providers extend the `yii\di\support\DeferredServiceProvider` and in addition to `register` method
 contain a `provides` method that returns array with names and identifiers of services service providers bind to 
-the container. Delayed service providers being added to the container the same way as regular service providers but 
-`register` method of delayed service provider got called only once one of the services listed in `provides` method 
+the container. Deferred service providers being added to the container the same way as regular service providers but 
+`register` method of deferred service provider got called only once one of the services listed in `provides` method 
 is requested from the container. Example:
 ```php
-use yii\di\support\DelayedServiceProvider;
+use yii\di\support\DeferredServiceProvider;
 
-class CarFactoryProvider extends DelayedServiceProvider
+class CarFactoryProvider extends DeferredServiceProvider
 {
     public function provides(): array
     {
@@ -287,7 +287,7 @@ executed till `EngineInterface` was requested from the container. When we reques
 `provides` list of the `CarFactoryProvider` and, as `EngineInterface` is listed in `provides`, container called `register`
 method of the `CarFactoryProvider`.
 
-**Note**, you can use delayed service providers not just to delay bootstrap of heavy services but also to register your 
+**Note**, you can use deferred service providers not just to defer bootstrap of heavy services but also to register your 
 services to the container only when they are actually needed. 
 
 ## Further reading

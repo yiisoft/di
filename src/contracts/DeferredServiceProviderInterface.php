@@ -8,13 +8,13 @@
 namespace yii\di\contracts;
 
 /**
- * Represents service provider that should be delayed to register till services are
+ * Represents service provider that should be deferred to register till services are
  * actually required.
  *
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-interface DelayedServiceProviderInterface extends ServiceProviderInterface
+interface DeferredServiceProviderInterface extends ServiceProviderInterface
 {
     /**
      * Identifies whether service provider would register definition for

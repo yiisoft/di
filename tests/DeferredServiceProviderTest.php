@@ -5,18 +5,18 @@ namespace yii\di\tests;
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
 use yii\di\tests\code\Car;
-use yii\di\tests\code\CarDelayedProvider;
+use yii\di\tests\code\CarDeferredProvider;
 use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkOne;
 
 /**
- * Test for {@link \yii\di\support\DelayedServiceProvider}
+ * Test for {@link \yii\di\support\DeferredServiceProvider}
  *
  * @author Dmitry Kolodko <prowwid@gmail.com>
  */
-class DelayedServiceProviderTest extends TestCase
+class DeferredServiceProviderTest extends TestCase
 {
-    public function testServiceProviderDelay()
+    public function testServiceProviderDeferring()
     {
         $container = new Container();
 
@@ -26,12 +26,12 @@ class DelayedServiceProviderTest extends TestCase
             'Container should not have EngineInterface before service provider added.'
         );
 
-        $container->addProvider(CarDelayedProvider::class);
+        $container->addProvider(CarDeferredProvider::class);
 
-        $this->assertFalse($container->has(Car::class), 'Container should not have Car after adding delayed provider.');
+        $this->assertFalse($container->has(Car::class), 'Container should not have Car after adding deferred provider.');
         $this->assertFalse(
             $container->has(EngineInterface::class),
-            'Container should not have EngineInterface after adding delayed provider.'
+            'Container should not have EngineInterface after adding deferred provider.'
         );
 
         $car = $container->get(Car::class);
@@ -45,14 +45,14 @@ class DelayedServiceProviderTest extends TestCase
             'Service provider should have set EngineInterface as an EngineMarkOne.'
         );
 
-        // ensure get invoked DelayedServiceProviderInterface::register
+        // ensure get invoked DeferredServiceProviderInterface::register
         $this->assertTrue(
             $container->has(Car::class),
-            'CarDelayedProvider should have registered Car once Car was requested from container.'
+            'CarDeferredProvider should have registered Car once Car was requested from container.'
         );
         $this->assertTrue(
             $container->has(EngineInterface::class),
-            'CarDelayedProvider should have registered EngineInterface once Car was requested from container.'
+            'CarDeferredProvider should have registered EngineInterface once Car was requested from container.'
         );
     }
 }
