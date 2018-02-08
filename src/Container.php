@@ -11,7 +11,7 @@ use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
 use yii\di\contracts\DecoratorInterface;
-use yii\di\contracts\DelayedServiceProviderInterface;
+use yii\di\contracts\DeferredServiceProviderInterface;
 use yii\di\contracts\ServiceProviderInterface;
 
 /**
@@ -53,10 +53,10 @@ class Container implements ContainerInterface
      */
     private $getting = [];
     /**
-     * @var contracts\DelayedServiceProviderInterface[]|\SplObjectStorage list of providers
-     * delayed to register till their services would be requested
+     * @var contracts\DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
+     * deferred to register till their services would be requested
      */
-    private $delayedProviders;
+    private $deferredProviders;
     /**
      * @var contracts\DecoratorInterface[]|array list of available decorators for objects in format:
      * ```php
@@ -97,7 +97,7 @@ class Container implements ContainerInterface
         $this->definitions = $definitions;
         $this->parent = $parent;
 
-        $this->delayedProviders = new SplObjectStorage();
+        $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
@@ -130,7 +130,7 @@ class Container implements ContainerInterface
         }
         $this->getting[$id] = 1;
 
-        $this->registerProviderIfDelayedFor($id);
+        $this->registerProviderIfDeferredFor($id);
 
         if (!isset($this->definitions[$id])) {
             if ($this->parent !== null) {
@@ -166,24 +166,24 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Register providers from {@link delayedProviders} if they provide
+     * Register providers from {@link deferredProviders} if they provide
      * definition for given identifier.
      *
      * @param string $id class or identifier of a service.
      */
-    protected function registerProviderIfDelayedFor($id): void
+    protected function registerProviderIfDeferredFor($id): void
     {
-        $delayedProviders = $this->delayedProviders;
-        if ($delayedProviders->count() === 0) {
+        $deferredProviders = $this->deferredProviders;
+        if ($deferredProviders->count() === 0) {
             return;
         }
 
-        foreach ($delayedProviders as $provider) {
+        foreach ($deferredProviders as $provider) {
             if ($provider->hasDefinitionFor($id)) {
                 $provider->register();
 
                 // provider should be removed after registration to not be registered again
-                $delayedProviders->detach($provider);
+                $deferredProviders->detach($provider);
             }
         }
     }
@@ -369,7 +369,9 @@ class Container implements ContainerInterface
                 } elseif ($reflection !== null) {
                     $name = $reflection->getConstructor()->getParameters()[$index]->getName();
                     $class = $reflection->getName();
-                    throw new InvalidConfigException("Missing required parameter \"$name\" when instantiating \"$class\".");
+                    throw new InvalidConfigException(
+                        "Missing required parameter \"$name\" when instantiating \"$class\"."
+                    );
                 }
             }
         }
@@ -378,7 +380,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Adds service provider to the container. Unless service provider is delayed
+     * Adds service provider to the container. Unless service provider is deferred
      * it would be immediately registered.
      *
      * @param string|array $providerDefinition
@@ -389,14 +391,14 @@ class Container implements ContainerInterface
      * @throws NotInstantiableException
      *
      * @see ServiceProvider
-     * @see DelayedServiceProvider
+     * @see DeferredServiceProvider
      */
     public function addProvider($providerDefinition): void
     {
         $provider = $this->buildProvider($providerDefinition);
 
-        if ($provider instanceof DelayedServiceProviderInterface) {
-            $this->delayedProviders->attach($provider);
+        if ($provider instanceof DeferredServiceProviderInterface) {
+            $this->deferredProviders->attach($provider);
         } else {
             $provider->register();
         }
@@ -428,11 +430,14 @@ class Container implements ContainerInterface
             ];
             $provider = $this->build($providerDefinition);
         } else {
-            throw new InvalidConfigException('Service provider definition should be a class name or array contains "__class" with a class name of provider.');
+            throw new InvalidConfigException('Service provider definition should be a class name ' .
+                'or array contains "__class" with a class name of provider.');
         }
 
         if (!($provider instanceof ServiceProviderInterface)) {
-            throw new InvalidConfigException('Service provider should be an instance of ' . ServiceProviderInterface::class);
+            throw new InvalidConfigException(
+                'Service provider should be an instance of ' . ServiceProviderInterface::class
+            );
         }
 
         return $provider;

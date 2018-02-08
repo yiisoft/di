@@ -2,10 +2,9 @@
 
 namespace yii\di\tests\code;
 
-use yii\di\support\DelayedServiceProvider;
+use yii\di\support\DeferredServiceProvider;
 
-
-class CarDelayedProvider extends DelayedServiceProvider
+class CarDeferredProvider extends DeferredServiceProvider
 {
     public function provides(): array
     {
