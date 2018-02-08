@@ -4,9 +4,9 @@
 namespace yii\di\tests\code;
 
 
-use yii\di\contracts\Decorator;
+use yii\di\contracts\DecoratorInterface;
 
-class CarColorDecorator implements Decorator
+class CarColorDecoratorInterface implements DecoratorInterface
 {
     /**
      * @param Car $car

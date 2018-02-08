@@ -15,7 +15,7 @@ namespace yii\di\contracts;
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-interface Decorator
+interface DecoratorInterface
 {
     public function decorate($object): void;
 }
