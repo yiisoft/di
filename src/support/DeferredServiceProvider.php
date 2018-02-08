@@ -7,22 +7,22 @@
 
 namespace yii\di\support;
 
-use yii\di\contracts\DelayedServiceProviderInterface;
+use yii\di\contracts\DeferredServiceProviderInterface;
 
 /**
- * Base class for service providers that should be delayed to register till services are
+ * Base class for service providers that should be deferred to register till services are
  * actually required.
  *
  * Complex services with heavy dependencies might create redundant load during bootstrapping
  * of an application so to reduce actions performed during the container bootstrap you can
  *
- * Delayed providers can be added to the Container like basic providers but won't register
+ * Deferred providers can be added to the Container like basic providers but won't register
  * any definitions to the container till one of the classes listed in `provides` method would
  * be requested from container. Example:
  * ```php
- * use yii\di\support\DelayedServiceProvider;
+ * use yii\di\support\DeferredServiceProvider;
  *
- * class CarProvider extends DelayedServiceProvider
+ * class CarProvider extends DeferredServiceProvider
  * {
  *     public function provides(): array
  *     {
@@ -53,7 +53,7 @@ use yii\di\contracts\DelayedServiceProviderInterface;
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-abstract class DelayedServiceProvider extends ServiceProvider implements DelayedServiceProviderInterface
+abstract class DeferredServiceProvider extends ServiceProvider implements DeferredServiceProviderInterface
 {
     /**
      * Lists classes provided by service provider. Should be a list of class names
