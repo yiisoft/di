@@ -270,7 +270,7 @@ class CarFactoryProvider extends DeferredServiceProvider
     }
 }
 
-$container->addProvider(CarProvider::class);
+$container->addProvider(CarFactoryProvider::class);
 
 // returns false as provider wasn't registered
 $container->has(EngineInterface::class); 
