@@ -511,7 +511,7 @@ class Container implements ContainerInterface
      */
     public function addDecorator($id, $decorator): void
     {
-        if ($this->isDecorator($decoratorOrDefinition)) {
+        if ($this->isDecorator($id)) {
             $this->decorators[$id][] = $decorator;
         } else {
             throw new InvalidConfigException(
