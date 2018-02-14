@@ -31,7 +31,7 @@ class Container implements ContainerInterface
      */
     private $instances;
     /**
-     * @var array object definitions indexed by their types
+     * @var array object definitions indexed by their ids
      */
     private $definitions;
     /**
@@ -58,7 +58,7 @@ class Container implements ContainerInterface
      */
     private $deferredProviders;
     /**
-     * @var contracts\DecoratorInterface[]|array list of available decorators for objects in format:
+     * @var contracts\DecoratorInterface[]|array list of available objects decorators in the following format:
      * ```php
      * [
      *      'objectsGroupName' => [
@@ -104,19 +104,19 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Extracts definition with given name from container definitions list
-     * and remove definition from container definitions list.
+     * Takes a definition with a given id from the container.
+     * Definition is removed from container definitions list.
      *
-     * @param string $name name of a definition in the definitions list.
+     * @param string $id id of a definition in the definitions list.
      * @param array $definitions link to container definitions.
      *
      * @return array definitions list or empty array if no definitions exist.
      */
-    protected function extractDefinition($name, &$definitions)
+    protected function extractDefinition($id, &$definitions)
     {
-        if (isset($definitions[$name])) {
-            $definition = $definitions[$name];
-            unset($definitions[$name]);
+        if (isset($definitions[$id])) {
+            $definition = $definitions[$id];
+            unset($definitions[$id]);
         } else {
             $definition = [];
         }
@@ -476,36 +476,31 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Add decorators for a group of objects based on identifier in container.
+     * Add decorators for an object identified by id.
      *
-     * @param string $groupName name of a group of objects in container to be decorated.
-     * Can be class/interface name or id of a definition.
-     * @param array|DecoratorInterface|callable|string $decorators decorator or decorators
+     * @param string $id container id of the object to be decorated.
+     * @param array $decorators decorators
      *
      * @see addDecorator for more details.
      *
      * @throws InvalidConfigException
      */
-    public function addDecoratorGroup($groupName, $decorators): void
+    public function addDecorators($id, array $decorators): void
     {
-        if (!is_iterable($decorators)) {
-            $this->addDecorator($groupName, $decorators);
-            return;
-        }
-
         foreach ($decorators as $decorator) {
-            $this->addDecorator($groupName, $decorator);
+            $this->addDecorator($id, $decorator);
         }
     }
 
     /**
-     * Add decorator for a group of objects based on identifier in container.
+     * Add decorator for objects based on container id.
      *
-     * @param string $groupName name of a group of objects in container to be decorated.
-     * Can be class/interface name or id of a definition.
-     * @param DecoratorInterface|callable|string $decoratorOrDefinition decorator object,
+     * @param string $id container id of the object to be decorated.
+     * @param DecoratorInterface|callable|string $decorator decorator object,
      * callable decorator or decorator class name.
-     * Note: callable decorator should have target object as a first argument. Example:
+     *
+     * Note that callable decorator should have target object as a first argument. Example:
+     *
      * ```php
      * $container->addDecorator(Book::class, function addDefaultTitle(Book $book) {
      *    $book->title = 'No Title';
@@ -514,10 +509,10 @@ class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    public function addDecorator($groupName, $decoratorOrDefinition): void
+    public function addDecorator($id, $decorator): void
     {
         if ($this->isDecorator($decoratorOrDefinition)) {
-            $this->decorators[$groupName][] = $decoratorOrDefinition;
+            $this->decorators[$id][] = $decorator;
         } else {
             throw new InvalidConfigException(
                 'Decorator should be a callable or implement ' . DecoratorInterface::class
@@ -526,21 +521,20 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Check whether given given decorator(or definition) is a valid decorator
-     * that either a callable or implements {@link DecoratorInterface}.
+     * Checks whether decorator or its definition is valid
      *
-     * @param DecoratorInterface|callable|string $decoratorOrDefinition decorator object,
+     * @param DecoratorInterface|callable|string $decorator decorator object,
      * callable decorator or decorator class name.
      *
-     * @return bool is given decorator a valid decorator.
+     * @return bool if given decorator is valid.
      */
-    protected function isDecorator($decoratorOrDefinition): bool
+    protected function isDecorator($decorator): bool
     {
-        if (is_callable($decoratorOrDefinition)) {
+        if (is_callable($decorator)) {
             return true;
-        } elseif ($this->isObjectDecorator($decoratorOrDefinition)) {
+        } elseif ($this->isObjectDecorator($decorator)) {
             return true;
-        } elseif ($this->isDefinitionDecorator($decoratorOrDefinition)) {
+        } elseif ($this->isDefinitionDecorator($decorator)) {
             return true;
         }
 
@@ -548,42 +542,37 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Check whether given object is a valid decorator that implements {@link DecoratorInterface}.
+     * Checks whether given object is a valid decorator that implements {@link DecoratorInterface}.
      *
      * @param DecoratorInterface $object object to check.
      *
-     * @return bool is given object a valid decorator.
+     * @return bool if given object is valid decorator.
      */
     protected function isObjectDecorator($object): bool
     {
-        $isDecorator = is_object($object)
-            && $object instanceof DecoratorInterface;
-
-        return $isDecorator;
+        return is_object($object) && $object instanceof DecoratorInterface;
     }
 
     /**
-     * Check whether given definition is a valid decorator class that implements
+     * Checks whether given definition is a valid decorator class that implements
      * {@link DecoratorInterface}.
      *
      * @param string $definition decorator class name.
      *
-     * @return bool is given object a valid decorator.
+     * @return bool if given object is a valid decorator.
      */
     protected function isDefinitionDecorator($definition): bool
     {
-        $isDecorator = is_string($definition)
+        return is_string($definition)
             && class_exists($definition)
             && (new ReflectionClass($definition))
                 ->implementsInterface(DecoratorInterface::class);
-
-        return $isDecorator;
     }
 
     /**
-     * Runs all of the decorators from passed groupName on target object.
+     * Runs all of the decorators from id passed on a target object.
      *
-     * @param string $groupName identifier of the object decorator's group in the container.
+     * @param string $id identifier of the object in the container.
      * @param mixed $object target object to be decorated.
      *
      * @throws CircularReferenceException
@@ -591,12 +580,12 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function runDecoratorsOnObject($groupName, $object): void
+    protected function runDecoratorsOnObject($id, $object): void
     {
-        if (empty($this->decorators[$groupName])) {
+        if (empty($this->decorators[$id])) {
             return;
         }
-        foreach ($this->decorators[$groupName] as $index => $decorator) {
+        foreach ($this->decorators[$id] as $index => $decorator) {
             if (is_callable($decorator)) {
                 $this->getInjector()
                     ->invoke($decorator, [$object]);
