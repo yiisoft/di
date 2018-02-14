@@ -88,12 +88,9 @@ class Container implements ContainerInterface
      */
     public function __construct(array $definitions = [], Container $parent = null)
     {
-        if (isset($definitions['providers'])) {
-            $providers = $definitions['providers'];
-            unset($definitions['providers']);
-        } else {
-            $providers = [];
-        }
+        $providers = $this->extractDefinition('providers', $definitions);
+        $decorators = $this->extractDefinition('decorators', $definitions);
+
         $this->definitions = $definitions;
         $this->parent = $parent;
 
@@ -101,6 +98,30 @@ class Container implements ContainerInterface
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
+        foreach ($decorators as $groupName => $decorator) {
+            $this->addDecoratorGroup($groupName, $decorator);
+        }
+    }
+
+    /**
+     * Extracts definition with given name from container definitions list
+     * and remove definition from container definitions list.
+     *
+     * @param string $name name of a definition in the definitions list.
+     * @param array $definitions link to container definitions.
+     *
+     * @return array definitions list or empty array if no definitions exist.
+     */
+    protected function extractDefinition($name, &$definitions)
+    {
+        if (isset($definitions[$name])) {
+            $definition = $definitions[$name];
+            unset($definitions[$name]);
+        } else {
+            $definition = [];
+        }
+
+        return $definition;
     }
 
     /**
@@ -109,6 +130,7 @@ class Container implements ContainerInterface
      * Same instance of the class will be returned each time this method is called.
      *
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     *
      * @return object an instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -238,6 +260,7 @@ class Container implements ContainerInterface
 
     /**
      * Sets multiple definitions at once
+     *
      * @param array $config definitions indexed by their ids
      */
     public function setMultiple($config): void
@@ -261,7 +284,9 @@ class Container implements ContainerInterface
 
     /**
      * Returns a value indicating whether the container has the definition of the specified name.
+     *
      * @param string $id class name, interface name or alias name
+     *
      * @return bool whether the container is able to provide instance of id specified.
      * @see set()
      */
@@ -276,7 +301,9 @@ class Container implements ContainerInterface
 
     /**
      * Creates an instance of the class definition with dependencies resolved
+     *
      * @param array $definition
+     *
      * @return object the newly created instance of the specified class
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -320,7 +347,9 @@ class Container implements ContainerInterface
 
     /**
      * Returns the dependencies of the specified class.
+     *
      * @param string $class class name, interface name or alias name
+     *
      * @return array the dependencies of the specified class.
      */
     protected function getDependencies($class): array
@@ -352,8 +381,10 @@ class Container implements ContainerInterface
 
     /**
      * Resolves dependencies by replacing them with the actual object instances.
+     *
      * @param array $dependencies the dependencies
      * @param ReflectionClass $reflection the class reflection associated with the dependencies
+     *
      * @return array the resolved dependencies
      * @throws CircularReferenceException
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
@@ -408,6 +439,7 @@ class Container implements ContainerInterface
      * Builds service provider by definition.
      *
      * @param string|array $providerDefinition class name or definition of provider.
+     *
      * @return ServiceProviderInterface instance of service provider;
      *
      * @throws CircularReferenceException
@@ -422,11 +454,11 @@ class Container implements ContainerInterface
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
-                ]
+                ],
             ]);
         } elseif (is_array($providerDefinition) && isset($providerDefinition['__class'])) {
             $providerDefinition['__construct()'] = [
-                $this
+                $this,
             ];
             $provider = $this->build($providerDefinition);
         } else {
@@ -444,6 +476,30 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Add decorators for a group of objects based on identifier in container.
+     *
+     * @param string $groupName name of a group of objects in container to be decorated.
+     * Can be class/interface name or id of a definition.
+     * @param array|DecoratorInterface|callable|string $decorators decorator or decorators
+     *
+     * @see addDecorator for more details.
+     *
+     * @throws InvalidConfigException
+     */
+    public function addDecoratorGroup($groupName, $decorators): void
+    {
+        if (!is_iterable($decorators)) {
+            $this->addDecorator($groupName, $decorators);
+            return;
+
+        }
+
+        foreach ($decorators as $decorator) {
+            $this->addDecorator($groupName, $decorator);
+        }
+    }
+
+    /**
      * Add decorator for a group of objects based on identifier in container.
      *
      * @param string $groupName name of a group of objects in container to be decorated.
@@ -456,6 +512,7 @@ class Container implements ContainerInterface
      *    $book->title = 'No Title';
      * });
      * ```
+     *
      * @throws InvalidConfigException
      */
     public function addDecorator($groupName, $decoratorOrDefinition): void
@@ -463,7 +520,9 @@ class Container implements ContainerInterface
         if ($this->isDecorator($decoratorOrDefinition)) {
             $this->decorators[$groupName][] = $decoratorOrDefinition;
         } else {
-            throw new InvalidConfigException('Decorator should be a callable or implement ' . DecoratorInterface::class);
+            throw new InvalidConfigException(
+                'Decorator should be a callable or implement ' . DecoratorInterface::class
+            );
         }
     }
 
@@ -473,15 +532,16 @@ class Container implements ContainerInterface
      *
      * @param DecoratorInterface|callable|string $decoratorOrDefinition decorator object,
      * callable decorator or decorator class name.
+     *
      * @return bool is given decorator a valid decorator.
      */
     protected function isDecorator($decoratorOrDefinition): bool
     {
         if (is_callable($decoratorOrDefinition)) {
             return true;
-        } elseif (is_object($decoratorOrDefinition) && $decoratorOrDefinition instanceof DecoratorInterface) {
+        } elseif ($this->isObjectDecorator($decoratorOrDefinition)) {
             return true;
-        } elseif (is_string($decoratorOrDefinition) && class_exists($decoratorOrDefinition) && (new ReflectionClass($decoratorOrDefinition))->implementsInterface(DecoratorInterface::class)) {
+        } elseif ($this->isDefinitionDecorator($decoratorOrDefinition)) {
             return true;
         }
 
@@ -489,10 +549,44 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Check whether given object is a valid decorator that implements {@link DecoratorInterface}.
+     *
+     * @param DecoratorInterface $object object to check.
+     *
+     * @return bool is given object a valid decorator.
+     */
+    protected function isObjectDecorator($object): bool
+    {
+        $isDecorator = is_object($object)
+            && $object instanceof DecoratorInterface;
+
+        return $isDecorator;
+    }
+
+    /**
+     * Check whether given definition is a valid decorator class that implements
+     * {@link DecoratorInterface}.
+     *
+     * @param string $definition decorator class name.
+     *
+     * @return bool is given object a valid decorator.
+     */
+    protected function isDefinitionDecorator($definition): bool
+    {
+        $isDecorator = is_string($definition)
+            && class_exists($definition)
+            && (new ReflectionClass($definition))
+                ->implementsInterface(DecoratorInterface::class);
+
+        return $isDecorator;
+    }
+
+    /**
      * Runs all of the decorators from passed groupName on target object.
      *
      * @param string $groupName identifier of the object decorator's group in the container.
      * @param mixed $object target object to be decorated.
+     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException

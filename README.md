@@ -290,6 +290,61 @@ method of the `CarFactoryProvider`.
 **Note**, you can use deferred service providers not just to defer bootstrap of heavy services but also to register your 
 services to the container only when they are actually needed. 
 
+## Using decorators
+
+In case if you want to add behavior or state to individual objects at run-time, inheritance and traits are not feasible 
+because they are static and applies to an entire class and you don't want to change container definitions in run-time 
+(and it might not be possible in case if definition set as callables or invokable objects) you can use object decorators.
+
+Decorators are special classes that implement `yii\di\contracts\DecoratorInterface` with a single goal:
+modify object passed to a decorator in order to change behavior of the object, set it up with any data,
+add new responsibilities or to accomplish any other goal of the domain.
+
+Simple decorator that change car color may look like:
+```php
+use yii\di\contracts\DecoratorInterface;
+
+class CarColorDecorator implements DecoratorInterface
+{
+    public function decorate($car): void
+    {
+        $car->color = $this->getColorBasedOnHeuristicAlgorithm();
+    }
+
+    protected function getColorBasedOnHeuristicAlgorithm()
+    {
+        // dummy stub, of coarse
+        return 'black';
+    }
+}
+```
+
+You can add decorator to the container using `addDecorator` method, like:
+```php
+$container->addDecorator(Car::class, CarColorDecorator::class);
+```
+
+Note: decorator should be stateless as the same decorator instance will be used all the time. 
+Keep in object state only data and objects that can be used to decorate any object passed to the decorator.
+
+Callable decorators, on the other hand, does not implement any interface but there is a requirement to have 
+first argument as a target object. Other arguments of the callable decorator may be either arguments with default 
+values or arguments that can be populated through `yii\di\Injector`. 
+
+Simple callable decorator that change car color may look like:
+```php
+    $setUpCarColor = function (Car $car)
+    {
+        $car->color = 'black';
+    }
+```
+
+You can add callable decorator to the container using `addDecorator` method, like:
+```php
+$container->addDecorator(Car::class, $setUpCarColor);
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
+- [Decorator Design Pattern](https://sourcemaking.com/design_patterns/decorator).

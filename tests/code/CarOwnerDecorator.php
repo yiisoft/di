@@ -1,11 +1,10 @@
 <?php
 
-
 namespace yii\di\tests\code;
 
 use yii\di\contracts\DecoratorInterface;
 
-class CarOwnerDecoratorInterface implements DecoratorInterface
+class CarOwnerDecorator implements DecoratorInterface
 {
     /**
      * @param Car $car
