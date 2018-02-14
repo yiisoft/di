@@ -290,6 +290,57 @@ method of the `CarFactoryProvider`.
 **Note**, you can use deferred service providers not just to defer bootstrap of heavy services but also to register your 
 services to the container only when they are actually needed. 
 
+## Using decorators
+
+Decorator has a single goal that is to modify an object passed to it in order to change object behavior, fill it with data, or enahance it with more functionality.
+
+Simple decorator that change car color may look like the following:
+
+```php
+use yii\di\contracts\DecoratorInterface;
+
+class CarColorDecorator implements DecoratorInterface
+{
+    public function decorate($car): void
+    {
+        $car->color = $this->getColorBasedOnHeuristicAlgorithm();
+    }
+
+    protected function getColorBasedOnHeuristicAlgorithm()
+    {
+        // dummy stub, of coarse
+        return 'black';
+    }
+}
+```
+
+You can add decorator to the container using `addDecorator` method, like:
+
+```php
+$container->addDecorator(Car::class, CarColorDecorator::class);
+```
+
+> Note: A single decorator instance is reused for all objects it decorates. Thus, decorator should either
+  be stateless or keep data that makes sense for all objects it decorates.
+
+Decorator could be described as a callable. In this case its first argument should be an object to decorate.
+Other arguments may be either arguments with default values or arguments that can be populated through `yii\di\Injector`.
+
+Simple callable decorator that change car color may look like:
+
+```php
+$setUpCarColor = function (Car $car) {
+    $car->color = 'black';
+}
+```
+
+You can add a callable decorator to the container using `addDecorator` method, like the following:
+
+```php
+$container->addDecorator(Car::class, $setUpCarColor);
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
+- [Decorator Design Pattern](https://sourcemaking.com/design_patterns/decorator).
