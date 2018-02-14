@@ -491,7 +491,6 @@ class Container implements ContainerInterface
         if (!is_iterable($decorators)) {
             $this->addDecorator($groupName, $decorators);
             return;
-
         }
 
         foreach ($decorators as $decorator) {
