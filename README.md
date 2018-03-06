@@ -23,15 +23,15 @@ compatible.
 - Detects circular references.
 - Supports nesting so container context could be scoped.
 - Has `Injector` that can invoke callables resolving dependencies.
-- Accepts array defintions so could be used with mergeable configs.
+- Accepts array definitions so could be used with mergeable configs.
 
 
 ## Using container
 
 Usage of DI container is fairly simple. First, you set object definitions into it and then
-they're used either in the application directly or to resolve dependencies of other defintions.
+they're used either in the application directly or to resolve dependencies of other definitions.
 
-Usually there is a single container in the whole applicaion so it's often configured in either entry
+Usually there is a single container in the whole application so it's often configured in either entry
 script such as `index.php` or a configuration file:
 
 ```php
@@ -59,7 +59,7 @@ return [
 
 Interface definition simply maps an id to particular class.
 
-Full defintion describes how to instantiate a class in detail:
+Full definition describes how to instantiate a class in detail:
 
   - `__class` contains name of the class to be instantiated.
   - `__construct()` holds an array of constructor arguments.
@@ -72,7 +72,7 @@ and referencing it as a static call.
 
 While it's usually not a good idea, you can set already instantiated object into container.
 
-Additionally, defintions could be added via calling `set()`:
+Additionally, definitions could be added via calling `set()`:
 
 ```php
 $container->set($id, Example::class);
@@ -98,7 +98,7 @@ on autowiring made via Injector (see below).
 ## Using aliases
 
 Container supports aliases. It could be useful to have an ability to retrieve objects both by their
-interface and named explicity:
+interface and named explicitly:
 
 ```php
 $container = new Container([
@@ -159,6 +159,7 @@ To access the container in a service provider you should use `container` field. 
 to service provider through constructor and saved to `container` field.
 
 Typical service provider could look like:
+
 ```php
 use yii\di\support\ServiceProvider;
 
@@ -194,12 +195,16 @@ class CarFactoryProvider extends ServiceProvider
     }
 }
 ```
+
 To add service provider to the container you need either pass service provider class (or configuration array)
 to `addProvider` method of the container:
+
 ```php
 $container->addProvider(CarFactoryProvider::class);
 ```
+
 or pass it through configuration array using `providers` key:
+
 ```php
 $container = new Container([
     'providers' => [
@@ -207,6 +212,7 @@ $container = new Container([
     ],
 ]);
 ```
+
 In the code above we created service provider responsible for bootstrapping of a car factory with all its
 dependencies. Once a service providers is added through `addProvider` method or via configuration array, 
 `register` method of a service provider is immediately called and services got registered into the container.
@@ -224,6 +230,7 @@ contain a `provides` method that returns array with names and identifiers of ser
 the container. Deferred service providers being added to the container the same way as regular service providers but 
 `register` method of deferred service provider got called only once one of the services listed in `provides` method 
 is requested from the container. Example:
+
 ```php
 use yii\di\support\DeferredServiceProvider;
 
@@ -278,7 +285,7 @@ $container->has(EngineInterface::class);
 // returns SolarEngine, registered in the provider
 $engine = $container->get(EngineInterface::class); 
 
-// returns true as provider wasn registered when EngineInterface was requeted from the container
+// returns true as provider was registered when EngineInterface was requested from the container
 $container->has(EngineInterface::class); 
 ```
 

@@ -19,6 +19,7 @@ use yii\di\contracts\DeferredServiceProviderInterface;
  * Deferred providers can be added to the Container like basic providers but won't register
  * any definitions to the container till one of the classes listed in `provides` method would
  * be requested from container. Example:
+ *
  * ```php
  * use yii\di\support\DeferredServiceProvider;
  *

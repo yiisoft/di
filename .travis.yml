@@ -25,4 +25,4 @@ install:
 script:
   - |
     vendor/bin/phpcs --standard=PSR2 src tests &&
-    vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
+    vendor/bin/phpunit $PHPUNIT_FLAGS

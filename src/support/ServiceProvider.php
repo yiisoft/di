@@ -22,6 +22,7 @@ use yii\di\contracts\ServiceProviderInterface;
  * provider class except of creating bootstrap file or configuration array for the Container.
  *
  * Example:
+ * 
  * ```php
  * use yii\di\support\ServiceProvider;
  *
