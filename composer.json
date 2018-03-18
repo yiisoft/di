@@ -33,11 +33,12 @@
     },
     "autoload": {
         "psr-4": {
-            "yii\\di\\": "src",
+            "yii\\di\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "yii\\di\\tests\\": "tests"
-        },
-        "exclude-from-classmap": [
-            "/tests/"
-        ]
+        }
     }
 }
