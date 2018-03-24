@@ -31,6 +31,17 @@ class Reference
     }
 
     /**
+     * Creates reference to given ID.
+     *
+     * @param string $id
+     * @return Reference
+     */
+    public static function to($id)
+    {
+        return new self($id);
+    }
+
+    /**
      * Restores class state after using `var_export()`.
      *
      * @param array $state
