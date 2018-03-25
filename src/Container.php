@@ -38,10 +38,6 @@ class Container implements ContainerInterface
      */
     private $reflections = [];
     /**
-     * @var array
-     */
-    private $aliases;
-    /**
      * @var array cached dependencies indexed by class/interface names. Each class name
      * is associated with a list of constructor parameter types or default values.
      */
@@ -51,6 +47,11 @@ class Container implements ContainerInterface
      * to detect circular references
      */
     private $getting = [];
+    /**
+     * @var array used to collect ids during dereferencing
+     * to detect circular references
+     */
+    private $dereferencing = [];
     /**
      * @var contracts\DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
      * deferred to register till their services would be requested
@@ -99,9 +100,7 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        if (isset($this->aliases[$id])) {
-            $id = $this->aliases[$id];
-        }
+        $id = $this->dereference($id);
 
         if (isset($this->instances[$id])) {
             return $this->instances[$id];
@@ -207,11 +206,7 @@ class Container implements ContainerInterface
      */
     public function set(string $id, $definition): void
     {
-        $this->instances[$id] = null;
-
-        if (isset($this->aliases[$id])) {
-            unset($this->aliases[$id]);
-        }
+        unset($this->instances[$id]);
 
         $this->definitions[$id] = $definition;
     }
@@ -228,18 +223,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Setting an alias so getting an object from container using $id results
-     * in the same object as using $referenceId
-     *
-     * @param string $id
-     * @param string $referenceId
-     */
-    public function setAlias(string $id, string $referenceId): void
-    {
-        $this->aliases[$id] = $referenceId;
-    }
-
-    /**
      * Returns a value indicating whether the container has the definition of the specified name.
      * @param string $id class name, interface name or alias name
      * @return bool whether the container is able to provide instance of id specified.
@@ -247,11 +230,28 @@ class Container implements ContainerInterface
      */
     public function has($id): bool
     {
-        if (isset($this->aliases[$id])) {
-            $id = $this->aliases[$id];
-        }
+        $id = $this->dereference($id);
 
         return isset($this->definitions[$id]);
+    }
+
+    /**
+     * Follows references recursively to find deepest ID.
+     *
+     * @param string $id
+     */
+    public function dereference($id)
+    {
+        if (isset($this->definitions[$id]) && $this->definitions[$id] instanceof Reference) {
+            if (isset($this->dereferencing[$id])) {
+                throw new CircularReferenceException("Circular reference to \"$id\" detected.");
+            }
+            $this->dereferencing[$id] = 1;
+            $id = $this->dereference($this->definitions[$id]->getId());
+            unset($this->dereferencing[$id]);
+        }
+
+        return $id;
     }
 
     /**
