@@ -97,7 +97,7 @@ on autowiring made via Injector (see below).
 
 ## Using aliases
 
-Container supports aliases with use of `Reference`. It could be useful to have an ability
+Container supports aliases via `Reference` class. It could be useful to have an ability
 to retrieve objects both by their interface and named explicitly:
 
 ```php
