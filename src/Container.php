@@ -236,20 +236,24 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Follows references recursively to find deepest ID.
+     * Follows references recursively to find the deepest ID.
      *
      * @param string $id
+     * @return string
      */
-    public function dereference($id)
+    private function dereference($id)
     {
-        if (isset($this->definitions[$id]) && $this->definitions[$id] instanceof Reference) {
-            if (isset($this->dereferencing[$id])) {
-                throw new CircularReferenceException("Circular reference to \"$id\" detected.");
-            }
-            $this->dereferencing[$id] = 1;
-            $id = $this->dereference($this->definitions[$id]->getId());
-            unset($this->dereferencing[$id]);
+        if (!isset($this->definitions[$id]) || !$this->definitions[$id] instanceof Reference) {
+            return $id;
         }
+
+        if (isset($this->dereferencing[$id])) {
+            throw new CircularReferenceException("Circular reference to \"$id\" detected.");
+        }
+
+        $this->dereferencing[$id] = 1;
+        $id = $this->dereference($this->definitions[$id]->getId());
+        unset($this->dereferencing[$id]);
 
         return $id;
     }
