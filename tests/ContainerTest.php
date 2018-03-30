@@ -106,9 +106,22 @@ class ContainerTest extends TestCase
     public function testAlias()
     {
         $container = new Container();
+        $container->set('engine-mark-one', Reference::to('engine'));
         $container->set('engine', EngineMarkOne::class);
-        $container->setAlias(EngineInterface::class, 'engine');
+        $container->set(EngineInterface::class, Reference::to('engine'));
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine-mark-one'));
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
+    }
+
+    public function testCircularAlias()
+    {
+        $container = new Container();
+        $container->set('engine-1', Reference::to('engine-2'));
+        $container->set('engine-2', Reference::to('engine-3'));
+        $container->set('engine-3', Reference::to('engine-1'));
+
+        $this->expectException(CircularReferenceException::class);
+        $container->get('engine-1');
     }
 
     public function testUndefinedDependencies()
