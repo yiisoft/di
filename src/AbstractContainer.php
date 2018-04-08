@@ -7,7 +7,6 @@
 
 namespace yii\di;
 
-use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProviderInterface;
@@ -19,16 +18,12 @@ use yii\di\contracts\ServiceProviderInterface;
  * @author Alexander Makarov <sam@rmcreative.ru>
  * @since 1.0
  */
-class Container implements ContainerInterface
+abstract class AbstractContainer
 {
     /**
      * @var ContainerInterface
      */
     private $parent;
-    /**
-     * @var object[]
-     */
-    private $instances;
     /**
      * @var array object definitions indexed by their types
      */
@@ -87,24 +82,19 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Returns an instance by either interface name or alias.
-     *
-     * Same instance of the class will be returned each time this method is called.
+     * Creates new instance by either interface name or alias.
      *
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
-     * @return object an instance of the requested interface.
+     * @param array $config
+     * @return object new built instance of the specified class.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException if there is nothing registered with alias or interface specified
      * @throws NotInstantiableException
      */
-    public function get($id)
+    public function build($id, array $config = [])
     {
         $id = $this->dereference($id);
-
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
-        }
 
         if (isset($this->getting[$id])) {
             throw new CircularReferenceException("Circular reference to \"$id\" detected.");
@@ -114,8 +104,12 @@ class Container implements ContainerInterface
         $this->registerProviderIfDeferredFor($id);
 
         if (!isset($this->definitions[$id])) {
+            if (isset($config['__class'])) {
+                return $this->buildFromDefinition($config);
+            }
+
             if ($this->parent !== null) {
-                return $this->parent->get($id);
+                return $this->parent->build($id, $config);
             }
 
             throw new NotFoundException("No definition for \"$id\" found");
@@ -128,16 +122,14 @@ class Container implements ContainerInterface
         }
 
         if (is_array($definition) && !isset($definition[0], $definition[1])) {
-            $object = $this->build($definition);
+            $object = $this->buildFromDefinition($definition);
         } elseif (is_callable($definition)) {
-            $object = $definition($this);
+            $object = $definition($this, $config);
         } elseif (is_object($definition)) {
             $object = $definition;
         } else {
             throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
         }
-
-        $this->instances[$id] = $object;
 
         unset($this->getting[$id]);
 
@@ -206,8 +198,6 @@ class Container implements ContainerInterface
      */
     public function set(string $id, $definition): void
     {
-        unset($this->instances[$id]);
-
         $this->definitions[$id] = $definition;
     }
 
@@ -241,7 +231,7 @@ class Container implements ContainerInterface
      * @param string $id
      * @return string
      */
-    private function dereference($id)
+    protected function dereference($id)
     {
         if (!isset($this->definitions[$id]) || !$this->definitions[$id] instanceof Reference) {
             return $id;
@@ -267,7 +257,7 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function build(array $definition)
+    protected function buildFromDefinition(array $definition)
     {
         /* @var $reflection ReflectionClass */
         [$reflection, $dependencies] = $this->getDependencies($definition['__class']);
@@ -402,7 +392,7 @@ class Container implements ContainerInterface
     protected function buildProvider($providerDefinition)
     {
         if (is_string($providerDefinition)) {
-            $provider = $this->build([
+            $provider = $this->buildFromDefinition([
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
@@ -412,7 +402,7 @@ class Container implements ContainerInterface
             $providerDefinition['__construct()'] = [
                 $this
             ];
-            $provider = $this->build($providerDefinition);
+            $provider = $this->buildFromDefinition($providerDefinition);
         } else {
             throw new InvalidConfigException('Service provider definition should be a class name ' .
                 'or array contains "__class" with a class name of provider.');
