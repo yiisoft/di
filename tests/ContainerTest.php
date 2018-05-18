@@ -206,4 +206,13 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $object);
         $this->assertInstanceOf(ColorPink::class, $object->color);
     }
+
+    public function testSameInstance()
+    {
+        $container = new Container();
+        $container->set('engine', EngineMarkOne::class);
+        $one = $container->get('engine');
+        $two = $container->get('engine');
+        $this->assertSame($one, $two);
+    }
 }
