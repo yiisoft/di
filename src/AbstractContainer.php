@@ -280,9 +280,9 @@ abstract class AbstractContainer
         $definition = $this->resolveDependencies($definition);
 
         foreach ($definition as $action => $arguments) {
-            if (mb_substr($action, -2) === '()') {
+            if (substr($action, -2) === '()') {
                 // method call
-                call_user_func_array([$object, mb_substr($action, 0, -2)], $arguments);
+                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
                 $object->$action = $arguments;
