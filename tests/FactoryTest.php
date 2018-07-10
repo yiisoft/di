@@ -11,12 +11,20 @@ use yii\di\tests\code\EngineMarkOne;
  */
 class FactoryTest extends TestCase
 {
-    public function testCreatesNew()
+    public function testCreatesNewByAlias()
     {
         $factory = new Factory();
         $factory->set('engine', EngineMarkOne::class);
         $one = $factory->create('engine');
         $two = $factory->create('engine');
+        $this->assertFalse($one === $two);
+    }
+
+    public function testCreatesNewByClass()
+    {
+        $factory = new Factory();
+        $one = $factory->create(EngineMarkOne::class);
+        $two = $factory->create(EngineMarkOne::class);
         $this->assertFalse($one === $two);
     }
 }
