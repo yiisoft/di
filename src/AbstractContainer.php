@@ -242,10 +242,10 @@ abstract class AbstractContainer
         }
 
         $this->dereferencing[$id] = 1;
-        $id = $this->dereference($this->definitions[$id]->getId());
+        $new_id = $this->dereference($this->definitions[$id]->getId());
         unset($this->dereferencing[$id]);
 
-        return $id;
+        return $new_id;
     }
 
     /**
