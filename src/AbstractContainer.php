@@ -108,37 +108,62 @@ abstract class AbstractContainer
 
         $this->registerProviderIfDeferredFor($id);
 
-        if (!isset($this->definitions[$id])) {
-            if (isset($config['__class'])) {
-                return $this->buildFromDefinition($config);
-            }
+        $object = isset($this->definitions[$id])
+            ? $this->buildWithDefinition($id, $config, $this->definitions[$id])
+            : $this->buildWithoutDefinition($id, $config)
+        ;
 
-            if ($this->parent !== null) {
-                return $this->parent->build($id, $config);
-            }
+        unset($this->building[$id]);
 
-            throw new NotFoundException("No definition for \"$id\" found");
+        return $object;
+    }
+
+    /**
+     * Creates new instance without definition in container.
+     *
+     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param array $config
+     * @return object new built instance
+     * @throws NotFoundException
+     */
+    protected function buildWithoutDefinition($id, array $config = [])
+    {
+        if (isset($config['__class'])) {
+            return $this->buildFromConfig($config);
+        } elseif ($this->parent !== null) {
+            return $this->parent->build($id, $config);
+        } elseif (class_exists($id)) {
+            $config['__class'] = $id;
+            return $this->buildFromConfig($config);
         }
 
-        $definition = $this->definitions[$id];
+        throw new NotFoundException("No definition for \"$id\" found");
+    }
 
+    /**
+     * Creates new instance by given config and definition.
+     *
+     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param array $config
+     * @param array $definition
+     * @return object new built instance
+     * @throws InvalidConfigException
+     */
+    protected function buildWithDefinition($id, array $config = [], $definition = null)
+    {
         if (is_string($definition)) {
             $definition = ['__class' => $definition];
         }
 
         if (is_array($definition) && !isset($definition[0], $definition[1])) {
-            $object = $this->buildFromDefinition($definition);
+            return $this->buildFromConfig($definition);
         } elseif (is_callable($definition)) {
-            $object = $definition($this, $config);
+            return $definition($this, $config);
         } elseif (is_object($definition)) {
-            $object = $definition;
-        } else {
-            throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
+            return $definition;
         }
 
-        unset($this->building[$id]);
-
-        return $object;
+        throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
     }
 
     /**
@@ -260,24 +285,24 @@ abstract class AbstractContainer
 
     /**
      * Creates an instance of the class definition with dependencies resolved
-     * @param array $definition
+     * @param array $config
      * @return object the newly created instance of the specified class
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function buildFromDefinition(array $definition)
+    protected function buildFromConfig(array $config)
     {
         /* @var $reflection ReflectionClass */
-        [$reflection, $dependencies] = $this->getDependencies($definition['__class']);
-        unset($definition['__class']);
+        [$reflection, $dependencies] = $this->getDependencies($config['__class']);
+        unset($config['__class']);
 
-        if (isset($definition['__construct()'])) {
-            foreach ($definition['__construct()'] as $index => $param) {
+        if (isset($config['__construct()'])) {
+            foreach ($config['__construct()'] as $index => $param) {
                 $dependencies[$index] = $param;
             }
-            unset($definition['__construct()']);
+            unset($config['__construct()']);
         }
 
         $dependencies = $this->resolveDependencies($dependencies, $reflection);
@@ -287,9 +312,9 @@ abstract class AbstractContainer
 
         $object = $reflection->newInstanceArgs($dependencies);
 
-        $definition = $this->resolveDependencies($definition);
+        $config = $this->resolveDependencies($config);
 
-        foreach ($definition as $action => $arguments) {
+        foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
                 call_user_func_array([$object, substr($action, 0, -2)], $arguments);
@@ -402,7 +427,7 @@ abstract class AbstractContainer
     protected function buildProvider($providerDefinition)
     {
         if (is_string($providerDefinition)) {
-            $provider = $this->buildFromDefinition([
+            $provider = $this->buildFromConfig([
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
@@ -412,7 +437,7 @@ abstract class AbstractContainer
             $providerDefinition['__construct()'] = [
                 $this
             ];
-            $provider = $this->buildFromDefinition($providerDefinition);
+            $provider = $this->buildFromConfig($providerDefinition);
         } else {
             throw new InvalidConfigException('Service provider definition should be a class name ' .
                 'or array contains "__class" with a class name of provider.');
