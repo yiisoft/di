@@ -41,7 +41,7 @@ abstract class AbstractContainer
      * @var array used to collect ids instantiated during build
      * to detect circular references
      */
-    private $getting = [];
+    private $building = [];
     /**
      * @var array used to collect ids during dereferencing
      * to detect circular references
@@ -96,10 +96,15 @@ abstract class AbstractContainer
     {
         $id = $this->dereference($id);
 
-        if (isset($this->getting[$id])) {
-            throw new CircularReferenceException("Circular reference to \"$id\" detected.");
+        if (isset($this->building[$id])) {
+            throw new CircularReferenceException(sprintf(
+                'Circular reference to "%s" detected while building: %s; dereferencing: %s',
+                $id,
+                implode(',', array_keys($this->building)),
+                implode(',', array_keys($this->dereferencing))
+            ));
         }
-        $this->getting[$id] = 1;
+        $this->building[$id] = 1;
 
         $this->registerProviderIfDeferredFor($id);
 
@@ -131,7 +136,7 @@ abstract class AbstractContainer
             throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
         }
 
-        unset($this->getting[$id]);
+        unset($this->building[$id]);
 
         return $object;
     }
@@ -238,7 +243,12 @@ abstract class AbstractContainer
         }
 
         if (isset($this->dereferencing[$id])) {
-            throw new CircularReferenceException("Circular reference to \"$id\" detected.");
+            throw new CircularReferenceException(sprintf(
+                'Circular reference to "%s" detected while dereferencing: %s; building: %s',
+                $id,
+                implode(',', array_keys($this->dereferencing)),
+                implode(',', array_keys($this->building))
+            ));
         }
 
         $this->dereferencing[$id] = 1;
