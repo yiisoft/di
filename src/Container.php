@@ -52,7 +52,6 @@ class Container extends AbstractContainer implements ContainerInterface
     }
 
     /**
-     * NOTE: Experimental, may be removed later.
      * Returns a value indicating whether the container has already instantiated
      * instance of the specified name.
      * @param string $id class name, interface name or alias name
