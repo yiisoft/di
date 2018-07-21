@@ -50,4 +50,17 @@ class Container extends AbstractContainer implements ContainerInterface
 
         return $object;
     }
+
+    /**
+     * Returns a value indicating whether the container has already instantiated
+     * instance of the specified name.
+     * @param string $id class name, interface name or alias name
+     * @return bool whether the container has instance of id specified.
+     */
+    public function hasInstance($id): bool
+    {
+        $id = $this->dereference($id);
+
+        return isset($this->instances[$id]);
+    }
 }
