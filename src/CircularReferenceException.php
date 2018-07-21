@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\di;
+namespace yii\di\exceptions;
 
 use Psr\Container\ContainerExceptionInterface;
 

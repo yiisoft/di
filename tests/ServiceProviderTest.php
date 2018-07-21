@@ -4,7 +4,7 @@ namespace yii\di\tests;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
-use yii\di\InvalidConfigException;
+use yii\di\exceptions\InvalidConfigException;
 use yii\di\tests\code\Car;
 use yii\di\tests\code\CarFactory;
 use yii\di\tests\code\CarProvider;

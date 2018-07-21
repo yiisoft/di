@@ -4,10 +4,10 @@ namespace yii\di\tests;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use yii\di\CircularReferenceException;
 use yii\di\Container;
-use yii\di\InvalidConfigException;
-use yii\di\NotFoundException;
+use yii\di\exceptions\CircularReferenceException;
+use yii\di\exceptions\InvalidConfigException;
+use yii\di\exceptions\NotFoundException;
 use yii\di\Reference;
 use yii\di\tests\code\Car;
 use yii\di\tests\code\ColorPink;
