@@ -7,6 +7,8 @@
 
 namespace yii\di;
 
+use yii\di\exceptions\InvalidConfigException;
+
 /**
  * Reference points to another container definition by its ID
  *
@@ -46,7 +48,7 @@ class Reference
      *
      * @param array $state
      * @return Reference
-     * @throws \yii\di\InvalidConfigException when $state property does not contain `id` parameter
+     * @throws InvalidConfigException when $state property does not contain `id` parameter
      * @see var_export()
      */
     public static function __set_state($state)
