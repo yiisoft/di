@@ -9,6 +9,8 @@ namespace yii\di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use yii\di\exceptions\InvalidConfigException;
+use yii\di\exceptions\NotInstantiableException;
 
 /**
  * Injector is able to analyze callable dependencies based on
