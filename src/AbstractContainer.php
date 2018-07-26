@@ -318,6 +318,17 @@ abstract class AbstractContainer
 
         $config = $this->resolveDependencies($config);
 
+        return static::configure($object, $config);
+    }
+
+    /**
+     * Configures an object with the given configuration.
+     * @param object $object the object to be configured
+     * @param iterable $config property values and methods to call
+     * @return object the object itself
+     */
+    public static function configure($object, iterable $config)
+    {
         foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
