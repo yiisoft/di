@@ -324,6 +324,7 @@ abstract class AbstractContainer
 
     /**
      * Configures an object with the given configuration.
+     * @deprecated Not recommended for explicit use. Added only to support Yii 2.0 behavior.
      * @param object $object the object to be configured
      * @param iterable $config property values and methods to call
      * @return object the object itself

@@ -8,7 +8,8 @@
 namespace yii\di;
 
 /**
- * Initable interface.
+ * Initable interface to mark classes needing `init()` after construction.
+ * @deprecated Not recommended for use. Added only to support Yii 2.0 behavior.
  *
  * @author Andrii Vasyliev <sol@hiqdev.com>
  * @since 1.0
@@ -18,6 +19,7 @@ interface Initable
     /**
      * Initializes the object.
      * This method is invoked after object created and configured.
+     * @deprecated use constructor and getters/setters instead
      */
     public function init();
 }
