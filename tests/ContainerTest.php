@@ -15,6 +15,7 @@ use yii\di\tests\code\ConstructorTestClass;
 use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkOne;
 use yii\di\tests\code\EngineMarkTwo;
+use yii\di\tests\code\GearBox;
 use yii\di\tests\code\CarFactory;
 use yii\di\tests\code\InvokeableCarFactory;
 use yii\di\tests\code\MethodTestClass;
@@ -224,5 +225,15 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->hasInstance('engine'));
         $one = $container->get('engine');
         $this->assertTrue($container->hasInstance('engine'));
+    }
+
+    public function testInitable()
+    {
+        $container = new Container();
+        $container->set('gearbox', GearBox::class);
+        $manual = new GearBox();
+        $this->assertFalse($manual->getInited());
+        $automatic = $container->get('gearbox');
+        $this->assertTrue($automatic->getInited());
     }
 }
