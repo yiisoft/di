@@ -339,6 +339,10 @@ abstract class AbstractContainer
             }
         }
 
+        if ($object instanceof Initable) {
+            $object->init();
+        }
+
         return $object;
     }
 
