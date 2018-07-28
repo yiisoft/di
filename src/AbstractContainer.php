@@ -319,7 +319,13 @@ abstract class AbstractContainer
 
         $config = $this->resolveDependencies($config);
 
-        return static::configure($object, $config);
+        static::configure($object, $config);
+
+        if ($object instanceof Initable) {
+            $object->init();
+        }
+
+        return $object;
     }
 
     /**
@@ -339,10 +345,6 @@ abstract class AbstractContainer
                 // property
                 $object->$action = $arguments;
             }
-        }
-
-        if ($object instanceof Initable) {
-            $object->init();
         }
 
         return $object;
