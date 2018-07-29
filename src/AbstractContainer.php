@@ -237,10 +237,10 @@ abstract class AbstractContainer
     }
 
     /**
-     * Sets multiple definitions at once
+     * Sets multiple definitions at once.
      * @param array $config definitions indexed by their ids
      */
-    public function setMultiple($config): void
+    public function setAll($config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
