@@ -248,4 +248,16 @@ class ContainerTest extends TestCase
         $automatic = $container->get('gearbox');
         $this->assertTrue($automatic->getInited());
     }
+
+    public function testGetDefinition()
+    {
+        $definition = [
+            '__class' => EngineMarkOne::class,
+        ];
+        $container = new Container([
+            'engine' => $definition,
+        ]);
+        $container->get('engine');
+        $this->assertSame($definition, $container->getDefinition('engine'));
+    }
 }

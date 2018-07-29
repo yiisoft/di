@@ -87,6 +87,17 @@ abstract class AbstractContainer
     }
 
     /**
+     * Returns original definition by id.
+     *
+     * @param string $id
+     * @return null|array|object|Closure null if not defined
+     */
+    public function getDefinition($id)
+    {
+        return isset($this->definitions[$id]) ? $this->definitions[$id] : null;
+    }
+
+    /**
      * Creates new instance by either interface name or alias.
      *
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
