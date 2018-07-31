@@ -7,28 +7,102 @@
 
 namespace yii\di;
 
+use yii\di\exceptions\InvalidConfigException;
+
 /**
  * Factory is similar to the Container but creates new object every time.
  *
  * @author Andrii Vasyliev <sol@hiqdev.com>
  * @since 1.0
  */
-class Factory extends AbstractContainer
+class Factory extends AbstractContainer implements FactoryInterface
 {
     /**
-     * Creates new instance by interface or class name or an alias.
-     *
-     * @param string $id class/interface name or an alias
-     * @param array $config
-     * @param array $params constructor parameters
-     * @return object new built instance of the specified class
+     * {@inheritdoc}
      */
-    public function create($id, array $config = [], array $params = [])
+    public function get($id)
     {
+        if (!isset($this->definitions[$id]) && $this->parent !== null) {
+            return $this->parent->get($id);
+        }
+
+        return $this->build($id);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function create($config, array $params = [])
+    {
+        if (is_string($config)) {
+            $config = ['__class' => $config];
+        }
+
         if (!empty($params)) {
             $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
         }
 
-        return $this->build($id, $config);
+        if (is_array($config) && isset($config['__class'])) {
+            $class = $config['__class'];
+            unset($config['__class']);
+
+            return $this->build($class, $config);
+        }
+
+        if (is_callable($config, true)) {
+            return $this->getInjector()->invoke($config, $params);
+        }
+
+        if (is_array($config)) {
+            throw new InvalidConfigException('Object configuration array must contain a "__class" element.');
+        }
+
+        throw new InvalidConfigException('Unsupported configuration type: ' . gettype($config));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function ensure($reference, string $type = null)
+    {
+        if (is_array($reference)) {
+            if (empty($reference['__class'])) {
+                $reference['__class'] = $type;
+            }
+
+            $component = $this->build($reference);
+            if ($type === null || $component instanceof $type) {
+                return $component;
+            }
+
+            throw new InvalidConfigException('Invalid data type: ' . get_class($component) . '. ' . $type . ' is expected.');
+        }
+
+        if (empty($reference)) {
+            throw new InvalidConfigException('The required component is not specified.');
+        }
+
+        if (is_string($reference)) {
+            $reference = new Reference($reference);
+        } elseif ($type === null || $reference instanceof $type) {
+            return $reference;
+        }
+
+        if ($reference instanceof Reference) {
+            try {
+                $this->get($reference);
+            } catch (\ReflectionException $e) {
+                throw new InvalidConfigException('Failed to instantiate component or class "' . $reference->id . '".', 0, $e);
+            }
+            if ($type === null || $component instanceof $type) {
+                return $component;
+            }
+
+            throw new InvalidConfigException('"' . $reference->id . '" refers to a ' . get_class($component) . " component. $type is expected.");
+        }
+
+        $valueType = is_object($reference) ? get_class($reference) : gettype($reference);
+        throw new InvalidConfigException("Invalid data type: $valueType. $type is expected.");
+    }
+
 }
