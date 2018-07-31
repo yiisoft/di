@@ -75,7 +75,11 @@ class Factory extends AbstractContainer implements FactoryInterface
                 return $component;
             }
 
-            throw new InvalidConfigException('Invalid data type: ' . get_class($component) . '. ' . $type . ' is expected.');
+            throw new InvalidConfigException(sprintf(
+                'Invalid data type: %s. %s is expected.',
+                get_class($component),
+                $type
+            ));
         }
 
         if (empty($reference)) {
@@ -92,17 +96,21 @@ class Factory extends AbstractContainer implements FactoryInterface
             try {
                 $this->get($reference);
             } catch (\ReflectionException $e) {
-                throw new InvalidConfigException('Failed to instantiate component or class "' . $reference->id . '".', 0, $e);
+                throw new InvalidConfigException("Failed instantiate component or class '{$reference->id}'.", 0, $e);
             }
             if ($type === null || $component instanceof $type) {
                 return $component;
             }
 
-            throw new InvalidConfigException('"' . $reference->id . '" refers to a ' . get_class($component) . " component. $type is expected.");
+            throw new InvalidConfigException(sprintf(
+                "'%s' refers to a %s component. %s is expected.",
+                $reference->id,
+                get_class($component),
+                $type
+            ));
         }
 
         $valueType = is_object($reference) ? get_class($reference) : gettype($reference);
         throw new InvalidConfigException("Invalid data type: $valueType. $type is expected.");
     }
-
 }

@@ -52,7 +52,8 @@ interface FactoryInterface extends ContainerInterface
      * - a string: representing the class name of the object to be created
      * - a configuration array: the array must contain a `class` element which is treated as the object class,
      *   and the rest of the name-value pairs will be used to initialize the corresponding object properties
-     * - a PHP callable: either an anonymous function or an array representing a class method (`[$class or $object, $method]`).
+     * - a PHP callable: either an anonymous function or an array representing
+     *   a class method (`[$class or $object, $method]`).
      *   The callable should return a new instance of the object being created.
      *
      * @param array $params the constructor parameters

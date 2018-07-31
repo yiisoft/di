@@ -74,7 +74,6 @@ class ContainerTest extends TestCase
         ]);
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine1'));
         $this->assertInstanceOf(EngineMarkTwo::class, $container->get('engine2'));
-
     }
 
     public function testClassConstructor()
