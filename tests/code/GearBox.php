@@ -21,7 +21,7 @@ class GearBox implements Initiable
         $this->maxGear = $maxGear ?: 5;
     }
 
-    public function init()
+    public function init(): void
     {
         $this->inited = true;
     }

@@ -21,5 +21,5 @@ interface Initiable
      * This method is invoked after object created and configured.
      * @deprecated use constructor and getters/setters instead
      */
-    public function init();
+    public function init(): void;
 }
