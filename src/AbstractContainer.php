@@ -15,7 +15,7 @@ use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\exceptions\NotInstantiableException;
-use yii\di\Initable;
+use yii\di\Initiable;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -336,7 +336,7 @@ abstract class AbstractContainer
 
         static::configure($object, $config);
 
-        if ($object instanceof Initable) {
+        if ($object instanceof Initiable) {
             $object->init();
         }
 

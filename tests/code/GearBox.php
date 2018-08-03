@@ -2,12 +2,12 @@
 
 namespace yii\di\tests\code;
 
-use yii\di\Initable;
+use yii\di\Initiable;
 
 /**
  * A gear box.
  */
-class GearBox implements Initable
+class GearBox implements Initiable
 {
     private $maxGear;
 

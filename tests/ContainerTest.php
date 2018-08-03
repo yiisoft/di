@@ -238,7 +238,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->hasInstance('engine'));
     }
 
-    public function testInitable()
+    public function testInitiable()
     {
         $container = new Container();
         $container->set('gearbox', GearBox::class);
