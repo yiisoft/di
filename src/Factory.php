@@ -38,11 +38,10 @@ class Factory extends AbstractContainer implements FactoryInterface
             $config = ['__class' => $config];
         }
 
-        if (!empty($params)) {
-            $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
-        }
-
         if (is_array($config) && isset($config['__class'])) {
+            if (!empty($params)) {
+                $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
+            }
             $class = $config['__class'];
             unset($config['__class']);
 
