@@ -26,7 +26,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             return $this->parent->get($id);
         }
 
-        return $this->build($id);
+        return $this->initObject($this->build($id));
     }
 
     /**

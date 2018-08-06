@@ -334,8 +334,18 @@ abstract class AbstractContainer
 
         $config = $this->resolveDependencies($config);
 
-        static::configure($object, $config);
+        return static::configure($object, $config);
+    }
 
+    /**
+     * Does after build object initialization.
+     * At the moment only `init()` if class implements Initiable interface.
+     *
+     * @param object $object
+     * @return object
+     */
+    protected function initObject($object)
+    {
         if ($object instanceof Initiable) {
             $object->init();
         }

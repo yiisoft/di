@@ -48,7 +48,7 @@ class Container extends AbstractContainer implements ContainerInterface
         $object = $this->build($id);
         $this->instances[$id] = $object;
 
-        return $object;
+        return $this->initObject($object);
     }
 
     /**
