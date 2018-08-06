@@ -28,7 +28,7 @@ abstract class AbstractContainer
     /**
      * @var ContainerInterface
      */
-    private $parent;
+    protected $parent;
     /**
      * @var array object definitions indexed by their types
      */
