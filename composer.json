@@ -40,5 +40,10 @@
         "psr-4": {
             "yii\\di\\tests\\": "tests"
         }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.0.x-dev"
+        }
     }
 }
