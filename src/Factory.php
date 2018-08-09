@@ -45,7 +45,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             $class = $config['__class'];
             unset($config['__class']);
 
-            return $this->build($class, $config);
+            return $this->initObject($this->build($class, $config));
         }
 
         if (is_callable($config, true)) {
@@ -69,7 +69,7 @@ class Factory extends AbstractContainer implements FactoryInterface
                 $reference['__class'] = $type;
             }
 
-            $component = $this->build($reference);
+            $component = $this->initObject($this->build($reference));
             if ($type === null || $component instanceof $type) {
                 return $component;
             }
