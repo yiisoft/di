@@ -27,4 +27,21 @@ class FactoryTest extends TestCase
         $two = $factory->create(EngineMarkOne::class);
         $this->assertFalse($one === $two);
     }
+
+    /**
+     * @depends testCreatesNewByAlias
+     * @throws \yii\di\exceptions\CircularReferenceException
+     * @throws \yii\di\exceptions\InvalidConfigException
+     * @throws \yii\di\exceptions\NotFoundException
+     * @throws \yii\di\exceptions\NotInstantiableException
+     */
+    public function testGet()
+    {
+        $factory = new Factory();
+        $factory->set('engine', EngineMarkOne::class);
+        $one = $factory->create('engine');
+        $one_got = $factory->get('engine');
+        $this->assertNotNull($one_got);
+        $this->assertInstanceOf(EngineMarkOne::class, $one_got);
+    }
 }

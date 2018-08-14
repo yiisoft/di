@@ -22,7 +22,7 @@ class Factory extends AbstractContainer implements FactoryInterface
      */
     public function get($id)
     {
-        if (!isset($this->definitions[$id]) && $this->parent !== null) {
+        if ($this->getDefinition($id) == null && $this->parent !== null) {
             return $this->parent->get($id);
         }
 
