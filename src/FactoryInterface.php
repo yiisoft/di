@@ -88,5 +88,5 @@ interface FactoryInterface extends ContainerInterface
      * @return object the object referenced by the Reference, or `$reference` itself if it is an object.
      * @throws InvalidConfigException if the reference is invalid
      */
-    public static function ensure($reference, string $type = null);
+    public function ensure($reference, string $type = null);
 }

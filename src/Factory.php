@@ -62,14 +62,17 @@ class Factory extends AbstractContainer implements FactoryInterface
     /**
      * {@inheritdoc}
      */
-    public static function ensure($reference, string $type = null)
+    public function ensure($reference, string $type = null)
     {
         if (is_array($reference)) {
             if (empty($reference['__class'])) {
-                $reference['__class'] = $type;
+                $class = $type;
+            } else {
+                $class = $reference['__class'];
+                unset($reference['__class']);
             }
 
-            $component = $this->initObject($this->build($reference));
+            $component = $this->initObject($this->build($class, $reference));
             if ($type === null || $component instanceof $type) {
                 return $component;
             }
