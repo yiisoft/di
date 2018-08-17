@@ -283,6 +283,10 @@ abstract class AbstractContainer
      */
     protected function dereference($id)
     {
+        if ($id instanceof Reference) {
+            $id = $id->getId();
+        }
+
         if (!isset($this->definitions[$id]) || !$this->definitions[$id] instanceof Reference) {
             return $id;
         }
