@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProviderInterface;
@@ -15,7 +16,6 @@ use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\exceptions\NotInstantiableException;
-use yii\di\Initiable;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.

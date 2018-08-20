@@ -8,6 +8,7 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
+use yii\di\exceptions\InvalidConfigException;
 
 /**
  * Factory extends container with create and ensure methods.
