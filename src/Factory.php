@@ -15,14 +15,14 @@ use yii\di\exceptions\InvalidConfigException;
  * @author Andrii Vasyliev <sol@hiqdev.com>
  * @since 1.0
  */
-class Factory extends AbstractContainer implements FactoryInterface
+class Factory extends AbstractContainer
 {
     /**
      * {@inheritdoc}
      */
     public function get($id)
     {
-        if (!isset($this->definitions[$id]) && $this->parent !== null) {
+        if ($this->parent !== null && $this->getDefinition($id) === null) {
             return $this->parent->get($id);
         }
 
@@ -56,7 +56,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             throw new InvalidConfigException('Object configuration array must contain a "__class" element.');
         }
 
-        throw new InvalidConfigException('Unsupported configuration type: ' . gettype($config));
+        throw new InvalidConfigException('Unsupported configuration type: ' . \gettype($config));
     }
 
     /**

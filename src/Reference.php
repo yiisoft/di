@@ -38,7 +38,7 @@ class Reference
      * @param string $id
      * @return Reference
      */
-    public static function to($id)
+    public static function to($id): self
     {
         return new self($id);
     }

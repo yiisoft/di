@@ -81,6 +81,6 @@ abstract class DeferredServiceProvider extends ServiceProvider implements Deferr
      */
     public function hasDefinitionFor(string $id): bool
     {
-        return in_array($id, $this->provides(), true);
+        return \in_array($id, $this->provides(), true);
     }
 }

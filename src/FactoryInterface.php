@@ -58,7 +58,6 @@ interface FactoryInterface extends ContainerInterface
      *   The callable should return a new instance of the object being created.
      *
      * @param array $params the constructor parameters
-     * @param Container $container the container, default one will be used if not given
      * @return object the created object
      * @throws InvalidConfigException if the configuration is invalid.
      */

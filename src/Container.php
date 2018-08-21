@@ -7,15 +7,13 @@
 
 namespace yii\di;
 
-use Psr\Container\ContainerInterface;
-
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  *
  * @author Alexander Makarov <sam@rmcreative.ru>
  * @since 1.0
  */
-class Container extends AbstractContainer implements ContainerInterface
+class Container extends AbstractContainer
 {
     /**
      * @var object[]

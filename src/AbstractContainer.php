@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
@@ -23,7 +24,7 @@ use yii\di\exceptions\NotInstantiableException;
  * @author Alexander Makarov <sam@rmcreative.ru>
  * @since 1.0
  */
-abstract class AbstractContainer
+abstract class AbstractContainer implements ContainerInterface
 {
     /**
      * @var ContainerInterface
@@ -98,7 +99,7 @@ abstract class AbstractContainer
      */
     public function getDefinition($id)
     {
-        return isset($this->definitions[$id]) ? $this->definitions[$id] : null;
+        return $this->definitions[$id] ?? null;
     }
 
     /**
@@ -165,9 +166,12 @@ abstract class AbstractContainer
      *
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
-     * @param array $definition
+     * @param array|string|object $definition
      * @return object new built instance
-     * @throws InvalidConfigException
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException when definition type is not expected
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     protected function buildWithDefinition($id, array $config = [], $definition = null)
     {
@@ -177,9 +181,13 @@ abstract class AbstractContainer
 
         if (is_array($definition) && !isset($definition[0], $definition[1])) {
             return $this->buildFromConfig($definition);
-        } elseif (is_callable($definition)) {
+        }
+
+        if (is_callable($definition)) {
             return $definition($this, $config);
-        } elseif (is_object($definition)) {
+        }
+
+        if (is_object($definition)) {
             return $definition;
         }
 
@@ -280,8 +288,9 @@ abstract class AbstractContainer
      *
      * @param string $id
      * @return string
+     * @throws CircularReferenceException when circular reference gets detected
      */
-    protected function dereference($id)
+    protected function dereference($id): string
     {
         if ($id instanceof Reference) {
             $id = $id->getId();
