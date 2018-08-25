@@ -15,7 +15,7 @@ use yii\di\exceptions\InvalidConfigException;
  * @author Andrii Vasyliev <sol@hiqdev.com>
  * @since 1.0
  */
-class Factory extends AbstractContainer
+class Factory extends AbstractContainer implements FactoryInterface
 {
     /**
      * {@inheritdoc}
