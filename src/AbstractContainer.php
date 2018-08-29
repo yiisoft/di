@@ -332,7 +332,7 @@ abstract class AbstractContainer implements ContainerInterface
         unset($config['__class']);
 
         if (isset($config['__construct()'])) {
-            foreach ($config['__construct()'] as $index => $param) {
+            foreach (array_values($config['__construct()']) as $index => $param) {
                 $dependencies[$index] = $param;
             }
             unset($config['__construct()']);
