@@ -400,7 +400,12 @@ abstract class AbstractContainer implements ContainerInterface
         }
 
         $dependencies = [];
-        $reflection = new ReflectionClass($class);
+
+        try {
+            $reflection = new ReflectionClass($class);
+        } catch (\ReflectionException $e) {
+            throw new InvalidConfigException('Failed to instantiate "' . $class . '".', 0, $e);
+        }
 
         $constructor = $reflection->getConstructor();
         if ($constructor !== null) {
