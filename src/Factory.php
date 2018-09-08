@@ -34,11 +34,11 @@ class Factory extends AbstractContainer implements FactoryInterface
      */
     public function create($config, array $params = [])
     {
-        if (is_string($config)) {
+        if (\is_string($config)) {
             $config = ['__class' => $config];
         }
 
-        if (is_array($config) && isset($config['__class'])) {
+        if (\is_array($config) && isset($config['__class'])) {
             if (!empty($params)) {
                 $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
             }
@@ -48,11 +48,11 @@ class Factory extends AbstractContainer implements FactoryInterface
             return $this->initObject($this->build($class, $config));
         }
 
-        if (is_callable($config, true)) {
+        if (\is_callable($config, true)) {
             return $this->getInjector()->invoke($config, $params);
         }
 
-        if (is_array($config)) {
+        if (\is_array($config)) {
             throw new InvalidConfigException('Object configuration array must contain a "__class" element.');
         }
 
@@ -64,7 +64,7 @@ class Factory extends AbstractContainer implements FactoryInterface
      */
     public function ensure($reference, string $type = null)
     {
-        if (is_array($reference)) {
+        if (\is_array($reference)) {
             if (empty($reference['__class'])) {
                 $class = $type;
             } else {
@@ -79,7 +79,7 @@ class Factory extends AbstractContainer implements FactoryInterface
 
             throw new InvalidConfigException(sprintf(
                 'Invalid data type: %s. %s is expected.',
-                get_class($component),
+                \get_class($component),
                 $type
             ));
         }
@@ -88,7 +88,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             throw new InvalidConfigException('The required component is not specified.');
         }
 
-        if (is_string($reference)) {
+        if (\is_string($reference)) {
             $reference = new Reference($reference);
         } elseif ($type === null || $reference instanceof $type) {
             return $reference;
@@ -107,12 +107,12 @@ class Factory extends AbstractContainer implements FactoryInterface
             throw new InvalidConfigException(sprintf(
                 "'%s' refers to a %s component. %s is expected.",
                 $reference->id,
-                get_class($component),
+                \get_class($component),
                 $type
             ));
         }
 
-        $valueType = is_object($reference) ? get_class($reference) : gettype($reference);
+        $valueType = \is_object($reference) ? \get_class($reference) : gettype($reference);
         throw new InvalidConfigException("Invalid data type: $valueType. $type is expected.");
     }
 }

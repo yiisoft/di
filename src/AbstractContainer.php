@@ -69,9 +69,7 @@ abstract class AbstractContainer implements ContainerInterface
      * @param array $definitions
      * @param Container|null $parent
      *
-     * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     public function __construct(array $definitions = [], Container $parent = null)
@@ -130,7 +128,7 @@ abstract class AbstractContainer implements ContainerInterface
         $this->registerProviderIfDeferredFor($id);
 
         $object = isset($this->definitions[$id])
-            ? $this->buildWithDefinition($id, $config, $this->definitions[$id])
+            ? $this->buildWithDefinition($config, $this->definitions[$id])
             : $this->buildWithoutDefinition($id, $config)
         ;
 
@@ -145,15 +143,22 @@ abstract class AbstractContainer implements ContainerInterface
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @return object new built instance
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
      * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     protected function buildWithoutDefinition($id, array $config = [])
     {
         if (isset($config['__class'])) {
             return $this->buildFromConfig($config);
-        } elseif ($this->parent !== null) {
+        }
+
+        if ($this->parent !== null) {
             return $this->parent->build($id, $config);
-        } elseif (class_exists($id)) {
+        }
+
+        if (class_exists($id)) {
             $config['__class'] = $id;
             return $this->buildFromConfig($config);
         }
@@ -164,30 +169,27 @@ abstract class AbstractContainer implements ContainerInterface
     /**
      * Creates new instance by given config and definition.
      *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @param array|string|object $definition
      * @return object new built instance
-     * @throws CircularReferenceException
      * @throws InvalidConfigException when definition type is not expected
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function buildWithDefinition($id, array $config = [], $definition = null)
+    protected function buildWithDefinition(array $config = [], $definition = null)
     {
-        if (is_string($definition)) {
+        if (\is_string($definition)) {
             $definition = ['__class' => $definition];
         }
 
-        if (is_array($definition) && !isset($definition[0], $definition[1])) {
+        if (\is_array($definition) && !isset($definition[0], $definition[1])) {
             return $this->buildFromConfig($definition);
         }
 
-        if (is_callable($definition)) {
+        if (\is_callable($definition)) {
             return $definition($this, $config);
         }
 
-        if (is_object($definition)) {
+        if (\is_object($definition)) {
             return $definition;
         }
 
@@ -274,6 +276,7 @@ abstract class AbstractContainer implements ContainerInterface
      * Returns a value indicating whether the container has the definition of the specified name.
      * @param string $id class name, interface name or alias name
      * @return bool whether the container is able to provide instance of id specified.
+     * @throws CircularReferenceException
      * @see set()
      */
     public function has($id): bool
@@ -320,9 +323,7 @@ abstract class AbstractContainer implements ContainerInterface
      * Creates an instance of the class definition with dependencies resolved
      * @param array $config
      * @return object the newly created instance of the specified class
-     * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     protected function buildFromConfig(array $config)
@@ -378,7 +379,7 @@ abstract class AbstractContainer implements ContainerInterface
         foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
                 // method call
-                call_user_func_array([$object, substr($action, 0, -2)], $arguments);
+                \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
                 $object->$action = $arguments;
@@ -392,6 +393,7 @@ abstract class AbstractContainer implements ContainerInterface
      * Returns the dependencies of the specified class.
      * @param string $class class name, interface name or alias name
      * @return array the dependencies of the specified class.
+     * @throws InvalidConfigException
      */
     protected function getDependencies($class): array
     {
@@ -430,10 +432,7 @@ abstract class AbstractContainer implements ContainerInterface
      * @param array $dependencies the dependencies
      * @param ReflectionClass $reflection the class reflection associated with the dependencies
      * @return array the resolved dependencies
-     * @throws CircularReferenceException
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
-     * @throws NotFoundException
-     * @throws NotInstantiableException
      */
     protected function resolveDependencies($dependencies, $reflection = null): array
     {
@@ -460,11 +459,8 @@ abstract class AbstractContainer implements ContainerInterface
      *
      * @param string|array $providerDefinition
      *
-     * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
-     *
      * @see ServiceProvider
      * @see DeferredServiceProvider
      */
@@ -485,21 +481,19 @@ abstract class AbstractContainer implements ContainerInterface
      * @param string|array $providerDefinition class name or definition of provider.
      * @return ServiceProviderInterface instance of service provider;
      *
-     * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function buildProvider($providerDefinition)
+    protected function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        if (is_string($providerDefinition)) {
+        if (\is_string($providerDefinition)) {
             $provider = $this->buildFromConfig([
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
                 ]
             ]);
-        } elseif (is_array($providerDefinition) && isset($providerDefinition['__class'])) {
+        } elseif (\is_array($providerDefinition) && isset($providerDefinition['__class'])) {
             $providerDefinition['__construct()'] = [
                 $this
             ];

@@ -7,6 +7,11 @@
 
 namespace yii\di;
 
+use yii\di\exceptions\CircularReferenceException;
+use yii\di\exceptions\InvalidConfigException;
+use yii\di\exceptions\NotFoundException;
+use yii\di\exceptions\NotInstantiableException;
+
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  *
@@ -34,6 +39,10 @@ class Container extends AbstractContainer
      *
      * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @return object an instance of the requested interface.
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     public function get($id)
     {
@@ -54,6 +63,7 @@ class Container extends AbstractContainer
      * instance of the specified name.
      * @param string $id class name, interface name or alias name
      * @return bool whether the container has instance of id specified.
+     * @throws CircularReferenceException
      */
     public function hasInstance($id): bool
     {

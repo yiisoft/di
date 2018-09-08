@@ -59,11 +59,11 @@ class Injector
      */
     public function invoke(callable $callback, array $params = [])
     {
-        if (is_callable($callback)) {
-            return call_user_func_array($callback, $this->resolveCallableDependencies($callback, $params));
+        if (\is_callable($callback)) {
+            return \call_user_func_array($callback, $this->resolveCallableDependencies($callback, $params));
         }
 
-        return call_user_func_array($callback, $params);
+        return \call_user_func_array($callback, $params);
     }
 
     /**
@@ -80,7 +80,7 @@ class Injector
      */
     protected function resolveCallableDependencies(callable $callback, array $params = []): array
     {
-        if (is_array($callback)) {
+        if (\is_array($callback)) {
             $reflection = new \ReflectionMethod($callback[0], $callback[1]);
         } else {
             $reflection = new \ReflectionFunction($callback);
