@@ -416,6 +416,7 @@ abstract class AbstractContainer implements ContainerInterface
                     $dependencies[] = $param->getDefaultValue();
                 } else {
                     $c = $param->getClass();
+                    /// TODO think of disallowing `Reference(null)`
                     $dependencies[] = new Reference($c === null ? null : $c->getName());
                 }
             }

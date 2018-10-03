@@ -64,8 +64,9 @@ class Reference
 
     /**
      * @return string
+     * TODO: think of disallowing return null see `AbstractContainer::getDependencies()`
      */
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
