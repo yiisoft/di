@@ -328,6 +328,9 @@ abstract class AbstractContainer implements ContainerInterface
      */
     protected function buildFromConfig(array $config)
     {
+        if (empty($config['__class'])) {
+            throw new NotInstantiableException(var_export($config, true));
+        }
         /* @var $reflection ReflectionClass */
         [$reflection, $dependencies] = $this->getDependencies($config['__class']);
         unset($config['__class']);
