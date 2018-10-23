@@ -193,7 +193,7 @@ abstract class AbstractContainer implements ContainerInterface
             return $definition;
         }
 
-        throw new InvalidConfigException('Unexpected object definition type: ' . gettype($definition));
+        throw new InvalidConfigException('Unexpected object definition type: ' . \gettype($definition));
     }
 
     /**
@@ -204,17 +204,17 @@ abstract class AbstractContainer implements ContainerInterface
      */
     protected function registerProviderIfDeferredFor($id): void
     {
-        $deferredProviders = $this->deferredProviders;
-        if ($deferredProviders->count() === 0) {
+        $providers = $this->deferredProviders;
+        if ($providers->count() === 0) {
             return;
         }
 
-        foreach ($deferredProviders as $provider) {
+        foreach ($providers as $provider) {
             if ($provider->hasDefinitionFor($id)) {
                 $provider->register();
 
                 // provider should be removed after registration to not be registered again
-                $deferredProviders->detach($provider);
+                $providers->detach($provider);
             }
         }
     }

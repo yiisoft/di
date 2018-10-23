@@ -112,7 +112,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             ));
         }
 
-        $valueType = \is_object($reference) ? \get_class($reference) : gettype($reference);
+        $valueType = \is_object($reference) ? \get_class($reference) : \gettype($reference);
         throw new InvalidConfigException("Invalid data type: $valueType. $type is expected.");
     }
 }

@@ -106,7 +106,7 @@ class Injector
                         }
                     }
                 }
-            } elseif (count($params)) {
+            } elseif (\count($params)) {
                 $args[] = array_shift($params);
             } elseif ($param->isDefaultValueAvailable()) {
                 $args[] = $param->getDefaultValue();
