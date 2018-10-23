@@ -230,7 +230,7 @@ class ContainerTest extends TestCase
         $two = $container->get(Reference::to('e1'));
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
-        $this->assertTrue($one === $two);
+        $this->assertSame($one, $two);
     }
 
     public function testSameInstance()

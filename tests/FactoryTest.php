@@ -17,7 +17,7 @@ class FactoryTest extends TestCase
         $factory->set('engine', EngineMarkOne::class);
         $one = $factory->create('engine');
         $two = $factory->create('engine');
-        $this->assertFalse($one === $two);
+        $this->assertNotSame($one, $two);
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
@@ -27,7 +27,7 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $one = $factory->create(EngineMarkOne::class);
         $two = $factory->create(EngineMarkOne::class);
-        $this->assertFalse($one === $two);
+        $this->assertNotSame($one, $two);
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
@@ -38,7 +38,7 @@ class FactoryTest extends TestCase
         $factory->set('engine', EngineMarkOne::class);
         $one = $factory->get('engine');
         $two = $factory->get('engine');
-        $this->assertFalse($one === $two);
+        $this->assertNotSame($one, $two);
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
@@ -48,7 +48,7 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $one = $factory->get(EngineMarkOne::class);
         $two = $factory->get(EngineMarkOne::class);
-        $this->assertFalse($one === $two);
+        $this->assertNotSame($one, $two);
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
