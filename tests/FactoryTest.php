@@ -3,6 +3,7 @@
 namespace yii\di\tests;
 
 use PHPUnit\Framework\TestCase;
+use yii\di\Container;
 use yii\di\Factory;
 use yii\di\tests\code\EngineMarkOne;
 
@@ -46,6 +47,17 @@ class FactoryTest extends TestCase
     public function testGetByClass()
     {
         $factory = new Factory();
+        $one = $factory->get(EngineMarkOne::class);
+        $two = $factory->get(EngineMarkOne::class);
+        $this->assertNotSame($one, $two);
+        $this->assertInstanceOf(EngineMarkOne::class, $one);
+        $this->assertInstanceOf(EngineMarkOne::class, $two);
+    }
+
+    public function testGetByClassWithParent()
+    {
+        $container = new Container();
+        $factory = new Factory([], $container);
         $one = $factory->get(EngineMarkOne::class);
         $two = $factory->get(EngineMarkOne::class);
         $this->assertNotSame($one, $two);
