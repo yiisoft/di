@@ -33,4 +33,9 @@ class Car
     {
         return $this->engine->getName();
     }
+
+    public function getEngine(): EngineInterface
+    {
+        return $this->engine;
+    }
 }

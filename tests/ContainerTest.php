@@ -273,4 +273,19 @@ class ContainerTest extends TestCase
         $container->get('engine');
         $this->assertSame($definition, $container->getDefinition('engine'));
     }
+
+    public function testNesting()
+    {
+        $parentContainer = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            Car::class => Car::class
+        ]);
+
+        $childContainer = new Container([
+            EngineInterface::class => EngineMarkTwo::class
+        ], $parentContainer);
+
+        $car = $childContainer->get(Car::class);
+        $this->assertInstanceOf(EngineMarkTwo::class, $car->getEngine());
+    }
 }
