@@ -20,14 +20,14 @@ class Reference
     /**
      * @var string the component ID, class name, interface name or alias name
      */
-    public $id;
+    private $id;
 
 
     /**
      * Constructor.
      * @param string $id the component ID
      */
-    public function __construct($id)
+    private function __construct(string $id)
     {
         $this->id = $id;
     }
@@ -38,7 +38,7 @@ class Reference
      * @param string $id
      * @return Reference
      */
-    public static function to($id): self
+    public static function to(string $id): self
     {
         return new self($id);
     }
@@ -64,9 +64,8 @@ class Reference
 
     /**
      * @return string
-     * TODO: think of disallowing return null see `AbstractContainer::getDependencies()`
      */
-    public function getId(): ?string
+    public function getId(): string
     {
         return $this->id;
     }
