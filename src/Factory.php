@@ -22,10 +22,6 @@ class Factory extends AbstractContainer implements FactoryInterface
      */
     public function get($id)
     {
-        if ($this->parent !== null && $this->getDefinition($id) === null) {
-            return $this->parent->get($id);
-        }
-
         return $this->initObject($this->build($id));
     }
 
@@ -96,7 +92,7 @@ class Factory extends AbstractContainer implements FactoryInterface
 
         if ($reference instanceof Reference) {
             try {
-                $component = $this->get($reference->getId());
+                $component = ($this->root ?? $this)->get($reference->getId());
             } catch (\ReflectionException $e) {
                 throw new InvalidConfigException("Failed instantiate component or class '{$reference->id}'.", 0, $e);
             }

@@ -21,7 +21,7 @@ compatible.
 - [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
-- Supports nesting so container context could be scoped.
+- Supports delegate lookup for creating composite containers.
 - Has `Injector` that can invoke callables resolving dependencies.
 - Accepts array definitions so could be used with mergeable configs.
 
@@ -109,7 +109,7 @@ $container = new Container([
 
 ## Nesting containers
 
-Containers could be nested in order to isolate scope but still have defaults from the parent container.
+Containers could be nested in order to isolate scope but still have defaults from the root container.
 
 ```php
 $parent = new Container();

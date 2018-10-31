@@ -45,5 +45,12 @@
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "scripts": {
+        "phpunit": "vendor/bin/phpunit",
+        "test": [
+            "@composer install",
+            "@phpunit"
+        ]
     }
 }

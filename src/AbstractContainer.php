@@ -27,9 +27,10 @@ use yii\di\exceptions\NotInstantiableException;
 abstract class AbstractContainer implements ContainerInterface
 {
     /**
+     * The root container used for dependency lookups done by this container.
      * @var ContainerInterface
      */
-    protected $parent;
+    protected $root;
     /**
      * @var array object definitions indexed by their types
      */
@@ -67,12 +68,12 @@ abstract class AbstractContainer implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions
-     * @param Container|null $parent
+     * @param Container|null $root The delegate container used for lookups
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    public function __construct(array $definitions = [], Container $parent = null)
+    public function __construct(array $definitions = [], ?Container $root = null)
     {
         if (isset($definitions['providers'])) {
             $providers = $definitions['providers'];
@@ -81,7 +82,7 @@ abstract class AbstractContainer implements ContainerInterface
             $providers = [];
         }
         $this->definitions = $definitions;
-        $this->parent = $parent;
+        $this->root = $root;
 
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
@@ -154,8 +155,8 @@ abstract class AbstractContainer implements ContainerInterface
             return $this->buildFromConfig($config);
         }
 
-        if ($this->parent !== null) {
-            return $this->parent->build($id, $config);
+        if ($this->root !== null) {
+            return $this->root->build($id, $config);
         }
 
         if (class_exists($id)) {
@@ -186,7 +187,7 @@ abstract class AbstractContainer implements ContainerInterface
         }
 
         if (\is_callable($definition)) {
-            return $definition($this, $config);
+            return $definition($this->root ?? $this, $config);
         }
 
         if (\is_object($definition)) {
@@ -443,7 +444,7 @@ abstract class AbstractContainer implements ContainerInterface
         foreach ($dependencies as $index => $dependency) {
             if ($dependency instanceof Reference) {
                 if ($dependency->getId() !== null) {
-                    $dependencies[$index] = $this->get($dependency->getId());
+                    $dependencies[$index] = ($this->root ?? $this)->get($dependency->getId());
                 } elseif ($reflection !== null) {
                     $name = $reflection->getConstructor()->getParameters()[$index]->getName();
                     $class = $reflection->getName();
@@ -528,5 +529,15 @@ abstract class AbstractContainer implements ContainerInterface
         }
 
         return $this->injector;
+    }
+
+    public function setRootContainer(?Container $container): void
+    {
+        $this->root = $container;
+    }
+
+    public function getRootContainer(): ?Container
+    {
+        return $this->root;
     }
 }
