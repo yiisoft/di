@@ -35,7 +35,7 @@ class ClassNameResolver implements DependencyResolverInterface
     private function resolveFunction(\ReflectionFunctionAbstract $reflectionFunction): array
     {
         $result = [];
-        foreach($reflectionFunction->getParameters() as $parameter)
+        foreach ($reflectionFunction->getParameters() as $parameter)
         {
             $result[] = $this->resolveParameter($parameter);
         }
@@ -57,7 +57,7 @@ class ClassNameResolver implements DependencyResolverInterface
         }
 
         // Our parameter does not have a class type hint and either has a default value or is nullable.
-        return new ValueDependency($parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue(): null);
+        return new ValueDependency($parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null);
     }
 
     /**
