@@ -2,6 +2,10 @@
 
 namespace yii\di\tests;
 
+use yii\di\tests\code\A;
+use yii\di\tests\code\B;
+use yii\di\tests\code\C;
+use yii\di\tests\code\D;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
@@ -44,6 +48,31 @@ class ContainerTest extends TestCase
 
         $container = new Container();
         $container->get('non_existing');
+    }
+
+    public function testCircularClassDependency()
+    {
+        $container = new Container();
+        $container->set(A::class, A::class);
+
+        $a = $container->get(A::class);
+        $this->assertInstanceOf(B::class, $a->b);
+
+        $container->set(A::class, A::class);
+        $container->set(B::class, B::class);
+        $a = $container->get(A::class);
+        $this->assertInstanceOf(B::class, $a->b);
+
+
+        $container->get(C::class);
+    }
+
+    public function testThrowingNotFoundException2()
+    {
+        $container = new Container();
+        $this->assertFalse($container->has(PropertyTestClass::class));
+        $this->expectException(NotFoundException::class);
+        $container->get(PropertyTestClass::class);
     }
 
     public function testNestedContainers()

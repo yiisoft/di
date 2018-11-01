@@ -15,6 +15,7 @@ class Reference implements DependencyInterface
     {
         $this->id = $id;
     }
+
     public function getId(): string
     {
         return $this->id;
