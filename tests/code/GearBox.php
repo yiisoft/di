@@ -16,9 +16,9 @@ class GearBox implements Initiable
      */
     private $inited = false;
 
-    public function __construct(int $maxGear = null)
+    public function __construct(int $maxGear = 5)
     {
-        $this->maxGear = $maxGear ?: 5;
+        $this->maxGear = $maxGear;
     }
 
     public function init(): void

@@ -2,6 +2,7 @@
 
 namespace yii\di\tests\code;
 
+use yii\di\AbstractContainer;
 use yii\di\support\DeferredServiceProvider;
 
 class CarDeferredProvider extends DeferredServiceProvider
@@ -14,10 +15,10 @@ class CarDeferredProvider extends DeferredServiceProvider
         ];
     }
 
-    public function register(): void
+    public function register(AbstractContainer $container): void
     {
-        $this->container->set(Car::class, Car::class);
-        $this->container->set(CarFactory::class, CarFactory::class);
-        $this->container->set(EngineInterface::class, EngineMarkOne::class);
+        $container->set(Car::class, Car::class);
+        $container->set(CarFactory::class, CarFactory::class);
+        $container->set(EngineInterface::class, EngineMarkOne::class);
     }
 }

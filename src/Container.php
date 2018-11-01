@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use yii\di\contracts\DependencyInterface;
 use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
@@ -46,28 +47,27 @@ class Container extends AbstractContainer
      */
     public function get($id)
     {
-        $id = $this->dereference($id);
-
-        if (isset($this->instances[$id])) {
-            return $this->instances[$id];
+        $reference = is_string($id) ? Reference::to($id) : $id;
+        $id = $this->dereference($reference);
+        if (!isset($this->instances[$id])) {
+            $object = $this->build($reference);
+            $this->initObject($object);
+            $this->instances[$id] = $object;
         }
-
-        $object = $this->build($id);
-        $this->instances[$id] = $object;
-
-        return $this->initObject($object);
+        return $this->instances[$id];
     }
 
     /**
      * Returns a value indicating whether the container has already instantiated
      * instance of the specified name.
      * @param string $id class name, interface name or alias name
-     * @return bool whether the container has instance of id specified.
+     * @return bool whether the container has instance of class specified.
      * @throws CircularReferenceException
      */
     public function hasInstance($id): bool
     {
-        $id = $this->dereference($id);
+        $reference = is_string($id) ? Reference::to($id) : $id;
+        $id = $this->dereference($reference);
 
         return isset($this->instances[$id]);
     }

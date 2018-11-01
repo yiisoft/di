@@ -80,7 +80,7 @@ interface FactoryInterface extends ContainerInterface
      * $db = $factory->ensure(['dsn' => 'sqlite:path/to/my.db'], Connection::class);
      * ```
      *
-     * @param object|string|array|Reference $reference an object, configuration or a reference to the desired object.
+     * @param object|string|array|NamedClassDependency $reference an object, configuration or a reference to the desired object.
      * You may specify a reference in terms of a component ID or an Reference object.
      * Starting from version 2.0.2, you may also pass in a configuration array for creating the object.
      * If the "class" value is not specified in the configuration array, it will use the value of `$type`.

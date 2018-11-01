@@ -10,6 +10,7 @@ use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\Reference;
 use yii\di\tests\code\Car;
+use yii\di\tests\code\ColorInterface;
 use yii\di\tests\code\ColorPink;
 use yii\di\tests\code\ConstructorTestClass;
 use yii\di\tests\code\EngineInterface;
@@ -118,9 +119,9 @@ class ContainerTest extends TestCase
     public function testAlias()
     {
         $container = new Container();
-        $container->set('engine-mark-one', Reference::to('engine'));
+        $container->set('engine-mark-one', Reference::to('engine', EngineInterface::class));
         $container->set('engine', EngineMarkOne::class);
-        $container->set(EngineInterface::class, Reference::to('engine'));
+        $container->set(EngineInterface::class, Reference::to('engine', EngineInterface::class));
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine-mark-one'));
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
@@ -128,9 +129,9 @@ class ContainerTest extends TestCase
     public function testCircularAlias()
     {
         $container = new Container();
-        $container->set('engine-1', Reference::to('engine-2'));
-        $container->set('engine-2', Reference::to('engine-3'));
-        $container->set('engine-3', Reference::to('engine-1'));
+        $container->set('engine-1', Reference::to('engine-2', EngineInterface::class));
+        $container->set('engine-2', Reference::to('engine-3', EngineInterface::class));
+        $container->set('engine-3', Reference::to('engine-1', EngineInterface::class));
 
         $this->expectException(CircularReferenceException::class);
         $container->get('engine-1');
@@ -210,8 +211,10 @@ class ContainerTest extends TestCase
             'color' => ColorPink::class,
             'car' => [
                 '__class' => Car::class,
-                '__construct()' => [new Reference('engine')],
-                'color' => new Reference('color')
+                '__construct()' => [
+                    Reference::to('engine', EngineInterface::class, false)
+                ],
+                'color' => Reference::to('color', ColorInterface::class, false)
             ],
         ]);
         $object = $container->get('car');
@@ -223,11 +226,11 @@ class ContainerTest extends TestCase
     {
         $container = new Container([
             'engine' => EngineMarkOne::class,
-            'e1'     => Reference::to('engine'),
+            'e1'     => Reference::to('engine', EngineInterface::class),
         ]);
-        $ref = Reference::to('engine');
-        $one = $container->get(Reference::to('engine'));
-        $two = $container->get(Reference::to('e1'));
+        $ref = Reference::to('engine', EngineInterface::class);
+        $one = $container->get(Reference::to('engine', EngineInterface::class));
+        $two = $container->get(Reference::to('e1', EngineInterface::class));
         $this->assertInstanceOf(EngineMarkOne::class, $one);
         $this->assertInstanceOf(EngineMarkOne::class, $two);
         $this->assertSame($one, $two);

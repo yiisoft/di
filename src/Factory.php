@@ -26,7 +26,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             return $this->parent->get($id);
         }
 
-        return $this->initObject($this->build($id));
+        return $this->initObject($this->build(Reference::to($id)));
     }
 
     /**
@@ -45,7 +45,7 @@ class Factory extends AbstractContainer implements FactoryInterface
             $class = $config['__class'];
             unset($config['__class']);
 
-            return $this->initObject($this->build($class, $config));
+            return $this->initObject($this->build(Reference::to($class), $config));
         }
 
         if (\is_callable($config, true)) {
@@ -89,12 +89,12 @@ class Factory extends AbstractContainer implements FactoryInterface
         }
 
         if (\is_string($reference)) {
-            $reference = Reference::to($reference);
+            $reference = NamedClassDependency::to($reference);
         } elseif ($type === null || $reference instanceof $type) {
             return $reference;
         }
 
-        if ($reference instanceof Reference) {
+        if ($reference instanceof NamedClassDependency) {
             try {
                 $component = $this->get($reference->getId());
             } catch (\ReflectionException $e) {

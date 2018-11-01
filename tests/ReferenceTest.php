@@ -8,6 +8,7 @@
 namespace yii\di\tests;
 
 use PHPUnit\Framework\TestCase;
+use yii\di\NamedClassDependency;
 use yii\di\Reference;
 use yii\di\tests\code\EngineInterface;
 
