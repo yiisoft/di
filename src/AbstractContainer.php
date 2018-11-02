@@ -66,19 +66,17 @@ abstract class AbstractContainer implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions
+     * @param ServiceProviderInterface[] $providers
      * @param Container|null $parent
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    public function __construct(array $definitions = [], Container $parent = null)
-    {
-        if (isset($definitions['providers'])) {
-            $providers = $definitions['providers'];
-            unset($definitions['providers']);
-        } else {
-            $providers = [];
-        }
+    public function __construct(
+        array $definitions = [],
+        array $providers = [],
+        Container $parent = null
+    ) {
         $this->definitions = $definitions;
         $this->parent = $parent;
 
@@ -213,12 +211,9 @@ abstract class AbstractContainer implements ContainerInterface
      *
      * @param string $id class or identifier of a service.
      */
-    protected function registerProviderIfDeferredFor($id): void
+    private function registerProviderIfDeferredFor(string $id): void
     {
         $providers = $this->deferredProviders;
-        if ($providers->count() === 0) {
-            return;
-        }
 
         foreach ($providers as $provider) {
             if ($provider->hasDefinitionFor($id)) {
@@ -475,7 +470,7 @@ abstract class AbstractContainer implements ContainerInterface
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    protected function buildProvider($providerDefinition): ServiceProviderInterface
+    private function buildProvider($providerDefinition): ServiceProviderInterface
     {
         if (\is_string($providerDefinition)) {
             $provider = $this->buildFromConfig([

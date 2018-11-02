@@ -78,7 +78,7 @@ class ContainerTest extends TestCase
     public function testNestedContainers()
     {
         $parent = new Container();
-        $child = new Container([], $parent);
+        $child = new Container([], [], $parent);
 
         $parent->set('only_parent', EngineMarkOne::class);
         $parent->set('shared', EngineMarkOne::class);
