@@ -112,7 +112,7 @@ abstract class AbstractContainer implements ContainerInterface
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param Reference $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException

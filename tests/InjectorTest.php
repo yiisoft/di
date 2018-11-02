@@ -4,9 +4,9 @@ namespace yii\di\tests;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
-use yii\di\Injector;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
+use yii\di\Injector;
 use yii\di\tests\code\ColorInterface;
 use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkTwo;

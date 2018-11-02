@@ -7,7 +7,6 @@
 
 namespace yii\di\support;
 
-use Psr\Container\ContainerInterface;
 use yii\di\contracts\ServiceProviderInterface;
 
 /**

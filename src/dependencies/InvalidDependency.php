@@ -9,7 +9,6 @@ namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DependencyInterface;
-use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 
 /**

@@ -8,7 +8,6 @@
 namespace yii\di\contracts;
 
 use yii\di\AbstractContainer;
-use yii\di\Container;
 
 /**
  * Represents a component responsible for class registration in the Container.

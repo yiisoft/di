@@ -2,10 +2,6 @@
 
 namespace yii\di\tests;
 
-use yii\di\tests\code\A;
-use yii\di\tests\code\B;
-use yii\di\tests\code\C;
-use yii\di\tests\code\D;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
@@ -13,7 +9,11 @@ use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\Reference;
+use yii\di\tests\code\A;
+use yii\di\tests\code\B;
+use yii\di\tests\code\C;
 use yii\di\tests\code\Car;
+use yii\di\tests\code\CarFactory;
 use yii\di\tests\code\ColorInterface;
 use yii\di\tests\code\ColorPink;
 use yii\di\tests\code\ConstructorTestClass;
@@ -21,7 +21,6 @@ use yii\di\tests\code\EngineInterface;
 use yii\di\tests\code\EngineMarkOne;
 use yii\di\tests\code\EngineMarkTwo;
 use yii\di\tests\code\GearBox;
-use yii\di\tests\code\CarFactory;
 use yii\di\tests\code\InvokeableCarFactory;
 use yii\di\tests\code\MethodTestClass;
 use yii\di\tests\code\PropertyTestClass;
