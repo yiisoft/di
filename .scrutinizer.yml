@@ -1,5 +1,5 @@
 filter:
-  paths: [src/*]
+  paths: [src/*, tests/*]
 checks:
   php: true
 tools:
