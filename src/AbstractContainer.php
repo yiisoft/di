@@ -518,7 +518,7 @@ abstract class AbstractContainer implements ContainerInterface
      */
     protected function resolve(DependencyInterface $dependency)
     {
-        while($dependency instanceof DependencyInterface) {
+        while ($dependency instanceof DependencyInterface) {
             $dependency = $dependency->resolve($this);
 
         }
