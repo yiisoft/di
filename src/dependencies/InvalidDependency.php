@@ -8,6 +8,7 @@
 namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
+use yii\di\AbstractContainer;
 use yii\di\contracts\DependencyInterface;
 use yii\di\exceptions\NotFoundException;
 
@@ -22,7 +23,7 @@ use yii\di\exceptions\NotFoundException;
  */
 class InvalidDependency implements DependencyInterface
 {
-    public function resolve(ContainerInterface $container)
+    public function resolve(AbstractContainer $container)
     {
         throw new NotFoundException('Invalid reference');
     }

@@ -8,6 +8,7 @@
 namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
+use yii\di\AbstractContainer;
 use yii\di\contracts\DependencyInterface;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -30,7 +31,7 @@ class ClassDependency implements DependencyInterface
         $this->optional = $optional;
     }
 
-    public function resolve(ContainerInterface $container)
+    public function resolve(AbstractContainer $container)
     {
         try {
             $result = $container->get($this->class);

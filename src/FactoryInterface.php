@@ -11,12 +11,11 @@ use Psr\Container\ContainerInterface;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
- * Factory extends container with create and ensure methods.
- *
- * @author Andrii Vasyliev <sol@hiqdev.com>
- * @since 1.0
+ * Factory allows for creation of object using runtime parameters.
+ * A factory will try to use a PSR-11 compliant container to get dependencies, but will fall back to manual instantiation
+ * if the container cannot provide a required dependency.
  */
-interface FactoryInterface extends ContainerInterface
+interface FactoryInterface
 {
     /**
      * Creates a new object using the given configuration and constructor arguments.

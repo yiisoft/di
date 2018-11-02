@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
@@ -14,11 +15,8 @@ use yii\di\exceptions\NotInstantiableException;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
- *
- * @author Alexander Makarov <sam@rmcreative.ru>
- * @since 1.0
  */
-class Container extends AbstractContainer
+class Container extends AbstractContainer implements ContainerInterface
 {
     /**
      * @var object[]

@@ -8,27 +8,10 @@
 namespace yii\di;
 
 use yii\di\exceptions\InvalidConfigException;
+use yii\di\exceptions\NotFoundException;
 
-/**
- * Factory is similar to the Container but creates new object every time.
- *
- * @author Andrii Vasyliev <sol@hiqdev.com>
- * @since 1.0
- */
 class Factory extends AbstractContainer implements FactoryInterface
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function get($id)
-    {
-        if ($this->parent !== null && $this->getDefinition($id) === null) {
-            return $this->parent->get($id);
-        }
-
-        return $this->initObject($this->build(Reference::to($id)));
-    }
-
     /**
      * {@inheritdoc}
      */

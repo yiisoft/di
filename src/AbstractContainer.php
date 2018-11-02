@@ -24,18 +24,11 @@ use yii\di\resolvers\ClassNameResolver;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
- *
- * @author Alexander Makarov <sam@rmcreative.ru>
- * @since 1.0
  */
-abstract class AbstractContainer implements ContainerInterface
+abstract class AbstractContainer
 {
     /**
-     * @var ContainerInterface
-     */
-    protected $parent;
-    /**
-     * @var array object definitions indexed by their types
+     * @var Definition[] object definitions indexed by their types
      */
     private $definitions;
     /**
@@ -67,25 +60,26 @@ abstract class AbstractContainer implements ContainerInterface
      *
      * @param array $definitions
      * @param ServiceProviderInterface[] $providers
-     * @param Container|null $parent
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
-        array $providers = [],
-        Container $parent = null
+        array $providers = []
     ) {
-        $this->definitions = $definitions;
-        $this->parent = $parent;
-
+        $this->setAll($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
     }
 
+    public function get($id)
+    {
+        $reference = is_string($id) ? Reference::to($id) : $id;
+        return $this->build($reference);
+    }
 
     private function getReflectionClass(string $class)
     {
@@ -97,12 +91,9 @@ abstract class AbstractContainer implements ContainerInterface
 
     }
     /**
-     * Returns original definition by class.
-     *
-     * @param string $id
-     * @return null|array|object|Closure null if not defined
+     * Returns normalized definition for a given id
      */
-    public function getDefinition($id)
+    public function getDefinition(string $id): ?Definition
     {
         return $this->definitions[$id] ?? null;
     }
@@ -117,8 +108,9 @@ abstract class AbstractContainer implements ContainerInterface
      * @throws InvalidConfigException
      * @throws NotFoundException if there is nothing registered with alias or interface specified
      * @throws NotInstantiableException
+     * @internal
      */
-    final public function build(Reference $reference, array $config = [])
+    protected function build(Reference $reference)
     {
         $id = $this->dereference($reference);
 
@@ -133,58 +125,24 @@ abstract class AbstractContainer implements ContainerInterface
 
         $this->registerProviderIfDeferredFor($id);
 
-        $object = isset($this->definitions[$id])
-            ? $this->buildWithDefinition($config, $this->definitions[$id])
-            : $this->buildWithoutDefinition($id, $config)
-        ;
-
-        unset($this->building[$id]);
-
-        if ($object instanceof DependencyInterface) {
-            return $this->resolve($object);
+        if (!isset($this->definitions[$id])) {
+            throw new NotFoundException("No definition for $id");
         }
-        return $object;
+
+
+        $definition = $this->definitions[$id];
+        return $definition->resolve($this);
     }
 
     /**
-     * Creates new instance without definition in container.
+     * Creates new instance by given definition.
      *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
-     * @param array $config
-     * @return object new built instance
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundException
-     * @throws NotInstantiableException
-     */
-    private function buildWithoutDefinition($id, array $config = [])
-    {
-        if (isset($config['__class'])) {
-            return $this->buildFromConfig($config);
-        }
-
-        if ($this->parent !== null) {
-            return $this->parent->build(Reference::to($id), $config);
-        }
-
-        if (class_exists($id)) {
-            $config['__class'] = $id;
-            return $this->buildFromConfig($config);
-        }
-
-        throw new NotFoundException("No definition for \"$id\" found");
-    }
-
-    /**
-     * Creates new instance by given config and definition.
-     *
-     * @param array $config
      * @param array|string|object $definition
      * @return object new built instance
      * @throws InvalidConfigException when definition type is not expected
      * @throws NotInstantiableException
      */
-    private function buildWithDefinition(array $config = [], $definition = null)
+    private function buildWithDefinition($definition)
     {
         if (\is_string($definition)) {
             $definition = ['__class' => $definition];
@@ -195,7 +153,7 @@ abstract class AbstractContainer implements ContainerInterface
         }
 
         if (\is_callable($definition)) {
-            return $definition($this, $config);
+            return $definition($this);
         }
 
         if (\is_object($definition)) {
@@ -264,7 +222,7 @@ abstract class AbstractContainer implements ContainerInterface
      */
     public function set(string $id, $definition): void
     {
-        $this->definitions[$id] = $definition;
+        $this->definitions[$id] = Definition::normalize($definition);
     }
 
     /**
@@ -288,7 +246,6 @@ abstract class AbstractContainer implements ContainerInterface
     public function has($id): bool
     {
         $id = $this->dereference(Reference::to($id));
-
         return isset($this->definitions[$id]);
     }
 
@@ -319,8 +276,9 @@ abstract class AbstractContainer implements ContainerInterface
      * @param Reference $id
      * @return string
      * @throws CircularReferenceException when circular reference gets detected
+     * @internal
      */
-    protected function dereference(Reference $reference): string
+    public function dereference(Reference $reference): string
     {
         return $this->internalDereference($reference, []);
     }
@@ -377,30 +335,7 @@ abstract class AbstractContainer implements ContainerInterface
         return $object;
     }
 
-    /**
-     * Configures an object with the given configuration.
-     * @deprecated Not recommended for explicit use. Added only to support Yii 2.0 behavior.
-     * @param object $object the object to be configured
-     * @param iterable $config property values and methods to call
-     * @return object the object itself
-     */
-    protected function configure($object, iterable $config)
-    {
-        foreach ($config as $action => $arguments) {
-            if (substr($action, -2) === '()') {
-                // method call
-                \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
-            } else {
-                // property
-                if ($arguments instanceof DependencyInterface) {
-                    $arguments = $arguments->resolve($this);
-                }
-                $object->$action = $arguments;
-            }
-        }
 
-        return $object;
-    }
 
     /**
      * Returns the dependencies of the specified class.
@@ -408,8 +343,9 @@ abstract class AbstractContainer implements ContainerInterface
      * @return DependencyInterface[] the dependencies of the specified class.
      * @throws InvalidConfigException
      * @throws NotInstantiableException
+     * @internal
      */
-    protected function getDependencies($class): array
+    public function getDependencies($class): array
     {
         if (!isset($this->dependencies[$class])) {
 
@@ -472,17 +408,7 @@ abstract class AbstractContainer implements ContainerInterface
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        if (\is_string($providerDefinition)) {
-            $provider = $this->buildFromConfig([
-                '__class' => $providerDefinition,
-            ]);
-        } elseif (\is_array($providerDefinition) && isset($providerDefinition['__class'])) {
-            $provider = $this->buildFromConfig($providerDefinition);
-        } else {
-            throw new InvalidConfigException('Service provider definition should be a class name ' .
-                'or array contains "__class" with a class name of provider.');
-        }
-
+        $provider = Definition::normalize($providerDefinition)->resolve($this);
         if (!($provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 'Service provider should be an instance of ' . ServiceProviderInterface::class
@@ -515,8 +441,17 @@ abstract class AbstractContainer implements ContainerInterface
     {
         while ($dependency instanceof DependencyInterface) {
             $dependency = $dependency->resolve($this);
-
         }
         return $dependency;
+    }
+
+    /**
+     * @param string $class The class name to construct
+     * @param DependencyInterface[] $dependencies The list if dependencies
+     * @internal
+     */
+    public function createFromDependencies(string $class, array $dependencies = [])
+    {
+        return $this->getReflectionClass($class)->newInstanceArgs($this->resolveDependencies($dependencies));
     }
 }

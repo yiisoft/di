@@ -4,7 +4,7 @@
 namespace yii\di\dependencies;
 
 
-use Psr\Container\ContainerInterface;
+use yii\di\AbstractContainer;
 use yii\di\contracts\DependencyInterface;
 
 class ValueDependency implements DependencyInterface
@@ -17,9 +17,9 @@ class ValueDependency implements DependencyInterface
     }
 
     /**
-     * @param ContainerInterface $container
+     * @param AbstractContainer $container
      */
-    public function resolve(ContainerInterface $container)
+    public function resolve(AbstractContainer $container)
     {
         return $this->value;
     }

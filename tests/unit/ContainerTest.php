@@ -5,6 +5,7 @@ namespace yii\di\tests\unit;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
+use yii\di\Definition;
 use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
@@ -17,6 +18,7 @@ use yii\di\tests\support\CarFactory;
 use yii\di\tests\support\ColorInterface;
 use yii\di\tests\support\ColorPink;
 use yii\di\tests\support\ConstructorTestClass;
+use yii\di\tests\support\D;
 use yii\di\tests\support\EngineInterface;
 use yii\di\tests\support\EngineMarkOne;
 use yii\di\tests\support\EngineMarkTwo;
@@ -33,11 +35,11 @@ class ContainerTest extends TestCase
 {
     public function testSettingScalars()
     {
+        $this->expectException(InvalidConfigException::class);
         $container = new Container([
             'scalar' => 123,
         ]);
 
-        $this->expectException(InvalidConfigException::class);
         $container->get('scalar');
     }
 
@@ -49,43 +51,41 @@ class ContainerTest extends TestCase
         $container->get('non_existing');
     }
 
-    public function testCircularClassDependency()
+    public function testOptionalClassDependency()
     {
         $container = new Container();
         $container->set(A::class, A::class);
 
         $a = $container->get(A::class);
-        $this->assertInstanceOf(B::class, $a->b);
+        // Container can not create instance of B since we have not provided a definition.
+        $this->assertNull($a->b);
+    }
 
+    public function testOptionalCircularClassDependency()
+    {
+        $container = new Container();
         $container->set(A::class, A::class);
         $container->set(B::class, B::class);
         $a = $container->get(A::class);
         $this->assertInstanceOf(B::class, $a->b);
+        $this->assertNull($a->b->a);
+    }
 
+    public function testCircularClassDependency()
+    {
+        $container = new Container();
+        $container->set(C::class, C::class);
+        $container->set(D::class, D::class);
         $this->expectException(CircularReferenceException::class);
         $container->get(C::class);
     }
 
     public function testThrowingNotFoundException2()
     {
-        $this->markTestSkipped('Skipped since currently we implement unknown class creation');
         $container = new Container();
         $this->assertFalse($container->has(PropertyTestClass::class));
         $this->expectException(NotFoundException::class);
         $container->get(PropertyTestClass::class);
-    }
-
-    public function testNestedContainers()
-    {
-        $parent = new Container();
-        $child = new Container([], [], $parent);
-
-        $parent->set('only_parent', EngineMarkOne::class);
-        $parent->set('shared', EngineMarkOne::class);
-        $child->set('shared', EngineMarkTwo::class);
-
-        $this->assertInstanceOf(EngineMarkOne::class, $child->get('only_parent'));
-        $this->assertInstanceOf(EngineMarkTwo::class, $child->get('shared'));
     }
 
     public function testClassSimple()
@@ -148,9 +148,9 @@ class ContainerTest extends TestCase
     public function testAlias()
     {
         $container = new Container();
-        $container->set('engine-mark-one', Reference::to('engine', EngineInterface::class));
+        $container->set('engine-mark-one', Reference::to('engine'));
         $container->set('engine', EngineMarkOne::class);
-        $container->set(EngineInterface::class, Reference::to('engine', EngineInterface::class));
+        $container->set(EngineInterface::class, Reference::to('engine'));
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine-mark-one'));
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
@@ -158,9 +158,9 @@ class ContainerTest extends TestCase
     public function testCircularAlias()
     {
         $container = new Container();
-        $container->set('engine-1', Reference::to('engine-2', EngineInterface::class));
-        $container->set('engine-2', Reference::to('engine-3', EngineInterface::class));
-        $container->set('engine-3', Reference::to('engine-1', EngineInterface::class));
+        $container->set('engine-1', Reference::to('engine-2'));
+        $container->set('engine-2', Reference::to('engine-3'));
+        $container->set('engine-3', Reference::to('engine-1'));
 
         $this->expectException(CircularReferenceException::class);
         $container->get('engine-1');
@@ -299,10 +299,11 @@ class ContainerTest extends TestCase
         $definition = [
             '__class' => EngineMarkOne::class,
         ];
+
         $container = new Container([
             'engine' => $definition,
         ]);
         $container->get('engine');
-        $this->assertSame($definition, $container->getDefinition('engine'));
+        $this->assertEquals(Definition::normalize($definition), $container->getDefinition('engine'));
     }
 }

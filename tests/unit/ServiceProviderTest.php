@@ -54,22 +54,9 @@ class ServiceProviderTest extends TestCase
         );
     }
 
-    public function testAddProviderRejectObject()
-    {
-        $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage('Service provider definition should be a class name ' .
-            'or array contains "__class" with a class name of provider.');
-
-        $container = new Container();
-        $container->addProvider(new CarProvider($container));
-    }
-
     public function testAddProviderRejectDefinitionWithoutClass()
     {
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage('Service provider definition should be a class name ' .
-            'or array contains "__class" with a class name of provider.');
-
         $container = new Container();
         $container->addProvider([
             'property' => 234

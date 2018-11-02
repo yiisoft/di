@@ -4,7 +4,7 @@
 namespace yii\di\contracts;
 
 
-use Psr\Container\ContainerInterface;
+use yii\di\AbstractContainer;
 
 /**
  * Interface DependencyInterface
@@ -13,7 +13,7 @@ use Psr\Container\ContainerInterface;
 interface DependencyInterface
 {
     /**
-     * @param ContainerInterface $container
+     * @param AbstractContainer $container
      */
-    public function resolve(ContainerInterface $container);
+    public function resolve(AbstractContainer $container);
 }

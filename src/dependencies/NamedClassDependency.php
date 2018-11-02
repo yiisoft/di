@@ -8,6 +8,7 @@
 namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
+use yii\di\AbstractContainer;
 use yii\di\contracts\DependencyInterface;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -38,7 +39,7 @@ class NamedClassDependency implements DependencyInterface
         return new self($id, $class, false);
     }
 
-    public function resolve(ContainerInterface $container)
+    public function resolve(AbstractContainer $container)
     {
         try {
             $result = $container->get($this->id);
