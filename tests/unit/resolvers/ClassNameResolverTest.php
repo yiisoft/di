@@ -8,12 +8,12 @@ use yii\di\contracts\DependencyInterface;
 use yii\di\dependencies\ClassDependency;
 use yii\di\exceptions\NotFoundException;
 use yii\di\resolvers\ClassNameResolver;
-use yii\di\tests\code\Car;
-use yii\di\tests\code\GearBox;
-use yii\di\tests\code\NullableConcreteDependency;
-use yii\di\tests\code\NullableInterfaceDependency;
-use yii\di\tests\code\OptionalConcreteDependency;
-use yii\di\tests\code\OptionalInterfaceDependency;
+use yii\di\tests\support\Car;
+use yii\di\tests\support\GearBox;
+use yii\di\tests\support\NullableConcreteDependency;
+use yii\di\tests\support\NullableInterfaceDependency;
+use yii\di\tests\support\OptionalConcreteDependency;
+use yii\di\tests\support\OptionalInterfaceDependency;
 
 class ClassNameResolverTest extends TestCase
 {

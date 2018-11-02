@@ -4,7 +4,7 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Factory;
-use yii\di\tests\code\EngineMarkOne;
+use yii\di\tests\support\EngineMarkOne;
 
 /**
  * FactoryTest contains tests for \yii\di\Factory

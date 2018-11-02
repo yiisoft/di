@@ -4,10 +4,10 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
-use yii\di\tests\code\Car;
-use yii\di\tests\code\CarDeferredProvider;
-use yii\di\tests\code\EngineInterface;
-use yii\di\tests\code\EngineMarkOne;
+use yii\di\tests\support\Car;
+use yii\di\tests\support\CarDeferredProvider;
+use yii\di\tests\support\EngineInterface;
+use yii\di\tests\support\EngineMarkOne;
 
 /**
  * Test for {@link \yii\di\support\DeferredServiceProvider}

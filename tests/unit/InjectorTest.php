@@ -7,9 +7,9 @@ use yii\di\Container;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\Injector;
-use yii\di\tests\code\ColorInterface;
-use yii\di\tests\code\EngineInterface;
-use yii\di\tests\code\EngineMarkTwo;
+use yii\di\tests\support\ColorInterface;
+use yii\di\tests\support\EngineInterface;
+use yii\di\tests\support\EngineMarkTwo;
 
 /**
  * InjectorTest contains tests for \yii\di\Injector

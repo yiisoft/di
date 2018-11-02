@@ -46,5 +46,20 @@
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "scripts": {
+        "test": [
+            "@install",
+            "phpdbg -qrr vendor/bin/phpunit --coverage-clover tests/output/clover.xml --coverage-html tests/output/coverage"
+        ],
+        "bench": [
+            "@install",
+            "phpbench run"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run all tests",
+        "bench": "Run all benchmarks"
     }
+
 }

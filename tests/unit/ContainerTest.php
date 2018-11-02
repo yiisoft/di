@@ -9,22 +9,22 @@ use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
 use yii\di\Reference;
-use yii\di\tests\code\A;
-use yii\di\tests\code\B;
-use yii\di\tests\code\C;
-use yii\di\tests\code\Car;
-use yii\di\tests\code\CarFactory;
-use yii\di\tests\code\ColorInterface;
-use yii\di\tests\code\ColorPink;
-use yii\di\tests\code\ConstructorTestClass;
-use yii\di\tests\code\EngineInterface;
-use yii\di\tests\code\EngineMarkOne;
-use yii\di\tests\code\EngineMarkTwo;
-use yii\di\tests\code\GearBox;
-use yii\di\tests\code\InvokeableCarFactory;
-use yii\di\tests\code\MethodTestClass;
-use yii\di\tests\code\PropertyTestClass;
-use yii\di\tests\code\TreeItem;
+use yii\di\tests\support\A;
+use yii\di\tests\support\B;
+use yii\di\tests\support\C;
+use yii\di\tests\support\Car;
+use yii\di\tests\support\CarFactory;
+use yii\di\tests\support\ColorInterface;
+use yii\di\tests\support\ColorPink;
+use yii\di\tests\support\ConstructorTestClass;
+use yii\di\tests\support\EngineInterface;
+use yii\di\tests\support\EngineMarkOne;
+use yii\di\tests\support\EngineMarkTwo;
+use yii\di\tests\support\GearBox;
+use yii\di\tests\support\InvokeableCarFactory;
+use yii\di\tests\support\MethodTestClass;
+use yii\di\tests\support\PropertyTestClass;
+use yii\di\tests\support\TreeItem;
 
 /**
  * ContainerTest contains tests for \yii\di\Container
@@ -62,12 +62,13 @@ class ContainerTest extends TestCase
         $a = $container->get(A::class);
         $this->assertInstanceOf(B::class, $a->b);
 
-
+        $this->expectException(CircularReferenceException::class);
         $container->get(C::class);
     }
 
     public function testThrowingNotFoundException2()
     {
+        $this->markTestSkipped('Skipped since currently we implement unknown class creation');
         $container = new Container();
         $this->assertFalse($container->has(PropertyTestClass::class));
         $this->expectException(NotFoundException::class);

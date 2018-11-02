@@ -5,7 +5,7 @@ namespace yii\di\tests\support;
 /**
  * Class ColorPink
  *
- * @package yii\di\tests\code
+ * @package yii\di\tests\support
  */
 class ColorPink implements ColorInterface
 {

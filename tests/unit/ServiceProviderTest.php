@@ -5,9 +5,9 @@ namespace yii\di\tests\unit;
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
 use yii\di\exceptions\InvalidConfigException;
-use yii\di\tests\code\Car;
-use yii\di\tests\code\CarFactory;
-use yii\di\tests\code\CarProvider;
+use yii\di\tests\support\Car;
+use yii\di\tests\support\CarFactory;
+use yii\di\tests\support\CarProvider;
 
 /**
  * Test for {@link Container} and {@link \yii\di\support\ServiceProvider}

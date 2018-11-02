@@ -16,13 +16,13 @@ sudo: false
 cache:
   directories:
     - $HOME/.composer/cache
-
 install:
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - travis_retry composer install --prefer-dist --no-interaction
-
+  - travis_retry composer install --prefer-dist --no-intraction
 script:
-  - |
-    vendor/bin/phpcs --standard=PSR2 src tests &&
-    vendor/bin/phpunit $PHPUNIT_FLAGS
+  - composer test
+after_script:
+  - composer bench
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload  --format=php-clover tests/output/clover.xml
