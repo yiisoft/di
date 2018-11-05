@@ -3,7 +3,6 @@
 
 namespace yii\di;
 
-
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DependencyInterface;
 

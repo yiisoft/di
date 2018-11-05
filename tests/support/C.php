@@ -3,7 +3,6 @@
 
 namespace yii\di\tests\support;
 
-
 class C
 {
     public $d;

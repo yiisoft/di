@@ -3,7 +3,6 @@
 
 namespace yii\di\tests\support;
 
-
 class D
 {
     public $c;
@@ -12,5 +11,4 @@ class D
     {
         $this->c = $c;
     }
-
 }

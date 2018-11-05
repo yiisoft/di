@@ -3,7 +3,6 @@
 
 namespace yii\di\tests\benchmark;
 
-
 use yii\di\Container;
 use yii\di\Reference;
 use yii\di\tests\support\Car;
@@ -37,7 +36,7 @@ class ContainerBench
     public function before()
     {
         $definitions = [];
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $this->indexes[] = $i;
             $definitions["service$i"] = Reference::to('service');
         }
@@ -50,7 +49,7 @@ class ContainerBench
     public function benchConstructStupid()
     {
         $container = new Container();
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $container->set("service$i", PropertyTestClass::class);
         }
     }
@@ -61,7 +60,7 @@ class ContainerBench
     public function benchConstructSmart()
     {
         $definitions = [];
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             $definitions["service$i"] = PropertyTestClass::class;
         }
         $container = new Container($definitions);
@@ -76,7 +75,7 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $this->container->setAll($params['otherDefinitions']);
         }
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
             $this->container->get("service$i");
@@ -92,12 +91,10 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $this->container->setAll($params['otherDefinitions']);
         }
-        for($i = 0; $i < 1000; $i++) {
+        for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
             $this->container->get("service$index");
         }
     }
-
-
 }

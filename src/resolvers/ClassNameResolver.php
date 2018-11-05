@@ -3,7 +3,6 @@
 
 namespace yii\di\resolvers;
 
-
 use yii\di\contracts\DependencyInterface;
 use yii\di\contracts\DependencyResolverInterface;
 use yii\di\dependencies\ClassDependency;
@@ -35,8 +34,7 @@ class ClassNameResolver implements DependencyResolverInterface
     private function resolveFunction(\ReflectionFunctionAbstract $reflectionFunction): array
     {
         $result = [];
-        foreach ($reflectionFunction->getParameters() as $parameter)
-        {
+        foreach ($reflectionFunction->getParameters() as $parameter) {
             $result[] = $this->resolveParameter($parameter);
         }
         return $result;

@@ -3,7 +3,6 @@
 
 namespace yii\di\contracts;
 
-
 use yii\di\AbstractContainer;
 
 /**

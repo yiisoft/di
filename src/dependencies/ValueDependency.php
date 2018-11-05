@@ -3,7 +3,6 @@
 
 namespace yii\di\dependencies;
 
-
 use yii\di\AbstractContainer;
 use yii\di\contracts\DependencyInterface;
 

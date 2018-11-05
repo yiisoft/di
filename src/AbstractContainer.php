@@ -88,7 +88,6 @@ abstract class AbstractContainer
         }
 
         return $this->reflections[$class];
-
     }
     /**
      * Returns normalized definition for a given id
@@ -348,7 +347,6 @@ abstract class AbstractContainer
     public function getDependencies($class): array
     {
         if (!isset($this->dependencies[$class])) {
-
             // For now use hard coded resolver.
             $resolver = new ClassNameResolver();
 

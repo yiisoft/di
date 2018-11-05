@@ -3,7 +3,6 @@
 
 namespace yii\di\traits;
 
-
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DependencyInterface;
 
