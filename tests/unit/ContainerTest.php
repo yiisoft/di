@@ -4,6 +4,7 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use yii\di\CompositeContainer;
 use yii\di\Container;
 use yii\di\Definition;
 use yii\di\exceptions\CircularReferenceException;
@@ -15,7 +16,6 @@ use yii\di\tests\support\B;
 use yii\di\tests\support\C;
 use yii\di\tests\support\Car;
 use yii\di\tests\support\CarFactory;
-use yii\di\tests\support\ColorInterface;
 use yii\di\tests\support\ColorPink;
 use yii\di\tests\support\ConstructorTestClass;
 use yii\di\tests\support\D;
@@ -33,6 +33,7 @@ use yii\di\tests\support\TreeItem;
  */
 class ContainerTest extends TestCase
 {
+
     public function testSettingScalars()
     {
         $this->expectException(InvalidConfigException::class);
@@ -241,9 +242,9 @@ class ContainerTest extends TestCase
             'car' => [
                 '__class' => Car::class,
                 '__construct()' => [
-                    Reference::to('engine', EngineInterface::class, false)
+                    Reference::to('engine')
                 ],
-                'color' => Reference::to('color', ColorInterface::class, false)
+                'color' => Reference::to('color')
             ],
         ]);
         $object = $container->get('car');

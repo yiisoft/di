@@ -8,94 +8,15 @@
 namespace yii\di;
 
 use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotFoundException;
 
-class Factory extends AbstractContainer implements FactoryInterface
+class Factory extends Container implements FactoryInterface
 {
     /**
      * {@inheritdoc}
      */
     public function create($config, array $params = [])
     {
-        if (\is_string($config)) {
-            $config = ['__class' => $config];
-        }
-
-        if (\is_array($config) && isset($config['__class'])) {
-            if (!empty($params)) {
-                $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
-            }
-            $class = $config['__class'];
-            unset($config['__class']);
-
-            return $this->initObject($this->build(Reference::to($class), $config));
-        }
-
-        if (\is_callable($config, true)) {
-            return $this->getInjector()->invoke($config, $params);
-        }
-
-        if (\is_array($config)) {
-            throw new InvalidConfigException('Object configuration array must contain a "__class" element.');
-        }
-
-        throw new InvalidConfigException('Unsupported configuration type: ' . \gettype($config));
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function ensure($reference, string $type = null)
-    {
-        if (\is_array($reference)) {
-            if (empty($reference['__class'])) {
-                $class = $type;
-            } else {
-                $class = $reference['__class'];
-                unset($reference['__class']);
-            }
-
-            $component = $this->initObject($this->build($class, $reference));
-            if ($type === null || $component instanceof $type) {
-                return $component;
-            }
-
-            throw new InvalidConfigException(sprintf(
-                'Invalid data type: %s. %s is expected.',
-                \get_class($component),
-                $type
-            ));
-        }
-
-        if (empty($reference)) {
-            throw new InvalidConfigException('The required component is not specified.');
-        }
-
-        if (\is_string($reference)) {
-            $reference = NamedClassDependency::to($reference);
-        } elseif ($type === null || $reference instanceof $type) {
-            return $reference;
-        }
-
-        if ($reference instanceof NamedClassDependency) {
-            try {
-                $component = $this->get($reference->getId());
-            } catch (\ReflectionException $e) {
-                throw new InvalidConfigException("Failed instantiate component or class '{$reference->getId()}'.", 0, $e);
-            }
-            if ($type === null || $component instanceof $type) {
-                return $component;
-            }
-
-            throw new InvalidConfigException(sprintf(
-                "'%s' refers to a %s component. %s is expected.",
-                $reference->getId(),
-                \get_class($component),
-                $type
-            ));
-        }
-
-        $valueType = \is_object($reference) ? \get_class($reference) : \gettype($reference);
-        throw new InvalidConfigException("Invalid data type: $valueType. $type is expected.");
+        $definition = Definition::normalize($config);
+        return $definition->resolve($this);
     }
 }

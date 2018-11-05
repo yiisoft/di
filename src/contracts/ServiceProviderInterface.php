@@ -7,7 +7,7 @@
 
 namespace yii\di\contracts;
 
-use yii\di\AbstractContainer;
+use yii\di\Container;
 
 /**
  * Represents a component responsible for class registration in the Container.
@@ -64,7 +64,7 @@ interface ServiceProviderInterface
      * - This method should be idempotent
      * This method may be called multiple times with different container objects, or multiple times with the same object.
      *
-     * @param AbstractContainer $container the container in which to register the services.
+     * @param Container $container the container in which to register the services.
      */
-    public function register(AbstractContainer $container): void;
+    public function register(Container $container): void;
 }

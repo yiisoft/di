@@ -3,11 +3,13 @@
 
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use yii\di\contracts\DependencyInterface;
 use yii\di\dependencies\NamedDependency;
 use yii\di\dependencies\ValueDependency;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotInstantiableException;
+use yii\di\resolvers\ClassNameResolver;
 
 /**
  * Class Definition represents a definition in a container
@@ -15,11 +17,17 @@ use yii\di\exceptions\NotInstantiableException;
  */
 class Definition
 {
+    private static $dependencies = [];
+
     private const TYPE_CALLABLE = 'callable';
     private const TYPE_ARRAY = 'array';
     private const TYPE_RESOLVABLE = 'resolvable';
     private const TYPE_VALUE = 'value';
     private $type;
+
+    /**
+     * @var array|DependencyInterface
+     */
     private $config;
 
     private function __construct($config, string $type)
@@ -62,9 +70,9 @@ class Definition
 
     /**
      * @param array $definition
-     * @param AbstractContainer $container
+     * @param ContainerInterface $rootContainer
      */
-    private function resolveArray(array $config, AbstractContainer $container)
+    private function resolveArray(array $config, ContainerInterface $rootContainer)
     {
         if (empty($config['__class'])) {
             throw new NotInstantiableException(var_export($config, true));
@@ -72,43 +80,46 @@ class Definition
         $class = $config['__class'];
         unset($config['__class']);
 
-        $dependencies = $container->getDependencies($class);
-
+        $dependencies = $this->getDependencies($class);
 
         if (isset($config['__construct()'])) {
             foreach (array_values($config['__construct()']) as $index => $param) {
                 if (!$param instanceof Reference) {
                     $dependencies[$index] = new ValueDependency($param);
                 } else {
-                    $dependencies[$index] = new NamedDependency($container->dereference($param), false);
+                    $dependencies[$index] = new NamedDependency($param->getId(), false);
                 }
             }
             unset($config['__construct()']);
         }
 
+        $resolved = [];
+        /** @var DependencyInterface $dependency */
+        foreach ($dependencies as $dependency) {
+            $resolved[] = $dependency->resolve($rootContainer);
+        }
+        $object = new $class(...$resolved);
 
-        $object = $container->createFromDependencies($class, $dependencies);
-
-        $this->configure($object, $config, $container);
+        $this->configure($object, $config, $rootContainer);
         return $object;
     }
 
     /**
-     * @param AbstractContainer $container
+     * @param Container $container
      * @return mixed|object
      * @throws NotInstantiableException
      */
-    public function resolve(AbstractContainer $container)
+    public function resolve(ContainerInterface $rootContainer)
     {
         switch ($this->type) {
             case self::TYPE_CALLABLE:
-                return call_user_func($this->config, $container);
+                return call_user_func($this->config, $rootContainer);
             case self::TYPE_ARRAY:
-                return $this->resolveArray($this->config, $container);
+                return $this->resolveArray($this->config, $rootContainer);
             case self::TYPE_VALUE:
                 return $this->config;
             case self::TYPE_RESOLVABLE:
-                return $this->config->resolve($container);
+                return $this->config->resolve($rootContainer);
         }
 
         throw new \RuntimeException('Attempted to resolve invalid definition of type: ' . $this->type);
@@ -119,9 +130,10 @@ class Definition
      * @deprecated Not recommended for explicit use. Added only to support Yii 2.0 behavior.
      * @param object $object the object to be configured
      * @param iterable $config property values and methods to call
+     * @param ContainerInterface $container
      * @return object the object itself
      */
-    private function configure($object, iterable $config, AbstractContainer $container)
+    private function configure($object, iterable $config, ContainerInterface $container)
     {
         foreach ($config as $action => $arguments) {
             if (substr($action, -2) === '()') {
@@ -137,5 +149,25 @@ class Definition
         }
 
         return $object;
+    }
+
+    /**
+     * Returns the dependencies of the specified class.
+     * @param string $class class name, interface name or alias name
+     * @return DependencyInterface[] the dependencies of the specified class.
+     * @throws InvalidConfigException
+     * @throws NotInstantiableException
+     * @internal
+     */
+    private function getDependencies(string $class): array
+    {
+        if (!isset($this->dependencies[$class])) {
+            // For now use hard coded resolver.
+            $resolver = new ClassNameResolver();
+
+            self::$dependencies[$class] = $resolver->resolveConstructor($class);
+        }
+
+        return self::$dependencies[$class];
     }
 }

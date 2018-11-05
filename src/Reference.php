@@ -26,9 +26,9 @@ class Reference implements DependencyInterface
     }
 
     /**
-     * @param AbstractContainer $container
+     * @param Container $container
      */
-    public function resolve(AbstractContainer $container)
+    public function resolve(ContainerInterface $container)
     {
         return $container->get($this->id);
     }

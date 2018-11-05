@@ -7,7 +7,8 @@
 
 namespace yii\di\dependencies;
 
-use yii\di\AbstractContainer;
+use Psr\Container\ContainerInterface;
+use yii\di\Container;
 use yii\di\contracts\DependencyInterface;
 
 /**
@@ -34,7 +35,7 @@ class NamedDependency implements DependencyInterface
         return new self($id, false);
     }
 
-    public function resolve(AbstractContainer $container)
+    public function resolve(ContainerInterface $container)
     {
         try {
             $result = $container->get($this->id);
