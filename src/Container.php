@@ -51,6 +51,8 @@ class Container implements ContainerInterface
      */
     private $instances;
 
+    /** @var ?ContainerInterface */
+    private $rootContainer;
     /**
      * Container constructor.
      *
@@ -62,8 +64,10 @@ class Container implements ContainerInterface
      */
     public function __construct(
         array $definitions = [],
-        array $providers = []
+        array $providers = [],
+        ?ContainerInterface $rootContainer = null
     ) {
+        $this->rootContainer = $rootContainer;
         $this->setAll($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
@@ -333,7 +337,7 @@ class Container implements ContainerInterface
 
     public function getRootContainer(): ContainerInterface
     {
-        return $this;
+        return $this->rootContainer ?? $this;
     }
 
     /**

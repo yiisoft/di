@@ -3,6 +3,7 @@
 
 namespace yii\di\tests\benchmark;
 
+use yii\di\CompositeContainer;
 use yii\di\Container;
 use yii\di\Reference;
 use yii\di\tests\support\Car;
@@ -17,6 +18,10 @@ class ContainerBench
 {
     /** @var Container */
     private $container;
+
+    /** @var CompositeContainer */
+    private $composite;
+
     /** @var int[] */
     private $indexes = [];
 
@@ -36,11 +41,27 @@ class ContainerBench
     public function before()
     {
         $definitions = [];
+        $definitions2 = [];
         for ($i = 0; $i < 1000; $i++) {
             $this->indexes[] = $i;
             $definitions["service$i"] = Reference::to('service');
+            $definitions2["second$i"] = Reference::to('service');
+            $definitions3["third$i"] = Reference::to('service');
         }
         $this->container = new Container($definitions);
+
+        $this->composite = new CompositeContainer();
+        // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
+        $this->composite->attach(new Container($definitions2));
+        $this->composite->attach(new Container($definitions3));
+        $this->composite->attach(new Container($definitions2));
+        $this->composite->attach(new Container($definitions3));
+        $this->composite->attach(new Container($definitions2));
+        $this->composite->attach(new Container($definitions3));
+        $this->composite->attach(new Container($definitions2));
+        $this->composite->attach(new Container($definitions3));
+        $this->composite->attach($this->container);
+
         shuffle($this->indexes);
     }
     /**
@@ -95,6 +116,22 @@ class ContainerBench
             // Do array lookup.
             $index = $this->indexes[$i];
             $this->container->get("service$index");
+        }
+    }
+
+    /**
+     * @ParamProviders({"provideDefinitions"})
+     */
+    public function benchRandomLookupsComposite($params)
+    {
+        $this->container->set('service', $params['serviceClass']);
+        if (isset($params['otherDefinitions'])) {
+            $this->container->setAll($params['otherDefinitions']);
+        }
+        for ($i = 0; $i < 1000; $i++) {
+            // Do array lookup.
+            $index = $this->indexes[$i];
+            $this->composite->get("service$index");
         }
     }
 }

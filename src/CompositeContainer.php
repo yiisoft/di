@@ -4,6 +4,7 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use yii\di\exceptions\NotFoundException;
 
 /**
@@ -25,12 +26,12 @@ class CompositeContainer implements ContainerInterface
     {
         foreach ($this->containers as $container) {
             try {
-                $container->get($id);
-            } catch (NotFoundException $e) {
+                return $container->get($id);
+            } catch (NotFoundExceptionInterface $e) {
                 continue;
             }
-            throw new NotFoundException();
         }
+        throw new NotFoundException();
     }
 
     /** @inheritdoc */
