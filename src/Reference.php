@@ -6,6 +6,21 @@ namespace yii\di;
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DependencyInterface;
 
+/**
+ * Class Reference allows us to define a dependency to a service in the container in another service definition.
+ * For example:
+ * ```php
+ * [
+ *    InterfaceA::class => ConcreteA::class,
+ *    'alternativeForA' => ConcreteB::class,
+ *    Service1::class => [
+ *        '__construct()' => [
+ *            Reference::to('alternativeForA')
+ *        ]
+ *    ]
+ * ]
+ * ```
+ */
 class Reference implements DependencyInterface
 {
     private $id;
