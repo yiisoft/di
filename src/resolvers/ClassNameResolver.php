@@ -28,7 +28,7 @@ class ClassNameResolver implements DependencyResolverInterface
             throw new NotInstantiableException($class);
         }
         $constructor = $reflectionClass->getConstructor();
-        return isset($constructor) ? $this->resolveFunction($constructor) : [];
+        return $constructor === null ? [] : $this->resolveFunction($constructor);
     }
 
     private function resolveFunction(\ReflectionFunctionAbstract $reflectionFunction): array
