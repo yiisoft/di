@@ -50,7 +50,7 @@ class ClassNameResolver implements DependencyResolverInterface
         }
 
         // Our parameter has a class type hint
-        if (isset($type) && !$type->isBuiltin()) {
+        if ($type !== null && !$type->isBuiltin()) {
             return new ClassDependency($type->getName(), $type->allowsNull());
         }
 
