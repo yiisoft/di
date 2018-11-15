@@ -45,7 +45,7 @@ class ClassNameResolver implements DependencyResolverInterface
         $type = $parameter->getType();
         $hasDefault = $parameter->isOptional() || $parameter->isDefaultValueAvailable() || (isset($type) && $type->allowsNull());
 
-        if (!$hasDefault && !isset($type)) {
+        if (!$hasDefault && $type === null) {
             return new InvalidDependency();
         }
 
