@@ -128,7 +128,7 @@ abstract class AbstractContainer implements ContainerInterface
         $this->registerProviderIfDeferredFor($id);
 
         $object = isset($this->definitions[$id])
-            ? $this->buildWithDefinition($config, $this->definitions[$id])
+            ? $this->buildWithDefinition($id, $config, $this->definitions[$id])
             : $this->buildWithoutDefinition($id, $config)
         ;
 
@@ -151,7 +151,7 @@ abstract class AbstractContainer implements ContainerInterface
     protected function buildWithoutDefinition($id, array $config = [])
     {
         if (isset($config['__class'])) {
-            return $this->buildFromConfig($config);
+            return $this->buildFromConfig($id, $config);
         }
 
         if ($this->parent !== null) {
@@ -160,7 +160,7 @@ abstract class AbstractContainer implements ContainerInterface
 
         if (class_exists($id)) {
             $config['__class'] = $id;
-            return $this->buildFromConfig($config);
+            return $this->buildFromConfig($id, $config);
         }
 
         throw new NotFoundException("No definition for \"$id\" found");
@@ -169,20 +169,21 @@ abstract class AbstractContainer implements ContainerInterface
     /**
      * Creates new instance by given config and definition.
      *
+     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @param array|string|object $definition
      * @return object new built instance
      * @throws InvalidConfigException when definition type is not expected
      * @throws NotInstantiableException
      */
-    protected function buildWithDefinition(array $config = [], $definition = null)
+    protected function buildWithDefinition($id, array $config = [], $definition = null)
     {
         if (\is_string($definition)) {
             $definition = ['__class' => $definition];
         }
 
         if (\is_array($definition) && !isset($definition[0], $definition[1])) {
-            return $this->buildFromConfig($definition);
+            return $this->buildFromConfig($id, $definition);
         }
 
         if (\is_callable($definition)) {
@@ -321,13 +322,17 @@ abstract class AbstractContainer implements ContainerInterface
 
     /**
      * Creates an instance of the class definition with dependencies resolved
+     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @return object the newly created instance of the specified class
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    protected function buildFromConfig(array $config)
+    protected function buildFromConfig($id, array $config)
     {
+        if (empty($config['__class'])) {
+            $config['__class'] = $id;
+        }
         if (empty($config['__class'])) {
             throw new NotInstantiableException(var_export($config, true));
         }
@@ -491,7 +496,7 @@ abstract class AbstractContainer implements ContainerInterface
     protected function buildProvider($providerDefinition): ServiceProviderInterface
     {
         if (\is_string($providerDefinition)) {
-            $provider = $this->buildFromConfig([
+            $provider = $this->buildFromConfig(null, [
                 '__class' => $providerDefinition,
                 '__construct()' => [
                     $this,
@@ -501,7 +506,7 @@ abstract class AbstractContainer implements ContainerInterface
             $providerDefinition['__construct()'] = [
                 $this
             ];
-            $provider = $this->buildFromConfig($providerDefinition);
+            $provider = $this->buildFromConfig(null, $providerDefinition);
         } else {
             throw new InvalidConfigException('Service provider definition should be a class name ' .
                 'or array contains "__class" with a class name of provider.');
