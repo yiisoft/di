@@ -456,6 +456,8 @@ abstract class AbstractContainer implements ContainerInterface
                         "Missing required parameter \"$name\" when instantiating \"$class\"."
                     );
                 }
+            } if ($dependency instanceof Closure) {
+                $dependencies[$index] = call_user_func($dependency, $this);
             }
         }
 
