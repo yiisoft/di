@@ -384,13 +384,15 @@ abstract class AbstractContainer implements ContainerInterface
      */
     public static function configure($object, iterable $config)
     {
-        foreach ($config as $action => $arguments) {
-            if (substr($action, -2) === '()') {
-                // method call
-                \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
-            } else {
-                // property
-                $object->$action = $arguments;
+        if (!empty($config)) {
+            foreach ($config as $action => $arguments) {
+                if (substr($action, -2) === '()') {
+                    // method call
+                    \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
+                } else {
+                    // property
+                    $object->$action = $arguments;
+                }
             }
         }
 
