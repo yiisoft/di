@@ -58,7 +58,7 @@ class Injector
      * @throws NotInstantiableException If resolved to an abstract class or an interface (since 2.0.9)
      */
     public function invoke(callable $callback, array $params = [])
-    {        
+    {
         return \call_user_func_array($callback, $this->resolveCallableDependencies($callback, $params));
     }
 
