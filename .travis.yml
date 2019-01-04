@@ -25,4 +25,8 @@ install:
 script:
   - |
     vendor/bin/phpcs --standard=PSR2 src tests &&
-    vendor/bin/phpunit $PHPUNIT_FLAGS
+    vendor/bin/phpunit $PHPUNIT_FLAGS --coverage-clover=coverage.clover
+
+after_script:
+    - wget -c https://scrutinizer-ci.com/ocular.phar
+    - php php-ocular code-coverage:upload --format=php-clover coverage.clover

@@ -1,2 +1,7 @@
 checks:
     php: true
+tools:
+    php_code_coverage:
+        enabled: true
+    external_code_coverage:
+        timeout: 600
