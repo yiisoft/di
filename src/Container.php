@@ -71,4 +71,13 @@ class Container extends AbstractContainer
 
         return isset($this->instances[$id]);
     }
+
+    /**
+     * Returns all instances set in container
+     * @return array list of instance
+     */
+    public function getInstances() : array
+    {
+        return $this->instances;
+    }
 }
