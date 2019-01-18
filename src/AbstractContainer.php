@@ -183,7 +183,7 @@ abstract class AbstractContainer implements ContainerInterface
         }
 
         if (\is_array($definition) && !isset($definition[0], $definition[1])) {
-            return $this->buildFromConfig($id, $definition);
+            return $this->buildFromConfig($id, array_merge($config, $definition));
         }
 
         if (\is_callable($definition)) {
