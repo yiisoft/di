@@ -179,6 +179,9 @@ abstract class AbstractContainer implements ContainerInterface
     protected function buildWithDefinition($id, array $config = [], $definition = null)
     {
         if (\is_string($definition)) {
+            if ($definition !== $id) {
+                return $this->build($definition, $config);
+            }
             $definition = ['__class' => $definition];
         }
 

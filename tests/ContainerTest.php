@@ -273,4 +273,19 @@ class ContainerTest extends TestCase
         $container->get('engine');
         $this->assertSame($definition, $container->getDefinition('engine'));
     }
+
+    public function testGetByClassIndirectly()
+    {
+        $number = 42;
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            EngineMarkOne::class => [
+                'setNumber()' => [$number],
+            ],
+        ]);
+
+        $engine = $container->get(EngineInterface::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $engine);
+        $this->assertSame($number, $engine->getNumer());
+    }
 }
