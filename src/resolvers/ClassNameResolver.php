@@ -28,7 +28,7 @@ class ClassNameResolver implements DependencyResolverInterface
             throw new NotInstantiableException($class);
         }
         $constructor = $reflectionClass->getConstructor();
-        return isset($constructor) ? $this->resolveFunction($constructor) : [];
+        return $constructor === null ? [] : $this->resolveFunction($constructor);
     }
 
     private function resolveFunction(\ReflectionFunctionAbstract $reflectionFunction): array
@@ -45,12 +45,12 @@ class ClassNameResolver implements DependencyResolverInterface
         $type = $parameter->getType();
         $hasDefault = $parameter->isOptional() || $parameter->isDefaultValueAvailable() || (isset($type) && $type->allowsNull());
 
-        if (!$hasDefault && !isset($type)) {
+        if (!$hasDefault && $type === null) {
             return new InvalidDependency();
         }
 
         // Our parameter has a class type hint
-        if (isset($type) && !$type->isBuiltin()) {
+        if ($type !== null && !$type->isBuiltin()) {
             return new ClassDependency($type->getName(), $type->allowsNull());
         }
 
