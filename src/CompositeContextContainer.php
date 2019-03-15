@@ -69,10 +69,13 @@ class CompositeContextContainer implements ContainerInterface
      */
     public function attach(ContainerInterface $container, string $context = '')
     {
-        $this->containers[$context][] = $container;
-
-        // If the context is new we reorder the containers array.
-        if (count($this->containers[$context]) === 1) {
+        if (isset($this->containers[$context])) {
+            array_unshift($this->containers[$context], $container);
+        } else {
+            // If the context is new we reorder the containers array.
+            $this->containers[$context] = [
+                $container
+            ];
             uksort($this->containers, function ($a, $b) {
                 return mb_strlen($b) <=> mb_strlen($a);
             });
