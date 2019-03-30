@@ -7,7 +7,7 @@
 
 namespace yii\di\contracts;
 
-use Psr\Container\ContainerInterface;
+use yii\di\Container;
 
 /**
  * Represents a component responsible for class registration in the Container.
@@ -54,23 +54,17 @@ use Psr\Container\ContainerInterface;
  *    }
  * }
  * ```
- *
- * @author Dmitry Kolodko <prowwid@gmail.com>
- * @since 1.0
  */
 interface ServiceProviderInterface
 {
     /**
-     * Typical service provider constructor.
-     * @param ContainerInterface $container IoC container that must be used for services registration.
-     */
-    public function __construct(ContainerInterface $container);
-
-    /**
      * Registers classes in the container.
      *
-     * This method should only set classes definitions to the Container preventing
-     * any side-effects.
+     * - This method should only set classes definitions to the Container preventing any side-effects.
+     * - This method should be idempotent
+     * This method may be called multiple times with different container objects, or multiple times with the same object.
+     *
+     * @param Container $container the container in which to register the services.
      */
-    public function register(): void;
+    public function register(Container $container): void;
 }

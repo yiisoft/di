@@ -7,7 +7,6 @@
 
 namespace yii\di\support;
 
-use Psr\Container\ContainerInterface;
 use yii\di\contracts\ServiceProviderInterface;
 
 /**
@@ -58,13 +57,4 @@ use yii\di\contracts\ServiceProviderInterface;
  */
 abstract class ServiceProvider implements ServiceProviderInterface
 {
-    /**
-     * @var ContainerInterface|\yii\di\Container container, service provider assigned to.
-     */
-    protected $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
 }

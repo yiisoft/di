@@ -7,16 +7,14 @@
 
 namespace yii\di;
 
-use Psr\Container\ContainerInterface;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
- * Factory extends container with create and ensure methods.
- *
- * @author Andrii Vasyliev <sol@hiqdev.com>
- * @since 1.0
+ * Factory allows for creation of object using runtime parameters.
+ * A factory will try to use a PSR-11 compliant container to get dependencies, but will fall back to manual instantiation
+ * if the container cannot provide a required dependency.
  */
-interface FactoryInterface extends ContainerInterface
+interface FactoryInterface
 {
     /**
      * Creates a new object using the given configuration and constructor arguments.
@@ -80,7 +78,7 @@ interface FactoryInterface extends ContainerInterface
      * $db = $factory->ensure(['dsn' => 'sqlite:path/to/my.db'], Connection::class);
      * ```
      *
-     * @param object|string|array|Reference $reference an object, configuration or a reference to the desired object.
+     * @param object|string|array|NamedClassDependency $reference an object, configuration or a reference to the desired object.
      * You may specify a reference in terms of a component ID or an Reference object.
      * Starting from version 2.0.2, you may also pass in a configuration array for creating the object.
      * If the "class" value is not specified in the configuration array, it will use the value of `$type`.

@@ -15,6 +15,7 @@ compatible.
 [![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
 [![Build Status](https://travis-ci.org/yiisoft/di.svg?branch=master)](https://travis-ci.org/yiisoft/di)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/di/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/di/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
 
 ## Features
 
@@ -57,7 +58,7 @@ return [
 ];
 ```
 
-Interface definition simply maps an id to particular class.
+Interface definition simply maps a class to particular class.
 
 Full definition describes how to instantiate a class in detail:
 
@@ -107,24 +108,66 @@ $container = new Container([
 ]);
 ```
 
-## Nesting containers
+## Delegated lookup and composite containers
 
-Containers could be nested in order to isolate scope but still have defaults from the parent container.
+The `Container` class supports delegated lookup.
+When using delegated lookup, all dependencies are always fetched from a given root container.
+This allows us to combine multiple containers into a composite container which we can then use for lookups.
+When using this approach, one should only use the composite container.
 
 ```php
-$parent = new Container();
-$child = new Container([], $parent);
-
-$parent->set('only_parent', EngineMarkOne::class);
-$parent->set('shared', EngineMarkOne::class);
-$child->set('shared', EngineMarkTwo::class);
-
-// EngineMarkOne
-$onlyParent = $child->get('only_parent');
-
-// EngineMarkTwo
-$shared = $child->get('shared');
+$composite = new CompositeContainer();
+$container = new Container([], [], $composite);
 ```
+
+## Contextual containers
+
+In a Yii application there are several levels at which we might want to have configuration for the DI container:
+- An extension providing default configuration
+- An application with configuration
+- A module inside the application that uses different configuration than the main application
+
+While in general you never want to inject DI containers into your objects, there are some exceptions.
+In this case Yii application modules are such an exception and need access to the container.
+To support this use case while still supporting custom configuration at the module level we have implemented a contextual containers.
+The main class is `CompositeContextContainer`; it is like `CompositeContainer` in the sense that it doesn't contain any definitions.
+The `attach()` function of the contextual container has an extra string parameter defining the context of the container.
+Using context we can create a simple scoping system:
+```php
+$composite = new CompositeContextContainer();
+$coreContainer = new Container([], [], $root);
+$extensionContainer = new Container([], [], $root);
+$appContainer = new Container([
+    LoggerInterface::class => MainLogger::class
+], [], $root);
+$moduleAContainer = new Container([
+    LoggerInterface::class => LoggerA::class
+], [], $root);
+$moduleBContainer = new Container([
+    LoggerInterface::class => LoggerB::class
+], [], $root);
+$composite->attach($moduleContainer, '/moduleB');
+$composite->attach($moduleContainer, '/moduleA');
+$composite->attach($appContainer);
+$composite->attach($extensionContainer);
+$composite->attach($coreContainer);
+
+// The composite context container will allow us to create contextual containers with virtually no overhead.
+$moduleAContainer = $composite->getContextContainer('/moduleA');
+$moduleBContainer = $composite->getContextContainer('/moduleB');
+
+$composite->get(LoggerInterface::class); // MainLogger
+
+$composite->get(LoggerInterface::class); // MainLogger
+$moduleAContainer->get(LoggerInterface::class // LoggerA
+$moduleBContainer->get(LoggerInterface::class // LoggerB
+
+
+```
+
+Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
+The Yii core will automatically create these contextual containers for the modules.
+
 
 ## Using injector
 

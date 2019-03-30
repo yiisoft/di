@@ -35,3 +35,4 @@ phpunit.phar
 
 # runtime cache
 /tests/runtime
+/tests/output
