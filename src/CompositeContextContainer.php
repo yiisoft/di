@@ -41,11 +41,11 @@ class CompositeContextContainer implements ContainerInterface
      */
     private function getContainers(string $context): iterable
     {
-        foreach($this->containers as $prefix => $containers) {
+        foreach ($this->containers as $prefix => $containers) {
             if (strncmp($prefix, $context, mb_strlen($prefix)) !== 0) {
                 continue;
             }
-            foreach($containers as $container) {
+            foreach ($containers as $container) {
                 yield $container;
             }
         }
@@ -89,7 +89,7 @@ class CompositeContextContainer implements ContainerInterface
     public function detach(ContainerInterface $container)
     {
         foreach ($this->containers as $prefix => $containers) {
-            foreach($containers as $i => $c) {
+            foreach ($containers as $i => $c) {
                 if ($container === $c) {
                     unset($this->containers[$prefix][$i]);
                 }

@@ -33,7 +33,6 @@ use yii\di\tests\support\TreeItem;
  */
 class ContainerTest extends TestCase
 {
-
     public function testSettingScalars()
     {
         $this->expectException(InvalidConfigException::class);

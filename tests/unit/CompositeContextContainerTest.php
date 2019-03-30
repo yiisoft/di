@@ -71,6 +71,5 @@ class CompositeContextContainerTest extends TestCase
         $contextAB = $composite->getContextContainer('/a/b');
         $this->assertTrue($contextAB->has(Car::class));
         $this->assertTrue($contextAB->has(EngineInterface::class));
-
-   }
+    }
 }

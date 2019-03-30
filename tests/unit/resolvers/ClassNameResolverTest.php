@@ -17,7 +17,6 @@ use yii\di\tests\support\OptionalInterfaceDependency;
 
 class ClassNameResolverTest extends TestCase
 {
-
     public function testResolveConstructor()
     {
         $resolver = new ClassNameResolver();

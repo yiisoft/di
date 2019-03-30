@@ -19,5 +19,4 @@ use Psr\Container\ContainerExceptionInterface;
  */
 class CircularReferenceException extends \Exception implements ContainerExceptionInterface
 {
-    
 }
