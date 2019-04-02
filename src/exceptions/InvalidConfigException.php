@@ -18,5 +18,4 @@ use Psr\Container\ContainerExceptionInterface;
  */
 class InvalidConfigException extends \Exception implements ContainerExceptionInterface
 {
-
 }

@@ -4,7 +4,7 @@ namespace yii\di\tests\code;
 
 use Psr\Container\ContainerInterface;
 
-class InvokableCarFactory
+class InvokeableCarFactory
 {
     /**
      * @param ContainerInterface $container
