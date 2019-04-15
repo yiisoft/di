@@ -138,9 +138,11 @@ class Container implements ContainerInterface
             throw new NotFoundException("No definition for $id");
         }
 
-
         $definition = $this->definitions[$id];
-        return $definition->resolve($this);
+        $object = $definition->resolve($this);
+        unset($this->building[$id]);
+
+        return $object;
     }
 
     /**
