@@ -19,4 +19,5 @@ class Factory extends Container implements FactoryInterface
         $definition = Definition::normalize($config);
         return $definition->resolve($this);
     }
+
 }

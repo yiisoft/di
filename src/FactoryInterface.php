@@ -60,31 +60,4 @@ interface FactoryInterface
      * @throws InvalidConfigException if the configuration is invalid.
      */
     public function create($config, array $params = []);
-
-    /**
-     * Resolves the specified reference into the actual object and makes sure it is of the specified type.
-     *
-     * The reference may be specified as a string or an Reference object. If the former,
-     * it will be treated as a component ID, a class/interface name or an alias, depending on the container type.
-     *
-     * For example,
-     *
-     * ```php
-     * use yii\db\Connection;
-     *
-     * // returns Yii::getApp()->db
-     * $db = $factory->ensure('db', Connection::class);
-     * // returns an instance of Connection using the given configuration
-     * $db = $factory->ensure(['dsn' => 'sqlite:path/to/my.db'], Connection::class);
-     * ```
-     *
-     * @param object|string|array|NamedClassDependency $reference an object, configuration or a reference to the desired object.
-     * You may specify a reference in terms of a component ID or an Reference object.
-     * Starting from version 2.0.2, you may also pass in a configuration array for creating the object.
-     * If the "class" value is not specified in the configuration array, it will use the value of `$type`.
-     * @param string $type the class/interface name to be checked. If null, type check will not be performed.
-     * @return object the object referenced by the Reference, or `$reference` itself if it is an object.
-     * @throws InvalidConfigException if the reference is invalid
-     */
-    public function ensure($reference, string $type = null);
 }
