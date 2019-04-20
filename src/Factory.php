@@ -17,6 +17,7 @@ class Factory extends Container implements FactoryInterface
     public function create($config, array $params = [])
     {
         $definition = Definition::normalize($config);
-        return $definition->resolve($this);
+
+        return $definition->resolve($this, $params);
     }
 }

@@ -72,7 +72,7 @@ class Definition
      * @param array $definition
      * @param ContainerInterface $rootContainer
      */
-    private function resolveArray(array $config, ContainerInterface $rootContainer)
+    private function resolveArray(ContainerInterface $rootContainer, array $config, array $params)
     {
         if (empty($config['__class'])) {
             throw new NotInstantiableException(var_export($config, true));
@@ -109,17 +109,17 @@ class Definition
      * @return mixed|object
      * @throws NotInstantiableException
      */
-    public function resolve(ContainerInterface $rootContainer)
+    public function resolve(ContainerInterface $rootContainer, array $params = [])
     {
         switch ($this->type) {
             case self::TYPE_CALLABLE:
-                return call_user_func($this->config, $rootContainer);
+                return $rootContainer->getInjector()->invoke($this->config, $params);
             case self::TYPE_ARRAY:
-                return $this->resolveArray($this->config, $rootContainer);
+                return $this->resolveArray($rootContainer, $this->config, $params);
             case self::TYPE_VALUE:
                 return $this->config;
             case self::TYPE_RESOLVABLE:
-                return $this->config->resolve($rootContainer);
+                return $this->config->resolve($rootContainer, $params);
         }
 
         throw new \RuntimeException('Attempted to resolve invalid definition of type: ' . $this->type);
