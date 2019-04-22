@@ -129,6 +129,9 @@ class Container implements ContainerInterface
     protected function build(string $id, array $params = [])
     {
         if (isset($this->building[$id])) {
+            if ($id === 'container') {
+                return $this;
+            }
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
                 $id,

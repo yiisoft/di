@@ -315,4 +315,17 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->get('non_existing');
     }
+
+    public function testContainerInContainer()
+    {
+        $container = new Container();
+        $container->setAll([
+            ContainerInterface::class => Reference::to('container'),
+            'container' => function (ContainerInterface $container) {
+                return $container;
+            },
+        ]);
+        $this->assertSame($container, $container->get('container'));
+        $this->assertSame($container, $container->get(ContainerInterface::class));
+    }
 }
