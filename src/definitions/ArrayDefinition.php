@@ -27,6 +27,11 @@ class ArrayDefinition implements DefinitionInterface
         $this->config = $config;
     }
 
+    public function getArray(): array
+    {
+        return $this->config;
+    }
+
     public static function fromClassName(string $class)
     {
         return new static(['__class' => $class]);
