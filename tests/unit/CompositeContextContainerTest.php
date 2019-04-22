@@ -7,7 +7,6 @@ use Psr\Container\ContainerInterface;
 use yii\di\CompositeContainer;
 use yii\di\CompositeContextContainer;
 use yii\di\Container;
-use yii\di\Definition;
 use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;

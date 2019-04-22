@@ -11,8 +11,10 @@ use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProviderInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 use yii\di\contracts\ServiceProviderInterface;
+use yii\di\definitions\ArrayDefinition;
+use yii\di\definitions\Normalizer;
 use yii\di\exceptions\CircularReferenceException;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotFoundException;
@@ -24,7 +26,7 @@ use yii\di\exceptions\NotInstantiableException;
 class Container implements ContainerInterface
 {
     /**
-     * @var Definition[] object definitions indexed by their types
+     * @var DefinitionInterface[] object definitions indexed by their types
      */
     private $definitions;
     /**
@@ -80,7 +82,7 @@ class Container implements ContainerInterface
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param string|Reference $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @return object an instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -89,20 +91,25 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        $reference = is_string($id) ? Reference::to($id) : $id;
-        $id = $reference->getId();
+        $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $object = $this->build($reference);
+            $object = $this->build($id);
             $this->initObject($object);
             $this->instances[$id] = $object;
         }
+
         return $this->instances[$id];
+    }
+
+    public function getId($id): string
+    {
+        return is_string($id) ? $id : $id->getId();
     }
 
     /**
      * Returns normalized definition for a given id
      */
-    public function getDefinition(string $id): ?Definition
+    public function getDefinition(string $id): ?DefinitionInterface
     {
         return $this->definitions[$id] ?? null;
     }
@@ -110,7 +117,7 @@ class Container implements ContainerInterface
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param Reference $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
      * @param array $config
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException
@@ -119,10 +126,8 @@ class Container implements ContainerInterface
      * @throws NotInstantiableException
      * @internal
      */
-    protected function build(Reference $reference)
+    protected function build(string $id, array $params = [])
     {
-        $id = $reference->getId();
-
         if (isset($this->building[$id])) {
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
@@ -130,19 +135,50 @@ class Container implements ContainerInterface
                 implode(',', array_keys($this->building))
             ));
         }
+
         $this->building[$id] = 1;
-
         $this->registerProviderIfDeferredFor($id);
+        $object = $this->buildInternal($id, $params);
+        unset($this->building[$id]);
 
+        return $object;
+    }
+
+    protected function buildInternal(string $id, array $params = [])
+    {
         if (!isset($this->definitions[$id])) {
+            if (isset($rootContainer)) {
+                return $rootContainer->get($id, $params);
+            }
+            $res = $this->buildPrimitive($id, $params);
+            if ($res !== null) {
+                return $res;
+            }
             throw new NotFoundException("No definition for $id");
         }
 
         $definition = $this->definitions[$id];
-        $object = $definition->resolve($this);
-        unset($this->building[$id]);
 
-        return $object;
+        return $definition->resolve($this, $params);
+    }
+
+    protected function buildPrimitive(string $class, array $params = [])
+    {
+        if ($class === ContainerInterface::class) {
+            return $this;
+        }
+        if (class_exists($class)) {
+            $definition = ArrayDefinition::fromClassName($class);
+
+            return $definition->resolve($this, $params);
+        }
+
+        return null;
+    }
+
+    public function alreadyBuilding($id): bool
+    {
+        return isset($this->building[$id]);
     }
 
     /**
@@ -167,45 +203,14 @@ class Container implements ContainerInterface
 
     /**
      * Sets a definition to the container. Definition may be defined multiple ways.
-     *
-     * Interface name as string:
-     *
-     * ```php
-     * $container->set('interface_name', EngineInterface::class);
-     * ```
-     *
-     * A closure:
-     *
-     * ```php
-     * $container->set('closure', function($container) {
-     *     return new MyClass($container->get('db'));
-     * });
-     * ```
-     *
-     * A callable array:
-     *
-     * ```php
-     * $container->set('static_call', [MyClass::class, 'create']);
-     * ```
-     *
-     * A definition array:
-     *
-     * ```php
-     * $container->set('full_definition', [
-     *     '__class' => EngineMarkOne::class,
-     *     '__construct()' => [42],
-     *     'argName' => 'value',
-     *     'setX()' => [42],
-     * ]);
-     * ```
-     *
+     * @see `Normalizer::normalize()`
      * @param string $id
      * @param mixed $definition
      */
     public function set(string $id, $definition): void
     {
         $this->instances[$id] = null;
-        $this->definitions[$id] = Definition::normalize($definition);
+        $this->definitions[$id] = Normalizer::normalize($definition, $id);
     }
 
     /**
@@ -247,24 +252,35 @@ class Container implements ContainerInterface
         return $object;
     }
 
-
-
-
     /**
      * Resolves dependencies by replacing them with the actual object instances.
-     * @param DependencyInterface[] $dependencies the dependencies
+     * @param DefinitionInterface[] $dependencies the dependencies
      * @return array the resolved dependencies
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
      */
-    protected function resolveDependencies(array $dependencies): array
+    public function resolveDependencies(array $dependencies): array
     {
         $result = [];
-        /** @var DependencyInterface $dependency */
+        /** @var DefinitionInterface $dependency */
         foreach ($dependencies as $dependency) {
             $result[] = $this->resolve($dependency);
         }
 
         return $result;
+    }
+
+    /**
+     * This function resolves a dependency recursively, checking for loops.
+     * TODO add checking for loops
+     * @param DefinitionInterface $dependency
+     * @return DefinitionInterface
+     */
+    public function resolve(DefinitionInterface $dependency)
+    {
+        while ($dependency instanceof DefinitionInterface) {
+            $dependency = $dependency->resolve($this->getRootContainer());
+        }
+        return $dependency;
     }
 
     /**
@@ -300,7 +316,7 @@ class Container implements ContainerInterface
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        $provider = Definition::normalize($providerDefinition)->resolve($this);
+        $provider = Normalizer::normalize($providerDefinition)->resolve($this);
         if (!($provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 'Service provider should be an instance of ' . ServiceProviderInterface::class
@@ -324,19 +340,6 @@ class Container implements ContainerInterface
         return $this->injector;
     }
 
-    /**
-     * This function resolves a dependency recursively, checking for loops.
-     * @param DependencyInterface $dependency
-     * @return DependencyInterface
-     */
-    protected function resolve(DependencyInterface $dependency)
-    {
-        while ($dependency instanceof DependencyInterface) {
-            $dependency = $dependency->resolve($this->getRootContainer());
-        }
-        return $dependency;
-    }
-
     public function getRootContainer(): ContainerInterface
     {
         return $this->rootContainer ?? $this;
@@ -345,14 +348,13 @@ class Container implements ContainerInterface
     /**
      * Returns a value indicating whether the container has already instantiated
      * instance of the specified name.
-     * @param string $id class name, interface name or alias name
+     * @param string|Reference $id class name, interface name or alias name
      * @return bool whether the container has instance of class specified.
      * @throws CircularReferenceException
      */
     public function hasInstance($id): bool
     {
-        $reference = is_string($id) ? Reference::to($id) : $id;
-        $id = $reference->getId();
+        $id = $this->getId($id);
 
         return isset($this->instances[$id]);
     }

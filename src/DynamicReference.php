@@ -4,7 +4,8 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
+use yii\di\definitions\Normalizer;
 
 /**
  * Class DynamicReference allows us to define a dependency to a service not defined in the container.
@@ -25,13 +26,13 @@ use yii\di\contracts\DependencyInterface;
  * ]
  * ```
  */
-class DynamicReference implements DependencyInterface
+class DynamicReference implements DefinitionInterface
 {
     private $definition;
 
     private function __construct($definition)
     {
-        $this->definition = Definition::normalize($definition);
+        $this->definition = Normalizer::normalize($definition);
     }
 
     public static function to($definition)

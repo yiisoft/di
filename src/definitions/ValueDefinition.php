@@ -1,13 +1,13 @@
 <?php
 
 
-namespace yii\di\dependencies;
+namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 
-class ValueDependency implements DependencyInterface
+class ValueDefinition implements DefinitionInterface
 {
     private $value;
 
@@ -19,7 +19,7 @@ class ValueDependency implements DependencyInterface
     /**
      * @param Container $container
      */
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         return $this->value;
     }

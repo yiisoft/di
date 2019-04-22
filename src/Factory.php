@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use yii\di\definitions\Normalizer;
 use yii\di\exceptions\InvalidConfigException;
 
 class Factory extends Container implements FactoryInterface
@@ -16,8 +17,13 @@ class Factory extends Container implements FactoryInterface
      */
     public function create($config, array $params = [])
     {
-        $definition = Definition::normalize($config);
+        $definition = Normalizer::normalize($config);
 
         return $definition->resolve($this, $params);
+    }
+
+    public function get($id)
+    {
+        return $this->build($this->getId($id));
     }
 }

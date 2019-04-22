@@ -8,7 +8,7 @@
 namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 use yii\di\exceptions\NotFoundException;
 
 /**
@@ -20,9 +20,9 @@ use yii\di\exceptions\NotFoundException;
  *
  * These dependency must be replaced, attempting to resolve them will throw an exception
  */
-class InvalidDependency implements DependencyInterface
+class InvalidDependency implements DefinitionInterface
 {
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         throw new NotFoundException('Invalid reference');
     }

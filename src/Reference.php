@@ -8,7 +8,8 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
+use yii\di\definitions\ArrayDefinition;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
@@ -26,7 +27,7 @@ use yii\di\exceptions\InvalidConfigException;
  * ]
  * ```
  */
-class Reference implements DependencyInterface
+class Reference implements DefinitionInterface
 {
     private $id;
 
@@ -48,7 +49,7 @@ class Reference implements DependencyInterface
     /**
      * @param Container $container
      */
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         return $container->get($this->id);
     }

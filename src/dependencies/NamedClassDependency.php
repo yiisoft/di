@@ -9,13 +9,13 @@ namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
  * Dependency points a service with a given class in the container which must implement a given class
  */
-class NamedClassDependency implements DependencyInterface
+class NamedClassDependency implements DefinitionInterface
 {
     private $id;
 

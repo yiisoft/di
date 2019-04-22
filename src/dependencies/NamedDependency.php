@@ -9,12 +9,12 @@ namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 
 /**
  * Reference points to a service name in the container
  */
-class NamedDependency implements DependencyInterface
+class NamedDependency implements DefinitionInterface
 {
     private $id;
 
@@ -35,7 +35,7 @@ class NamedDependency implements DependencyInterface
         return new self($id, false);
     }
 
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         try {
             $result = $container->get($this->id);

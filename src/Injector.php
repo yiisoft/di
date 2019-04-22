@@ -76,6 +76,10 @@ class Injector
      */
     protected function resolveCallableDependencies(callable $callback, array $params = []): array
     {
+        if (\is_object($callback) && !$callback instanceof \Closure) {
+            $callback = [$callback, '__invoke'];
+        }
+
         if (\is_array($callback)) {
             $reflection = new \ReflectionMethod($callback[0], $callback[1]);
         } else {

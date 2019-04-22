@@ -4,13 +4,13 @@
 namespace yii\di\traits;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 
 trait RecursiveResolveTrait
 {
-    private function recursiveResolve(DependencyInterface $reference, ContainerInterface $container)
+    private function recursiveResolve(DefinitionInterface $reference, ContainerInterface $container)
     {
-        while ($reference instanceof DependencyInterface) {
+        while ($reference instanceof DefinitionInterface) {
             $reference = $reference->resolve($container);
         }
         return $reference;

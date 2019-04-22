@@ -3,11 +3,11 @@
 
 namespace yii\di\resolvers;
 
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 use yii\di\contracts\DependencyResolverInterface;
 use yii\di\dependencies\ClassDependency;
 use yii\di\dependencies\InvalidDependency;
-use yii\di\dependencies\ValueDependency;
+use yii\di\definitions\ValueDefinition;
 use yii\di\exceptions\NotInstantiableException;
 
 /**
@@ -40,7 +40,7 @@ class ClassNameResolver implements DependencyResolverInterface
         return $result;
     }
 
-    private function resolveParameter(\ReflectionParameter $parameter): DependencyInterface
+    private function resolveParameter(\ReflectionParameter $parameter): DefinitionInterface
     {
         $type = $parameter->getType();
         $hasDefault = $parameter->isOptional() || $parameter->isDefaultValueAvailable() || (isset($type) && $type->allowsNull());
@@ -55,7 +55,7 @@ class ClassNameResolver implements DependencyResolverInterface
         }
 
         // Our parameter does not have a class type hint and either has a default value or is nullable.
-        return new ValueDependency($parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null);
+        return new ValueDefinition($parameter->isDefaultValueAvailable() ? $parameter->getDefaultValue() : null);
     }
 
     /**

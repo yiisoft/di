@@ -8,13 +8,13 @@
 namespace yii\di\dependencies;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DependencyInterface;
+use yii\di\contracts\DefinitionInterface;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
  * Reference points to a class name in the container
  */
-class ClassDependency implements DependencyInterface
+class ClassDependency implements DefinitionInterface
 {
     private $class;
 
@@ -30,7 +30,7 @@ class ClassDependency implements DependencyInterface
         $this->optional = $optional;
     }
 
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         try {
             $result = $container->get($this->class);
