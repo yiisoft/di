@@ -74,7 +74,7 @@ class ArrayDefinition implements DefinitionInterface
 
         if (isset($config['__construct()'])) {
             foreach (array_values($config['__construct()']) as $index => $param) {
-                if ($param instanceof Reference) {
+                if ($param instanceof DefinitionInterface) {
                     $dependencies[$index] = $param;
                 } else {
                     $dependencies[$index] = new ValueDefinition($param);
