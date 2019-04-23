@@ -3,30 +3,12 @@
 namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use yii\di\CompositeContainer;
 use yii\di\CompositeContextContainer;
 use yii\di\Container;
-use yii\di\exceptions\CircularReferenceException;
-use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotFoundException;
-use yii\di\Reference;
-use yii\di\tests\support\A;
-use yii\di\tests\support\B;
-use yii\di\tests\support\C;
 use yii\di\tests\support\Car;
-use yii\di\tests\support\CarFactory;
-use yii\di\tests\support\ColorPink;
-use yii\di\tests\support\ConstructorTestClass;
-use yii\di\tests\support\D;
 use yii\di\tests\support\EngineInterface;
 use yii\di\tests\support\EngineMarkOne;
-use yii\di\tests\support\EngineMarkTwo;
-use yii\di\tests\support\GearBox;
-use yii\di\tests\support\InvokeableCarFactory;
-use yii\di\tests\support\MethodTestClass;
 use yii\di\tests\support\PropertyTestClass;
-use yii\di\tests\support\TreeItem;
 
 /**
  * CompositeContextContainerTest contains tests for \yii\di\CompositeContextContainerTest

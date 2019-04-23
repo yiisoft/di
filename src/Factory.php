@@ -8,7 +8,6 @@
 namespace yii\di;
 
 use yii\di\definitions\Normalizer;
-use yii\di\exceptions\InvalidConfigException;
 
 class Factory extends Container implements FactoryInterface
 {

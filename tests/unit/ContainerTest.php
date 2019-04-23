@@ -4,7 +4,6 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
-use yii\di\CompositeContainer;
 use yii\di\Container;
 use yii\di\definitions\Normalizer;
 use yii\di\exceptions\CircularReferenceException;

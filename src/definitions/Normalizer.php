@@ -3,10 +3,8 @@
 
 namespace yii\di\definitions;
 
-use Psr\Container\ContainerInterface;
 use yii\di\contracts\DefinitionInterface;
 use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotInstantiableException;
 use yii\di\Reference;
 
 /**

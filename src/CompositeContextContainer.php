@@ -3,7 +3,6 @@
 
 namespace yii\di;
 
-use phpDocumentor\Reflection\Types\Context;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use yii\di\exceptions\NotFoundException;

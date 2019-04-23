@@ -9,7 +9,6 @@ namespace yii\di;
 
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DefinitionInterface;
-use yii\di\definitions\ArrayDefinition;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
