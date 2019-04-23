@@ -5,7 +5,7 @@ namespace yii\di\tests\unit;
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
 use yii\di\contracts\DefinitionInterface;
-use yii\di\dependencies\ClassDependency;
+use yii\di\definitions\ClassDefinition;
 use yii\di\exceptions\NotFoundException;
 use yii\di\resolvers\ClassNameResolver;
 use yii\di\tests\support\Car;
@@ -38,7 +38,7 @@ class ClassNameResolverTest extends TestCase
         $dependencies = $resolver->resolveConstructor(Car::class);
 
         $this->assertCount(1, $dependencies);
-        $this->assertInstanceOf(ClassDependency::class, $dependencies[0]);
+        $this->assertInstanceOf(ClassDefinition::class, $dependencies[0]);
         $this->expectException(NotFoundException::class);
         $dependencies[0]->resolve($container);
     }

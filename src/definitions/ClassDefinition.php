@@ -5,45 +5,44 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\di\dependencies;
+namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\Container;
 use yii\di\contracts\DefinitionInterface;
+use yii\di\exceptions\InvalidConfigException;
 
 /**
- * Reference points to a service name in the container
+ * Reference points to a class name in the container
  */
-class NamedDependency implements DefinitionInterface
+class ClassDefinition implements DefinitionInterface
 {
-    private $id;
+    private $class;
 
     private $optional;
 
     /**
      * Constructor.
-     * @param string $id the component ID
+     * @param string $class the class name
      */
-    public function __construct(string $id, bool $optional)
+    public function __construct(string $class, bool $optional)
     {
-        $this->id = $id;
+        $this->class = $class;
         $this->optional = $optional;
-    }
-
-    public static function to(string $id)
-    {
-        return new self($id, false);
     }
 
     public function resolve(ContainerInterface $container, array $params = [])
     {
         try {
-            $result = $container->get($this->id);
+            $result = $container->get($this->class);
         } catch (\Throwable $t) {
             if ($this->optional) {
                 return null;
             }
             throw $t;
+        }
+
+        if (!$result instanceof $this->class) {
+            throw new InvalidConfigException('Container returned incorrect type for service ' . $this->class);
         }
         return $result;
     }

@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\di\dependencies;
+namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DefinitionInterface;
@@ -20,7 +20,7 @@ use yii\di\exceptions\NotFoundException;
  *
  * These dependency must be replaced, attempting to resolve them will throw an exception
  */
-class InvalidDependency implements DefinitionInterface
+class InvalidDefinition implements DefinitionInterface
 {
     public function resolve(ContainerInterface $container, array $params = [])
     {

@@ -5,8 +5,8 @@ namespace yii\di\resolvers;
 
 use yii\di\contracts\DefinitionInterface;
 use yii\di\contracts\DependencyResolverInterface;
-use yii\di\dependencies\ClassDependency;
-use yii\di\dependencies\InvalidDependency;
+use yii\di\definitions\ClassDefinition;
+use yii\di\definitions\InvalidDefinition;
 use yii\di\definitions\ValueDefinition;
 use yii\di\exceptions\NotInstantiableException;
 
@@ -46,12 +46,12 @@ class ClassNameResolver implements DependencyResolverInterface
         $hasDefault = $parameter->isOptional() || $parameter->isDefaultValueAvailable() || (isset($type) && $type->allowsNull());
 
         if (!$hasDefault && $type === null) {
-            return new InvalidDependency();
+            return new InvalidDefinition();
         }
 
         // Our parameter has a class type hint
         if ($type !== null && !$type->isBuiltin()) {
-            return new ClassDependency($type->getName(), $type->allowsNull());
+            return new ClassDefinition($type->getName(), $type->allowsNull());
         }
 
         // Our parameter does not have a class type hint and either has a default value or is nullable.
