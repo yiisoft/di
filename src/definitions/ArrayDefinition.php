@@ -20,7 +20,7 @@ class ArrayDefinition implements DefinitionInterface
 
     /**
      * Injector constructor.
-     * @param $container
+     * @param array $config
      */
     public function __construct(array $config)
     {
@@ -32,13 +32,17 @@ class ArrayDefinition implements DefinitionInterface
         return $this->config;
     }
 
-    public static function fromClassName(string $class)
+    /**
+     * @param string $class
+     * @return self
+     */
+    public static function fromClassName(string $class): self
     {
         return new static(['__class' => $class]);
     }
 
     /**
-     * @param array $config
+     * @param ContainerInterface $container
      * @param array $params
      */
     public function resolve(ContainerInterface $container, array $params = [])
