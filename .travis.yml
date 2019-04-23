@@ -25,7 +25,6 @@ install:
 
 script:
   - |
-    vendor/bin/phpcs --standard=PSR2 src tests &&
     vendor/bin/phpunit $PHPUNIT_FLAGS --coverage-clover=coverage.clover
 
 after_script:
