@@ -150,8 +150,8 @@ class Container implements ContainerInterface
     protected function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
-            if (isset($rootContainer)) {
-                return $rootContainer->get($id, $params);
+            if (isset($this->rootContainer)) {
+                return $this->rootContainer->get($id, $params);
             }
             $res = $this->buildPrimitive($id, $params);
             if ($res !== null) {
