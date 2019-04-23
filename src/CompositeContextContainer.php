@@ -29,7 +29,7 @@ class CompositeContextContainer implements ContainerInterface
             try {
                 return $container->get($id);
             } catch (NotFoundExceptionInterface $e) {
-                continue;
+                // ignore
             }
         }
         throw new NotFoundException();
@@ -111,7 +111,7 @@ class CompositeContextContainer implements ContainerInterface
             try {
                 return $container->get($id);
             } catch (NotFoundExceptionInterface $e) {
-                continue;
+                // ignore
             }
         }
         throw new NotFoundException();

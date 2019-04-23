@@ -62,7 +62,8 @@ interface ServiceProviderInterface
      *
      * - This method should only set classes definitions to the Container preventing any side-effects.
      * - This method should be idempotent
-     * This method may be called multiple times with different container objects, or multiple times with the same object.
+     * This method may be called multiple times with different container objects,
+     * or multiple times with the same object.
      *
      * @param Container $container the container in which to register the services.
      */

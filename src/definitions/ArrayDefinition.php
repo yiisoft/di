@@ -18,6 +18,9 @@ class ArrayDefinition implements DefinitionInterface
 
     private static $dependencies = [];
 
+    private const CLASS_KEY = '__class';
+    private const CONSTRUCT_KEY = '__construct()';
+
     /**
      * Injector constructor.
      * @param array $config
@@ -38,7 +41,7 @@ class ArrayDefinition implements DefinitionInterface
      */
     public static function fromClassName(string $class): self
     {
-        return new static(['__class' => $class]);
+        return new static([self::CLASS_KEY => $class]);
     }
 
     /**
@@ -49,12 +52,12 @@ class ArrayDefinition implements DefinitionInterface
     {
         $config = $this->config;
 
-        if (empty($config['__class'])) {
+        if (empty($config[self::CLASS_KEY])) {
             throw new NotInstantiableException(var_export($config, true));
         }
 
         if (!empty($params)) {
-            $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
+            $config[self::CONSTRUCT_KEY] = array_merge($config[self::CONSTRUCT_KEY] ?? [], $params);
         }
 
         return $this->buildFromArray($container, $config);
@@ -62,23 +65,23 @@ class ArrayDefinition implements DefinitionInterface
 
     private function buildFromArray(ContainerInterface $container, array $config)
     {
-        if (empty($config['__class'])) {
+        if (empty($config[self::CLASS_KEY])) {
             throw new NotInstantiableException(var_export($config, true));
         }
-        $class = $config['__class'];
-        unset($config['__class']);
+        $class = $config[self::CLASS_KEY];
+        unset($config[self::CLASS_KEY]);
 
         $dependencies = $this->getDependencies($class);
 
-        if (isset($config['__construct()'])) {
-            foreach (array_values($config['__construct()']) as $index => $param) {
+        if (isset($config[self::CONSTRUCT_KEY])) {
+            foreach (array_values($config[self::CONSTRUCT_KEY]) as $index => $param) {
                 if ($param instanceof DefinitionInterface) {
                     $dependencies[$index] = $param;
                 } else {
                     $dependencies[$index] = new ValueDefinition($param);
                 }
             }
-            unset($config['__construct()']);
+            unset($config[self::CONSTRUCT_KEY]);
         }
 
         $resolved = $container->resolveDependencies($dependencies);
@@ -110,7 +113,7 @@ class ArrayDefinition implements DefinitionInterface
 
     /**
      * Configures an object with the given configuration.
-     * @deprecated Not recommended for explicit use. Added only to support Yii 2.0 behavior.
+     * @param ContainerInterface $container
      * @param object $object the object to be configured
      * @param iterable $config property values and methods to call
      * @return object the object itself

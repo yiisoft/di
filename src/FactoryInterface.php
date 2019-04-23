@@ -11,7 +11,8 @@ use yii\di\exceptions\InvalidConfigException;
 
 /**
  * Factory allows for creation of object using runtime parameters.
- * A factory will try to use a PSR-11 compliant container to get dependencies, but will fall back to manual instantiation
+ * A factory will try to use a PSR-11 compliant container to get dependencies,
+ * but will fall back to manual instantiation
  * if the container cannot provide a required dependency.
  */
 interface FactoryInterface

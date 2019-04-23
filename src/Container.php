@@ -82,7 +82,7 @@ class Container implements ContainerInterface
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string|Reference $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param string|Reference $id the interface or an alias name that was previously registered via [[set()]].
      * @return object an instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -117,7 +117,7 @@ class Container implements ContainerInterface
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id the interface name or an alias name (e.g. `foo`) that was previously registered via [[set()]].
+     * @param string $id the interface or an alias name that was previously registered via [[set()]].
      * @param array $config
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException

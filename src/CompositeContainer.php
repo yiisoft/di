@@ -28,7 +28,7 @@ class CompositeContainer implements ContainerInterface
             try {
                 return $container->get($id);
             } catch (NotFoundExceptionInterface $e) {
-                continue;
+                // ignore
             }
         }
         throw new NotFoundException();
