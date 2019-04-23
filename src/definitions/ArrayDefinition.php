@@ -53,11 +53,6 @@ class ArrayDefinition implements DefinitionInterface
             throw new NotInstantiableException(var_export($config, true));
         }
 
-        $class = $config['__class'];
-        if ($container->has($class) && !$container->alreadyBuilding($class)) {
-            $container->getDefinition($class)->merge($config)->resolve($container, $params);
-        }
-
         if (!empty($params)) {
             $config['__construct()'] = array_merge($config['__construct()'] ?? [], $params);
         }

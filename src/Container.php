@@ -179,11 +179,6 @@ class Container implements ContainerInterface
         return null;
     }
 
-    public function alreadyBuilding($id): bool
-    {
-        return isset($this->building[$id]);
-    }
-
     /**
      * Register providers from {@link deferredProviders} if they provide
      * definition for given identifier.
