@@ -52,9 +52,7 @@ class ArrayDefinition implements DefinitionInterface
 
         $class = $config['__class'];
         if ($container->has($class) && !$container->alreadyBuilding($class)) {
-            $this->already[$class] = 1;
             $container->getDefinition($class)->merge($config)->resolve($container, $params);
-            unset($this->already[$class]);
         }
 
         if (!empty($params)) {
