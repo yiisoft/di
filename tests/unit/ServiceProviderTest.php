@@ -4,7 +4,7 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
-use yii\di\exceptions\InvalidConfigException;
+use yii\di\exceptions\NotInstantiableException;
 use yii\di\tests\support\Car;
 use yii\di\tests\support\CarFactory;
 use yii\di\tests\support\CarProvider;
@@ -56,7 +56,7 @@ class ServiceProviderTest extends TestCase
 
     public function testAddProviderRejectDefinitionWithoutClass()
     {
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(NotInstantiableException::class);
         $container = new Container();
         $container->addProvider([
             'property' => 234

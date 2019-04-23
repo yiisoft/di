@@ -39,16 +39,24 @@ class CompositeContextContainerTest extends TestCase
 
 
         $simple1 = new Container([
-            PropertyTestClass::class => PropertyTestClass::class,
-            Car::class => Car::class
+            PropertyTestClass::class => [
+                '__class' => PropertyTestClass::class,
+            ],
+            Car::class => [
+                '__class' => Car::class,
+            ],
         ], [], $composite);
 
         $simple2 = new Container([
-            PropertyTestClass::class => PropertyTestClass::class
+            PropertyTestClass::class => [
+                '__class' => PropertyTestClass::class,
+            ],
         ], [], $composite);
 
         $simple3 = new Container([
-            PropertyTestClass::class => PropertyTestClass::class,
+            PropertyTestClass::class => [
+                '__class' => PropertyTestClass::class,
+            ],
             EngineInterface::class => EngineMarkOne::class
         ], [], $composite);
 

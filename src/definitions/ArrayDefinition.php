@@ -5,6 +5,7 @@ namespace yii\di\definitions;
 use Psr\Container\ContainerInterface;
 use yii\di\contracts\DefinitionInterface;
 use yii\di\definitions\ValueDefinition;
+use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
 use yii\di\Reference;
 
