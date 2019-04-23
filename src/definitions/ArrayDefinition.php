@@ -52,8 +52,6 @@ class ArrayDefinition implements DefinitionInterface
 
         $class = $config['__class'];
         if ($container->has($class) && !$container->alreadyBuilding($class)) {
-            var_dump($class);
-            die;
             $this->already[$class] = 1;
             $container->getDefinition($class)->merge($config)->resolve($container, $params);
             unset($this->already[$class]);
