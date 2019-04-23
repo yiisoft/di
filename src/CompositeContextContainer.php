@@ -45,9 +45,7 @@ class CompositeContextContainer implements ContainerInterface
             if (strncmp($prefix, $context, mb_strlen($prefix)) !== 0) {
                 continue;
             }
-            foreach ($containers as $container) {
-                yield $container;
-            }
+            yield from $containers;
         }
     }
 
