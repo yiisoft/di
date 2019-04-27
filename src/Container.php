@@ -94,8 +94,8 @@ class Container implements ContainerInterface
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
             $object = $this->build($id);
-            $this->initObject($object);
             $this->instances[$id] = $object;
+            $this->initObject($object);
         }
 
         return $this->instances[$id];
