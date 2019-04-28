@@ -134,9 +134,10 @@ The main class is `CompositeContextContainer`; it is like `CompositeContainer` i
 The `attach()` function of the contextual container has an extra string parameter defining the context of the container.
 Using context we can create a simple scoping system:
 ```php
-$composite = new CompositeContextContainer();
+$root = new CompositeContextContainer();
 $coreContainer = new Container([], [], $root);
 $extensionContainer = new Container([], [], $root);
+
 $appContainer = new Container([
     LoggerInterface::class => MainLogger::class
 ], [], $root);
@@ -146,6 +147,7 @@ $moduleAContainer = new Container([
 $moduleBContainer = new Container([
     LoggerInterface::class => LoggerB::class
 ], [], $root);
+
 $composite->attach($moduleContainer, '/moduleB');
 $composite->attach($moduleContainer, '/moduleA');
 $composite->attach($appContainer);
