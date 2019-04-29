@@ -94,7 +94,7 @@ class ContainerBench
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {
-            $this->container->setAll($params['otherDefinitions']);
+            $this->container->setMultiple($params['otherDefinitions']);
         }
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
@@ -110,7 +110,7 @@ class ContainerBench
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {
-            $this->container->setAll($params['otherDefinitions']);
+            $this->container->setMultiple($params['otherDefinitions']);
         }
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
@@ -126,7 +126,7 @@ class ContainerBench
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {
-            $this->container->setAll($params['otherDefinitions']);
+            $this->container->setMultiple($params['otherDefinitions']);
         }
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.

@@ -70,7 +70,7 @@ class Container implements ContainerInterface
         ?ContainerInterface $rootContainer = null
     ) {
         $this->rootContainer = $rootContainer;
-        $this->setAll($definitions);
+        $this->setMultiple($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
             $this->addProvider($provider);
@@ -215,7 +215,7 @@ class Container implements ContainerInterface
      * Sets multiple definitions at once.
      * @param array $config definitions indexed by their ids
      */
-    public function setAll($config): void
+    public function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);

@@ -83,7 +83,7 @@ class ContainerTest extends TestCase
     public function testSetAll()
     {
         $container = new Container();
-        $container->setAll([
+        $container->setMultiple([
             'engine1' => EngineMarkOne::class,
             'engine2' => EngineMarkTwo::class,
         ]);
@@ -318,7 +318,7 @@ class ContainerTest extends TestCase
     public function testContainerInContainer()
     {
         $container = new Container();
-        $container->setAll([
+        $container->setMultiple([
             ContainerInterface::class => Reference::to('container'),
             'container' => function (ContainerInterface $container) {
                 return $container;

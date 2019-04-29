@@ -65,7 +65,7 @@ class FactoryTest extends TestCase
     public function testFactoryInContainer()
     {
         $factory = new Factory();
-        $factory->setAll([
+        $factory->setMultiple([
             'factory' => [
                 '__class' => Factory::class,
                 '__construct' => [
