@@ -14,8 +14,9 @@ use yii\di\exceptions\NotFoundException;
 class CompositeContextContainer implements ContainerInterface
 {
     /**
-     * We use a simple array since order matters
+     * Containers to look into.
      * The first level of this array is sorted by the length of the key, from long to short.
+     * Longer key means container is more specific and is checked first.
      * @var ContainerInterface[string][int] The list of containers
      */
     private $containers = [];

@@ -16,7 +16,7 @@ use yii\di\exceptions\NotFoundException;
 class CompositeContainer implements ContainerInterface
 {
     /**
-     * We use a simple array since order matters
+     * Containers to look into starting from the beginning of the array.
      * @var ContainerInterface[] The list of containers
      */
     private $containers = [];
