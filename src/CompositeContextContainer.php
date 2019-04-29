@@ -42,7 +42,7 @@ class CompositeContextContainer implements ContainerInterface
     private function getContainers(string $context): iterable
     {
         foreach ($this->containers as $prefix => $containers) {
-            if (strncmp($prefix, $context, mb_strlen($prefix)) !== 0) {
+            if (strncmp($prefix, $context, strlen($prefix)) !== 0) {
                 continue;
             }
             yield from $containers;
