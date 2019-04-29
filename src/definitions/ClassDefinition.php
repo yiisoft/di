@@ -8,13 +8,13 @@
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
  * Reference points to a class name in the container
  */
-class ClassDefinition implements DefinitionInterface
+class ClassDefinition implements Definition
 {
     private $class;
 

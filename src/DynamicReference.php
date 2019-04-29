@@ -4,7 +4,7 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\definitions\Normalizer;
 
 /**
@@ -26,7 +26,7 @@ use yii\di\definitions\Normalizer;
  * ]
  * ```
  */
-class DynamicReference implements DefinitionInterface
+class DynamicReference implements Definition
 {
     private $definition;
 

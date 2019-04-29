@@ -3,8 +3,8 @@
 
 namespace yii\di\resolvers;
 
-use yii\di\contracts\DefinitionInterface;
-use yii\di\contracts\DependencyResolverInterface;
+use yii\di\contracts\Definition;
+use yii\di\contracts\DependencyResolver;
 use yii\di\definitions\ClassDefinition;
 use yii\di\definitions\InvalidDefinition;
 use yii\di\definitions\ValueDefinition;
@@ -15,7 +15,7 @@ use yii\di\exceptions\NotInstantiableException;
  * This implementation resolves dependencies by using class type hints.
  * Note that service names need not match the parameter names, parameter names are ignored
  */
-class ClassNameResolver implements DependencyResolverInterface
+class ClassNameResolver implements DependencyResolver
 {
 
     /**
@@ -40,7 +40,7 @@ class ClassNameResolver implements DependencyResolverInterface
         return $result;
     }
 
-    private function resolveParameter(\ReflectionParameter $parameter): DefinitionInterface
+    private function resolveParameter(\ReflectionParameter $parameter): Definition
     {
         $type = $parameter->getType();
         $hasDefault = $parameter->isOptional() || $parameter->isDefaultValueAvailable() || (isset($type) && $type->allowsNull());

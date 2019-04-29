@@ -10,9 +10,9 @@ namespace yii\di;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use SplObjectStorage;
-use yii\di\contracts\DeferredServiceProviderInterface;
-use yii\di\contracts\DefinitionInterface;
-use yii\di\contracts\ServiceProviderInterface;
+use yii\di\contracts\DeferredServiceProvider;
+use yii\di\contracts\Definition;
+use yii\di\contracts\ServiceProvider;
 use yii\di\definitions\ArrayDefinition;
 use yii\di\definitions\Normalizer;
 use yii\di\exceptions\CircularReferenceException;
@@ -26,7 +26,7 @@ use yii\di\exceptions\NotInstantiableException;
 class Container implements ContainerInterface
 {
     /**
-     * @var DefinitionInterface[] object definitions indexed by their types
+     * @var Definition[] object definitions indexed by their types
      */
     private $definitions;
     /**
@@ -39,7 +39,7 @@ class Container implements ContainerInterface
      */
     private $building = [];
     /**
-     * @var contracts\DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
+     * @var contracts\DeferredServiceProvider[]|\SplObjectStorage list of providers
      * deferred to register till their services would be requested
      */
     private $deferredProviders;
@@ -59,7 +59,7 @@ class Container implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions
-     * @param ServiceProviderInterface[] $providers
+     * @param ServiceProvider[] $providers
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -109,7 +109,7 @@ class Container implements ContainerInterface
     /**
      * Returns normalized definition for a given id
      */
-    public function getDefinition(string $id): ?DefinitionInterface
+    public function getDefinition(string $id): ?Definition
     {
         return $this->definitions[$id] ?? null;
     }
@@ -252,14 +252,14 @@ class Container implements ContainerInterface
 
     /**
      * Resolves dependencies by replacing them with the actual object instances.
-     * @param DefinitionInterface[] $dependencies the dependencies
+     * @param Definition[] $dependencies the dependencies
      * @return array the resolved dependencies
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
      */
     public function resolveDependencies(array $dependencies): array
     {
         $result = [];
-        /** @var DefinitionInterface $dependency */
+        /** @var Definition $dependency */
         foreach ($dependencies as $dependency) {
             $result[] = $this->resolve($dependency);
         }
@@ -270,12 +270,12 @@ class Container implements ContainerInterface
     /**
      * This function resolves a dependency recursively, checking for loops.
      * TODO add checking for loops
-     * @param DefinitionInterface $dependency
-     * @return DefinitionInterface
+     * @param Definition $dependency
+     * @return Definition
      */
-    public function resolve(DefinitionInterface $dependency)
+    public function resolve(Definition $dependency)
     {
-        while ($dependency instanceof DefinitionInterface) {
+        while ($dependency instanceof Definition) {
             $dependency = $dependency->resolve($this->getRootContainer());
         }
         return $dependency;
@@ -296,7 +296,7 @@ class Container implements ContainerInterface
     {
         $provider = $this->buildProvider($providerDefinition);
 
-        if ($provider instanceof DeferredServiceProviderInterface) {
+        if ($provider instanceof DeferredServiceProvider) {
             $this->deferredProviders->attach($provider);
         } else {
             $provider->register($this);
@@ -307,17 +307,17 @@ class Container implements ContainerInterface
      * Builds service provider by definition.
      *
      * @param string|array $providerDefinition class name or definition of provider.
-     * @return ServiceProviderInterface instance of service provider;
+     * @return ServiceProvider instance of service provider;
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    private function buildProvider($providerDefinition): ServiceProviderInterface
+    private function buildProvider($providerDefinition): ServiceProvider
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
-        if (!($provider instanceof ServiceProviderInterface)) {
+        if (!($provider instanceof ServiceProvider)) {
             throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProviderInterface::class
+                'Service provider should be an instance of ' . ServiceProvider::class
             );
         }
 

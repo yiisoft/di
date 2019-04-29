@@ -5,9 +5,9 @@ namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 
-class ValueDefinition implements DefinitionInterface
+class ValueDefinition implements Definition
 {
     private $value;
 

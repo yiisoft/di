@@ -10,18 +10,18 @@ use yii\di\exceptions\NotInstantiableException;
  *
  * @package yii\di\contracts
  */
-interface DependencyResolverInterface
+interface DependencyResolver
 {
     /**
      *
-     * @return DefinitionInterface[] An array of direct dependencies of $class.
+     * @return Definition[] An array of direct dependencies of $class.
      * @throws NotInstantiableException If the class is not instantiable this MUST throw a NotInstantiableException
      */
     public function resolveConstructor(string $class): array;
 
     /**
      * @param callable $callable
-     * @return DefinitionInterface[] An array of direct dependencies of the callable.
+     * @return Definition[] An array of direct dependencies of the callable.
      */
     public function resolveCallable(callable $callable): array;
 }

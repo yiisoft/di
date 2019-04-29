@@ -55,7 +55,7 @@ use yii\di\Container;
  * }
  * ```
  */
-interface ServiceProviderInterface
+interface ServiceProvider
 {
     /**
      * Registers classes in the container.

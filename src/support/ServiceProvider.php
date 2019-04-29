@@ -7,7 +7,7 @@
 
 namespace yii\di\support;
 
-use yii\di\contracts\ServiceProviderInterface;
+use yii\di\contracts\ServiceProvider;
 
 /**
  * Base class for service providers - components responsible for class
@@ -55,6 +55,6 @@ use yii\di\contracts\ServiceProviderInterface;
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-abstract class ServiceProvider implements ServiceProviderInterface
+abstract class ServiceProvider implements ServiceProvider
 {
 }

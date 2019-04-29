@@ -8,7 +8,7 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
@@ -26,7 +26,7 @@ use yii\di\exceptions\InvalidConfigException;
  * ]
  * ```
  */
-class Reference implements DefinitionInterface
+class Reference implements Definition
 {
     private $id;
 

@@ -4,9 +4,9 @@
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 
-class CallableDefinition implements DefinitionInterface
+class CallableDefinition implements Definition
 {
     private $method;
 

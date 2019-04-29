@@ -3,7 +3,7 @@
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
 use yii\di\Reference;
@@ -12,7 +12,7 @@ use yii\di\Reference;
  * Class Resolver builds object by array config.
  * @package yii\di
  */
-class ArrayDefinition implements DefinitionInterface
+class ArrayDefinition implements Definition
 {
     private $config;
 
@@ -75,7 +75,7 @@ class ArrayDefinition implements DefinitionInterface
 
         if (isset($config[self::CONSTRUCT_KEY])) {
             foreach (array_values($config[self::CONSTRUCT_KEY]) as $index => $param) {
-                if ($param instanceof DefinitionInterface) {
+                if ($param instanceof Definition) {
                     $dependencies[$index] = $param;
                 } else {
                     $dependencies[$index] = new ValueDefinition($param);
@@ -94,7 +94,7 @@ class ArrayDefinition implements DefinitionInterface
     /**
      * Returns the dependencies of the specified class.
      * @param string $class class name, interface name or alias name
-     * @return DefinitionInterface[] the dependencies of the specified class.
+     * @return Definition[] the dependencies of the specified class.
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @internal
@@ -126,7 +126,7 @@ class ArrayDefinition implements DefinitionInterface
                 \call_user_func_array([$object, substr($action, 0, -2)], $arguments);
             } else {
                 // property
-                if ($arguments instanceof DefinitionInterface) {
+                if ($arguments instanceof Definition) {
                     $arguments = $arguments->resolve($container);
                 }
                 $object->$action = $arguments;

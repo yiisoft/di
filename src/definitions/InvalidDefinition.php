@@ -8,7 +8,7 @@
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\exceptions\NotFoundException;
 
 /**
@@ -20,7 +20,7 @@ use yii\di\exceptions\NotFoundException;
  *
  * These dependency must be replaced, attempting to resolve them will throw an exception
  */
-class InvalidDefinition implements DefinitionInterface
+class InvalidDefinition implements Definition
 {
     public function resolve(ContainerInterface $container, array $params = [])
     {

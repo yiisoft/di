@@ -3,7 +3,7 @@
 
 namespace yii\di\definitions;
 
-use yii\di\contracts\DefinitionInterface;
+use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 use yii\di\Reference;
 
@@ -48,9 +48,9 @@ class Normalizer
      * @param mixed $config
      * @param string $id
      */
-    public static function normalize($config, string $id = null): DefinitionInterface
+    public static function normalize($config, string $id = null): Definition
     {
-        if ($config instanceof DefinitionInterface) {
+        if ($config instanceof Definition) {
             return $config;
         }
 
