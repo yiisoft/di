@@ -58,7 +58,7 @@ return [
 ];
 ```
 
-Interface definition simply maps a class to particular class.
+Interface definition simply maps an id, that is usually an interface, to particular class.
 
 Full definition describes how to instantiate a class in detail:
 
