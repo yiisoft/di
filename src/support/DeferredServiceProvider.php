@@ -7,7 +7,7 @@
 
 namespace yii\di\support;
 
-use yii\di\contracts\DeferredServiceProvider;
+use yii\di\contracts\DeferredServiceProvider as DeferredServiceProviderInterface;
 
 /**
  * Base class for service providers that should be deferred to register till services are
@@ -54,7 +54,7 @@ use yii\di\contracts\DeferredServiceProvider;
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-abstract class DeferredServiceProvider implements DeferredServiceProvider
+abstract class DeferredServiceProvider implements DeferredServiceProviderInterface
 {
     /**
      * Lists classes provided by service provider. Should be a list of class names

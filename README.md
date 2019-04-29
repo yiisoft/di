@@ -209,20 +209,18 @@ to service provider through constructor and saved to `container` field.
 Typical service provider could look like:
 
 ```php
-use yii\di\support\ServiceProvider;
+use yii\di\contracts\ServiceProvider;
 
-class CarFactoryProvider extends ServiceProvider
+class CarFactoryProvider implements ServiceProvider
 {
-    public function register(): void
+    public function register(Container $container): void
     {
-        $this->registerDependencies();
-        $this->registerService();
+        $container->registerDependencies($container);
+        $container->registerService($container);
     }
 
-    protected function registerDependencies(): void
+    protected function registerDependencies(Container $container): void
     {
-        $container = $this->container;
-
         $container->set(EngineInterface::class, SolarEngine::class);
         $container->set(WheelInterface::class, [
             '__class' => Wheel::class,
@@ -234,9 +232,9 @@ class CarFactoryProvider extends ServiceProvider
         ]);
     }
 
-    protected function registerService(): void
+    protected function registerService(Container $container): void
     {
-        $this->container->set(CarFactory::class, [
+        $container->set(CarFactory::class, [
               '__class' => CarFactory::class,
               'color' => 'red',
         ]);
@@ -295,16 +293,14 @@ class CarFactoryProvider extends DeferredServiceProvider
         ];
     }
     
-    public function register(): void
+    public function register(Container $container): void
     {
-        $this->registerDependencies();
-        $this->registerService();
+        $this->registerDependencies($container);
+        $this->registerService($container);
     }
 
-    protected function registerDependencies(): void
+    protected function registerDependencies(Container $container): void
     {
-        $container = $this->container;
-
         $container->set(EngineInterface::class, SolarEngine::class);
         $container->set(WheelInterface::class, [
             '__class' => Wheel::class,
@@ -316,9 +312,9 @@ class CarFactoryProvider extends DeferredServiceProvider
         ]);
     }
 
-    protected function registerService(): void
+    protected function registerService(Container $container): void
     {
-        $this->container->set(CarFactory::class, [
+        $container->set(CarFactory::class, [
               '__class' => CarFactory::class,
               'color' => 'red',
         ]);
