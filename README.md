@@ -122,17 +122,22 @@ $container = new Container([], [], $composite);
 
 ## Contextual containers
 
-In a Yii application there are several levels at which we might want to have configuration for the DI container:
+In an application there are several levels at which we might want to have configuration for the DI container.
+For example, in Yii application these could be:
+
 - An extension providing default configuration
 - An application with configuration
 - A module inside the application that uses different configuration than the main application
 
-While in general you never want to inject DI containers into your objects, there are some exceptions.
-In this case Yii application modules are such an exception and need access to the container.
-To support this use case while still supporting custom configuration at the module level we have implemented a contextual containers.
+While in general you never want to inject DI containers into your objects, there are some exceptions such as
+Yii application modules that need access to the container.
+
+To support this use case while still supporting custom configuration at the module level we have implemented contextual containers.
 The main class is `CompositeContextContainer`; it is like `CompositeContainer` in the sense that it doesn't contain any definitions.
 The `attach()` function of the contextual container has an extra string parameter defining the context of the container.
+
 Using context we can create a simple scoping system:
+
 ```php
 $root = new CompositeContextContainer();
 $coreContainer = new Container([], [], $root);
@@ -163,12 +168,10 @@ $composite->get(LoggerInterface::class); // MainLogger
 $composite->get(LoggerInterface::class); // MainLogger
 $moduleAContainer->get(LoggerInterface::class // LoggerA
 $moduleBContainer->get(LoggerInterface::class // LoggerB
-
-
 ```
 
 Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
-The Yii core will automatically create these contextual containers for the modules.
+In case of Yii contextual containers for the modules are created automatically.
 
 
 ## Using injector
