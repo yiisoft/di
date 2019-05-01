@@ -450,8 +450,8 @@ abstract class AbstractContainer implements ContainerInterface
     {
         foreach ($dependencies as $index => $dependency) {
             if ($dependency instanceof Reference) {
-                if ($dependency->getId() !== null) {
-                    $dependencies[$index] = $this->get($dependency->getId());
+                if ($dependency->isDefined()) {
+                    $dependencies[$index] =  $dependency->get($this);
                 } elseif ($reflection !== null) {
                     $name = $reflection->getConstructor()->getParameters()[$index]->getName();
                     $class = $reflection->getName();

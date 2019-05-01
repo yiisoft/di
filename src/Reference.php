@@ -8,6 +8,8 @@
 namespace yii\di;
 
 use yii\di\exceptions\InvalidConfigException;
+use Psr\Container\ContainerInterface;
+use yii\di\exceptions\InvalidArgumentException;
 
 /**
  * Reference points to another container definition by its ID
@@ -15,7 +17,7 @@ use yii\di\exceptions\InvalidConfigException;
  * @author Alexander Makarov <sam@rmcreative.ru>
  * @since 1.0
  */
-class Reference
+class Reference implements ResolveInterface
 {
     /**
      * @var string the component ID, class name, interface name or alias name
@@ -69,5 +71,38 @@ class Reference
     public function getId(): ?string
     {
         return $this->id;
+    }
+    
+    /**
+     * Reference as string
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getId();
+    }
+    
+    /**
+     * Returns the instance of the referenced object
+     * @param ContainerInterface $container Container to use to resolve the reference
+     * @throws InvalidArgumentException if container is missing
+     */
+    public function get(?ContainerInterface $container = null)
+    {
+        if (!isset($container)) {
+            throw new InvalidArgumentException(
+                    'Failed to get instance of "'.(string)$this.'". Parameter "container" is missing');
+        }
+        
+        return $container->get($this->getId());
+    }
+    
+    /**
+     * Returns wether this is a valid reference
+     * @return bool `true` if id is set
+     */
+    public function isDefined()
+    {
+        return ($this->id !== null);
     }
 }

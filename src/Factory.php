@@ -96,9 +96,9 @@ class Factory extends AbstractContainer implements FactoryInterface
 
         if ($reference instanceof Reference) {
             try {
-                $component = $this->get($reference->getId());
+                $component = $reference->get($this);
             } catch (\ReflectionException $e) {
-                throw new InvalidConfigException("Failed instantiate component or class '{$reference->id}'.", 0, $e);
+                throw new InvalidConfigException("Failed instantiate component or class '{(string)$reference}'.", 0, $e);
             }
             if ($type === null || $component instanceof $type) {
                 return $component;
@@ -106,7 +106,7 @@ class Factory extends AbstractContainer implements FactoryInterface
 
             throw new InvalidConfigException(sprintf(
                 "'%s' refers to a %s component. %s is expected.",
-                $reference->id,
+                (string)$reference,
                 \get_class($component),
                 $type
             ));
