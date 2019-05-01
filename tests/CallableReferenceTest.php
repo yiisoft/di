@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link http://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -18,14 +19,15 @@ use yii\di\tests\code\EngineInterface;
  */
 class CallableReferenceTest extends TestCase
 {
-    
+
     public function testGet()
     {
         $container = new \yii\di\Container();
-        $callableRef = \yii\di\CallableReference::to(function($container)
-            {return ($container instanceof \Psr\Container\ContainerInterface) ? 'valid':'invalid';}
+        $callableRef = \yii\di\CallableReference::to(function($container) {
+                    return ($container instanceof \Psr\Container\ContainerInterface) ? 'valid' : 'invalid';
+                }
         );
         $this->assertEquals('valid', $callableRef->get($container));
     }
-    
+
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link http://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -9,10 +10,10 @@ namespace yii\di;
 
 /**
  * Reference to a callable function
- * 
+ *
  * The function is called when the reference is resolved by the container.
- * 
- * The container is passed to the function as first parameter. 
+ *
+ * The container is passed to the function as first parameter.
  *
  * @author Andreas Prucha (Abexto - Helicon Software Development) <andreas.prucha@gmail.com>
  */
@@ -20,10 +21,10 @@ class CallableReference implements ResolveInterface
 {
 
     /**
-     * @var callable 
+     * @var callable
      */
     public $func;
-    
+
     /**
      * Constructor.
      * @param callable $func
@@ -39,12 +40,12 @@ class CallableReference implements ResolveInterface
      */
     public static function to(callable $func)
     {
-        return new static ($func);
+        return new static($func);
     }
-    
+
     /**
      * Calls the referenced function
-     * @param \Psr\Container\ContainerInterface|null $container 
+     * @param \Psr\Container\ContainerInterface|null $container
      */
     public function get(?\Psr\Container\ContainerInterface $container = null)
     {

@@ -13,21 +13,21 @@ use yii\di\exceptions\InvalidArgumentException;
 
 /**
  * Array containing References
- * 
- * All items containing a reference ([[Reference]], [[ReferencingArray]] or any other 
+ *
+ * All items containing a reference ([[Reference]], [[ReferencingArray]] or any other
  * object implementing [[ResolveInterface]] are resolved by the container [[get()]].
- * Items of other type are left unchanged. 
+ * Items of other type are left unchanged.
  *
  * @author Andreas Prucha (Abexto - Helicon Software Development) <andreas.prucha@gmail.com>
  */
 class ReferencingArray implements ResolveInterface
 {
-    
+
     /**
      * @var array Items of the array
      */
     public $items = [];
-    
+
     /**
      * Constructor
      * @param array $items Items of the array
@@ -36,21 +36,21 @@ class ReferencingArray implements ResolveInterface
     {
         $this->items = $items;
     }
-    
+
     /**
      * Creates a instance containing the given items
-     * @param array $items 
+     * @param array $items
      */
     public static function items(?array $items = null)
     {
-        return new static ($items);
+        return new static($items);
     }
-    
+
     public function __toString()
     {
         'Referencing Array';
     }
-    
+
     /**
      * Returns the instance of the referenced object
      * @param ContainerInterface $container Container to use to resolve the reference
@@ -60,9 +60,9 @@ class ReferencingArray implements ResolveInterface
     {
         if (!isset($container)) {
             throw new InvalidArgumentException(
-                    'Failed to get instance of "'.(string)$this.'". Parameter "container" is missing');
+                    'Failed to get instance of "' . (string) $this . '". Parameter "container" is missing');
         }
-        
+
         $result = $this->items;
         if (is_array($result)) {
             foreach ($result as $k => $v) {
@@ -73,7 +73,7 @@ class ReferencingArray implements ResolveInterface
         }
         return $result;
     }
-    
+
     /**
      * Returns wether this is a valid reference
      * @return bool `true` if id is set
@@ -82,5 +82,5 @@ class ReferencingArray implements ResolveInterface
     {
         return ($this->items !== null);
     }
-    
+
 }
