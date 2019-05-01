@@ -12,7 +12,7 @@ use yii\di\Reference;
 use yii\di\tests\code\EngineInterface;
 
 /**
- * Description of ReferencingArrayTest
+ * Tests for ReferencingArray
  *
  * @author Andreas Prucha, Abexto - Helicon Software Development <andreas.prucha@gmail.com>
  */

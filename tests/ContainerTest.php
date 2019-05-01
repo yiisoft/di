@@ -296,12 +296,14 @@ class ContainerTest extends TestCase
             '__class' => code\PartCatalog::class,
             '__construct()' => [\yii\di\ReferencingArray::items
                 (['markOne' => Reference::to(EngineMarkOne::class),
-                 'markTwo' => Reference::to(EngineMarkOne::class)])]
+                 'markTwo' => Reference::to(EngineMarkOne::class)])],
+            'created' => \yii\di\CallableReference::to(function(){return new \DateTime();})
         ]);
 
         /** @var code\PartCatalog $object */
         $object = $container->get('constructor_test');
         $this->assertInstanceOf(EngineMarkOne::class, $object->engines['markOne']);
         $this->assertInstanceOf(EngineMarkOne::class, $object->engines['markTwo']);
+        $this->assertInstanceOf(\DateTime::class, $object->created);
     }
 }

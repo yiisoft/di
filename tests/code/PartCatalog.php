@@ -8,14 +8,10 @@
 
 namespace yii\di\tests\code;
 
-/**
- * Description of PartCatalog
- *
- * @author Andreas Prucha, Abexto - Helicon Software Development <andreas.prucha@gmail.com>
- */
 class PartCatalog
 {
     public $engines = [];
+    public $created = null;
     
     public function __construct(array $engines)
     {

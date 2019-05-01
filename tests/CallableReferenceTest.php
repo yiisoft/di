@@ -12,9 +12,9 @@ use yii\di\Reference;
 use yii\di\tests\code\EngineInterface;
 
 /**
- * Description of ReferencingArrayTest
+ * Tests for CallableReference
  *
- * @author Andreas Prucha, Abexto - Helicon Software Development <andreas.prucha@gmail.com>
+ * @author Andreas Prucha (Abexto - Helicon Software Development) <andreas.prucha@gmail.com>
  */
 class CallableReferenceTest extends TestCase
 {
