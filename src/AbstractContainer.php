@@ -449,7 +449,7 @@ abstract class AbstractContainer implements ContainerInterface
     protected function resolveDependencies($dependencies, $reflection = null): array
     {
         foreach ($dependencies as $index => $dependency) {
-            if ($dependency instanceof Reference) {
+            if ($dependency instanceof ResolveInterface) {
                 if ($dependency->isDefined()) {
                     $dependencies[$index] =  $dependency->get($this);
                 } elseif ($reflection !== null) {

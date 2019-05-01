@@ -288,4 +288,20 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
         $this->assertSame($number, $engine->getNumer());
     }
+    
+    public function testClassConstructorWithArrayOfReferences()
+    {
+        $container = new Container();
+        $container->set('constructor_test', [
+            '__class' => code\PartCatalog::class,
+            '__construct()' => [\yii\di\ReferencingArray::items
+                (['markOne' => Reference::to(EngineMarkOne::class),
+                 'markTwo' => Reference::to(EngineMarkOne::class)])]
+        ]);
+
+        /** @var code\PartCatalog $object */
+        $object = $container->get('constructor_test');
+        $this->assertInstanceOf(EngineMarkOne::class, $object->engines['markOne']);
+        $this->assertInstanceOf(EngineMarkOne::class, $object->engines['markTwo']);
+    }
 }
