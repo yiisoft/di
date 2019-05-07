@@ -28,7 +28,7 @@ class Container implements ContainerInterface
     /**
      * @var Definition[] object definitions indexed by their types
      */
-    private $definitions;
+    private $definitions = [];
     /**
      * @var ReflectionClass[] cached ReflectionClass objects indexed by class/interface names
      */
