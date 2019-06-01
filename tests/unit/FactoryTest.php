@@ -5,7 +5,9 @@ namespace yii\di\tests\unit;
 use PHPUnit\Framework\TestCase;
 use yii\di\Factory;
 use yii\di\Reference;
+use yii\di\tests\support\Car;
 use yii\di\tests\support\EngineMarkOne;
+use yii\di\tests\support\EngineMarkTwo;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -85,5 +87,17 @@ class FactoryTest extends TestCase
         $this->assertNotSame($one, $factory);
         $this->assertInstanceOf(Factory::class, $one);
         $this->assertInstanceOf(Factory::class, $two);
+    }
+
+    public function testCreateWithParams()
+    {
+        $factory = new Factory();
+        $one = $factory->create(Car::class, [$factory->get(EngineMarkOne::class)]);
+        $two = $factory->create(Car::class, [$factory->get(EngineMarkTwo::class)]);
+        $this->assertNotSame($one, $two);
+        $this->assertInstanceOf(Car::class, $one);
+        $this->assertInstanceOf(Car::class, $two);
+        $this->assertInstanceOf(EngineMarkOne::class, $one->getEngine());
+        $this->assertInstanceOf(EngineMarkTwo::class, $two->getEngine());
     }
 }

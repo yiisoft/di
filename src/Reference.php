@@ -50,7 +50,7 @@ class Reference implements Definition
      */
     public function resolve(ContainerInterface $container, array $params = [])
     {
-        return $container->get($this->id);
+        return $container->getWithParams($this->id, $params);
     }
 
     /**

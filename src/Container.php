@@ -91,9 +91,14 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
+        return $this->getWithParams($id);
+    }
+
+    public function getWithParams($id, array $params = [])
+    {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $object = $this->build($id);
+            $object = $this->build($id, $params);
             $this->instances[$id] = $object;
             $this->initObject($object);
         }
@@ -151,7 +156,7 @@ class Container implements ContainerInterface
     {
         if (!isset($this->definitions[$id])) {
             if (isset($this->rootContainer)) {
-                return $this->rootContainer->get($id, $params);
+                return $this->rootContainer->getWithParams($id, $params);
             }
             $res = $this->buildPrimitive($id, $params);
             if ($res !== null) {

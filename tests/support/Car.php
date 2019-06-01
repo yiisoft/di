@@ -27,6 +27,14 @@ class Car
     }
 
     /**
+     * @return EngineInterface
+     */
+    public function getEngine(): EngineInterface
+    {
+        return $this->engine;
+    }
+
+    /**
      * @return string
      */
     public function getEngineName(): string
