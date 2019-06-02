@@ -184,7 +184,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
-        $container->set('test', function (ContainerInterface $container) {
+        $container->set('test', static function (ContainerInterface $container) {
             return $container->get('engine');
         });
 
@@ -320,7 +320,7 @@ class ContainerTest extends TestCase
         $container = new Container();
         $container->setMultiple([
             ContainerInterface::class => Reference::to('container'),
-            'container' => function (ContainerInterface $container) {
+            'container' => static function (ContainerInterface $container) {
                 return $container;
             },
         ]);

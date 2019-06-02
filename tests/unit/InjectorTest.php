@@ -22,7 +22,7 @@ class InjectorTest extends TestCase
             EngineInterface::class => EngineMarkTwo::class,
         ]);
 
-        $getEngineName = function (EngineInterface $engine) {
+        $getEngineName = static function (EngineInterface $engine) {
             return $engine->getName();
         };
 
@@ -38,7 +38,7 @@ class InjectorTest extends TestCase
             EngineInterface::class => EngineMarkTwo::class,
         ]);
 
-        $getEngineName = function (EngineInterface $engine, $two) {
+        $getEngineName = static function (EngineInterface $engine, $two) {
             return $engine->getName();
         };
 
@@ -54,7 +54,7 @@ class InjectorTest extends TestCase
             EngineInterface::class => EngineMarkTwo::class,
         ]);
 
-        $getEngineName = function (EngineInterface $engine, ColorInterface $color) {
+        $getEngineName = static function (EngineInterface $engine, ColorInterface $color) {
             return $engine->getName();
         };
 

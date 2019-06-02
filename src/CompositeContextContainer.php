@@ -74,7 +74,7 @@ class CompositeContextContainer implements ContainerInterface
             $this->containers[$context] = [
                 $container
             ];
-            uksort($this->containers, function ($a, $b) {
+            uksort($this->containers, static function ($a, $b) {
                 return mb_strlen($b) <=> mb_strlen($a);
             });
         }

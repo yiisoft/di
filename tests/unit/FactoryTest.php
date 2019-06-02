@@ -76,7 +76,7 @@ class FactoryTest extends TestCase
                     'parent'        => Reference::to('container'),
                 ],
             ],
-            'container' => function (ContainerInterface $container) {
+            'container' => static function (ContainerInterface $container) {
                 return $container;
             },
         ]);
