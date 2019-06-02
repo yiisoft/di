@@ -19,7 +19,6 @@ class ReferenceTest extends TestCase
     public function testTo(): void
     {
         $ref = Reference::to(EngineInterface::class);
-        $this->assertInstanceOf(Reference::class, $ref);
         $this->assertSame(EngineInterface::class, $ref->getId());
     }
 }
