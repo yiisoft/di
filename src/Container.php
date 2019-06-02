@@ -30,10 +30,6 @@ class Container implements ContainerInterface
      */
     private $definitions = [];
     /**
-     * @var ReflectionClass[] cached ReflectionClass objects indexed by class/interface names
-     */
-    private $reflections = [];
-    /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
      */

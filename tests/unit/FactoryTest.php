@@ -16,12 +16,6 @@ use Psr\Container\ContainerInterface;
  */
 class FactoryTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-        #$this->markTestSkipped('Factory needs refactorying');
-    }
-
     public function testCreateByAlias(): void
     {
         $factory = new Factory();
