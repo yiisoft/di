@@ -31,7 +31,7 @@ class CompositeContainer implements ContainerInterface
                 // ignore
             }
         }
-        throw new NotFoundException();
+        throw new NotFoundException("No definition for $id");
     }
 
     /** @inheritdoc */
