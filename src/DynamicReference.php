@@ -41,10 +41,12 @@ class DynamicReference implements Definition
     }
 
     /**
-     * @param Container $container
+     * @param ContainerInterface $container
+     * @param array $params
+     * @return mixed|object
      */
-    public function resolve(ContainerInterface $container)
+    public function resolve(ContainerInterface $container, array $params = [])
     {
-        return $this->definition->resolve($container);
+        return $this->definition->resolve($container, $params);
     }
 }
