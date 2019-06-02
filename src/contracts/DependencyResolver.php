@@ -13,7 +13,7 @@ use yii\di\exceptions\NotInstantiableException;
 interface DependencyResolver
 {
     /**
-     *
+     * @param string $class
      * @return Definition[] An array of direct dependencies of $class.
      * @throws NotInstantiableException If the class is not instantiable this MUST throw a NotInstantiableException
      */
