@@ -6,7 +6,6 @@ use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
-use yii\di\Reference;
 
 /**
  * Class Resolver builds object by array config.
@@ -86,9 +85,7 @@ class ArrayDefinition implements Definition
 
         $resolved = $container->resolveDependencies($dependencies);
         $object = new $class(...$resolved);
-        $this->configure($container, $object, $config);
-
-        return $object;
+        return $this->configure($container, $object, $config);
     }
 
     /**
