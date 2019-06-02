@@ -276,7 +276,7 @@ class Container implements ContainerInterface
      * This function resolves a dependency recursively, checking for loops.
      * TODO add checking for loops
      * @param Definition $dependency
-     * @return Definition
+     * @return mixed
      */
     public function resolve(Definition $dependency)
     {

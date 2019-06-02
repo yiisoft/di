@@ -49,7 +49,6 @@ class CompositeContextContainer implements ContainerInterface
         }
     }
 
-    /** @inheritdoc */
     public function has($id)
     {
         foreach ($this->getContainers($this->currentContext) as $container) {
@@ -62,10 +61,10 @@ class CompositeContextContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
-     * @param string The context for the new container.
+     * @param string $context The context for the new container.
      * @param ContainerInterface $container
      */
-    public function attach(ContainerInterface $container, string $context = '')
+    public function attach(ContainerInterface $container, string $context = ''): void
     {
         if (isset($this->containers[$context])) {
             array_unshift($this->containers[$context], $container);
@@ -84,7 +83,7 @@ class CompositeContextContainer implements ContainerInterface
      * Removes a container from the list of containers.
      * @param ContainerInterface $container
      */
-    public function detach(ContainerInterface $container)
+    public function detach(ContainerInterface $container): void
     {
         foreach ($this->containers as $prefix => $containers) {
             foreach ($containers as $i => $c) {

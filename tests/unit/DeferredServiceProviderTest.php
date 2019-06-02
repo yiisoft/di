@@ -16,7 +16,7 @@ use yii\di\tests\support\EngineMarkOne;
  */
 class DeferredServiceProviderTest extends TestCase
 {
-    public function testServiceProviderDeferring()
+    public function testServiceProviderDeferring(): void
     {
         $container = new Container();
 

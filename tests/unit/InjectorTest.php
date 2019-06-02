@@ -16,7 +16,7 @@ use yii\di\tests\support\EngineMarkTwo;
  */
 class InjectorTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $container = new Container([
             EngineInterface::class => EngineMarkTwo::class,
@@ -32,7 +32,7 @@ class InjectorTest extends TestCase
         $this->assertSame('Mark Two', $engineName);
     }
 
-    public function testMissingRequiredParameter()
+    public function testMissingRequiredParameter(): void
     {
         $container = new Container([
             EngineInterface::class => EngineMarkTwo::class,
@@ -48,7 +48,7 @@ class InjectorTest extends TestCase
         $engineName = $injector->invoke($getEngineName);
     }
 
-    public function testNotFoundException()
+    public function testNotFoundException(): void
     {
         $container = new Container([
             EngineInterface::class => EngineMarkTwo::class,

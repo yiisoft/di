@@ -40,7 +40,7 @@ class Reference implements Definition
         return $this->id;
     }
 
-    public static function to(string $id)
+    public static function to(string $id): Reference
     {
         return new self($id);
     }

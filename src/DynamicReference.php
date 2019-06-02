@@ -35,7 +35,7 @@ class DynamicReference implements Definition
         $this->definition = Normalizer::normalize($definition);
     }
 
-    public static function to($definition)
+    public static function to($definition): DynamicReference
     {
         return new self($definition);
     }

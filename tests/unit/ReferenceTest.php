@@ -16,7 +16,7 @@ use yii\di\tests\support\EngineInterface;
  */
 class ReferenceTest extends TestCase
 {
-    public function testTo()
+    public function testTo(): void
     {
         $ref = Reference::to(EngineInterface::class);
         $this->assertInstanceOf(Reference::class, $ref);

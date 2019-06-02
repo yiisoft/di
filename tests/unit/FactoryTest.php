@@ -22,7 +22,7 @@ class FactoryTest extends TestCase
         #$this->markTestSkipped('Factory needs refactorying');
     }
 
-    public function testCreateByAlias()
+    public function testCreateByAlias(): void
     {
         $factory = new Factory();
         $factory->set('engine', EngineMarkOne::class);
@@ -33,7 +33,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
 
-    public function testCreateByClass()
+    public function testCreateByClass(): void
     {
         $factory = new Factory();
         $one = $factory->create(EngineMarkOne::class);
@@ -43,7 +43,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
 
-    public function testGetByAlias()
+    public function testGetByAlias(): void
     {
         $factory = new Factory();
         $factory->set('engine', EngineMarkOne::class);
@@ -54,7 +54,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
 
-    public function testGetByClass()
+    public function testGetByClass(): void
     {
         $factory = new Factory();
         $one = $factory->get(EngineMarkOne::class);
@@ -64,7 +64,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $two);
     }
 
-    public function testFactoryInContainer()
+    public function testFactoryInContainer(): void
     {
         $factory = new Factory();
         $factory->setMultiple([
@@ -89,7 +89,7 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(Factory::class, $two);
     }
 
-    public function testCreateWithParams()
+    public function testCreateWithParams(): void
     {
         $factory = new Factory();
         $one = $factory->create(Car::class, [$factory->get(EngineMarkOne::class)]);

@@ -17,7 +17,7 @@ use yii\di\tests\support\OptionalInterfaceDependency;
 
 class ClassNameResolverTest extends TestCase
 {
-    public function testResolveConstructor()
+    public function testResolveConstructor(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -30,7 +30,7 @@ class ClassNameResolverTest extends TestCase
         $this->assertEquals(null, $dependencies[1]->resolve($container));
     }
 
-    public function testResolveCarConstructor()
+    public function testResolveCarConstructor(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -43,7 +43,7 @@ class ClassNameResolverTest extends TestCase
         $dependencies[0]->resolve($container);
     }
 
-    public function testResolveGearBoxConstructor()
+    public function testResolveGearBoxConstructor(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -53,7 +53,7 @@ class ClassNameResolverTest extends TestCase
         $this->assertEquals(5, $dependencies[0]->resolve($container));
     }
 
-    public function testOptionalInterfaceDependency()
+    public function testOptionalInterfaceDependency(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -62,7 +62,7 @@ class ClassNameResolverTest extends TestCase
         $this->assertCount(1, $dependencies);
         $this->assertEquals(null, $dependencies[0]->resolve($container));
     }
-    public function testNullableInterfaceDependency()
+    public function testNullableInterfaceDependency(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -72,7 +72,7 @@ class ClassNameResolverTest extends TestCase
         $this->assertEquals(null, $dependencies[0]->resolve($container));
     }
 
-    public function testOptionalConcreteDependency()
+    public function testOptionalConcreteDependency(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();
@@ -81,7 +81,7 @@ class ClassNameResolverTest extends TestCase
         $this->assertCount(1, $dependencies);
         $this->assertEquals(null, $dependencies[0]->resolve($container));
     }
-    public function testNullableConcreteDependency()
+    public function testNullableConcreteDependency(): void
     {
         $resolver = new ClassNameResolver();
         $container = new Container();

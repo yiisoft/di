@@ -34,7 +34,6 @@ class CompositeContainer implements ContainerInterface
         throw new NotFoundException("No definition for $id");
     }
 
-    /** @inheritdoc */
     public function has($id)
     {
         foreach ($this->containers as $container) {

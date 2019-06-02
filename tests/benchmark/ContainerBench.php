@@ -25,7 +25,7 @@ class ContainerBench
     /** @var int[] */
     private $indexes = [];
 
-    public function provideDefinitions()
+    public function provideDefinitions(): array
     {
         return [
             ['serviceClass' => PropertyTestClass::class],
@@ -38,7 +38,7 @@ class ContainerBench
      * Load the bulk of the definitions.
      * These all refer to a service that is not yet defined but must be defined in the bench.
      */
-    public function before()
+    public function before(): void
     {
         $definitions = [];
         $definitions2 = [];
@@ -67,7 +67,7 @@ class ContainerBench
     /**
      * @Revs(1000)
      */
-    public function benchConstructStupid()
+    public function benchConstructStupid(): void
     {
         $container = new Container();
         for ($i = 0; $i < 1000; $i++) {
@@ -78,7 +78,7 @@ class ContainerBench
     /**
      * @Revs(1000)
      */
-    public function benchConstructSmart()
+    public function benchConstructSmart(): void
     {
         $definitions = [];
         for ($i = 0; $i < 1000; $i++) {
@@ -90,7 +90,7 @@ class ContainerBench
     /**
      * @ParamProviders({"provideDefinitions"})
      */
-    public function benchSequentialLookups($params)
+    public function benchSequentialLookups($params): void
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {
@@ -106,7 +106,7 @@ class ContainerBench
     /**
      * @ParamProviders({"provideDefinitions"})
      */
-    public function benchRandomLookups($params)
+    public function benchRandomLookups($params): void
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {
@@ -122,7 +122,7 @@ class ContainerBench
     /**
      * @ParamProviders({"provideDefinitions"})
      */
-    public function benchRandomLookupsComposite($params)
+    public function benchRandomLookupsComposite($params): void
     {
         $this->container->set('service', $params['serviceClass']);
         if (isset($params['otherDefinitions'])) {

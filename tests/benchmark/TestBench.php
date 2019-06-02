@@ -12,7 +12,7 @@ class TestBench
     /**
      * @Revs(1000)
      */
-    public function benchTime()
+    public function benchTime(): void
     {
         usleep(200);
     }

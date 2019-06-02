@@ -15,7 +15,7 @@ use yii\di\tests\support\PropertyTestClass;
  */
 class CompositeContextContainerTest extends TestCase
 {
-    public function testContextGet()
+    public function testContextGet(): void
     {
         $composite = new CompositeContextContainer();
 

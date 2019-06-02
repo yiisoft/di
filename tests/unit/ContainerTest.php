@@ -32,7 +32,7 @@ use yii\di\tests\support\TreeItem;
  */
 class ContainerTest extends TestCase
 {
-    public function testSettingScalars()
+    public function testSettingScalars(): void
     {
         $this->expectException(InvalidConfigException::class);
         $container = new Container([
@@ -42,7 +42,7 @@ class ContainerTest extends TestCase
         $container->get('scalar');
     }
 
-    public function testOptionalClassDependency()
+    public function testOptionalClassDependency(): void
     {
         $this->markTestIncomplete('TODO: implement optional dependencies');
         $container = new Container();
@@ -53,7 +53,7 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b);
     }
 
-    public function testOptionalCircularClassDependency()
+    public function testOptionalCircularClassDependency(): void
     {
         $this->markTestIncomplete('TODO: implement optional dependencies');
         $container = new Container();
@@ -64,7 +64,7 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b->a);
     }
 
-    public function testCircularClassDependency()
+    public function testCircularClassDependency(): void
     {
         $container = new Container();
         $container->set(C::class, C::class);
@@ -73,14 +73,14 @@ class ContainerTest extends TestCase
         $container->get(C::class);
     }
 
-    public function testClassSimple()
+    public function testClassSimple(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
     }
 
-    public function testSetAll()
+    public function testSetAll(): void
     {
         $container = new Container();
         $container->setMultiple([
@@ -91,7 +91,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkTwo::class, $container->get('engine2'));
     }
 
-    public function testClassConstructor()
+    public function testClassConstructor(): void
     {
         $container = new Container();
         $container->set('constructor_test', [
@@ -104,7 +104,7 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getParameter());
     }
 
-    public function testClassProperties()
+    public function testClassProperties(): void
     {
         $container = new Container();
         $container->set('property_test', [
@@ -117,7 +117,7 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->property);
     }
 
-    public function testClassMethods()
+    public function testClassMethods(): void
     {
         $container = new Container();
         $container->set('method_test', [
@@ -130,7 +130,7 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
-    public function testAlias()
+    public function testAlias(): void
     {
         $container = new Container();
         $container->set('engine-mark-one', Reference::to('engine'));
@@ -140,7 +140,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
 
-    public function testCircularAlias()
+    public function testCircularAlias(): void
     {
         $container = new Container();
         $container->set('engine-1', Reference::to('engine-2'));
@@ -151,7 +151,7 @@ class ContainerTest extends TestCase
         $container->get('engine-1');
     }
 
-    public function testUndefinedDependencies()
+    public function testUndefinedDependencies(): void
     {
         $container = new Container();
         $container->set('car', Car::class);
@@ -160,7 +160,7 @@ class ContainerTest extends TestCase
         $container->get('car');
     }
 
-    public function testDependencies()
+    public function testDependencies(): void
     {
         $container = new Container();
         $container->set('car', Car::class);
@@ -171,7 +171,7 @@ class ContainerTest extends TestCase
         $this->assertEquals(EngineMarkTwo::NAME, $car->getEngineName());
     }
 
-    public function testCircularReference()
+    public function testCircularReference(): void
     {
         $container = new Container();
         $container->set(TreeItem::class, TreeItem::class);
@@ -180,7 +180,7 @@ class ContainerTest extends TestCase
         $container->get(TreeItem::class);
     }
 
-    public function testCallable()
+    public function testCallable(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
@@ -192,7 +192,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $object);
     }
 
-    public function testObject()
+    public function testObject(): void
     {
         $container = new Container();
         $container->set('engine', new EngineMarkOne());
@@ -200,7 +200,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $object);
     }
 
-    public function testStaticCall()
+    public function testStaticCall(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
@@ -209,7 +209,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $object);
     }
 
-    public function testInvokeable()
+    public function testInvokeable(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
@@ -218,7 +218,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $object);
     }
 
-    public function testReference()
+    public function testReference(): void
     {
         $container = new Container([
             'engine' => EngineMarkOne::class,
@@ -236,7 +236,7 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ColorPink::class, $object->color);
     }
 
-    public function testGetByReference()
+    public function testGetByReference(): void
     {
         $container = new Container([
             'engine' => EngineMarkOne::class,
@@ -250,7 +250,7 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
-    public function testSameInstance()
+    public function testSameInstance(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
@@ -259,7 +259,7 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
-    public function testHasInstance()
+    public function testHasInstance(): void
     {
         $container = new Container();
         $container->set('engine', EngineMarkOne::class);
@@ -269,7 +269,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->hasInstance('engine'));
     }
 
-    public function testInitiable()
+    public function testInitiable(): void
     {
         $container = new Container();
         $container->set('gearbox', GearBox::class);
@@ -279,7 +279,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($automatic->getInited());
     }
 
-    public function testGetDefinition()
+    public function testGetDefinition(): void
     {
         $definition = [
             '__class' => EngineMarkOne::class,
@@ -292,7 +292,7 @@ class ContainerTest extends TestCase
         $this->assertEquals(Normalizer::normalize($definition), $container->getDefinition('engine'));
     }
 
-    public function testGetByClassIndirectly()
+    public function testGetByClassIndirectly(): void
     {
         $number = 42;
         $container = new Container([
@@ -307,7 +307,7 @@ class ContainerTest extends TestCase
         $this->assertSame($number, $engine->getNumer());
     }
 
-    public function testThrowingNotFoundException()
+    public function testThrowingNotFoundException(): void
     {
         $this->expectException(NotFoundException::class);
 
@@ -315,7 +315,7 @@ class ContainerTest extends TestCase
         $container->get('non_existing');
     }
 
-    public function testContainerInContainer()
+    public function testContainerInContainer(): void
     {
         $container = new Container();
         $container->setMultiple([
