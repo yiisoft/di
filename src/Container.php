@@ -41,7 +41,7 @@ class Container implements ContainerInterface
     /**
      * @var Injector injector with this container.
      */
-    protected $injector;
+    private $injector;
 
     /**
      * @var object[]
@@ -147,7 +147,7 @@ class Container implements ContainerInterface
         return $object;
     }
 
-    protected function buildInternal(string $id, array $params = [])
+    private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
             if (isset($this->rootContainer)) {
@@ -169,7 +169,7 @@ class Container implements ContainerInterface
         return $definition->resolve($this, $params);
     }
 
-    protected function buildPrimitive(string $class, array $params = [])
+    private function buildPrimitive(string $class, array $params = [])
     {
         if ($class === ContainerInterface::class) {
             return $this;
@@ -245,7 +245,7 @@ class Container implements ContainerInterface
      * @param object $object
      * @return object
      */
-    protected function initObject($object)
+    private function initObject($object)
     {
         if ($object instanceof Initiable) {
             $object->init();

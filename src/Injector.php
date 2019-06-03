@@ -74,7 +74,7 @@ class Injector
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
      * @throws NotInstantiableException If resolved to an abstract class or an interface
      */
-    protected function resolveCallableDependencies(callable $callback, array $params = []): array
+    private function resolveCallableDependencies(callable $callback, array $params = []): array
     {
         if (\is_object($callback) && !$callback instanceof \Closure) {
             $callback = [$callback, '__invoke'];
