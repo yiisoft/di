@@ -91,9 +91,7 @@ class CompositeContextContainer implements ContainerInterface
                     unset($this->containers[$prefix][$i]);
                 }
             }
-            if (!empty($this->containers[$prefix])) {
-                $this->containers[$prefix] = array_values($this->containers[$prefix]);
-            } else {
+            if (empty($this->containers[$prefix])) {
                 unset($this->containers[$prefix]);
             }
         }

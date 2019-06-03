@@ -64,6 +64,5 @@ class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
-        $this->containers = array_values($this->containers);
     }
 }
