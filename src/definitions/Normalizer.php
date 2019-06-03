@@ -62,7 +62,7 @@ class Normalizer
         if (\is_array($config)
             && !(isset($config[0], $config[1]) && count($config) === 2)
         ) {
-            if (empty($config['__class']) && $id) {
+            if ($id && empty($config['__class'])) {
                 $config['__class'] = $id;
             }
             return new ArrayDefinition($config);
