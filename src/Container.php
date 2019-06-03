@@ -281,7 +281,7 @@ class Container implements ContainerInterface
     public function resolve(Definition $dependency)
     {
         while ($dependency instanceof Definition) {
-            $dependency = $dependency->resolve($this->getRootContainer());
+            $dependency = $dependency->resolve($this->rootContainer ?? $this);
         }
         return $dependency;
     }
@@ -341,11 +341,6 @@ class Container implements ContainerInterface
         }
 
         return $this->injector;
-    }
-
-    public function getRootContainer(): ContainerInterface
-    {
-        return $this->rootContainer ?? $this;
     }
 
     /**
