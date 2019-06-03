@@ -152,7 +152,11 @@ class Container implements ContainerInterface
     {
         if (!isset($this->definitions[$id])) {
             if (isset($this->rootContainer)) {
-                return $this->rootContainer->getWithParams($id, $params);
+                if ($this->rootContainer instanceof static) {
+                    return $this->rootContainer->getWithParams($id, $params);
+                } else {
+                    return $this->rootContainer->get($id);
+                }
             }
             $res = $this->buildPrimitive($id, $params);
             if ($res !== null) {
