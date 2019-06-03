@@ -8,7 +8,7 @@ use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
 
 /**
- * Class Resolver builds object by array config.
+ * Builds object by array config.
  * @package yii\di
  */
 class ArrayDefinition implements Definition
