@@ -47,6 +47,8 @@ class Reference implements Definition
 
     /**
      * @param Container $container
+     * @param array $params
+     * @return object
      */
     public function resolve(ContainerInterface $container, array $params = [])
     {

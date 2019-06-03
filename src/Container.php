@@ -50,12 +50,14 @@ class Container implements ContainerInterface
 
     /** @var ?ContainerInterface */
     private $rootContainer;
+
     /**
      * Container constructor.
      *
      * @param array $definitions
      * @param ServiceProvider[] $providers
      *
+     * @param ContainerInterface|null $rootContainer
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
@@ -108,6 +110,8 @@ class Container implements ContainerInterface
 
     /**
      * Returns normalized definition for a given id
+     * @param string $id
+     * @return Definition|null
      */
     public function getDefinition(string $id): ?Definition
     {
@@ -118,7 +122,7 @@ class Container implements ContainerInterface
      * Creates new instance by either interface name or alias.
      *
      * @param string $id the interface or an alias name that was previously registered via [[set()]].
-     * @param array $config
+     * @param array $params
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -201,9 +205,10 @@ class Container implements ContainerInterface
 
     /**
      * Sets a definition to the container. Definition may be defined multiple ways.
-     * @see `Normalizer::normalize()`
      * @param string $id
      * @param mixed $definition
+     * @throws InvalidConfigException
+     * @see `Normalizer::normalize()`
      */
     public function set(string $id, $definition): void
     {

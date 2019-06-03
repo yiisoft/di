@@ -46,6 +46,7 @@ class ArrayDefinition implements Definition
     /**
      * @param ContainerInterface $container
      * @param array $params
+     * @throws NotInstantiableException
      */
     public function resolve(ContainerInterface $container, array $params = [])
     {

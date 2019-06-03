@@ -23,6 +23,7 @@ class ClassDefinition implements Definition
     /**
      * Constructor.
      * @param string $class the class name
+     * @param bool $optional if null should be returned instead of throwing an exception
      */
     public function __construct(string $class, bool $optional)
     {

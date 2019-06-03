@@ -37,7 +37,8 @@ class CompositeContextContainer implements ContainerInterface
     }
 
     /**
-     * @return ContainerInterface[] All containers in the current context
+     * @param string $context
+     * @return ContainerInterface[] All containers in the context specified
      */
     private function getContainers(string $context): iterable
     {
@@ -102,6 +103,7 @@ class CompositeContextContainer implements ContainerInterface
      *
      * @param string $id Name of the service, not typehinted to remain compatible with PSR-11 `get()`
      * @param string $context
+     * @throws NotFoundException
      */
     public function getFromContext($id, string $context)
     {
