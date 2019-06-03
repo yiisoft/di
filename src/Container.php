@@ -8,7 +8,6 @@
 namespace yii\di;
 
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProvider;
 use yii\di\contracts\Definition;
@@ -154,9 +153,9 @@ class Container implements ContainerInterface
             if (isset($this->rootContainer)) {
                 if ($this->rootContainer instanceof self) {
                     return $this->rootContainer->getWithParams($id, $params);
-                } else {
-                    return $this->rootContainer->get($id);
                 }
+
+                return $this->rootContainer->get($id);
             }
             $res = $this->buildPrimitive($id, $params);
             if ($res !== null) {
