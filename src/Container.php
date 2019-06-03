@@ -157,11 +157,7 @@ class Container implements ContainerInterface
 
                 return $this->rootContainer->get($id);
             }
-            $res = $this->buildPrimitive($id, $params);
-            if ($res !== null) {
-                return $res;
-            }
-            throw new NotFoundException("No definition for $id");
+            return $this->buildPrimitive($id, $params);
         }
 
         $definition = $this->definitions[$id];
@@ -180,7 +176,7 @@ class Container implements ContainerInterface
             return $definition->resolve($this, $params);
         }
 
-        return null;
+        throw new NotFoundException("No definition for $class");
     }
 
     /**
