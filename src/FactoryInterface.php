@@ -28,11 +28,11 @@ interface FactoryInterface
      *
      * ```php
      * // create an object using a class name
-     * $object = $factory->createObject(\yii\db\Connection::class);
+     * $object = $factory->createObject(\Yiisoft\Db\Connection::class);
      *
      * // create an object using a configuration array
      * $object = $factory->createObject([
-     *     '__class' => \yii\db\Connection::class,
+     *     '__class' => \Yiisoft\Db\Connection::class,
      *     'dsn' => 'mysql:host=127.0.0.1;dbname=demo',
      *     'username' => 'root',
      *     'password' => '',
