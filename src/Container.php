@@ -348,7 +348,6 @@ class Container implements ContainerInterface
      * instance of the specified name.
      * @param string|Reference $id class name, interface name or alias name
      * @return bool whether the container has instance of class specified.
-     * @throws CircularReferenceException
      */
     public function hasInstance($id): bool
     {
