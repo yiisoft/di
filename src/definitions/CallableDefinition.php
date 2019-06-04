@@ -19,6 +19,7 @@ class CallableDefinition implements Definition
      */
     public function resolve(Container $container, array $params = [])
     {
-        return $container->getInjector()->invoke($this->method, $params);
+        $callback = $this->method;
+        return $callback($container, $params);
     }
 }
