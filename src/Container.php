@@ -151,7 +151,7 @@ class Container implements ContainerInterface
     private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
-            if (isset($this->rootContainer)) {
+            if ($this->rootContainer !== null) {
                 if ($this->rootContainer instanceof self) {
                     return $this->rootContainer->getWithParams($id, $params);
                 }
