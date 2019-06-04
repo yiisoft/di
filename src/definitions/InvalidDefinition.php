@@ -1,13 +1,7 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace yii\di\definitions;
 
-use Psr\Container\ContainerInterface;
+use yii\di\Container;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\NotFoundException;
 
@@ -22,7 +16,7 @@ use yii\di\exceptions\NotFoundException;
  */
 class InvalidDefinition implements Definition
 {
-    public function resolve(ContainerInterface $container, array $params = [])
+    public function resolve(Container $container, array $params = [])
     {
         throw new NotFoundException('Invalid reference');
     }

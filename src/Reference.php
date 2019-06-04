@@ -1,13 +1,6 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace yii\di;
 
-use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -45,12 +38,7 @@ class Reference implements Definition
         return new self($id);
     }
 
-    /**
-     * @param Container $container
-     * @param array $params
-     * @return object
-     */
-    public function resolve(ContainerInterface $container, array $params = [])
+    public function resolve(Container $container, array $params = [])
     {
         return $container->getWithParams($this->id, $params);
     }

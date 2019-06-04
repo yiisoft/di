@@ -1,13 +1,7 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace yii\di\definitions;
 
-use Psr\Container\ContainerInterface;
+use yii\di\Container;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -31,7 +25,7 @@ class ClassDefinition implements Definition
         $this->optional = $optional;
     }
 
-    public function resolve(ContainerInterface $container, array $params = [])
+    public function resolve(Container $container, array $params = [])
     {
         try {
             $result = $container->getWithParams($this->class, $params);

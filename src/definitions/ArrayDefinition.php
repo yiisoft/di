@@ -1,8 +1,8 @@
 <?php
-
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
+use yii\di\Container;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
@@ -44,11 +44,11 @@ class ArrayDefinition implements Definition
     }
 
     /**
-     * @param ContainerInterface $container
+     * @param Container $container
      * @param array $params
      * @throws NotInstantiableException
      */
-    public function resolve(ContainerInterface $container, array $params = [])
+    public function resolve(Container $container, array $params = [])
     {
         $config = $this->config;
 

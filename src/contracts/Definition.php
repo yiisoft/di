@@ -1,9 +1,7 @@
 <?php
-
-
 namespace yii\di\contracts;
 
-use Psr\Container\ContainerInterface;
+use yii\di\Container;
 
 /**
  * Interface DefinitionInterface
@@ -12,9 +10,9 @@ use Psr\Container\ContainerInterface;
 interface Definition
 {
     /**
-     * @param ContainerInterface $container
+     * @param Container $container
      * @param array $params constructor params
      * @return mixed|object
      */
-    public function resolve(ContainerInterface $container, array $params = []);
+    public function resolve(Container $container, array $params = []);
 }

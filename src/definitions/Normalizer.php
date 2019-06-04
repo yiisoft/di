@@ -1,6 +1,4 @@
 <?php
-
-
 namespace yii\di\definitions;
 
 use yii\di\contracts\Definition;
