@@ -17,7 +17,7 @@ class CompositeContextContainer implements ContainerInterface
      * Containers to look into.
      * The first level of this array is sorted by the length of the key, from long to short.
      * Longer key means container is more specific and is checked first.
-     * @var ContainerInterface[string][int] The list of containers
+     * @var array The lists of containers indexed by contexts
      */
     private $containers = [];
 
