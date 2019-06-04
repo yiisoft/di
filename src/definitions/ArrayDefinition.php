@@ -63,7 +63,7 @@ class ArrayDefinition implements Definition
         return $this->buildFromArray($container, $config);
     }
 
-    private function buildFromArray(ContainerInterface $container, array $config)
+    private function buildFromArray(Container $container, array $config)
     {
         if (empty($config[self::CLASS_KEY])) {
             throw new NotInstantiableException(var_export($config, true));
