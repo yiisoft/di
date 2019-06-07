@@ -49,7 +49,7 @@ class Container implements ContainerInterface
     private $instances;
 
     /** @var ?ContainerInterface */
-    private $rootContainer;
+    private $parentContainer;
 
     /**
      * Container constructor.
@@ -57,16 +57,16 @@ class Container implements ContainerInterface
      * @param array $definitions
      * @param ServiceProvider[] $providers
      *
-     * @param ContainerInterface|null $rootContainer
+     * @param ContainerInterface|null $parentContainer
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
         array $providers = [],
-        ?ContainerInterface $rootContainer = null
+        ?ContainerInterface $parentContainer = null
     ) {
-        $this->rootContainer = $rootContainer;
+        $this->parentContainer = $parentContainer;
         $this->setMultiple($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
@@ -151,12 +151,12 @@ class Container implements ContainerInterface
     private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
-            if ($this->rootContainer !== null) {
-                if ($this->rootContainer instanceof self) {
-                    return $this->rootContainer->getWithParams($id, $params);
+            if ($this->parentContainer !== null) {
+                if ($this->parentContainer instanceof self) {
+                    return $this->parentContainer->getWithParams($id, $params);
                 }
 
-                return $this->rootContainer->get($id);
+                return $this->parentContainer->get($id);
             }
             return $this->buildPrimitive($id, $params);
         }
@@ -275,7 +275,7 @@ class Container implements ContainerInterface
     public function resolve(Definition $dependency)
     {
         while ($dependency instanceof Definition) {
-            $dependency = $dependency->resolve($this->rootContainer ?? $this);
+            $dependency = $dependency->resolve($this->parentContainer ?? $this);
         }
         return $dependency;
     }
