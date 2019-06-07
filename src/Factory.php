@@ -21,7 +21,7 @@ class Factory extends Container implements FactoryInterface
         return $definition->resolve($this, $params);
     }
 
-    public function getWithParams($id, array $params = [])
+    public function get($id, array $params = [])
     {
         return $this->build($this->getId($id), $params);
     }

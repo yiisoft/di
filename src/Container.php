@@ -86,12 +86,7 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function get($id)
-    {
-        return $this->getWithParams($id);
-    }
-
-    public function getWithParams($id, array $params = [])
+    public function get($id, array $params = [])
     {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
@@ -152,11 +147,7 @@ class Container implements ContainerInterface
     {
         if (!isset($this->definitions[$id])) {
             if ($this->parentContainer !== null) {
-                if ($this->parentContainer instanceof self) {
-                    return $this->parentContainer->getWithParams($id, $params);
-                }
-
-                return $this->parentContainer->get($id);
+                return $this->parentContainer->get($id, $params);
             }
             return $this->buildPrimitive($id, $params);
         }

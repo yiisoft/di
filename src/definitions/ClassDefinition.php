@@ -28,7 +28,7 @@ class ClassDefinition implements Definition
     public function resolve(Container $container, array $params = [])
     {
         try {
-            $result = $container->getWithParams($this->class, $params);
+            $result = $container->get($this->class, $params);
         } catch (\Throwable $t) {
             if ($this->optional) {
                 return null;
