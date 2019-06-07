@@ -161,9 +161,7 @@ class Container implements ContainerInterface
             return $this->buildPrimitive($id, $params);
         }
 
-        $definition = $this->definitions[$id];
-
-        return $definition->resolve($this, $params);
+        return $this->definitions[$id]->resolve($this, $params);
     }
 
     private function buildPrimitive(string $class, array $params = [])
