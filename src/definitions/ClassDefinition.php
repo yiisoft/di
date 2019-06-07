@@ -1,7 +1,7 @@
 <?php
 namespace yii\di\definitions;
 
-use yii\di\Container;
+use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -25,9 +25,10 @@ class ClassDefinition implements Definition
         $this->optional = $optional;
     }
 
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         try {
+            // passing parameters for containers supporting them
             $result = $container->get($this->class, $params);
         } catch (\Throwable $t) {
             if ($this->optional) {

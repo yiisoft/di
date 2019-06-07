@@ -1,6 +1,7 @@
 <?php
 namespace yii\di\definitions;
 
+use Psr\Container\ContainerInterface;
 use yii\di\Container;
 use yii\di\contracts\Definition;
 
@@ -13,10 +14,7 @@ class ValueDefinition implements Definition
         $this->value = $value;
     }
 
-    /**
-     * @param Container $container
-     */
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         return $this->value;
     }

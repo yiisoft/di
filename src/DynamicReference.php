@@ -1,6 +1,7 @@
 <?php
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\definitions\Normalizer;
 
@@ -42,7 +43,7 @@ class DynamicReference implements Definition
      * @param array $params
      * @return mixed|object
      */
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         return $this->definition->resolve($container, $params);
     }

@@ -2,8 +2,8 @@
 namespace yii\di\definitions;
 
 use Psr\Container\ContainerInterface;
-use yii\di\Container;
 use yii\di\contracts\Definition;
+use yii\di\exceptions\InvalidConfigException;
 use yii\di\exceptions\NotInstantiableException;
 use yii\di\resolvers\ClassNameResolver;
 
@@ -43,12 +43,7 @@ class ArrayDefinition implements Definition
         return new static([self::CLASS_KEY => $class]);
     }
 
-    /**
-     * @param Container $container
-     * @param array $params
-     * @throws NotInstantiableException
-     */
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         $config = $this->config;
 
@@ -63,7 +58,7 @@ class ArrayDefinition implements Definition
         return $this->buildFromArray($container, $config);
     }
 
-    private function buildFromArray(Container $container, array $config)
+    private function buildFromArray(ContainerInterface $container, array $config)
     {
         if (empty($config[self::CLASS_KEY])) {
             throw new NotInstantiableException(var_export($config, true));
@@ -84,9 +79,41 @@ class ArrayDefinition implements Definition
             unset($config[self::CONSTRUCT_KEY]);
         }
 
-        $resolved = $container->resolveDependencies($dependencies);
+        $resolved = $this->resolveDependencies($container, $dependencies);
         $object = new $class(...$resolved);
         return $this->configure($container, $object, $config);
+    }
+
+    /**
+     * Resolves dependencies by replacing them with the actual object instances.
+     * @param Definition[] $dependencies the dependencies
+     * @return array the resolved dependencies
+     * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
+     */
+    private function resolveDependencies(ContainerInterface $container, array $dependencies): array
+    {
+        $container = $container->parentContainer ?? $container;
+        $result = [];
+        /** @var Definition $dependency */
+        foreach ($dependencies as $dependency) {
+            $result[] = $this->resolveDependency($container, $dependency);
+        }
+
+        return $result;
+    }
+
+    /**
+     * This function resolves a dependency recursively, checking for loops.
+     * TODO add checking for loops
+     * @param Definition $dependency
+     * @return mixed
+     */
+    private function resolveDependency(ContainerInterface $container, Definition $dependency)
+    {
+        while ($dependency instanceof Definition) {
+            $dependency = $dependency->resolve($container);
+        }
+        return $dependency;
     }
 
     /**

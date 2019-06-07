@@ -239,37 +239,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Resolves dependencies by replacing them with the actual object instances.
-     * @param Definition[] $dependencies the dependencies
-     * @return array the resolved dependencies
-     * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
-     */
-    public function resolveDependencies(array $dependencies): array
-    {
-        $result = [];
-        /** @var Definition $dependency */
-        foreach ($dependencies as $dependency) {
-            $result[] = $this->resolve($dependency);
-        }
-
-        return $result;
-    }
-
-    /**
-     * This function resolves a dependency recursively, checking for loops.
-     * TODO add checking for loops
-     * @param Definition $dependency
-     * @return mixed
-     */
-    public function resolve(Definition $dependency)
-    {
-        while ($dependency instanceof Definition) {
-            $dependency = $dependency->resolve($this->parentContainer ?? $this);
-        }
-        return $dependency;
-    }
-
-    /**
      * Adds service provider to the container. Unless service provider is deferred
      * it would be immediately registered.
      *

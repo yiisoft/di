@@ -1,7 +1,7 @@
 <?php
 namespace yii\di\definitions;
 
-use yii\di\Container;
+use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\NotFoundException;
 
@@ -16,7 +16,7 @@ use yii\di\exceptions\NotFoundException;
  */
 class InvalidDefinition implements Definition
 {
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
         throw new NotFoundException('Invalid reference');
     }

@@ -1,6 +1,7 @@
 <?php
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use yii\di\contracts\Definition;
 use yii\di\exceptions\InvalidConfigException;
 
@@ -38,8 +39,9 @@ class Reference implements Definition
         return new self($id);
     }
 
-    public function resolve(Container $container, array $params = [])
+    public function resolve(ContainerInterface $container, array $params = [])
     {
+        // passing parameters to containers supporting them
         return $container->get($this->id, $params);
     }
 
