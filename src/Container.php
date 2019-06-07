@@ -80,17 +80,18 @@ class Container implements ContainerInterface
      * Same instance of the class will be returned each time this method is called.
      *
      * @param string|Reference $id the interface or an alias name that was previously registered via [[set()]].
+     * @param array $parameters parameters to set for the object obtained
      * @return object an instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function get($id, array $params = [])
+    public function get($id, array $parameters = [])
     {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $object = $this->build($id, $params);
+            $object = $this->build($id, $parameters);
             $this->instances[$id] = $object;
             $this->initObject($object);
         }
@@ -120,9 +121,6 @@ class Container implements ContainerInterface
      * @param array $params
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundException if there is nothing registered with alias or interface specified
-     * @throws NotInstantiableException
      * @internal
      */
     protected function build(string $id, array $params = [])
@@ -147,6 +145,7 @@ class Container implements ContainerInterface
     {
         if (!isset($this->definitions[$id])) {
             if ($this->parentContainer !== null) {
+                /** @noinspection PhpMethodParametersCountMismatchInspection passing parameters for containers supporting them */
                 return $this->parentContainer->get($id, $params);
             }
             return $this->buildPrimitive($id, $params);
@@ -202,6 +201,7 @@ class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      * @param array $config definitions indexed by their ids
+     * @throws InvalidConfigException
      */
     public function setMultiple(array $config): void
     {
@@ -214,7 +214,6 @@ class Container implements ContainerInterface
      * Returns a value indicating whether the container has the definition of the specified name.
      * @param string $id class name, interface name or alias name
      * @return bool whether the container is able to provide instance of class specified.
-     * @throws CircularReferenceException
      * @see set()
      */
     public function has($id): bool
@@ -267,7 +266,6 @@ class Container implements ContainerInterface
      * @return ServiceProvider instance of service provider;
      *
      * @throws InvalidConfigException
-     * @throws NotInstantiableException
      */
     private function buildProvider($providerDefinition): ServiceProvider
     {

@@ -86,9 +86,9 @@ class ArrayDefinition implements Definition
 
     /**
      * Resolves dependencies by replacing them with the actual object instances.
+     * @param ContainerInterface $container
      * @param Definition[] $dependencies the dependencies
      * @return array the resolved dependencies
-     * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
      */
     private function resolveDependencies(ContainerInterface $container, array $dependencies): array
     {
@@ -105,6 +105,7 @@ class ArrayDefinition implements Definition
     /**
      * This function resolves a dependency recursively, checking for loops.
      * TODO add checking for loops
+     * @param ContainerInterface $container
      * @param Definition $dependency
      * @return mixed
      */
@@ -120,7 +121,6 @@ class ArrayDefinition implements Definition
      * Returns the dependencies of the specified class.
      * @param string $class class name, interface name or alias name
      * @return Definition[] the dependencies of the specified class.
-     * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @internal
      */

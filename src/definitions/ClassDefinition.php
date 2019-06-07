@@ -28,7 +28,7 @@ class ClassDefinition implements Definition
     public function resolve(ContainerInterface $container, array $params = [])
     {
         try {
-            // passing parameters for containers supporting them
+            /** @noinspection PhpMethodParametersCountMismatchInspection passing parameters for containers supporting them */
             $result = $container->get($this->class, $params);
         } catch (\Throwable $t) {
             if ($this->optional) {

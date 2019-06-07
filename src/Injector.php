@@ -72,7 +72,6 @@ class Injector
      * @param array $params The array of parameters for the function, can be either numeric or associative.
      * @return array The resolved dependencies.
      * @throws InvalidConfigException if a dependency cannot be resolved or if a dependency cannot be fulfilled.
-     * @throws NotInstantiableException If resolved to an abstract class or an interface
      * @throws \ReflectionException
      */
     private function resolveCallableDependencies(callable $callback, array $params = []): array

@@ -41,7 +41,7 @@ class Reference implements Definition
 
     public function resolve(ContainerInterface $container, array $params = [])
     {
-        // passing parameters to containers supporting them
+        /** @noinspection PhpMethodParametersCountMismatchInspection passing parameters for containers supporting them */
         return $container->get($this->id, $params);
     }
 
