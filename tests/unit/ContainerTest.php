@@ -269,16 +269,6 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->hasInstance('engine'));
     }
 
-    public function testInitiable(): void
-    {
-        $container = new Container();
-        $container->set('gearbox', GearBox::class);
-        $manual = new GearBox();
-        $this->assertFalse($manual->getInited());
-        $automatic = $container->get('gearbox');
-        $this->assertTrue($automatic->getInited());
-    }
-
     public function testGetDefinition(): void
     {
         $definition = [

@@ -91,9 +91,7 @@ class Container implements ContainerInterface
     {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $object = $this->build($id, $parameters);
-            $this->instances[$id] = $object;
-            $this->initObject($object);
+            $this->instances[$id] = $this->build($id, $parameters);
         }
 
         return $this->instances[$id];
@@ -219,22 +217,6 @@ class Container implements ContainerInterface
     public function has($id): bool
     {
         return isset($this->definitions[$id]);
-    }
-
-    /**
-     * Does after build object initialization.
-     * At the moment only `init()` if class implements Initiable interface.
-     *
-     * @param object $object
-     * @return object
-     */
-    private function initObject($object)
-    {
-        if ($object instanceof Initiable) {
-            $object->init();
-        }
-
-        return $object;
     }
 
     /**
