@@ -42,7 +42,6 @@ class ArrayBuilder
      */
     private function resolveDependencies(ContainerInterface $container, array $dependencies): array
     {
-        $container = $container->parentContainer ?? $container;
         $result = [];
         /** @var Definition $dependency */
         foreach ($dependencies as $dependency) {
