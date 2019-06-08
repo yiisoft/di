@@ -48,25 +48,19 @@ class Container implements ContainerInterface
      */
     private $instances;
 
-    /** @var ?ContainerInterface */
-    private $rootContainer;
-
     /**
      * Container constructor.
      *
      * @param array $definitions
      * @param ServiceProvider[] $providers
      *
-     * @param ContainerInterface|null $rootContainer
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
-        array $providers = [],
-        ?ContainerInterface $rootContainer = null
+        array $providers = []
     ) {
-        $this->rootContainer = $rootContainer;
         $this->setMultiple($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
@@ -144,10 +138,6 @@ class Container implements ContainerInterface
     private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
-            if ($this->rootContainer !== null) {
-                /** @noinspection PhpMethodParametersCountMismatchInspection passing parameters for containers supporting them */
-                return $this->rootContainer->get($id, $params);
-            }
             return $this->buildPrimitive($id, $params);
         }
 
