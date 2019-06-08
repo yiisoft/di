@@ -7,6 +7,7 @@ use yii\di\Container;
 use yii\di\Factory;
 use yii\di\Reference;
 use yii\di\tests\support\Car;
+use yii\di\tests\support\EngineInterface;
 use yii\di\tests\support\EngineMarkOne;
 use yii\di\tests\support\EngineMarkTwo;
 use Psr\Container\ContainerInterface;
@@ -98,5 +99,15 @@ class FactoryTest extends TestCase
         $this->assertInstanceOf(Car::class, $two);
         $this->assertInstanceOf(EngineMarkOne::class, $one->getEngine());
         $this->assertInstanceOf(EngineMarkTwo::class, $two->getEngine());
+    }
+
+    public function testCreateWithDependencyInParent(): void
+    {
+        $factory = new Factory(new Container([
+            EngineInterface::class => EngineMarkOne::class,
+        ]));
+        $one = $factory->create(Car::class);
+        $this->assertInstanceOf(Car::class, $one);
+        $this->assertInstanceOf(EngineMarkOne::class, $one->getEngine());
     }
 }
