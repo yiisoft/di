@@ -157,7 +157,7 @@ class Container implements ContainerInterface
     private function buildPrimitive(string $class, array $params = [])
     {
         if (class_exists($class)) {
-            $definition = ArrayDefinition::fromClassName($class);
+            $definition = new ArrayDefinition($class);
 
             return $definition->resolve($this, $params);
         }

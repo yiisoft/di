@@ -60,10 +60,7 @@ class Normalizer
         if (\is_array($config)
             && !(isset($config[0], $config[1]) && count($config) === 2)
         ) {
-            if ($id && empty($config['__class'])) {
-                $config['__class'] = $id;
-            }
-            return new ArrayDefinition($config);
+            return ArrayDefinition::fromArray($id, [], $config);
         }
 
         if (\is_callable($config)) {
