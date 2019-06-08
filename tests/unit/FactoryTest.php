@@ -3,6 +3,7 @@
 namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
+use yii\di\Container;
 use yii\di\Factory;
 use yii\di\Reference;
 use yii\di\tests\support\Car;
@@ -18,8 +19,9 @@ class FactoryTest extends TestCase
 {
     public function testCreateByAlias(): void
     {
-        $factory = new Factory();
-        $factory->set('engine', EngineMarkOne::class);
+        $factory = new Factory(new Container, [
+            'engine' => EngineMarkOne::class,
+        ]);
         $one = $factory->create('engine');
         $two = $factory->create('engine');
         $this->assertNotSame($one, $two);
@@ -29,7 +31,7 @@ class FactoryTest extends TestCase
 
     public function testCreateByClass(): void
     {
-        $factory = new Factory();
+        $factory = new Factory(new Container);
         $one = $factory->create(EngineMarkOne::class);
         $two = $factory->create(EngineMarkOne::class);
         $this->assertNotSame($one, $two);
@@ -39,8 +41,9 @@ class FactoryTest extends TestCase
 
     public function testGetByAlias(): void
     {
-        $factory = new Factory();
-        $factory->set('engine', EngineMarkOne::class);
+        $factory = new Factory(new Container, [
+            'engine' => EngineMarkOne::class,
+        ]);
         $one = $factory->get('engine');
         $two = $factory->get('engine');
         $this->assertNotSame($one, $two);
@@ -50,7 +53,7 @@ class FactoryTest extends TestCase
 
     public function testGetByClass(): void
     {
-        $factory = new Factory();
+        $factory = new Factory(new Container);
         $one = $factory->get(EngineMarkOne::class);
         $two = $factory->get(EngineMarkOne::class);
         $this->assertNotSame($one, $two);
@@ -60,17 +63,19 @@ class FactoryTest extends TestCase
 
     public function testFactoryInContainer(): void
     {
-        $factory = new Factory();
+        $factory = new Factory(new Container);
         $factory->setMultiple([
             'factory' => [
                 '__class' => Factory::class,
                 '__construct' => [
-                    'definitions'   => [],
-                    'providers'     => [],
                     'parent'        => Reference::to('container'),
+                    'definitions'   => [],
                 ],
             ],
-            'container' => static function (ContainerInterface $container) {
+            ContainerInterface::class => static function ($container) {
+                return $container;
+            },
+            'container' => static function ($container) {
                 return $container;
             },
         ]);
@@ -85,7 +90,7 @@ class FactoryTest extends TestCase
 
     public function testCreateWithParams(): void
     {
-        $factory = new Factory();
+        $factory = new Factory(new Container);
         $one = $factory->create(Car::class, [$factory->get(EngineMarkOne::class)]);
         $two = $factory->create(Car::class, [$factory->get(EngineMarkTwo::class)]);
         $this->assertNotSame($one, $two);

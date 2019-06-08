@@ -7,6 +7,7 @@
 
 namespace yii\di;
 
+use Psr\Container\ContainerInterface;
 use yii\di\exceptions\InvalidConfigException;
 
 /**
@@ -15,7 +16,7 @@ use yii\di\exceptions\InvalidConfigException;
  * but will fall back to manual instantiation
  * if the container cannot provide a required dependency.
  */
-interface FactoryInterface
+interface FactoryInterface extends ContainerInterface
 {
     /**
      * Creates a new object using the given configuration and constructor arguments.
