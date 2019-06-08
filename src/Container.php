@@ -48,25 +48,19 @@ class Container implements ContainerInterface
      */
     private $instances;
 
-    /** @var ?ContainerInterface */
-    private $rootContainer;
-
     /**
      * Container constructor.
      *
      * @param array $definitions
      * @param ServiceProvider[] $providers
      *
-     * @param ContainerInterface|null $rootContainer
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
-        array $providers = [],
-        ?ContainerInterface $rootContainer = null
+        array $providers = []
     ) {
-        $this->rootContainer = $rootContainer;
         $this->setMultiple($definitions);
         $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
@@ -91,9 +85,7 @@ class Container implements ContainerInterface
     {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $object = $this->build($id, $parameters);
-            $this->instances[$id] = $object;
-            $this->initObject($object);
+            $this->instances[$id] = $this->build($id, $parameters);
         }
 
         return $this->instances[$id];
@@ -144,10 +136,6 @@ class Container implements ContainerInterface
     private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
-            if ($this->rootContainer !== null) {
-                /** @noinspection PhpMethodParametersCountMismatchInspection passing parameters for containers supporting them */
-                return $this->rootContainer->get($id, $params);
-            }
             return $this->buildPrimitive($id, $params);
         }
 
@@ -219,22 +207,6 @@ class Container implements ContainerInterface
     public function has($id): bool
     {
         return isset($this->definitions[$id]);
-    }
-
-    /**
-     * Does after build object initialization.
-     * At the moment only `init()` if class implements Initiable interface.
-     *
-     * @param object $object
-     * @return object
-     */
-    private function initObject($object)
-    {
-        if ($object instanceof Initiable) {
-            $object->init();
-        }
-
-        return $object;
     }
 
     /**
