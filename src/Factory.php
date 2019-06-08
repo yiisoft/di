@@ -15,6 +15,11 @@ use yii\di\definitions\ArrayDefinition;
 class Factory implements FactoryInterface
 {
     /**
+     * @var ContainerInterface parent container
+     */
+    private $container;
+
+    /**
      * @var Definition[] object definitions indexed by their types
      */
     private $definitions = [];
