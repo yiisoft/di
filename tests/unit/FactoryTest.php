@@ -64,8 +64,12 @@ class FactoryTest extends TestCase
 
     public function testFactoryInContainer(): void
     {
-        $factory = new Factory(new Container);
-        $factory->setMultiple([
+        $container = new Container([
+            ContainerInterface::class => static function ($container) {
+                return $container;
+            },
+        ]);
+        $factory = new Factory($container, [
             'factory' => [
                 '__class' => Factory::class,
                 '__construct' => [
@@ -73,14 +77,7 @@ class FactoryTest extends TestCase
                     'definitions'   => [],
                 ],
             ],
-            ContainerInterface::class => static function ($container) {
-                return $container;
-            },
-            'container' => static function ($container) {
-                return $container;
-            },
         ]);
-        $this->assertSame($factory, $factory->get('container'));
         $one = $factory->create('factory');
         $two = $factory->create('factory');
         $this->assertNotSame($one, $two);

@@ -17,7 +17,7 @@ class Factory implements FactoryInterface
     /**
      * @var ContainerInterface parent container
      */
-    private $container;
+    public $container;
 
     /**
      * @var Definition[] object definitions indexed by their types
