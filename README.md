@@ -6,10 +6,9 @@
     <br>
 </p>
 
-The library consists of two parts: [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection)
-container that is able to instantiate and configure classes resolving dependencies and an injector
-that is able to invoke methods resolving their dependencies via autowiring. Both are [PSR-11](http://www.php-fig.org/psr/psr-11/)
-compatible.
+The library is a [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
+[dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that is able to instantiate
+and configure classes resolving dependencies.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
 [![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
@@ -22,10 +21,7 @@ compatible.
 - [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
-- Supports nesting so container context could be scoped.
-- Has `Injector` that can invoke callables resolving dependencies.
 - Accepts array definitions so could be used with mergeable configs.
-
 
 ## Using container
 
@@ -94,7 +90,7 @@ $object = $container->get('interface_name');
 ```
 
 Note, however, that it is a bad practice to use container directly and it's much better to rely
-on autowiring made via Injector (see below).
+on autowiring made via Injector available via separate [yiisoft/injector](https://github.com/yiisoft/injector) pacakge.
 
 ## Using aliases
 
@@ -171,28 +167,7 @@ $moduleBContainer->get(LoggerInterface::class // LoggerB
 ```
 
 Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
-In case of Yii contextual containers for the modules are created automatically.
-
-
-## Using injector
-
-```php
-$container = new Container([
-    EngineInterface::class => EngineMarkTwo::class,
-]);
-
-$getEngineName = function (EngineInterface $engine) {
-    return $engine->getName();
-};
-
-$injector = new Injector($container);
-echo $injector->invoke($getEngineName);
-// outputs "Mark Two"
-```
-
-In the code above we feed out container to `Injector` when creating it. Any PSR-11 container could be used.
-When `invoke` is called, injector reads method signature of the method invoked and, based on type hinting
-automatically obtains objects for corresponding interfaces from container. 
+In case of Yii contextual containers for the modules are created automatically. 
 
 ## Using service providers
 

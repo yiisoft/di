@@ -12,16 +12,15 @@ use yii\di\exceptions\NotFoundException;
 use yii\di\Reference;
 use yii\di\tests\support\A;
 use yii\di\tests\support\B;
-use yii\di\tests\support\C;
 use yii\di\tests\support\Car;
 use yii\di\tests\support\CarFactory;
 use yii\di\tests\support\ColorPink;
 use yii\di\tests\support\ConstructorTestClass;
-use yii\di\tests\support\D;
+use yii\di\tests\support\cycle\Chicken;
+use yii\di\tests\support\cycle\Egg;
 use yii\di\tests\support\EngineInterface;
 use yii\di\tests\support\EngineMarkOne;
 use yii\di\tests\support\EngineMarkTwo;
-use yii\di\tests\support\GearBox;
 use yii\di\tests\support\InvokeableCarFactory;
 use yii\di\tests\support\MethodTestClass;
 use yii\di\tests\support\PropertyTestClass;
@@ -67,10 +66,10 @@ class ContainerTest extends TestCase
     public function testCircularClassDependency(): void
     {
         $container = new Container();
-        $container->set(C::class, C::class);
-        $container->set(D::class, D::class);
+        $container->set(Chicken::class, Chicken::class);
+        $container->set(Egg::class, Egg::class);
         $this->expectException(CircularReferenceException::class);
-        $container->get(C::class);
+        $container->get(Chicken::class);
     }
 
     public function testClassSimple(): void

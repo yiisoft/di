@@ -38,10 +38,6 @@ class Container implements ContainerInterface
      * deferred to register till their services would be requested
      */
     private $deferredProviders;
-    /**
-     * @var Injector injector with this container.
-     */
-    private $injector;
 
     /**
      * @var object[]
@@ -249,20 +245,6 @@ class Container implements ContainerInterface
         }
 
         return $provider;
-    }
-
-    /**
-     * Returns injector.
-     *
-     * @return Injector
-     */
-    public function getInjector(): Injector
-    {
-        if ($this->injector === null) {
-            $this->injector = new Injector($this);
-        }
-
-        return $this->injector;
     }
 
     /**
