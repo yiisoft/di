@@ -11,11 +11,10 @@ use Psr\Container\ContainerInterface;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProvider;
 use yii\di\contracts\ServiceProvider;
-use yii\di\exceptions\CircularReferenceException;
-use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotFoundException;
-use yii\di\exceptions\NotInstantiableException;
-
+use Yiisoft\Factory\Exceptions\CircularReferenceException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Definition;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;

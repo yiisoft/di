@@ -5,7 +5,7 @@ namespace yii\di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use yii\di\exceptions\NotFoundException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
  * This class implements a composite container for use with containers that support the delegate lookup feature.
