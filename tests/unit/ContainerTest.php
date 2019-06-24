@@ -6,10 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use yii\di\Container;
 use yii\di\definitions\Normalizer;
-use yii\di\exceptions\CircularReferenceException;
-use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotFoundException;
-use yii\di\Reference;
+use Yiisoft\Factory\Exceptions\CircularReferenceException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
 use yii\di\tests\support\A;
 use yii\di\tests\support\B;
 use yii\di\tests\support\Car;
@@ -25,6 +24,7 @@ use yii\di\tests\support\InvokeableCarFactory;
 use yii\di\tests\support\MethodTestClass;
 use yii\di\tests\support\PropertyTestClass;
 use yii\di\tests\support\TreeItem;
+use Yiisoft\Factory\Definitions\Reference;
 
 /**
  * ContainerTest contains tests for \yii\di\Container
@@ -266,19 +266,6 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->hasInstance('engine'));
         $one = $container->get('engine');
         $this->assertTrue($container->hasInstance('engine'));
-    }
-
-    public function testGetDefinition(): void
-    {
-        $definition = [
-            '__class' => EngineMarkOne::class,
-        ];
-
-        $container = new Container([
-            'engine' => $definition,
-        ]);
-        $container->get('engine');
-        $this->assertEquals(Normalizer::normalize($definition), $container->getDefinition('engine'));
     }
 
     public function testGetByClassIndirectly(): void

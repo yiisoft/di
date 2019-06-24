@@ -10,14 +10,14 @@ namespace yii\di;
 use Psr\Container\ContainerInterface;
 use SplObjectStorage;
 use yii\di\contracts\DeferredServiceProvider;
-use yii\di\contracts\Definition;
 use yii\di\contracts\ServiceProvider;
-use yii\di\definitions\ArrayDefinition;
-use yii\di\definitions\Normalizer;
-use yii\di\exceptions\CircularReferenceException;
-use yii\di\exceptions\InvalidConfigException;
-use yii\di\exceptions\NotFoundException;
-use yii\di\exceptions\NotInstantiableException;
+use Yiisoft\Factory\Exceptions\CircularReferenceException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Factory\Exceptions\NotInstantiableException;
+use Yiisoft\Factory\Definitions\Definition;
+use Yiisoft\Factory\Definitions\Normalizer;
+use Yiisoft\Factory\Definitions\ArrayDefinition;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -90,16 +90,6 @@ class Container implements ContainerInterface
     public function getId($id): string
     {
         return is_string($id) ? $id : $id->getId();
-    }
-
-    /**
-     * Returns normalized definition for a given id
-     * @param string $id
-     * @return Definition|null
-     */
-    public function getDefinition(string $id): ?Definition
-    {
-        return $this->definitions[$id] ?? null;
     }
 
     /**

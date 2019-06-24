@@ -4,7 +4,7 @@ namespace yii\di\tests\unit;
 
 use PHPUnit\Framework\TestCase;
 use yii\di\Container;
-use yii\di\exceptions\NotInstantiableException;
+use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use yii\di\tests\support\Car;
 use yii\di\tests\support\CarFactory;
 use yii\di\tests\support\CarProvider;
