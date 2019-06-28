@@ -11,6 +11,6 @@
 
 | Q                | A
 | ---------------- | ---
-| Yii DI version   | 1.0.?
+| Version          | 1.0.?
 | PHP version      | 
 | Operating system |
