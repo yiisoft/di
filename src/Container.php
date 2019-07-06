@@ -9,13 +9,13 @@ namespace yii\di;
 
 use Psr\Container\ContainerInterface;
 use SplObjectStorage;
-use yii\di\contracts\DeferredServiceProvider;
-use yii\di\contracts\ServiceProvider;
+use yii\di\contracts\DeferredServiceProviderInterface;
+use yii\di\contracts\ServiceProviderInterace;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
-use Yiisoft\Factory\Definitions\Definition;
+use Yiisoft\Factory\Definitions\DefinitionInterface;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
 
@@ -25,7 +25,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 class Container implements ContainerInterface
 {
     /**
-     * @var Definition[] object definitions indexed by their types
+     * @var DefinitionInterface[] object definitions indexed by their types
      */
     private $definitions = [];
     /**
@@ -34,7 +34,7 @@ class Container implements ContainerInterface
      */
     private $building = [];
     /**
-     * @var contracts\DeferredServiceProvider[]|\SplObjectStorage list of providers
+     * @var contracts\DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
      * deferred to register till their services would be requested
      */
     private $deferredProviders;
@@ -48,7 +48,7 @@ class Container implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions
-     * @param ServiceProvider[] $providers
+     * @param ServiceProviderInterace[] $providers
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -203,14 +203,14 @@ class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
-     * @see ServiceProvider
-     * @see DeferredServiceProvider
+     * @see ServiceProviderInterace
+     * @see DeferredServiceProviderInterface
      */
     public function addProvider($providerDefinition): void
     {
         $provider = $this->buildProvider($providerDefinition);
 
-        if ($provider instanceof DeferredServiceProvider) {
+        if ($provider instanceof DeferredServiceProviderInterface) {
             $this->deferredProviders->attach($provider);
         } else {
             $provider->register($this);
@@ -221,16 +221,16 @@ class Container implements ContainerInterface
      * Builds service provider by definition.
      *
      * @param string|array $providerDefinition class name or definition of provider.
-     * @return ServiceProvider instance of service provider;
+     * @return ServiceProviderInterace instance of service provider;
      *
      * @throws InvalidConfigException
      */
-    private function buildProvider($providerDefinition): ServiceProvider
+    private function buildProvider($providerDefinition): ServiceProviderInterace
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
-        if (!($provider instanceof ServiceProvider)) {
+        if (!($provider instanceof ServiceProviderInterace)) {
             throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProvider::class
+                'Service provider should be an instance of ' . ServiceProviderInterace::class
             );
         }
 

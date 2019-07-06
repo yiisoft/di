@@ -14,7 +14,7 @@ namespace yii\di\contracts;
  * @author Dmitry Kolodko <prowwid@gmail.com>
  * @since 1.0
  */
-interface DeferredServiceProvider extends ServiceProvider
+interface DeferredServiceProviderInterface extends ServiceProviderInterace
 {
     /**
      * Identifies whether service provider would register definition for

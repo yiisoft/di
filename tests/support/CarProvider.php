@@ -4,9 +4,9 @@
 namespace yii\di\tests\support;
 
 use yii\di\Container;
-use yii\di\contracts\ServiceProvider;
+use yii\di\contracts\ServiceProviderInterace;
 
-class CarProvider implements ServiceProvider
+class CarProvider implements ServiceProviderInterace
 {
     public function register(Container $container): void
     {

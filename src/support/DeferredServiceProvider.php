@@ -7,8 +7,6 @@
 
 namespace yii\di\support;
 
-use yii\di\contracts\DeferredServiceProvider as DeferredServiceProviderInterface;
-
 /**
  * Base class for service providers that should be deferred to register till services are
  * actually required.

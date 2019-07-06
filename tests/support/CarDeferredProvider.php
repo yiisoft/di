@@ -3,9 +3,9 @@
 namespace yii\di\tests\support;
 
 use yii\di\Container;
-use yii\di\support\DeferredServiceProvider;
+use yii\di\support\DeferredServiceProviderInterface;
 
-class CarDeferredProvider extends DeferredServiceProvider
+class CarDeferredProvider extends DeferredServiceProviderInterface
 {
     public function provides(): array
     {
