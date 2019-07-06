@@ -1,7 +1,5 @@
 <?php
-
-
-namespace yii\di;
+namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 
@@ -26,13 +24,11 @@ class ContextContainer implements ContainerInterface
         $this->context = $context;
     }
 
-    /** @inheritdoc */
     public function get($id)
     {
         return $this->container->getFromContext($id, $this->context);
     }
 
-    /** @inheritdoc */
     public function has($id)
     {
         return $this->container->hasInContext($id, $this->context);

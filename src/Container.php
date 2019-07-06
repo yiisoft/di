@@ -1,16 +1,11 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
-namespace yii\di;
+namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use SplObjectStorage;
-use yii\di\contracts\DeferredServiceProviderInterface;
-use yii\di\contracts\ServiceProviderInterace;
+use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
+use Yiisoft\Di\Contracts\ServiceProviderInterace;
+use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;

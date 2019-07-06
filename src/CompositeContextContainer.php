@@ -1,7 +1,5 @@
 <?php
-
-
-namespace yii\di;
+namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;

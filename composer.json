@@ -5,14 +5,6 @@
     "keywords": ["di", "dependency", "injection", "container", "injector", "autowiring", "psr-11"],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
-    "authors": [
-        {
-            "name": "Alexander Makarov",
-            "email": "sam@rmcreative.ru",
-            "homepage": "http://rmcreative.ru/",
-            "role": "Core framework development"
-        }
-    ],
     "support": {
         "issues": "https://github.com/yiisoft/di/issues?state=open",
         "forum": "http://www.yiiframework.com/forum/",
@@ -36,12 +28,12 @@
     },
     "autoload": {
         "psr-4": {
-            "yii\\di\\": "src"
+            "Yiisoft\\Di\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "yii\\di\\tests\\": "tests"
+            "Yiisoft\\Di\\Tests\\": "tests"
         }
     },
     "extra": {

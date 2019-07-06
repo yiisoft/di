@@ -1,7 +1,5 @@
 <?php
-
-
-namespace yii\di;
+namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -10,8 +8,6 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 /**
  * This class implements a composite container for use with containers that support the delegate lookup feature.
  * The goal of the implementation is simplicity.
- * Class CompositeContainer
- * @package yii\di
  */
 class CompositeContainer implements ContainerInterface
 {
@@ -21,7 +17,6 @@ class CompositeContainer implements ContainerInterface
      */
     private $containers = [];
 
-    /** @inheritdoc */
     public function get($id)
     {
         foreach ($this->containers as $container) {
