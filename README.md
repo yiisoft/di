@@ -174,7 +174,7 @@ In case of Yii contextual containers for the modules are created automatically.
 A service provider is a special class that responsible for binding complex services or groups of dependencies 
 into the container including registering services with its references, event listeners, middleware etc.
 
-All service providers extend the `yii\di\support\ServiceProvider` class and contain a `register` method. 
+All service providers extend the `Yiisoft\Di\Support\ServiceProvider` class and contain a `register` method. 
 Within the register method, you should only bind things into the container. You should never attempt to 
 implement in a service provider any business logic, functionality related to environment bootstrap, 
 functionality that changes DB or anything else than not related to binding things into the container.
@@ -184,7 +184,7 @@ to service provider through constructor and saved to `container` field.
 Typical service provider could look like:
 
 ```php
-use yii\di\contracts\ServiceProvider;
+use Yiisoft\Di\Contracts\ServiceProvider;
 
 class CarFactoryProvider implements ServiceProvider
 {
@@ -246,14 +246,14 @@ inside the `register` method.
 As stated before, service provider might decrease performance of your application registering heavy services. So
 to prevent performance decrease you can use so-called deferred service providers. 
 
-deferred service providers extend the `yii\di\support\DeferredServiceProvider` and in addition to `register` method
+deferred service providers extend the `Yiisoft\Di\Support\DeferredServiceProvider` and in addition to `register` method
 contain a `provides` method that returns array with names and identifiers of services service providers bind to 
 the container. Deferred service providers being added to the container the same way as regular service providers but 
 `register` method of deferred service provider got called only once one of the services listed in `provides` method 
 is requested from the container. Example:
 
 ```php
-use yii\di\support\DeferredServiceProvider;
+use Yiisoft\Di\Support\DeferredServiceProvider;
 
 class CarFactoryProvider extends DeferredServiceProvider
 {
