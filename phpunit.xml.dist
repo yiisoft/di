@@ -14,8 +14,8 @@
     </php>
 
     <testsuites>
-        <testsuite name="Yii di container tests">
-            <directory>./tests/unit</directory>
+        <testsuite name="Yii DI Container tests">
+            <directory>./tests/Unit</directory>
         </testsuite>
     </testsuites>
 

@@ -1,5 +1,5 @@
 <?php
-namespace Yiisoft\Di\Tests\Cycle;
+namespace Yiisoft\Di\Tests\Support\Cycle;
 
 class Egg
 {
