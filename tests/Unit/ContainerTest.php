@@ -68,6 +68,16 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
     }
 
+    public function testTrivialDefinition(): void
+    {
+        $container = new Container();
+        $container->set(EngineMarkOne::class, EngineMarkOne::class);
+        $one = $container->get(EngineMarkOne::class);
+        $two = $container->get(EngineMarkOne::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $one);
+        $this->assertSame($one, $two);
+    }
+
     public function testCircularClassDependency(): void
     {
         $container = new Container();
