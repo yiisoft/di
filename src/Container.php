@@ -4,7 +4,7 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use SplObjectStorage;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
-use Yiisoft\Di\Contracts\ServiceProviderInterace;
+use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
@@ -43,7 +43,7 @@ class Container implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions
-     * @param ServiceProviderInterace[] $providers
+     * @param ServiceProviderInterface[] $providers
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -198,7 +198,7 @@ class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
-     * @see ServiceProviderInterace
+     * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
     public function addProvider($providerDefinition): void
@@ -216,16 +216,16 @@ class Container implements ContainerInterface
      * Builds service provider by definition.
      *
      * @param string|array $providerDefinition class name or definition of provider.
-     * @return ServiceProviderInterace instance of service provider;
+     * @return ServiceProviderInterface instance of service provider;
      *
      * @throws InvalidConfigException
      */
-    private function buildProvider($providerDefinition): ServiceProviderInterace
+    private function buildProvider($providerDefinition): ServiceProviderInterface
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
-        if (!($provider instanceof ServiceProviderInterace)) {
+        if (!($provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProviderInterace::class
+                'Service provider should be an instance of ' . ServiceProviderInterface::class
             );
         }
 

@@ -5,7 +5,7 @@ namespace Yiisoft\Di\Contracts;
  * Represents service provider that should be deferred to register till services are
  * actually required.
  */
-interface DeferredServiceProviderInterface extends ServiceProviderInterace
+interface DeferredServiceProviderInterface extends ServiceProviderInterface
 {
     /**
      * Identifies whether service provider would register definition for

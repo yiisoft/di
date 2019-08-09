@@ -49,7 +49,7 @@ use Yiisoft\Di\Container;
  * }
  * ```
  */
-interface ServiceProviderInterace
+interface ServiceProviderInterface
 {
     /**
      * Registers classes in the container.
