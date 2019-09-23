@@ -3,10 +3,10 @@ namespace Yiisoft\Di\Tests\Benchmark;
 
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Reference;
 use Yiisoft\Di\Tests\Support\Car;
-use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
+use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Tests\Support\NullableConcreteDependency;
 
 /**
  * @Iterations(5)
@@ -97,7 +97,11 @@ class ContainerBench
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
-            $this->container->get("service$i");
+            try {
+                $this->container->get("service$i");
+            } catch (\Exception $e) {
+                // Skip exceptions
+            }
         }
     }
 
@@ -113,7 +117,11 @@ class ContainerBench
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
-            $this->container->get("service$index");
+            try {
+                $this->container->get("service$index");
+            } catch (\Exception $e) {
+                // Skip exceptions
+            }
         }
     }
 
@@ -129,7 +137,11 @@ class ContainerBench
         for ($i = 0; $i < 1000; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
-            $this->composite->get("service$index");
+            try {
+                $this->composite->get("service$index");
+            } catch (\Exception $e) {
+                // Skip exceptions
+            }
         }
     }
 }
