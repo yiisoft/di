@@ -19,5 +19,5 @@ interface EngineInterface
     /**
      * @return int
      */
-    public function getNumer(): int;
+    public function getNumber(): int;
 }

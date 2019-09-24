@@ -30,7 +30,7 @@ class EngineMarkOne implements EngineInterface
     /**
      * @return int
      */
-    public function getNumer(): int
+    public function getNumber(): int
     {
         return $this->number;
     }
