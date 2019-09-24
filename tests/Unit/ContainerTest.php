@@ -64,8 +64,19 @@ class ContainerTest extends TestCase
     public function testWithoutDefinition(): void
     {
         $container = new Container();
+
+        $hasEngine = $container->has(EngineMarkOne::class);
+        $this->assertTrue($hasEngine);
+
         $engine = $container->get(EngineMarkOne::class);
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
+    }
+
+    public function testCircularClassDependencyWithoutDefinition(): void
+    {
+        $container = new Container();
+        $this->expectException(CircularReferenceException::class);
+        $container->get(Chicken::class);
     }
 
     public function testTrivialDefinition(): void

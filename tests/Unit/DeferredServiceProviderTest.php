@@ -17,7 +17,8 @@ class DeferredServiceProviderTest extends TestCase
     {
         $container = new Container();
 
-        $this->assertFalse($container->has(Car::class), 'Container should not have Car before service provider added.');
+        $this->assertFalse($container->has('car'), 'Container should not have "car" before service provider added.');
+        $this->assertTrue($container->has(Car::class), 'Container should have Car before service provider added due to autoload fallback.');
         $this->assertFalse(
             $container->has(EngineInterface::class),
             'Container should not have EngineInterface before service provider added.'
@@ -26,19 +27,28 @@ class DeferredServiceProviderTest extends TestCase
         $container->addProvider(CarDeferredProvider::class);
 
         $this->assertFalse(
+            $container->has('car'),
+            'Container should not have "car" after adding deferred provider.'
+        );
+        $this->assertTrue(
             $container->has(Car::class),
-            'Container should not have Car after adding deferred provider.'
+            'Container should have Car after adding deferred provider due to autoload fallback.'
         );
         $this->assertFalse(
             $container->has(EngineInterface::class),
             'Container should not have EngineInterface after adding deferred provider.'
         );
 
-        $car = $container->get(Car::class);
+        $car = $container->get('car');
+        $this->assertTrue(
+            $container->has(EngineInterface::class),
+            'CarDeferredProvider should have registered EngineInterface once "car" was requested from container.'
+        );
+
         $engine = $container->get(EngineInterface::class);
 
         // ensure container return instances of classes register from provider
-        $this->assertInstanceOf(Car::class, $car, 'Service provider should have set correct class for a Car.');
+        $this->assertInstanceOf(Car::class, $car, 'Service provider should have set correct class for a "car".');
         $this->assertInstanceOf(
             EngineMarkOne::class,
             $engine,
@@ -47,12 +57,8 @@ class DeferredServiceProviderTest extends TestCase
 
         // ensure get invoked DeferredServiceProviderInterface::register
         $this->assertTrue(
-            $container->has(Car::class),
-            'CarDeferredProvider should have registered Car once Car was requested from container.'
-        );
-        $this->assertTrue(
-            $container->has(EngineInterface::class),
-            'CarDeferredProvider should have registered EngineInterface once Car was requested from container.'
+            $container->has('car'),
+            'CarDeferredProvider should have registered "car" once "car" was requested from container.'
         );
     }
 }
