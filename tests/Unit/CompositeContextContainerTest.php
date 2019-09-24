@@ -24,7 +24,6 @@ class CompositeContextContainerTest extends TestCase
     {
         $composite = new CompositeContextContainer();
 
-
         $simple1 = new Container([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
@@ -32,20 +31,20 @@ class CompositeContextContainerTest extends TestCase
             Car::class => [
                 '__class' => Car::class,
             ],
-        ], [], $composite);
+        ], []);
 
         $simple2 = new Container([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
-        ], [], $composite);
+        ], []);
 
         $simple3 = new Container([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
             EngineInterface::class => EngineMarkOne::class
-        ], [], $composite);
+        ], []);
 
         $composite->attach($simple1);
         $composite->attach($simple2, '/a');
@@ -54,7 +53,6 @@ class CompositeContextContainerTest extends TestCase
         $this->assertSame($simple1->get(PropertyTestClass::class), $composite->get(PropertyTestClass::class));
         $this->assertNotSame($simple2->get(PropertyTestClass::class), $composite->get(PropertyTestClass::class));
         $this->assertNotSame($simple3->get(PropertyTestClass::class), $composite->get(PropertyTestClass::class));
-
 
         $contextA = $composite->getContextContainer('/a');
         $this->assertTrue($contextA->has(Car::class));
