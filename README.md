@@ -32,6 +32,8 @@ Usually there is a single container in the whole application so it's often confi
 script such as `index.php` or a configuration file:
 
 ```php
+use Yiisoft\Di\Container;
+
 $container = new Container($config);
 ```
 
@@ -46,7 +48,7 @@ return [
         'argName' => 'value',
         'setX()' => [42],
     ],
-    'closure' => function($container) {
+    'closure' => function(ContainerInterface $container) {
         return new MyClass($container->get('db'));
     },
     'static_call' => [MyFactory::class, 'create'],
@@ -72,6 +74,7 @@ While it's usually not a good idea, you can set already instantiated object into
 Additionally, definitions could be added via calling `set()`:
 
 ```php
+/** @var $container \Yiisoft\Di\Container */
 $container->set($id, Example::class);
 
 $container->set($id, [
@@ -86,6 +89,7 @@ $container->set($id, [
 After container is configured, dependencies could be obtained via `get()`:
 
 ```php
+/** @var $container \Yiisoft\Di\Container */
 $object = $container->get('interface_name');
 ```
 
@@ -98,6 +102,8 @@ Container supports aliases via `Reference` class. It could be useful to have an 
 to retrieve objects both by their interface and named explicitly:
 
 ```php
+use Yiisoft\Di\Container;
+
 $container = new Container([
     EngineInterface::class => EngineMarkOne::class,
     'engine_one' => EngineInterface::class,
@@ -112,6 +118,9 @@ This allows us to combine multiple containers into a composite container which w
 When using this approach, one should only use the composite container.
 
 ```php
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+
 $composite = new CompositeContainer();
 $container = new Container([], [], $composite);
 ```
@@ -135,22 +144,25 @@ The `attach()` function of the contextual container has an extra string paramete
 Using context we can create a simple scoping system:
 
 ```php
-$root = new CompositeContextContainer();
-$coreContainer = new Container([], [], $root);
-$extensionContainer = new Container([], [], $root);
+use Yiisoft\Di\Container;
+use Yiisoft\Di\CompositeContextContainer;
+
+$composite = new CompositeContextContainer();
+$coreContainer = new Container([], []);
+$extensionContainer = new Container([], []);
 
 $appContainer = new Container([
     LoggerInterface::class => MainLogger::class
-], [], $root);
+], []);
 $moduleAContainer = new Container([
     LoggerInterface::class => LoggerA::class
-], [], $root);
+], []);
 $moduleBContainer = new Container([
     LoggerInterface::class => LoggerB::class
-], [], $root);
+], []);
 
-$composite->attach($moduleContainer, '/moduleB');
-$composite->attach($moduleContainer, '/moduleA');
+$composite->attach($moduleAContainer, '/moduleB');
+$composite->attach($moduleBContainer, '/moduleA');
 $composite->attach($appContainer);
 $composite->attach($extensionContainer);
 $composite->attach($coreContainer);
@@ -160,10 +172,8 @@ $moduleAContainer = $composite->getContextContainer('/moduleA');
 $moduleBContainer = $composite->getContextContainer('/moduleB');
 
 $composite->get(LoggerInterface::class); // MainLogger
-
-$composite->get(LoggerInterface::class); // MainLogger
-$moduleAContainer->get(LoggerInterface::class // LoggerA
-$moduleBContainer->get(LoggerInterface::class // LoggerB
+$moduleAContainer->get(LoggerInterface::class); // LoggerA
+$moduleBContainer->get(LoggerInterface::class); // LoggerB
 ```
 
 Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
@@ -184,14 +194,15 @@ to service provider through constructor and saved to `container` field.
 Typical service provider could look like:
 
 ```php
-use Yiisoft\Di\Contracts\ServiceProvider;
+use Yiisoft\Di\Container;
+use Yiisoft\Di\Contracts\ServiceProviderInterface;
 
-class CarFactoryProvider implements ServiceProvider
+class CarFactoryProvider implements ServiceProviderInterface
 {
     public function register(Container $container): void
     {
-        $container->registerDependencies($container);
-        $container->registerService($container);
+        $this->registerDependencies($container);
+        $this->registerService($container);
     }
 
     protected function registerDependencies(Container $container): void
@@ -221,12 +232,15 @@ To add service provider to the container you need either pass service provider c
 to `addProvider` method of the container:
 
 ```php
+/** @var $container \Yiisoft\Di\Container */
 $container->addProvider(CarFactoryProvider::class);
 ```
 
 or pass it through configuration array using `providers` key:
 
 ```php
+use Yiisoft\Di\Container;
+
 $container = new Container([
     'providers' => [
         CarFactoryProvider::class,
@@ -253,6 +267,7 @@ the container. Deferred service providers being added to the container the same 
 is requested from the container. Example:
 
 ```php
+use Yiisoft\Di\Container;
 use Yiisoft\Di\Support\DeferredServiceProvider;
 
 class CarFactoryProvider extends DeferredServiceProvider
@@ -260,7 +275,6 @@ class CarFactoryProvider extends DeferredServiceProvider
     public function provides(): array
     {
         return [
-            
             CarFactory::class,
             CarInterface::class,
             EngineInterface::class,
@@ -296,6 +310,7 @@ class CarFactoryProvider extends DeferredServiceProvider
     }
 }
 
+/** @var $container \Yiisoft\Di\Container */
 $container->addProvider(CarFactoryProvider::class);
 
 // returns false as provider wasn't registered
