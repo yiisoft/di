@@ -70,7 +70,6 @@ class ContainerTest extends TestCase
      */
     public function testOptionalCircularClassDependency(): void
     {
-        $this->markTestIncomplete('TODO: implement optional dependencies');
         $container = new Container();
         $container->set(A::class, A::class);
         $container->set(B::class, B::class);
