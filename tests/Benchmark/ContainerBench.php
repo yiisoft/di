@@ -35,10 +35,12 @@ class ContainerBench
         ];
     }
 
-
     /**
      * Load the bulk of the definitions.
      * These all refer to a service that is not yet defined but must be defined in the bench.
+     *
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
      */
     public function before(): void
     {
@@ -66,8 +68,12 @@ class ContainerBench
 
         shuffle($this->indexes);
     }
+
     /**
      * @Revs(1000)
+     *
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
      */
     public function benchConstructStupid(): void
     {
@@ -79,6 +85,9 @@ class ContainerBench
 
     /**
      * @Revs(1000)
+     *
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
      */
     public function benchConstructSmart(): void
     {
@@ -91,6 +100,8 @@ class ContainerBench
 
     /**
      * @ParamProviders({"provideDefinitions"})
+     *
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function benchSequentialLookups($params): void
     {
@@ -111,6 +122,9 @@ class ContainerBench
 
     /**
      * @ParamProviders({"provideDefinitions"})
+     *
+     * @param $params
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function benchRandomLookups($params): void
     {
@@ -131,6 +145,9 @@ class ContainerBench
 
     /**
      * @ParamProviders({"provideDefinitions"})
+     *
+     * @param $params
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function benchRandomLookupsComposite($params): void
     {
