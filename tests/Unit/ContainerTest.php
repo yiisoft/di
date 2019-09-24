@@ -29,6 +29,12 @@ use Yiisoft\Factory\Definitions\Reference;
  */
 class ContainerTest extends TestCase
 {
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testSettingScalars(): void
     {
         $this->expectException(InvalidConfigException::class);
@@ -39,6 +45,12 @@ class ContainerTest extends TestCase
         $container->get('scalar');
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testOptionalClassDependency(): void
     {
         $this->markTestIncomplete('TODO: implement optional dependencies');
@@ -50,6 +62,12 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testOptionalCircularClassDependency(): void
     {
         $this->markTestIncomplete('TODO: implement optional dependencies');
@@ -61,6 +79,12 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b->a);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testWithoutDefinition(): void
     {
         $container = new Container();
@@ -68,6 +92,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testTrivialDefinition(): void
     {
         $container = new Container();
@@ -78,6 +108,12 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testCircularClassDependency(): void
     {
         $container = new Container();
@@ -87,6 +123,12 @@ class ContainerTest extends TestCase
         $container->get(Chicken::class);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testClassSimple(): void
     {
         $container = new Container();
@@ -94,6 +136,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testSetAll(): void
     {
         $container = new Container();
@@ -105,6 +153,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkTwo::class, $container->get('engine2'));
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testClassConstructor(): void
     {
         $container = new Container();
@@ -118,6 +172,12 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getParameter());
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testClassProperties(): void
     {
         $container = new Container();
@@ -131,6 +191,12 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->property);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testClassMethods(): void
     {
         $container = new Container();
@@ -144,6 +210,12 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testAlias(): void
     {
         $container = new Container();
@@ -154,6 +226,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testCircularAlias(): void
     {
         $container = new Container();
@@ -165,6 +243,12 @@ class ContainerTest extends TestCase
         $container->get('engine-1');
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testUndefinedDependencies(): void
     {
         $container = new Container();
@@ -174,6 +258,12 @@ class ContainerTest extends TestCase
         $container->get('car');
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testDependencies(): void
     {
         $container = new Container();
@@ -185,6 +275,12 @@ class ContainerTest extends TestCase
         $this->assertEquals(EngineMarkTwo::NAME, $car->getEngineName());
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testCircularReference(): void
     {
         $container = new Container();
@@ -194,6 +290,12 @@ class ContainerTest extends TestCase
         $container->get(TreeItem::class);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testCallable(): void
     {
         $container = new Container();
@@ -206,6 +308,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $object);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testObject(): void
     {
         $container = new Container();
@@ -214,6 +322,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $object);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testStaticCall(): void
     {
         $container = new Container();
@@ -223,6 +337,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $object);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testInvokeable(): void
     {
         $container = new Container();
@@ -232,6 +352,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $object);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testReference(): void
     {
         $container = new Container([
@@ -250,6 +376,12 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ColorPink::class, $object->color);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testGetByReference(): void
     {
         $container = new Container([
@@ -264,6 +396,12 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testSameInstance(): void
     {
         $container = new Container();
@@ -273,6 +411,12 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testHasInstance(): void
     {
         $container = new Container();
@@ -283,6 +427,12 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->hasInstance('engine'));
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testGetByClassIndirectly(): void
     {
         $number = 42;
@@ -298,6 +448,12 @@ class ContainerTest extends TestCase
         $this->assertSame($number, $engine->getNumer());
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testThrowingNotFoundException(): void
     {
         $this->expectException(NotFoundException::class);
@@ -306,6 +462,12 @@ class ContainerTest extends TestCase
         $container->get('non_existing');
     }
 
+    /**
+     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
+     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
+     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     */
     public function testContainerInContainer(): void
     {
         $container = new Container();
