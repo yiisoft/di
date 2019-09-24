@@ -43,7 +43,7 @@ return [
     'full_definition' => [
         '__class' => EngineMarkOne::class,
         '__construct()' => [42], 
-        'argName' => 'value',
+        'propertyName' => 'value',
         'setX()' => [42],
     ],
     'closure' => function($container) {
