@@ -29,7 +29,7 @@ class Container implements ContainerInterface
      */
     private $building = [];
     /**
-     * @var contracts\DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
+     * @var DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
      * deferred to register till their services would be requested
      */
     private $deferredProviders;
@@ -94,6 +94,8 @@ class Container implements ContainerInterface
      * @param array $params
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
      * @internal
      */
     protected function build(string $id, array $params = [])
@@ -114,6 +116,14 @@ class Container implements ContainerInterface
         return $object;
     }
 
+    /**
+     * @param string $id
+     * @param array $params
+     *
+     * @return mixed|object
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     */
     private function buildInternal(string $id, array $params = [])
     {
         if (!isset($this->definitions[$id])) {
@@ -123,6 +133,14 @@ class Container implements ContainerInterface
         return $this->definitions[$id]->resolve($this, $params);
     }
 
+    /**
+     * @param string $class
+     * @param array $params
+     *
+     * @return mixed|object
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     */
     private function buildPrimitive(string $class, array $params = [])
     {
         if (class_exists($class)) {
