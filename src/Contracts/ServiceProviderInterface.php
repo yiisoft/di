@@ -14,11 +14,11 @@ use Yiisoft\Di\Container;
  *
  * Example:
  * ```php
- * class CarProvider implements ServiceProvider
+ * class CarProvider implements ServiceProviderInterface
  * {
  *    protected $container;
  *
- *    public function __construct(ContainerInterface $container)
+ *    public function __construct(Container $container)
  *    {
  *        $this->container = $container;
  *    }
