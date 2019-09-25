@@ -13,12 +13,6 @@ use Yiisoft\Di\Tests\Support\EngineMarkOne;
  */
 class DeferredServiceProviderTest extends TestCase
 {
-    /**
-     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     public function testServiceProviderDeferring(): void
     {
         $container = new Container();

@@ -15,19 +15,11 @@ use Yiisoft\Di\Tests\Support\CarProvider;
  */
 class ServiceProviderTest extends TestCase
 {
-    /**
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     public function testAddProviderByClassName(): void
     {
         $this->ensureProviderRegisterDefinitions(CarProvider::class);
     }
 
-    /**
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     public function testAddProviderByDefinition(): void
     {
         $this->ensureProviderRegisterDefinitions([
@@ -35,10 +27,6 @@ class ServiceProviderTest extends TestCase
         ]);
     }
 
-    /**
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     public function testAddProviderRejectDefinitionWithoutClass(): void
     {
         $this->expectException(NotInstantiableException::class);
@@ -48,12 +36,6 @@ class ServiceProviderTest extends TestCase
         ]);
     }
 
-    /**
-     * @param $provider
-     *
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     protected function ensureProviderRegisterDefinitions($provider): void
     {
         $container = new Container();
