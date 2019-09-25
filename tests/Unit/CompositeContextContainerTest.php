@@ -14,12 +14,6 @@ use Yiisoft\Di\Tests\Support\PropertyTestClass;
  */
 class CompositeContextContainerTest extends TestCase
 {
-    /**
-     * @throws \Yiisoft\Factory\Exceptions\CircularReferenceException
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotFoundException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
-     */
     public function testContextGet(): void
     {
         $composite = new CompositeContextContainer();
