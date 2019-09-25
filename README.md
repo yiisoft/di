@@ -74,7 +74,7 @@ While it's usually not a good idea, you can set already instantiated object into
 Additionally, definitions could be added via calling `set()`:
 
 ```php
-/** @var $container \Yiisoft\Di\Container */
+/** @var \Yiisoft\Di\Container $container */
 $container->set($id, Example::class);
 
 $container->set($id, [
@@ -89,7 +89,7 @@ $container->set($id, [
 After container is configured, dependencies could be obtained via `get()`:
 
 ```php
-/** @var $container \Yiisoft\Di\Container */
+/** @var \Yiisoft\Di\Container $container */
 $object = $container->get('interface_name');
 ```
 
@@ -122,7 +122,7 @@ use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
-$container = new Container([], [], $composite);
+$container = new Container([], []);
 ```
 
 ## Contextual containers
@@ -232,7 +232,7 @@ To add service provider to the container you need either pass service provider c
 to `addProvider` method of the container:
 
 ```php
-/** @var $container \Yiisoft\Di\Container */
+/** @var \Yiisoft\Di\Container $container */
 $container->addProvider(CarFactoryProvider::class);
 ```
 
@@ -310,7 +310,7 @@ class CarFactoryProvider extends DeferredServiceProvider
     }
 }
 
-/** @var $container \Yiisoft\Di\Container */
+/** @var \Yiisoft\Di\Container $container */
 $container->addProvider(CarFactoryProvider::class);
 
 // returns false as provider wasn't registered
