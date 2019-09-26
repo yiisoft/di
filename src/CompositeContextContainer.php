@@ -21,7 +21,6 @@ class CompositeContextContainer implements ContainerInterface
 
     private $currentContext = '';
 
-    /** @inheritdoc */
     public function get($id)
     {
         foreach ($this->getContainers($this->currentContext) as $container) {
@@ -48,7 +47,6 @@ class CompositeContextContainer implements ContainerInterface
         }
     }
 
-    /** @inheritdoc */
     public function has($id)
     {
         foreach ($this->getContainers($this->currentContext) as $container) {

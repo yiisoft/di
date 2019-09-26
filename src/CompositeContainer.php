@@ -17,9 +17,6 @@ class CompositeContainer implements ContainerInterface
      */
     private $containers = [];
 
-    /**
-     * @inheritDoc
-     */
     public function get($id)
     {
         foreach ($this->containers as $container) {
@@ -32,9 +29,6 @@ class CompositeContainer implements ContainerInterface
         throw new NotFoundException("No definition for $id");
     }
 
-    /**
-     * @inheritDoc
-     */
     public function has($id)
     {
         foreach ($this->containers as $container) {
