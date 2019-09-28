@@ -9,15 +9,15 @@ class CarDeferredProvider extends DeferredServiceProvider
     public function provides(): array
     {
         return [
-            Car::class,
-            CarFactory::class,
+            'car',
+            'car-factory',
         ];
     }
 
     public function register(Container $container): void
     {
-        $container->set(Car::class, ['__class' => Car::class]);
-        $container->set(CarFactory::class, CarFactory::class);
+        $container->set('car', ['__class' => Car::class]);
+        $container->set('car-factory', CarFactory::class);
         $container->set(EngineInterface::class, EngineMarkOne::class);
     }
 }

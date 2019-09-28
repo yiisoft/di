@@ -22,6 +22,7 @@ and configure classes resolving dependencies.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
 - Accepts array definitions so could be used with mergeable configs.
+- Provides autoload fallback for simple classes that have no explicit definition.
 
 ## Using container
 

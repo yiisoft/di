@@ -187,7 +187,7 @@ class Container implements ContainerInterface
      */
     public function has($id): bool
     {
-        return isset($this->definitions[$id]);
+        return isset($this->definitions[$id]) || (is_string($id) && class_exists($id));
     }
 
     /**

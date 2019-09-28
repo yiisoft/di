@@ -3,9 +3,9 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Di\Tests\Support\Car;
-use Yiisoft\Di\Tests\Support\CarFactory;
 use Yiisoft\Di\Tests\Support\CarProvider;
 
 /**
@@ -31,25 +31,29 @@ class ServiceProviderTest extends TestCase
     {
         $container = new Container();
 
-        $this->assertFalse(
+        $this->assertTrue(
             $container->has(Car::class),
-            'Container should not have Car registered before service provider added.'
+            'Container should have Car registered before service provider added due to autoload fallback.'
         );
         $this->assertFalse(
-            $container->has(CarFactory::class),
-            'Container should not have CarFactory registered before service provider added.'
+            $container->has('car'),
+            'Container should not have "car" registered before service provider added.'
+        );
+        $this->assertFalse(
+            $container->has(EngineInterface::class),
+            'Container should not have EngineInterface registered before service provider added.'
         );
 
         $container->addProvider($provider);
 
         // ensure addProvider invoked ServiceProviderInterface::register
         $this->assertTrue(
-            $container->has(Car::class),
-            'CarProvider should have registered Car once it was added to container.'
+            $container->has('car'),
+            'CarProvider should have registered "car" once it was added to container.'
         );
         $this->assertTrue(
-            $container->has(CarFactory::class),
-            'CarProvider should have registered CarFactory once it was added to container.'
+            $container->has(EngineInterface::class),
+            'CarProvider should have registered EngineInterface once it was added to container.'
         );
     }
 
