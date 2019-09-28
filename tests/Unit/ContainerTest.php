@@ -295,7 +295,7 @@ class ContainerTest extends TestCase
 
         $engine = $container->get(EngineInterface::class);
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
-        $this->assertSame($number, $engine->getNumer());
+        $this->assertSame($number, $engine->getNumber());
     }
 
     public function testThrowingNotFoundException(): void
