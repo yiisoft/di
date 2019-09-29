@@ -123,6 +123,8 @@ use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
 $container = new Container([], []);
+$composite->attach($container);
+
 ```
 
 ## Contextual containers
