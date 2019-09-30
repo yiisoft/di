@@ -52,7 +52,6 @@ class ContainerTest extends TestCase
 
     public function testOptionalCircularClassDependency(): void
     {
-        $this->markTestIncomplete('TODO: implement optional dependencies');
         $container = new Container();
         $container->set(A::class, A::class);
         $container->set(B::class, B::class);
@@ -267,7 +266,6 @@ class ContainerTest extends TestCase
             'engine' => EngineMarkOne::class,
             'e1'     => Reference::to('engine'),
         ]);
-        $ref = Reference::to('engine');
         $one = $container->get(Reference::to('engine'));
         $two = $container->get(Reference::to('e1'));
         $this->assertInstanceOf(EngineMarkOne::class, $one);
@@ -290,7 +288,7 @@ class ContainerTest extends TestCase
         $container->set('engine', EngineMarkOne::class);
         $this->assertTrue($container->has('engine'));
         $this->assertFalse($container->hasInstance('engine'));
-        $one = $container->get('engine');
+        $this->assertIsObject($container->get('engine'));
         $this->assertTrue($container->hasInstance('engine'));
     }
 

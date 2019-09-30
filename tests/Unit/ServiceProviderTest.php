@@ -27,6 +27,15 @@ class ServiceProviderTest extends TestCase
         ]);
     }
 
+    public function testAddProviderRejectDefinitionWithoutClass(): void
+    {
+        $this->expectException(NotInstantiableException::class);
+        $container = new Container();
+        $container->addProvider([
+            'property' => 234
+        ]);
+    }
+
     protected function ensureProviderRegisterDefinitions($provider): void
     {
         $container = new Container();
@@ -55,14 +64,5 @@ class ServiceProviderTest extends TestCase
             $container->has(EngineInterface::class),
             'CarProvider should have registered EngineInterface once it was added to container.'
         );
-    }
-
-    public function testAddProviderRejectDefinitionWithoutClass(): void
-    {
-        $this->expectException(NotInstantiableException::class);
-        $container = new Container();
-        $container->addProvider([
-            'property' => 234
-        ]);
     }
 }

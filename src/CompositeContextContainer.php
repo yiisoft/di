@@ -21,7 +21,6 @@ class CompositeContextContainer implements ContainerInterface
 
     private $currentContext = '';
 
-    /** @inheritdoc */
     public function get($id)
     {
         foreach ($this->getContainers($this->currentContext) as $container) {
@@ -101,6 +100,7 @@ class CompositeContextContainer implements ContainerInterface
      *
      * @param string $id Name of the service, not typehinted to remain compatible with PSR-11 `get()`
      * @param string $context
+     * @return mixed
      * @throws NotFoundException
      */
     public function getFromContext($id, string $context)
