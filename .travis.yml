@@ -29,3 +29,23 @@ script:
 after_script:
     - wget -c https://scrutinizer-ci.com/ocular.phar
     - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+notifications:
+    slack:
+        - rooms:
+              - secure: i6VqrDipCOEU03HS5ElFTrPUboDNv2q7yE3pBDBmPkoLR0eGeCdIrTCKG4ezoZW4PuIWD3YNS90uGB/dQBaKJP6OkMN6z1JP74uFMgSyifwlVqeAsq61t1cahemHemJalZwm02wfUt3yDum5CzX0tanaFvXjC/kBH/TZMQWyUj0garG7mTFid5ukDGeRac8BvCTImZ0QLDrQ8MA0UYg7aYaAT+yJXtn6FEJ2u/4q1PSNKw17Q9OGdBVWN4UwjaE5LLx/yE/xR2+tV8b1BiiFmtSE5vq2xDbOrWHHqaP7qQPbVnqx/f0/27hISwzbKLyBJs3bDgmhfFG+Up+LMM58o0/5MiOIg+xw0mnHS8fuTUNP7dfafIWMshc2dvMNmBMKBvA2OMuQeZA30LFslf5hgwjMTi38ySx/spyjU25IukGmjKpCNR8nImnTwVKlRDRQnC72K5UprvbEgpBoD9xyJcVQv6Pzy6HpvUI+VARIHZbpUGJfWO7wzs/szlgdIS8MUepQKa9Dn21vk+rry1CsKi9GhZMcB7HRQOYfoaJo9g7hO22X1bnhUif3qgpJ1fQrkqtw7GUnW36gPIcWIdxEnDMUve120rVzkv7Oi3k0C118fZAr4/R84WEfQX8c+lZMlQ5U22244o6Vpe/3hzp/zsdiDDc+e7/Gl1dz9QmHR+U=
+          on_success: never
+          on_failure: always
+          on_pull_requests: false
+          template:
+              - "%{repository_slug} (%{commit}) : %{message}"
+              - "Build details: %{build_url}"
+        - rooms:
+              - secure: nVeUlecJ8vvlxQQO++L0djWuv3I/O8h2/ac649NwebQ6MZ+Mt9dpHV3ynmLxA588SztinQfbbkb7vLfEPrZGynEKurntF8nn7BOU5DBpotJ1KFRCQFxA3nOAMMBPohSl+Em0vuCWVCINERqqiheHZNpXxpYx0LZK5afhgzEt4Ft1Cugy/Euu4LPIOKX2ktiPWGI/YPUSG33MmqkPsEvf4AC6ljIiV1OIM+dM49Le6KLJqWlhzTqF9/0jW1e3SHw2F42zdIoOcL3vAdxJffTS0ubScAxeXnKO/sOc2M3Y9/dMOdOHHZvk3ucAmJggmL0N51yCh+TGhHHsp8rLC3kGQO0kbbaz0pLngHztVvgTPOHYfb8n2PF21ZuwDKBIu1LHO5MvmSpzZcL4I16QIJDEVN8QYpmFBheN1ssnAytCS4EZSmYzZA6ZLX8fu6MN4ejCp5FiKEqxUMyvsD0gDhwFKRalreb3T5djTDkrSXfYfBzIL77k6lcGirhGaOvnhN9U4AVBgT0sw4y8nTutLTgyvHdsipTh+2x4Fn/rZczEDI1Vg+DRmwonFNbU0ykA303weWdBZZa6uqwqtqzBeTbLtehbf3n8NwG0igCbHoq3rusQ2ofayuhadfx4VHPYYmiiQlsYk03R6BVY8F9L+zNxXgHyRVrL9dep/zUb0QD897c=
+          on_success: always
+          on_failure: never
+          on_pull_requests: false
+          template:
+              - "%{repository_slug} (%{commit}) : %{message}"
+              - "Build details: %{build_url}"
+
