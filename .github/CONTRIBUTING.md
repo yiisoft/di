@@ -1,20 +1,23 @@
-# Contributing to Yii DI
+# Prerequisites
 
-- [Report an issue](https://github.com/yiisoft/yii2/blob/master/docs/internals/report-an-issue.md)
-- [Translate documentation or messages](https://github.com/yiisoft/yii2/blob/master/docs/internals/translation-workflow.md)
-- [Give us feedback or start a design discussion](http://www.yiiframework.com/forum/index.php/forum/42-general-discussions-for-yii-20/)
-- [Contribute to the core code or fix bugs](https://github.com/yiisoft/yii2/blob/master/docs/internals/git-workflow.md)
+- [Yii goal and values](https://github.com/yiisoft/docs/blob/master/001-yii-values.md)
+- [Namespaces](https://github.com/yiisoft/docs/blob/master/004-namespaces.md)
+- [Git commit messages](https://github.com/yiisoft/docs/blob/master/006-git-commit-messages.md)
+- [Exceptions](https://github.com/yiisoft/docs/blob/master/007-exceptions.md)
+- [Interfaces](https://github.com/yiisoft/docs/blob/master/008-interfaces.md)
 
-## Running tests locally
+# Getting started
 
-In order to run unit tests locally issue the following command:
+Since Yii 3 consists of many packages, we have a [special development tool](https://github.com/yiisoft/docs/blob/master/005-development-tool.md).
 
-```
-./vendor/bin/phpunit --verbose
-```
+1. [Clone the repository](https://github.com/yiisoft/yii-dev-tool).
 
-In order to verify code style run the following command:
+2. [Set up your own fork](https://github.com/yiisoft/yii-dev-tool#using-your-own-fork).
 
-```
-./vendor/bin/phpcs --standard=PSR2 src tests
-```
+3. Now you are ready. Fork any package listed in `packages.php` and do `./yii-dev install username/package`.
+
+If you don't have any particular package in mind to start with:
+
+- [Check roadmap](https://github.com/yiisoft/docs/blob/master/003-roadmap.md).
+- Check package issues at github. Usually there are some.
+- Ask @samdark.
