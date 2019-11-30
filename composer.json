@@ -2,7 +2,15 @@
     "name": "yiisoft/di",
     "type": "library",
     "description": "Yii DI container",
-    "keywords": ["di", "dependency", "injection", "container", "injector", "autowiring", "psr-11"],
+    "keywords": [
+        "di",
+        "dependency",
+        "injection",
+        "container",
+        "injector",
+        "autowiring",
+        "psr-11"
+    ],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
@@ -54,6 +62,8 @@
     "scripts-descriptions": {
         "test": "Run all tests",
         "bench": "Run all benchmarks"
+    },
+    "config": {
+        "sort-packages": true
     }
-
 }
