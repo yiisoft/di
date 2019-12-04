@@ -32,21 +32,19 @@ after_script:
     - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 notifications:
-    slack:
-        - rooms:
-              - secure: i6VqrDipCOEU03HS5ElFTrPUboDNv2q7yE3pBDBmPkoLR0eGeCdIrTCKG4ezoZW4PuIWD3YNS90uGB/dQBaKJP6OkMN6z1JP74uFMgSyifwlVqeAsq61t1cahemHemJalZwm02wfUt3yDum5CzX0tanaFvXjC/kBH/TZMQWyUj0garG7mTFid5ukDGeRac8BvCTImZ0QLDrQ8MA0UYg7aYaAT+yJXtn6FEJ2u/4q1PSNKw17Q9OGdBVWN4UwjaE5LLx/yE/xR2+tV8b1BiiFmtSE5vq2xDbOrWHHqaP7qQPbVnqx/f0/27hISwzbKLyBJs3bDgmhfFG+Up+LMM58o0/5MiOIg+xw0mnHS8fuTUNP7dfafIWMshc2dvMNmBMKBvA2OMuQeZA30LFslf5hgwjMTi38ySx/spyjU25IukGmjKpCNR8nImnTwVKlRDRQnC72K5UprvbEgpBoD9xyJcVQv6Pzy6HpvUI+VARIHZbpUGJfWO7wzs/szlgdIS8MUepQKa9Dn21vk+rry1CsKi9GhZMcB7HRQOYfoaJo9g7hO22X1bnhUif3qgpJ1fQrkqtw7GUnW36gPIcWIdxEnDMUve120rVzkv7Oi3k0C118fZAr4/R84WEfQX8c+lZMlQ5U22244o6Vpe/3hzp/zsdiDDc+e7/Gl1dz9QmHR+U=
-          on_success: never
-          on_failure: always
-          on_pull_requests: false
-          template:
-              - "%{repository_slug} (%{commit}) : %{message}"
-              - "Build details: %{build_url}"
-        - rooms:
-              - secure: nVeUlecJ8vvlxQQO++L0djWuv3I/O8h2/ac649NwebQ6MZ+Mt9dpHV3ynmLxA588SztinQfbbkb7vLfEPrZGynEKurntF8nn7BOU5DBpotJ1KFRCQFxA3nOAMMBPohSl+Em0vuCWVCINERqqiheHZNpXxpYx0LZK5afhgzEt4Ft1Cugy/Euu4LPIOKX2ktiPWGI/YPUSG33MmqkPsEvf4AC6ljIiV1OIM+dM49Le6KLJqWlhzTqF9/0jW1e3SHw2F42zdIoOcL3vAdxJffTS0ubScAxeXnKO/sOc2M3Y9/dMOdOHHZvk3ucAmJggmL0N51yCh+TGhHHsp8rLC3kGQO0kbbaz0pLngHztVvgTPOHYfb8n2PF21ZuwDKBIu1LHO5MvmSpzZcL4I16QIJDEVN8QYpmFBheN1ssnAytCS4EZSmYzZA6ZLX8fu6MN4ejCp5FiKEqxUMyvsD0gDhwFKRalreb3T5djTDkrSXfYfBzIL77k6lcGirhGaOvnhN9U4AVBgT0sw4y8nTutLTgyvHdsipTh+2x4Fn/rZczEDI1Vg+DRmwonFNbU0ykA303weWdBZZa6uqwqtqzBeTbLtehbf3n8NwG0igCbHoq3rusQ2ofayuhadfx4VHPYYmiiQlsYk03R6BVY8F9L+zNxXgHyRVrL9dep/zUb0QD897c=
-          on_success: always
-          on_failure: never
-          on_pull_requests: false
-          template:
-              - "%{repository_slug} (%{commit}) : %{message}"
-              - "Build details: %{build_url}"
+  slack:
+    -
+      rooms:
+        -
+          secure: pNSlx/yZgX3d+AvrwJ/qhJVSD2ypa+BiGR1dQhRXgV7MiX9XVGGM9/yY05Lc0UvMyiu5F/bUElD1jGyRPq7rZJRtzEUbbY+Y7YNB7AlEiamlqItH+jTB2SxJ+EA0bD9GZC9AV8cl7aAk12XG/jNQacXaFVR5q+mDilCEZZzeaeo1wJEn/aq2fOd0ZLCpMeV8fBMUdIsXfGvY2+c/k+UkB4YS02g8hbY49qNes0f/wb5ULSZ00dVb5HNWWtII2EvvD6RDHqT2nmSgMhAD+qtCU3EfaoABtbPmVxDZy4AmpSaT7PFcR2OhpKPePhwQD+5JXooKTs3bHKNiA6oJIeZ8ujZxvqbSyOu65MBalMZJwUtPqedNmXXYaU+XmnSU2p5SDGXVPO7qSYaZgz5LrY6cKKEKis5/5ZohFrEihpQ8gaZlZPM9AmRXpCWmMdX6+LmNOWTgUIyWbqLqUvTsq3aa+t7WJV93Xpzizs0/cCmCbRjQ6sVs2IP1RcHwwb73r6xBWStHaAWhXXsg/1v4X4hmAqoKFqbUQJLdUJFnT9W25LjOhYBlKALGqijQPxEJyGAaiN8gF9T4LOJ5pp4+rCysBHc+JJ466facq203oQmBNSwCN6HNiwa7BDFz2YUsvhTkdog2+UHVlaVroe4eTXyqvKEQ8ReIqC3yct+GoieGJjI=
+      on_success: always
+      on_failure: never
+      on_pull_requests: false
+    -
+      rooms:
+        -
+          secure: bxBqw8FIrmA2fOuqwwRrK9XdlFvTYGYLy9rN7DNCxUKwUgQp0IZ2jDQCP74xN5DqgXoOBrmrkByqmQSM7mlaqZLjmiHF4JY/fnPvN6JRNEa6ZmgyOnCjG/MOtE5FIEa7pS4J75tM7NPRrVBBWf6I7kD/QSJEOlevlUCUG3jWLq3Cd+oHbYod+IPtwRjd1W7q3LiXmskghhLII0K/aUwrLakH+N7je7SbaE0YOlkfSYInaYTqJxuFaOrFzzsudNuAkiueQryoFwX9pLceoJXCqWjLMjNx0+MTnEaNlgT0rOEVGnu2N00S4a6qoxvKAPh4ASX8js97lVDKhoPLDTAYcNegLmRCBkxLXpKRBy6c56315PUsUWny4RPyYF6rF9ijJxCVwcvdQc3IwXbOdBGRdPnhQPSITuRMr/Nqe6ik1E8k+2nfAzr4gvvB0zFJluH+wW0xlm3/BiMxvD1TulLG0/Jf8Q7TOOSxh4ssFO6a7UZWYJVAaFKAb2t0TiEYd6x7j1Wl2mVF00DuOpI3W+gz9dviWZ+uVlnRpjzkWbhK81AalIuB4zFbwq9UpMveFWWLIi5YQvDnU20+mqPVKjVxbwbEZ0P35kvBvfpw8yBhzIqSH93gN2r+2jHNGSdARtlBLd/ovYmS9AIEXwvu6+pinQ7KWfcbyc3qpJ27i3nZops=
+      on_success: never
+      on_failure: always
+      on_pull_requests: false
 
