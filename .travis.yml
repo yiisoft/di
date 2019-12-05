@@ -1,14 +1,17 @@
 language: php
 
-php:
-  - 7.2
-  - 7.3
-  - 7.4snapshot
+env:
+  global:
+    - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
+    - TASK_STATIC_ANALYSIS=0
+    - TASK_TESTS_COVERAGE=0
 
-# run build against hhvm but allow them to fail
-# http://docs.travis-ci.com/user/build-configuration/#Rows-That-are-Allowed-To-Fail
 matrix:
-  fast_finish: true
+  include:
+    - php: "7.4"
+      env:
+        - TASK_STATIC_ANALYSIS=0 # set to 1 to enable static analysis
+        - TASK_TESTS_COVERAGE=1
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -18,18 +21,45 @@ cache:
   directories:
     - $HOME/.composer/cache
 
+before_install:
+  - phpenv config-rm xdebug.ini || echo "xdebug is not installed"
+
 install:
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - travis_retry composer install --prefer-dist --no-interaction
+  - travis_retry composer install $DEFAULT_COMPOSER_FLAGS
+  - |
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      pecl install ast
+    fi
+
+before_script:
+  - php --version
+  - composer --version
+  # enable code coverage
+  - |
+    if [ $TASK_TESTS_COVERAGE == 1 ]; then
+        PHPUNIT_COVERAGE_FLAG="--coverage-clover=coverage.clover"
+    fi
 
 script:
+  - phpdbg -qrr vendor/bin/phpunit --verbose $PHPUNIT_COVERAGE_FLAG
   - |
-    vendor/bin/phpunit $PHPUNIT_FLAGS --coverage-clover=coverage.clover
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      composer phan
+    fi
+  - |
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      cat analysis.txt
+    fi
 
 after_script:
-    - wget -c https://scrutinizer-ci.com/ocular.phar
-    - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+  - |
+    if [ $TASK_TESTS_COVERAGE == 1 ]; then
+      travis_retry wget https://scrutinizer-ci.com/ocular.phar
+      php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+    fi
+
 
 notifications:
   slack:
