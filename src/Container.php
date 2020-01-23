@@ -1,4 +1,5 @@
 <?php
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -267,7 +268,7 @@ class Container implements ContainerInterface
      * Returns all instances set in container
      * @return array list of instance
      */
-    public function getInstances() : array
+    public function getInstances(): array
     {
         return $this->instances;
     }

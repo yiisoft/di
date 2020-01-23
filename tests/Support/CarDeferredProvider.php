@@ -1,4 +1,5 @@
 <?php
+
 namespace Yiisoft\Di\Tests\Support;
 
 use Yiisoft\Di\Container;

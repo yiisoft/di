@@ -1,4 +1,5 @@
 <?php
+
 namespace Yiisoft\Di\Support;
 
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
