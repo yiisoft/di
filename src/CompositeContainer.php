@@ -4,6 +4,7 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
@@ -18,12 +19,17 @@ class CompositeContainer implements ContainerInterface
      */
     private $containers = [];
 
-    public function get($id)
+    public function get($id, array $parameters = [])
     {
         foreach ($this->containers as $container) {
             try {
+                if (!empty($parameters)) {
+                    return $container->get($id, $parameters);
+                }
                 return $container->get($id);
             } catch (NotFoundExceptionInterface $e) {
+                // ignore
+            } catch (ContainerExceptionInterface $e) {
                 // ignore
             }
         }
@@ -44,9 +50,11 @@ class CompositeContainer implements ContainerInterface
      * Attaches a container to the composite container.
      * @param ContainerInterface $container
      */
-    public function attach(ContainerInterface $container): void
+    public function attach(?ContainerInterface $container): void
     {
-        array_unshift($this->containers, $container);
+        if (isset($container)) {
+            array_unshift($this->containers, $container);
+        }
     }
 
     /**
