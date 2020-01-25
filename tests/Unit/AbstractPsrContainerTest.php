@@ -32,7 +32,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 
     abstract public function setupContainer(ContainerInterface $container, iterable $definitions = []): ContainerInterface;
 
-//  !!!Failed for the League Container. Why?
+    //  !!!Failed for the League Container. Why?
 //    public function testSettingScalars(): void
 //    {
 //        $this->expectException(InvalidConfigException::class);
@@ -43,7 +43,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 //        $container->get('scalar');
 //    }
 
-//  !!!Error for the League Container. Why?
+    //  !!!Error for the League Container. Why?
 //    public function testOptionalCircularClassDependency(): void
 //    {
 //        $container = $this->createContainer([
@@ -55,7 +55,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 //        $this->assertNull($a->b->a);
 //    }
 
-//  !!!Failed for the League Container. Why?
+    //  !!!Failed for the League Container. Why?
 //    public function testWithoutDefinition(): void
 //    {
 //        $container =  $this->createContainer();
@@ -74,7 +74,7 @@ abstract class AbstractPsrContainerTest extends TestCase
         $container->get(Chicken::class);
     }
 
-//  !!!Failed for the League Container. Why?
+    //  !!!Failed for the League Container. Why?
 //    public function testTrivialDefinition(): void
 //    {
 //        $container = $this->createContainer([
@@ -112,7 +112,7 @@ abstract class AbstractPsrContainerTest extends TestCase
     }
 
 
-//  !!!Failed for the League Container. Why?
+    //  !!!Failed for the League Container. Why?
 //    public function testDependencies(): void
 //    {
 //        $container = $this->createContainer([
@@ -125,7 +125,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 //        $this->assertEquals(EngineMarkTwo::NAME, $car->getEngineName());
 //    }
 
-//  !!!Error for the League Container. Why?
+    //  !!!Error for the League Container. Why?
 //    public function testCallable(): void
 //    {
 //        $container = $this->createContainer([
@@ -148,7 +148,7 @@ abstract class AbstractPsrContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $object);
     }
 
-//  !!!Error for the League Container. Why?
+    //  !!!Error for the League Container. Why?
 //    public function testStaticCall(): void
 //    {
 //        $container = $this->createContainer([
@@ -159,7 +159,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 //        $this->assertInstanceOf(Car::class, $object);
 //    }
 
-//  !!!Error for the League Container. Why?
+    //  !!!Error for the League Container. Why?
 //    public function testInvokeable(): void
 //    {
 //        $container = $this->createContainer([
@@ -170,7 +170,7 @@ abstract class AbstractPsrContainerTest extends TestCase
 //        $this->assertInstanceOf(Car::class, $object);
 //    }
 
-//  !!!Failed for the League Container. Why?
+    //  !!!Failed for the League Container. Why?
 //    public function testSameInstance(): void
 //    {
 //        $container = $this->createContainer(['engine' => EngineMarkOne::class]);

@@ -10,7 +10,6 @@ use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 
-
 /**
  * General tests for PSR-11 composite container.
  * To be extended for specific containers.
