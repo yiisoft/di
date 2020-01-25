@@ -52,7 +52,7 @@ class CompositeContainer implements ContainerInterface
      */
     public function attach(?ContainerInterface $container): void
     {
-        if (isset($container)) {
+        if (null !== $container) {
             array_unshift($this->containers, $container);
         }
     }
