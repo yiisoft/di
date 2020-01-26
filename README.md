@@ -82,7 +82,7 @@ $container->set($id, [
     '__class' => Example::class,
     '__construct()' => ['a', 'b'],
     'property1' => 'val1',
-    'setMethod()' => 'val2',
+    'setMethod()' => ['val2'],
     'property2' => 'val3',
 ]);
 ```
