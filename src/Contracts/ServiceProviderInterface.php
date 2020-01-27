@@ -17,14 +17,7 @@ use Yiisoft\Di\Container;
  * ```php
  * class CarProvider implements ServiceProviderInterface
  * {
- *    protected $container;
- *
- *    public function __construct(Container $container)
- *    {
- *        $this->container = $container;
- *    }
- *
- *    public function register(): void
+ *    public function register(Container $container): void
  *    {
  *        $this->registerDependencies();
  *        $this->registerService();
