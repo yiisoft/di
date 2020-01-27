@@ -23,7 +23,7 @@ class CompositeContainer implements ContainerInterface
     {
         foreach ($this->containers as $container) {
             try {
-                if (!empty($parameters)) {
+                if ($parameters !== []) {
                     return $container->get($id, $parameters);
                 }
                 return $container->get($id);
