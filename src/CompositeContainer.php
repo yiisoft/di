@@ -48,11 +48,9 @@ class CompositeContainer implements ContainerInterface
      * Attaches a container to the composite container.
      * @param ContainerInterface $container
      */
-    public function attach(?ContainerInterface $container): void
+    public function attach(ContainerInterface $container): void
     {
-        if (null !== $container) {
-            array_unshift($this->containers, $container);
-        }
+        array_unshift($this->containers, $container);
     }
 
     /**

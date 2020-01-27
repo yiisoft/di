@@ -19,7 +19,9 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function createCompositeContainer(?ContainerInterface $attachedContainer = null): ContainerInterface
     {
         $compositeContainer = new CompositeContainer();
-        $compositeContainer->attach($attachedContainer);
+        if ($attachedContainer !== null) {
+            $compositeContainer->attach($attachedContainer);
+        }
         return $compositeContainer;
     }
 
@@ -29,15 +31,6 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $container = new Container(['test' => EngineMarkOne::class]);
         $compositeContainer->attach($container);
         $this->assertTrue($compositeContainer->has('test'));
-        $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get('test'));
-    }
-
-    public function testAttachNullContainer(): void
-    {
-        $compositeContainer = new CompositeContainer();
-        $compositeContainer->attach(null);
-        $container = new Container(['test' => EngineMarkOne::class]);
-        $compositeContainer->attach($container);
         $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get('test'));
     }
 
