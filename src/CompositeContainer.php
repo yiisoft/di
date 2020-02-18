@@ -4,7 +4,6 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Container\ContainerExceptionInterface;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
@@ -27,7 +26,7 @@ class CompositeContainer implements ContainerInterface
                     return $container->get($id, $parameters);
                 }
                 return $container->get($id);
-            } catch (ContainerExceptionInterface $e) {
+            } catch (NotFoundExceptionInterface $e) {
                 // ignore
             }
         }
