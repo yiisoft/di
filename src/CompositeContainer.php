@@ -21,25 +21,12 @@ class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
-        foreach ($this->containers as $container) {
-            try {
-                return $container->get($id);
-            } catch (NotFoundExceptionInterface $e) {
-                // ignore
-            }
-        }
-        throw new NotFoundException($id, "No definition for $id");
+        return $this->getFallback($id, $this->containers);
     }
 
     public function has($id)
     {
-        foreach ($this->containers as $container) {
-            if ($container->has($id)) {
-                return true;
-            }
-        }
-
-        return false;
+        return $this->hasFallback($id, $this->containers);
     }
 
     /**
