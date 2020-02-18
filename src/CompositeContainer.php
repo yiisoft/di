@@ -18,10 +18,13 @@ class CompositeContainer implements ContainerInterface
      */
     private $containers = [];
 
-    public function get($id)
+    public function get($id, array $parameters = [])
     {
         foreach ($this->containers as $container) {
             try {
+                if ($parameters !== []) {
+                    return $container->get($id, $parameters);
+                }
                 return $container->get($id);
             } catch (NotFoundExceptionInterface $e) {
                 // ignore
