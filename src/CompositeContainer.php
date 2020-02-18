@@ -14,6 +14,7 @@ class CompositeContainer implements ContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.
+     *
      * @var ContainerInterface[] The list of containers
      */
     private $containers = [];
@@ -27,7 +28,7 @@ class CompositeContainer implements ContainerInterface
                 // ignore
             }
         }
-        throw new NotFoundException("No definition for $id");
+        throw new NotFoundException($id, "No definition for $id");
     }
 
     public function has($id)
@@ -37,11 +38,13 @@ class CompositeContainer implements ContainerInterface
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * Attaches a container to the composite container.
+     *
      * @param ContainerInterface $container
      */
     public function attach(ContainerInterface $container): void
@@ -51,6 +54,7 @@ class CompositeContainer implements ContainerInterface
 
     /**
      * Removes a container from the list of containers.
+     *
      * @param ContainerInterface $container
      */
     public function detach(ContainerInterface $container): void
@@ -60,5 +64,38 @@ class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
+    }
+
+    private function getFallback(string $id, array $containers)
+    {
+        $fallback = $containers;
+
+        foreach ($containers as $i => $container) {
+            unset($fallback[$i]);
+
+            try {
+                return $container->get($id);
+            } catch (NotFoundExceptionInterface $e) {
+                $class = $e instanceof NotFoundException && $e->getId() !== null ? $e->getId() : $id;
+
+                return $this->getFallback($class, $fallback);
+            }
+        }
+        throw new NotFoundException($id, "No definition for $id");
+    }
+
+    private function hasFallback(string $id, array $containers): bool
+    {
+        $fallback = $containers;
+
+        foreach ($containers as $i => $container) {
+            unset($fallback[$i]);
+
+            if (!$container->has($id)) {
+                return $this->hasFallback($id, $fallback);
+            }
+        }
+
+        return false;
     }
 }

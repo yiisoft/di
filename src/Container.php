@@ -6,14 +6,14 @@ use Psr\Container\ContainerInterface;
 use SplObjectStorage;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Factory\Definitions\ArrayDefinition;
+use Yiisoft\Factory\Definitions\DefinitionInterface;
+use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
-use Yiisoft\Factory\Definitions\DefinitionInterface;
-use Yiisoft\Factory\Definitions\Normalizer;
-use Yiisoft\Factory\Definitions\ArrayDefinition;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -150,7 +150,7 @@ class Container implements ContainerInterface
             return $definition->resolve($this, $params);
         }
 
-        throw new NotFoundException("No definition for $class");
+        throw new NotFoundException($class, "No definition for $class");
     }
 
     /**

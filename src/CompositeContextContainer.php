@@ -31,7 +31,7 @@ class CompositeContextContainer implements ContainerInterface
                 // ignore
             }
         }
-        throw new NotFoundException("No definition for $id");
+        throw new NotFoundException($id, "No definition for $id");
     }
 
     /**
@@ -113,7 +113,7 @@ class CompositeContextContainer implements ContainerInterface
                 // ignore
             }
         }
-        throw new NotFoundException("No definition for $id");
+        throw new NotFoundException($id, "No definition for $id");
     }
 
     /**
