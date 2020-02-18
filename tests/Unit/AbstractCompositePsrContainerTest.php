@@ -16,12 +16,11 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
  */
 abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTest
 {
-    public function createCompositeContainer(?ContainerInterface $attachedContainer = null): ContainerInterface
+    public function createCompositeContainer(ContainerInterface $attachedContainer): ContainerInterface
     {
         $compositeContainer = new CompositeContainer();
-        if ($attachedContainer !== null) {
-            $compositeContainer->attach($attachedContainer);
-        }
+        $compositeContainer->attach($attachedContainer);
+
         return $compositeContainer;
     }
 
@@ -65,7 +64,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $containerOne = new Container([EngineInterface::class => EngineMarkOne::class]);
         $containerTwo = new Container([EngineInterface::class => EngineMarkTwo::class]);
-        $compositeContainer = $this->createCompositeContainer();
+        $compositeContainer = new CompositeContainer();
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
