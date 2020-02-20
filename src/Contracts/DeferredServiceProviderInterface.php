@@ -17,5 +17,8 @@ interface DeferredServiceProviderInterface extends ServiceProviderInterface
      */
     public function hasDefinitionFor(string $id): bool;
 
+    /**
+      * @return string[] a list of IDs of services provided
+      */
     public function provides(): array;
 }
