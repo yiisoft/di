@@ -3,7 +3,6 @@
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
@@ -21,14 +20,13 @@ class CompositeContainer implements ContainerInterface
     public function get($id, array $parameters = [])
     {
         foreach ($this->containers as $container) {
-            try {
+            if ($container->has($id)) {
                 if ($parameters !== []) {
                     return $container->get($id, $parameters);
                 }
                 return $container->get($id);
-            } catch (NotFoundExceptionInterface $e) {
-                // ignore
             }
+            continue;
         }
         throw new NotFoundException("No definition for $id");
     }

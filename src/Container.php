@@ -3,7 +3,6 @@
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use SplObjectStorage;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definitions\Reference;
@@ -21,24 +20,19 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 class Container implements ContainerInterface
 {
     /**
-     * @var DefinitionInterface[] object definitions indexed by their types
+     * @var DefinitionInterface[]|DeferredServiceProviderInterface[]|ReferenceStorage object definitions indexed by their types
      */
-    private $definitions = [];
+    private ReferenceStorage $definitions;
     /**
-     * @var array used to collect ids instantiated during build
+     * @var ReferenceStorage used to collect ids instantiated during build
      * to detect circular references
      */
-    private $building = [];
-    /**
-     * @var DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
-     * deferred to register till their services would be requested
-     */
-    private $deferredProviders;
+    private ReferenceStorage $building;
 
     /**
-     * @var object[]
+     * @var ReferenceStorage
      */
-    private $instances;
+    private ReferenceStorage $instances;
 
     /**
      * Container constructor.
@@ -53,8 +47,11 @@ class Container implements ContainerInterface
         array $definitions = [],
         array $providers = []
     ) {
+        $this->definitions = new ReferenceStorage();
+        $this->instances = new ReferenceStorage();
+        $this->building = new ReferenceStorage();
         $this->setMultiple($definitions);
-        $this->deferredProviders = new SplObjectStorage();
+
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
@@ -75,23 +72,27 @@ class Container implements ContainerInterface
      */
     public function get($id, array $parameters = [])
     {
-        $id = $this->getId($id);
-        if (!isset($this->instances[$id])) {
-            $this->instances[$id] = $this->build($id, $parameters);
+        $ref = $this->getReference($id);
+        if (!$this->instances->contains($ref)) {
+            $this->instances->attach($ref, $this->build($ref, $parameters));
         }
 
-        return $this->instances[$id];
+        return $this->instances[$ref];
     }
 
-    public function getId($id): string
+    /**
+     * @param Reference|string $id
+     * @return string
+     */
+    public function getReference($id): Reference
     {
-        return is_string($id) ? $id : $id->getId();
+        return is_string($id) ? Reference::to($id) : $id;
     }
 
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id the interface or an alias name that was previously registered via [[set()]].
+     * @param Reference $ref reference for the interface or an alias name that was previously registered via [[set()]].
      * @param array $params
      * @return object new built instance of the specified class.
      * @throws CircularReferenceException
@@ -99,39 +100,57 @@ class Container implements ContainerInterface
      * @throws NotFoundException
      * @internal
      */
-    protected function build(string $id, array $params = [])
+    protected function build(Reference $ref, array $params = [])
     {
-        if (isset($this->building[$id])) {
+        if ($this->building->contains($ref)) {
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
-                $id,
-                implode(',', array_keys($this->building))
+                $ref->getId(),
+                $this->implodeBuildingKeys($this->building)
             ));
         }
 
-        $this->building[$id] = 1;
-        $this->registerProviderIfDeferredFor($id);
-        $object = $this->buildInternal($id, $params);
-        unset($this->building[$id]);
+        $this->building->attach($ref);
+        $object = $this->buildInternal($ref, $params);
+        $this->building->detach($ref);
 
         return $object;
     }
 
+    private function implodeBuildingKeys(ReferenceStorage $storage): string
+    {
+        $result = '';
+        foreach ($storage as $ref) {
+            $result .= $ref->getId() . ',';
+        }
+
+        return rtrim($result, ',');
+    }
+
     /**
-     * @param string $id
+     * @param Reference $ref
      * @param array $params
      *
      * @return mixed|object
      * @throws InvalidConfigException
      * @throws NotFoundException
      */
-    private function buildInternal(string $id, array $params = [])
+    private function buildInternal(Reference $ref, array $params = [])
     {
-        if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id, $params);
+        if (!$this->definitions->contains($ref)) {
+            return $this->buildPrimitive($ref->getId(), $params);
         }
 
-        return $this->definitions[$id]->resolve($this, $params);
+        $this->processDefinition($this->definitions[$ref]);
+
+        return $this->definitions[$ref]->resolve($this, $params);
+    }
+
+    protected function processDefinition($definition): void
+    {
+        if ($definition instanceof DeferredServiceProviderInterface) {
+            $definition->register($this);
+        }
     }
 
     /**
@@ -154,26 +173,6 @@ class Container implements ContainerInterface
     }
 
     /**
-     * Register providers from {@link deferredProviders} if they provide
-     * definition for given identifier.
-     *
-     * @param string $id class or identifier of a service.
-     */
-    private function registerProviderIfDeferredFor(string $id): void
-    {
-        $providers = $this->deferredProviders;
-
-        foreach ($providers as $provider) {
-            if ($provider->hasDefinitionFor($id)) {
-                $provider->register($this);
-
-                // provider should be removed after registration to not be registered again
-                $providers->detach($provider);
-            }
-        }
-    }
-
-    /**
      * Sets a definition to the container. Definition may be defined multiple ways.
      * @param string $id
      * @param mixed $definition
@@ -182,8 +181,9 @@ class Container implements ContainerInterface
      */
     public function set(string $id, $definition): void
     {
-        $this->instances[$id] = null;
-        $this->definitions[$id] = Normalizer::normalize($definition, $id);
+        $ref = $this->getReference($id);
+        $this->instances->detach($ref);
+        $this->definitions->attach($ref, Normalizer::normalize($definition, $id));
     }
 
     /**
@@ -206,7 +206,7 @@ class Container implements ContainerInterface
      */
     public function has($id): bool
     {
-        return isset($this->definitions[$id]) || class_exists($id);
+        return $this->definitions->contains($this->getReference($id)) || class_exists($id);
     }
 
     /**
@@ -225,7 +225,9 @@ class Container implements ContainerInterface
         $provider = $this->buildProvider($providerDefinition);
 
         if ($provider instanceof DeferredServiceProviderInterface) {
-            $this->deferredProviders->attach($provider);
+            foreach ($provider->provides() as $id) {
+                $this->definitions->attach($this->getReference($id), $provider);
+            }
         } else {
             $provider->register($this);
         }
@@ -259,16 +261,14 @@ class Container implements ContainerInterface
      */
     public function hasInstance($id): bool
     {
-        $id = $this->getId($id);
-
-        return isset($this->instances[$id]);
+        return $this->instances->contains($this->getReference($id));
     }
 
     /**
      * Returns all instances set in container
-     * @return array list of instance
+     * @return ReferenceStorage list of instance
      */
-    public function getInstances(): array
+    public function getInstances(): ReferenceStorage
     {
         return $this->instances;
     }

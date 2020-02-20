@@ -57,6 +57,7 @@ class ContainerTest extends TestCase
         $container->set(A::class, A::class);
         $container->set(B::class, B::class);
         $a = $container->get(A::class);
+
         $this->assertInstanceOf(B::class, $a->b);
         $this->assertNull($a->b->a);
     }
@@ -101,8 +102,8 @@ class ContainerTest extends TestCase
     public function testClassSimple(): void
     {
         $container = new Container();
-        $container->set('engine', EngineMarkOne::class);
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
+        $container->set(EngineInterface::class, EngineMarkOne::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
 
     public function testSetAll(): void
