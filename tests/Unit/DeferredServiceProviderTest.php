@@ -27,9 +27,9 @@ class DeferredServiceProviderTest extends TestCase
 
         $container->addProvider(CarDeferredProvider::class);
 
-        $this->assertFalse(
+        $this->assertTrue(
             $container->has('car'),
-            'Container should not have "car" after adding deferred provider.'
+            'Container should have "car" after adding deferred provider.'
         );
         $this->assertTrue(
             $container->has(Car::class),
