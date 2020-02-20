@@ -26,7 +26,6 @@ class CompositeContainer implements ContainerInterface
                 }
                 return $container->get($id);
             }
-            continue;
         }
         throw new NotFoundException("No definition for $id");
     }
