@@ -102,8 +102,8 @@ class ContainerTest extends TestCase
     public function testClassSimple(): void
     {
         $container = new Container();
-        $container->set(EngineInterface::class, EngineMarkOne::class);
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
+        $container->set('engine', EngineMarkOne::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
     }
 
     public function testSetAll(): void
