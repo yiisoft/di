@@ -3,7 +3,6 @@
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use SplObjectStorage;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definitions\Reference;
@@ -29,11 +28,6 @@ class Container implements ContainerInterface
      * to detect circular references
      */
     private $building = [];
-    /**
-     * @var DeferredServiceProviderInterface[]|\SplObjectStorage list of providers
-     * deferred to register till their services would be requested
-     */
-    private $deferredProviders;
 
     /**
      * @var object[]
@@ -54,7 +48,6 @@ class Container implements ContainerInterface
         array $providers = []
     ) {
         $this->setMultiple($definitions);
-        $this->deferredProviders = new SplObjectStorage();
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
@@ -110,7 +103,6 @@ class Container implements ContainerInterface
         }
 
         $this->building[$id] = 1;
-        $this->registerProviderIfDeferredFor($id);
         $object = $this->buildInternal($id, $params);
         unset($this->building[$id]);
 
@@ -130,9 +122,18 @@ class Container implements ContainerInterface
         if (!isset($this->definitions[$id])) {
             return $this->buildPrimitive($id, $params);
         }
+        $this->processDefinition($this->definitions[$id]);
 
         return $this->definitions[$id]->resolve($this, $params);
     }
+
+    protected function processDefinition($definition): void
+    {
+        if ($definition instanceof DeferredServiceProviderInterface) {
+            $definition->register($this);
+        }
+    }
+
 
     /**
      * @param string $class
@@ -151,26 +152,6 @@ class Container implements ContainerInterface
         }
 
         throw new NotFoundException("No definition for $class");
-    }
-
-    /**
-     * Register providers from {@link deferredProviders} if they provide
-     * definition for given identifier.
-     *
-     * @param string $id class or identifier of a service.
-     */
-    private function registerProviderIfDeferredFor(string $id): void
-    {
-        $providers = $this->deferredProviders;
-
-        foreach ($providers as $provider) {
-            if ($provider->hasDefinitionFor($id)) {
-                $provider->register($this);
-
-                // provider should be removed after registration to not be registered again
-                $providers->detach($provider);
-            }
-        }
     }
 
     /**
@@ -225,7 +206,9 @@ class Container implements ContainerInterface
         $provider = $this->buildProvider($providerDefinition);
 
         if ($provider instanceof DeferredServiceProviderInterface) {
-            $this->deferredProviders->attach($provider);
+            foreach ($provider->provides() as $id) {
+                $this->definitions[$id] = $provider;
+            }
         } else {
             $provider->register($this);
         }
