@@ -1,9 +1,23 @@
 {
     "bootstrap": "vendor/autoload.php",
     "path": "tests/benchmark",
-    "retry_threshold": 5,
+    "retry_threshold": 3,
     "php_disable_ini": true,
     "php_config": {
-        "extension": ["json.so"]
+        "extension": [
+            "json.so"
+        ]
+    },
+    "outputs": {
+        "html_file": {
+            "extends": "html",
+            "file": "benchmarks.html",
+            "title": "DI benchmark report"
+        },
+        "md_file": {
+            "extends": "markdown",
+            "file": "benchmarks.md",
+            "title": "DI benchmark report"
+        }
     }
 }
