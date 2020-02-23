@@ -33,7 +33,7 @@ class ContainerBench
     private $indexes = [];
 
     /** @var int[] */
-    private $rundomIndexes = [];
+    private $randomIndexes = [];
 
     public function provideDefinitions(): array
     {
@@ -64,8 +64,8 @@ class ContainerBench
             $definitions2["second$i"] = Reference::to('service');
             $definitions3["third$i"] = Reference::to('service');
         }
-        $this->rundomIndexes = $this->indexes;
-        shuffle($this->rundomIndexes);
+        $this->randomIndexes = $this->indexes;
+        shuffle($this->randomIndexes);
         $this->container = new Container($definitions);
 
         $this->composite = new CompositeContainer();
@@ -141,7 +141,7 @@ class ContainerBench
         }
         for ($i = 0; $i < 200; $i++) {
             // Do array lookup.
-            $index = $this->rundomIndexes[$i];
+            $index = $this->randomIndexes[$i];
             try {
                 $this->container->get("service$index");
             } catch (\Exception $e) {
