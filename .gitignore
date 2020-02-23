@@ -36,3 +36,6 @@ phpunit.phar
 # runtime cache
 /tests/runtime
 /tests/output
+
+# benchmarks
+benchmarks.html
