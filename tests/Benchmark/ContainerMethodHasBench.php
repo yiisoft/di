@@ -16,6 +16,8 @@ use Yiisoft\Factory\Definitions\Reference;
  */
 class ContainerMethodHasBench
 {
+    const SERVICE_COUNT = 200;
+
     /** @var Container */
     private $container;
 
@@ -26,7 +28,7 @@ class ContainerMethodHasBench
     {
         $definitions = [];
         $definitions2 = [];
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->indexes[] = $i;
             $definitions["service$i"] = Reference::to('service');
             $definitions2["second$i"] = Reference::to('service');
@@ -39,21 +41,21 @@ class ContainerMethodHasBench
 
     public function benchPredefinedExisting(): void
     {
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->container->has("service$i");
         }
     }
 
     public function benchUndefinedExisting(): void
     {
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->container->has(GearBox::class);
         }
     }
 
     public function benchUndefinedNonexistent(): void
     {
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->container->has('NonexistentNamespace\NonexistentClass');
         }
     }

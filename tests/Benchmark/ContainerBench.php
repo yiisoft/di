@@ -23,6 +23,8 @@ use Yiisoft\Factory\Tests\Support\NullableConcreteDependency;
  */
 class ContainerBench
 {
+    const SERVICE_COUNT = 200;
+
     /** @var Container */
     private $container;
 
@@ -58,7 +60,7 @@ class ContainerBench
     {
         $definitions = [];
         $definitions2 = [];
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->indexes[] = $i;
             $definitions["service$i"] = Reference::to('service');
             $definitions2["second$i"] = Reference::to('service');
@@ -89,7 +91,7 @@ class ContainerBench
     public function benchConstructStupid(): void
     {
         $container = new Container();
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $container->set("service$i", PropertyTestClass::class);
         }
     }
@@ -102,7 +104,7 @@ class ContainerBench
     public function benchConstructSmart(): void
     {
         $definitions = [];
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = PropertyTestClass::class;
         }
         $container = new Container($definitions);
@@ -118,7 +120,7 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $this->container->setMultiple($params['otherDefinitions']);
         }
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
             try {
@@ -139,7 +141,7 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $this->container->setMultiple($params['otherDefinitions']);
         }
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
             try {
@@ -160,7 +162,7 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $this->container->setMultiple($params['otherDefinitions']);
         }
-        for ($i = 0; $i < 200; $i++) {
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
             try {
