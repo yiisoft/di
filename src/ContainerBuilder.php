@@ -53,7 +53,9 @@ final class ContainerBuilder
 
     public function build()
     {
-        if ($this->proxyContainer === null && $this->container->has(ContainerProxyInterface::class)) {
+        if ($this->proxyContainer !== null) {
+            $this->proxyContainer = $this->proxyContainer->withTrackedServices($this->trackedServices);
+        } elseif ($this->proxyContainer === null && $this->container->has(ContainerProxyInterface::class)) {
             try {
                 $proxyContainer = $this->container->get(ContainerProxyInterface::class);
                 $this->proxyContainer = $proxyContainer->withTrackedServices($this->trackedServices);
