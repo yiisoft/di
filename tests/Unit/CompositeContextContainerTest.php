@@ -19,27 +19,27 @@ class CompositeContextContainerTest extends TestCase
     {
         $composite = new CompositeContextContainer();
 
-        $container1 = new Container([
+        $container1 = Container::getBuilder()->registerDefinitions([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
             Car::class => [
                 '__class' => Car::class,
             ],
-        ], []);
+        ])->build();
 
-        $container2 = new Container([
+        $container2 = Container::getBuilder()->registerDefinitions([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
-        ], []);
+        ])->build();
 
-        $container3 = new Container([
+        $container3 = Container::getBuilder()->registerDefinitions([
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
             EngineInterface::class => EngineMarkOne::class
-        ], []);
+        ])->build();
 
         $composite->attach($container1);
         $composite->attach($container2, '/a');

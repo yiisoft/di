@@ -34,6 +34,8 @@ class Container implements ContainerInterface
      */
     private $instances;
 
+    private ?ContainerInterface $parentContainer = null;
+
     /**
      * Container constructor.
      *
@@ -43,14 +45,21 @@ class Container implements ContainerInterface
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    public function __construct(
-        array $definitions = [],
-        array $providers = []
-    ) {
-        $this->setMultiple($definitions);
-        foreach ($providers as $provider) {
-            $this->addProvider($provider);
-        }
+    private function __construct()
+    {
+    }
+
+    public static function getBuilder(): ContainerBuilder
+    {
+        return new ContainerBuilder(new self());
+    }
+
+    public function withParentContainer(ContainerInterface $container): ContainerInterface
+    {
+        $newContainer = clone $this;
+        $newContainer->parentContainer = $container;
+
+        return $newContainer;
     }
 
     /**
@@ -124,7 +133,7 @@ class Container implements ContainerInterface
         }
         $this->processDefinition($this->definitions[$id]);
 
-        return $this->definitions[$id]->resolve($this, $params);
+        return $this->definitions[$id]->resolve($this->parentContainer ?? $this, $params);
     }
 
     protected function processDefinition($definition): void
@@ -133,7 +142,6 @@ class Container implements ContainerInterface
             $definition->register($this);
         }
     }
-
 
     /**
      * @param string $class
@@ -148,7 +156,7 @@ class Container implements ContainerInterface
         if (class_exists($class)) {
             $definition = new ArrayDefinition($class);
 
-            return $definition->resolve($this, $params);
+            return $definition->resolve($this->parentContainer ?? $this, $params);
         }
 
         throw new NotFoundException("No definition for $class");
@@ -176,6 +184,13 @@ class Container implements ContainerInterface
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
+        }
+    }
+
+    public function registerServiceProviders(array $providers): void
+    {
+        foreach ($providers as $provider) {
+            $this->addProvider($provider);
         }
     }
 

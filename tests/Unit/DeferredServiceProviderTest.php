@@ -16,7 +16,7 @@ class DeferredServiceProviderTest extends TestCase
 {
     public function testServiceProviderDeferring(): void
     {
-        $container = new Container();
+        $container = Container::getBuilder()->build();
 
         $this->assertFalse($container->has('car'), 'Container should not have "car" before service provider added.');
         $this->assertTrue($container->has(Car::class), 'Container should have Car before service provider added due to autoload fallback.');

@@ -44,8 +44,14 @@ class CompositeContainer implements ContainerInterface
      * Attaches a container to the composite container.
      * @param ContainerInterface $container
      */
-    public function attach(ContainerInterface $container): void
+    public function attach(ContainerInterface $container, bool $parentLookup = false): void
     {
+        if ($parentLookup && $container instanceof Container) {
+            $container = (new ContainerBuilder($container->withParentContainer($this)))->build();
+        } elseif ($this->has(ContainerProxyInterface::class)) {
+            $container = (new ContainerBuilder($container))
+                ->setProxyContainer($this->get(ContainerProxyInterface::class))->build();
+        }
         array_unshift($this->containers, $container);
     }
 
