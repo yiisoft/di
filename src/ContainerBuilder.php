@@ -19,7 +19,7 @@ final class ContainerBuilder
         $this->container = $container;
     }
 
-    public function setProxyContainer(ContainerProxyInterface $proxyContainer): self
+    public function setContainerProxy(ContainerProxyInterface $proxyContainer): self
     {
         $this->proxyContainer = $proxyContainer;
         return $this;

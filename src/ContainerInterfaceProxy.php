@@ -190,7 +190,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
             return $this->trackedServices[$service]($this->container);
         } elseif (isset($this->trackedServices[$service]) && is_array($this->trackedServices[$service])) {
             return $this->getServiceProxyFromArray($service, $instance);
-        } elseif (interface_exists($service) && $this->commonCollector !== null) {
+        } elseif (interface_exists($service) && ($this->commonCollector !== null || $this->dispatcher !== null)) {
             return $this->getCommonServiceProxy($service, $instance);
         }
 

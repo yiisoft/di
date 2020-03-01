@@ -50,7 +50,7 @@ class CompositeContainer implements ContainerInterface
             $container = (new ContainerBuilder($container->withParentContainer($this)))->build();
         } elseif ($this->has(ContainerProxyInterface::class)) {
             $container = (new ContainerBuilder($container))
-                ->setProxyContainer($this->get(ContainerProxyInterface::class))->build();
+                ->setContainerProxy($this->get(ContainerProxyInterface::class))->build();
         }
         array_unshift($this->containers, $container);
     }
