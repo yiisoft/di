@@ -26,7 +26,8 @@ class CommonServiceProxy extends ObjectProxy
         CommonServiceCollectorInterface $collector = null,
         EventDispatcherInterface $dispatcher = null,
         int $logLevel = 0
-    ) {
+    )
+    {
         $this->service = $service;
         $this->collector = $collector;
         $this->dispatcher = $dispatcher;
@@ -45,7 +46,7 @@ class CommonServiceProxy extends ObjectProxy
         return new static($this->service, $instance, $this->collector, $this->dispatcher, $this->logLevel);
     }
 
-    private function log(string $method, array $arguments, $result, float $timeStart): void
+    protected function log(string $method, array $arguments, $result, float $timeStart): void
     {
         if (!($this->logLevel & self::LOG_ARGUMENTS)) {
             $arguments = null;
@@ -66,6 +67,26 @@ class CommonServiceProxy extends ObjectProxy
         if ($this->dispatcher !== null) {
             $this->logToEvent($method, $arguments, $result, $error, $timeStart);
         }
+    }
+
+    protected function getService(): string
+    {
+        return $this->service;
+    }
+
+    protected function getCollector(): CommonServiceCollectorInterface
+    {
+        return $this->collector;
+    }
+
+    protected function getDispatcher(): EventDispatcherInterface
+    {
+        return $this->dispatcher;
+    }
+
+    protected function getLogLevel(): int
+    {
+        return $this->logLevel;
     }
 
     private function logToCollector(string $method, array $arguments, $result, ?object $error, float $timeStart): void

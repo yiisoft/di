@@ -32,7 +32,7 @@ final class ProxyManager
             $this->classCache->set($className, $classDeclaration);
         }
         if ($this->cachePath === null) {
-            eval($classDeclaration);
+            eval(str_replace('<?php', '', $classDeclaration));
         } else {
             $path = $this->classCache->getClassPath($className);
             require $path;
