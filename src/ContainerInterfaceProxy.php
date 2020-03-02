@@ -192,9 +192,8 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         if (isset($this->decoratedServices[$service]) && is_callable($this->decoratedServices[$service])) {
             return $this->getServiceProxyFromCallable($service, $instance);
         } elseif (isset($this->decoratedServices[$service]) && is_array($this->decoratedServices[$service]) &&
-            !isset($this->decoratedServices[$service][0]) && is_callable($callback = current($this->decoratedServices[$service]))) {
-            $method = key($this->decoratedServices[$service]);
-            return $this->getCommonMethodProxy($service, $instance, $method, $callback);
+            !isset($this->decoratedServices[$service][0])) {
+            return $this->getCommonMethodProxy($service, $instance, $this->decoratedServices[$service]);
         } elseif (isset($this->decoratedServices[$service]) && is_array($this->decoratedServices[$service])) {
             return $this->getServiceProxyFromArray($service, $instance);
         } elseif (interface_exists($service) && ($this->commonCollector !== null || $this->dispatcher !== null)) {
@@ -204,12 +203,21 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         return null;
     }
 
-    private function getCommonMethodProxy(string $service, object $instance, string $method, callable $callback): ?object
+    private function getCommonMethodProxy(string $service, object $instance, array $callbacks): ?object
     {
+        $methods = [];
+        while ($callback = current($callbacks)) {
+            $method = key($callbacks);
+            next($callbacks);
+            if (is_string($method) && is_callable($callback)) {
+                $methods[$method] = $callback;
+            }
+        }
+
         return $this->proxyManager->createObjectProxyFromInterface(
             $service,
             CommonMethodProxy::class,
-            [$service, $instance, $method, $callback, $this->commonCollector, $this->dispatcher, $this->logLevel]
+            [$service, $instance, $methods, $this->commonCollector, $this->dispatcher, $this->logLevel]
         );
     }
 
