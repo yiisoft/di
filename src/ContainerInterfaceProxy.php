@@ -63,7 +63,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     public function isActive(): bool
     {
-        return $this->active && ($this->commonCollector !== null || $this->dispatcher !==null) && $this->decoratedServices !== [];
+        return $this->active && $this->decoratedServices !== [];
     }
 
     public function get($id, array $params = [])
