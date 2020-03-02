@@ -23,18 +23,18 @@ final class ProxyManager
     public function createObjectProxyFromInterface(string $interface, string $parentProxyClass, array $constructorArguments = null): ?object
     {
         $className = $interface . 'Proxy';
-        [$classFileName] = $this->classCache->getClassFileNameAndPath($className);
-        $shortClassName = substr($classFileName, 0, -4);
+        [$classFileName] = $this->classCache->getClassFileNameAndPath($className, $parentProxyClass);
+        $shortClassName = substr($classFileName, 0, strpos($classFileName, '.'));
 
-        if (!($classDeclaration = $this->classCache->get($className))) {
+        if (!($classDeclaration = $this->classCache->get($className, $parentProxyClass))) {
             $classConfig = $this->generateInterfaceProxyClassConfig($this->classConfigurtor->getInterfaceConfig($interface), $parentProxyClass);
             $classDeclaration = $this->classRenderer->render($classConfig);
-            $this->classCache->set($className, $classDeclaration);
+            $this->classCache->set($className, $parentProxyClass, $classDeclaration);
         }
         if ($this->cachePath === null) {
             eval(str_replace('<?php', '', $classDeclaration));
         } else {
-            $path = $this->classCache->getClassPath($className);
+            $path = $this->classCache->getClassPath($className, $parentProxyClass);
             require $path;
         }
         $proxy = new $shortClassName(...$constructorArguments);
