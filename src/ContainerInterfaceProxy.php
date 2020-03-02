@@ -203,7 +203,13 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
             $params = $this->decoratedServices[$service];
             $proxyClass = array_shift($params);
             foreach ($params as $index => $param) {
-                $params[$index] = $this->container->get($param);
+                if (is_string($param)) {
+                    try {
+                        $params[$index] = $this->container->get($param);
+                    } catch (\Exception $e) {
+                        //leave as is
+                    }
+                }
             }
             return new $proxyClass($instance, ...$params);
         } catch (\Exception $e) {
