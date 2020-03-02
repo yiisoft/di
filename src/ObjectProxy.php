@@ -23,13 +23,13 @@ abstract class ObjectProxy
         } catch (\Exception $e) {
             $this->repeatError($e);
         } finally {
-            $this->executeMethodProxy($methodName, $arguments, $result, $timeStart);
+            $result = $this->executeMethodProxy($methodName, $arguments, $result, $timeStart);
         }
 
         return $this->processResult($result);
     }
 
-    abstract protected function executeMethodProxy(string $methodName, array $arguments, $result, float $timeStart): void;
+    abstract protected function executeMethodProxy(string $methodName, array $arguments, $result, float $timeStart);
 
     protected function getCurrentError(): ?object
     {

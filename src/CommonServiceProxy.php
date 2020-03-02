@@ -34,9 +34,10 @@ class CommonServiceProxy extends ObjectProxy
         parent::__construct($instance);
     }
 
-    protected function executeMethodProxy(string $methodName, array $arguments, $result, float $timeStart): void
+    protected function executeMethodProxy(string $methodName, array $arguments, $result, float $timeStart)
     {
         $this->log($methodName, $arguments, $result, $timeStart);
+        return $result;
     }
 
     protected function getNewStaticInstance(object $instance): ObjectProxy
