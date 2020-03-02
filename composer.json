@@ -20,15 +20,12 @@
         "irc": "irc://irc.freenode.net/yii",
         "source": "https://github.com/yiisoft/di"
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^7.4",
         "ext-mbstring": "*",
         "psr/container": "1.0.0",
         "psr/event-dispatcher": "1.0.0",
         "yiisoft/factory": "^3.0@dev"
-
     },
     "require-dev": {
         "phpunit/phpunit": "^9.0",
