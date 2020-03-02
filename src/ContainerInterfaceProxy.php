@@ -119,22 +119,10 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         $this->currentError = null;
     }
 
-    protected function log(string $method, array $arguments, $result, float $timeStart)
+    protected function log(string $method, array $arguments, $result, float $timeStart): void
     {
-        if ($this->commonCollector === null) {
-            return;
-        }
-
-        if (!($this->logLevel & self::LOG_ARGUMENTS)) {
-            $arguments = null;
-        }
-        if (!($this->logLevel & self::LOG_RESULT)) {
-            $result = null;
-        }
         $error = $this->currentError;
-        if (!($this->logLevel & self::LOG_ERROR)) {
-            $error = null;
-        }
+        $this->processLogData($arguments, $result, $error);
 
         if ($this->commonCollector !== null) {
             $this->logToCollector($method, $arguments, $result, $error, $timeStart);
@@ -145,7 +133,22 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         }
     }
 
-    private function logToCollector(string $method, array $arguments, $result, ?object $error, float $timeStart): void
+    private function processLogData(array &$arguments, &$result, ?object &$error): void
+    {
+        if (!($this->logLevel & self::LOG_ARGUMENTS)) {
+            $arguments = null;
+        }
+
+        if (!($this->logLevel & self::LOG_RESULT)) {
+            $result = null;
+        }
+
+        if (!($this->logLevel & self::LOG_ERROR)) {
+            $error = null;
+        }
+    }
+
+    private function logToCollector(string $method, ?array $arguments, $result, ?object $error, float $timeStart): void
     {
         $this->commonCollector->collect(
             ContainerInterface::class,
@@ -160,7 +163,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
             );
     }
 
-    private function logToEvent(string $method, array $arguments, $result, ?object $error, float $timeStart): void
+    private function logToEvent(string $method, ?array $arguments, $result, ?object $error, float $timeStart): void
     {
         $this->dispatcher->dispatch(new ProxyMethodCallEvent(
             ContainerInterface::class,

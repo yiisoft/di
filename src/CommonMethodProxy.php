@@ -30,7 +30,6 @@ class CommonMethodProxy extends CommonServiceProxy
             if ($method === $this->method) {
                 $callback = $this->callback;
                 $result = $callback($result, ...$arguments);
-
             }
         } finally {
             $this->log($method, $arguments, $result, $timeStart);

@@ -26,8 +26,7 @@ class CommonServiceProxy extends ObjectProxy
         CommonServiceCollectorInterface $collector = null,
         EventDispatcherInterface $dispatcher = null,
         int $logLevel = 0
-    )
-    {
+    ) {
         $this->service = $service;
         $this->collector = $collector;
         $this->dispatcher = $dispatcher;
@@ -48,17 +47,8 @@ class CommonServiceProxy extends ObjectProxy
 
     protected function log(string $method, array $arguments, $result, float $timeStart): void
     {
-        if (!($this->logLevel & self::LOG_ARGUMENTS)) {
-            $arguments = null;
-        }
-
-        if (!($this->logLevel & self::LOG_RESULT)) {
-            $result = null;
-        }
         $error = $this->getCurrentError();
-        if (!($this->logLevel & self::LOG_ERROR)) {
-            $error = null;
-        }
+        $this->processLogData($arguments, $result, $error);
 
         if ($this->collector !== null) {
             $this->logToCollector($method, $arguments, $result, $error, $timeStart);
@@ -66,6 +56,21 @@ class CommonServiceProxy extends ObjectProxy
 
         if ($this->dispatcher !== null) {
             $this->logToEvent($method, $arguments, $result, $error, $timeStart);
+        }
+    }
+
+    private function processLogData(array &$arguments, &$result, ?object &$error): void
+    {
+        if (!($this->logLevel & self::LOG_ARGUMENTS)) {
+            $arguments = null;
+        }
+
+        if (!($this->logLevel & self::LOG_RESULT)) {
+            $result = null;
+        }
+
+        if (!($this->logLevel & self::LOG_ERROR)) {
+            $error = null;
         }
     }
 
@@ -89,7 +94,7 @@ class CommonServiceProxy extends ObjectProxy
         return $this->logLevel;
     }
 
-    private function logToCollector(string $method, array $arguments, $result, ?object $error, float $timeStart): void
+    private function logToCollector(string $method, ?array $arguments, $result, ?object $error, float $timeStart): void
     {
         $this->collector->collect(
             $this->service,
@@ -104,7 +109,7 @@ class CommonServiceProxy extends ObjectProxy
             );
     }
 
-    private function logToEvent(string $method, array $arguments, $result, ?object $error, float $timeStart): void
+    private function logToEvent(string $method, ?array $arguments, $result, ?object $error, float $timeStart): void
     {
         $this->dispatcher->dispatch(new ProxyMethodCallEvent(
                 $this->service,

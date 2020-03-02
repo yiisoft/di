@@ -8,7 +8,7 @@ final class ProxyMethodCallEvent
         string $service,
         string $class,
         string $method,
-        array $arguments,
+        ?array $arguments,
         $result,
         string $status,
         ?object $error,
@@ -32,7 +32,7 @@ final class ProxyMethodCallEvent
 
     public string $methodName;
 
-    public array $arguments = [];
+    public ?array $arguments = null;
 
     public $result = null;
 
