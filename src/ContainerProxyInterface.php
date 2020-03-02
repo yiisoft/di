@@ -8,5 +8,5 @@ interface ContainerProxyInterface extends ContainerInterface
 {
     public function isActive(): bool;
 
-    public function withTrackedServices(array $trackedServices): ContainerProxyInterface;
+    public function withDecoratedServices(array $decoratedServices): ContainerProxyInterface;
 }

@@ -18,7 +18,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     private int $logLevel = 0;
 
-    private array $trackedServices = [];
+    private array $decoratedServices = [];
 
     private bool $active = false;
 
@@ -36,7 +36,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     public function __construct(
         bool $active,
-        array $trackedServices,
+        array $decoratedServices,
         ContainerInterface $container,
         EventDispatcherInterface $dispatcher = null,
         CommonServiceCollectorInterface $commonCollector = null,
@@ -44,7 +44,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         int $logLevel = 0
     ) {
         $this->active = $active;
-        $this->trackedServices = $trackedServices;
+        $this->decoratedServices = $decoratedServices;
         $this->container = $container;
         $this->dispatcher = $dispatcher;
         $this->commonCollector = $commonCollector;
@@ -53,17 +53,17 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
         $this->proxyManager = new ProxyManager($this->proxyCachePath);
     }
 
-    public function withTrackedServices(array $trackedServices): ContainerProxyInterface
+    public function withDecoratedServices(array $decoratedServices): ContainerProxyInterface
     {
         $proxy = clone $this;
-        $proxy->trackedServices = array_merge($this->trackedServices, $trackedServices);
+        $proxy->decoratedServices = array_merge($this->decoratedServices, $decoratedServices);
 
         return $proxy;
     }
 
     public function isActive(): bool
     {
-        return $this->active && ($this->commonCollector !== null || $this->dispatcher !== null) && $this->trackedServices !== [];
+        return $this->active && ($this->commonCollector !== null || $this->dispatcher !==null) && $this->decoratedServices !== [];
     }
 
     public function get($id, array $params = [])
@@ -79,7 +79,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
             $this->log('get', [$id, $params], $instance, $timeStart);
         }
 
-        if ($this->isTracked($id) && (($proxy = $this->getServiceProxyCache($id)) || ($proxy = $this->getServiceProxy($id, $instance)))) {
+        if ($this->isDecorated($id) && (($proxy = $this->getServiceProxyCache($id)) || ($proxy = $this->getServiceProxy($id, $instance)))) {
             $this->setServiceProxyCache($id, $proxy);
             return $proxy;
         }
@@ -121,7 +121,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     protected function log(string $method, array $arguments, $result, float $timeStart)
     {
-        if ($this->commonCollector === null && $this->dispatcher === null) {
+        if ($this->commonCollector === null) {
             return;
         }
 
@@ -175,20 +175,20 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
             ));
     }
 
-    private function isTracked(string $service): bool
+    private function isDecorated(string $service): bool
     {
-        return isset($this->trackedServices[$service]) || in_array($service, $this->trackedServices, true);
+        return isset($this->decoratedServices[$service]) || in_array($service, $this->decoratedServices, true);
     }
 
     private function getServiceProxy(string $service, object $instance): ?object
     {
-        if (!$this->isTracked($service)) {
+        if (!$this->isDecorated($service)) {
             return null;
         }
 
-        if (isset($this->trackedServices[$service]) && is_callable($this->trackedServices[$service])) {
-            return $this->trackedServices[$service]($this->container);
-        } elseif (isset($this->trackedServices[$service]) && is_array($this->trackedServices[$service])) {
+        if (isset($this->decoratedServices[$service]) && is_callable($this->decoratedServices[$service])) {
+            return $this->decoratedServices[$service]($this->container);
+        } elseif (isset($this->decoratedServices[$service]) && is_array($this->decoratedServices[$service])) {
             return $this->getServiceProxyFromArray($service, $instance);
         } elseif (interface_exists($service) && ($this->commonCollector !== null || $this->dispatcher !== null)) {
             return $this->getCommonServiceProxy($service, $instance);
@@ -200,7 +200,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
     private function getServiceProxyFromArray(string $service, object $instance): ?object
     {
         try {
-            $params = $this->trackedServices[$service];
+            $params = $this->decoratedServices[$service];
             $proxyClass = array_shift($params);
             foreach ($params as $index => $param) {
                 $params[$index] = $this->container->get($param);

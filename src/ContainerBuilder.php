@@ -12,7 +12,7 @@ final class ContainerBuilder
 
     private ?ContainerProxyInterface $containerProxy = null;
 
-    private array $trackedServices = [];
+    private array $decoratedServices = [];
 
     public function __construct(ContainerInterface $container)
     {
@@ -45,20 +45,24 @@ final class ContainerBuilder
         throw new \RuntimeException('This method is for Yiisoft\Di\Container only');
     }
 
-    public function addTrackedService(string $service): self
+    public function addDecoratedService(string $service, $decoration = null): self
     {
-        $this->trackedServices[] = $service;
+        if ($decoration === null) {
+            $this->decoratedServices[] = $service;
+        } else {
+            $this->decoratedServices[$service] = $decoration;
+        }
         return $this;
     }
 
     public function build()
     {
         if ($this->containerProxy !== null) {
-            $this->containerProxy = $this->containerProxy->withTrackedServices($this->trackedServices);
+            $this->containerProxy = $this->containerProxy->withDecoratedServices($this->decoratedServices);
         } elseif ($this->containerProxy === null && $this->container->has(ContainerProxyInterface::class)) {
             try {
-                $proxyContainer = $this->container->get(ContainerProxyInterface::class);
-                $this->containerProxy = $proxyContainer->withTrackedServices($this->trackedServices);
+                $containerProxy = $this->container->get(ContainerProxyInterface::class);
+                $this->containerProxy = $containerProxy->withDecoratedServices($this->decoratedServices);
             } catch (ContainerExceptionInterface $e) {
                 $this->containerProxy = null;
             }

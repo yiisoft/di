@@ -10,7 +10,7 @@ final class ContainerProxy extends ContainerInterfaceProxy
 {
     public function __construct(
         bool $active,
-        array $trackedServices,
+        array $decoratedServices,
         ContainerInterface $container,
         EventDispatcherInterface $dispatcher = null,
         CommonServiceCollectorInterface $commonCollector = null,
@@ -18,7 +18,7 @@ final class ContainerProxy extends ContainerInterfaceProxy
         int $logLevel = 0
     ) {
         $container = $container instanceof Container ? $container->withParentContainer($this) : $container;
-        parent::__construct($active, $trackedServices, $container, $dispatcher, $commonCollector, $proxyCachePath, $logLevel);
+        parent::__construct($active, $decoratedServices, $container, $dispatcher, $commonCollector, $proxyCachePath, $logLevel);
     }
 
     public function set(string $id, $definition): void
