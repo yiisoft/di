@@ -10,7 +10,7 @@ final class ContainerBuilder
 {
     private ContainerInterface $container;
 
-    private ?ContainerProxyInterface $proxyContainer = null;
+    private ?ContainerProxyInterface $containerProxy = null;
 
     private array $trackedServices = [];
 
@@ -19,9 +19,9 @@ final class ContainerBuilder
         $this->container = $container;
     }
 
-    public function setContainerProxy(ContainerProxyInterface $proxyContainer): self
+    public function setContainerProxy(ContainerProxyInterface $containerProxy): self
     {
-        $this->proxyContainer = $proxyContainer;
+        $this->containerProxy = $containerProxy;
         return $this;
     }
 
@@ -53,14 +53,14 @@ final class ContainerBuilder
 
     public function build()
     {
-        if ($this->proxyContainer !== null) {
-            $this->proxyContainer = $this->proxyContainer->withTrackedServices($this->trackedServices);
-        } elseif ($this->proxyContainer === null && $this->container->has(ContainerProxyInterface::class)) {
+        if ($this->containerProxy !== null) {
+            $this->containerProxy = $this->containerProxy->withTrackedServices($this->trackedServices);
+        } elseif ($this->containerProxy === null && $this->container->has(ContainerProxyInterface::class)) {
             try {
                 $proxyContainer = $this->container->get(ContainerProxyInterface::class);
-                $this->proxyContainer = $proxyContainer->withTrackedServices($this->trackedServices);
+                $this->containerProxy = $proxyContainer->withTrackedServices($this->trackedServices);
             } catch (ContainerExceptionInterface $e) {
-                $this->proxyContainer = null;
+                $this->containerProxy = null;
             }
         }
 
@@ -69,11 +69,11 @@ final class ContainerBuilder
 
     private function getContainer(): ContainerInterface
     {
-        return $this->hasActiveProxy() ? $this->proxyContainer : $this->container;
+        return $this->hasActiveProxy() ? $this->containerProxy : $this->container;
     }
 
     private function hasActiveProxy(): bool
     {
-        return $this->proxyContainer !== null && $this->proxyContainer->isActive();
+        return $this->containerProxy !== null && $this->containerProxy->isActive();
     }
 }

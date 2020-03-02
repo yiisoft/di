@@ -63,7 +63,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     public function isActive(): bool
     {
-        return $this->active && ($this->commonCollector !== null || $this->dispatcher !==null) && $this->trackedServices !== [];
+        return $this->active && ($this->commonCollector !== null || $this->dispatcher !== null) && $this->trackedServices !== [];
     }
 
     public function get($id, array $params = [])
@@ -121,7 +121,7 @@ class ContainerInterfaceProxy implements ContainerProxyInterface
 
     protected function log(string $method, array $arguments, $result, float $timeStart)
     {
-        if ($this->commonCollector === null) {
+        if ($this->commonCollector === null && $this->dispatcher === null) {
             return;
         }
 
