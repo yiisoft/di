@@ -36,7 +36,7 @@ class CommonServiceProxy extends ObjectProxy
 
     protected function executeMethodProxy(string $methodName, array $arguments, $result, float $timeStart): void
     {
-        $this->collectData($methodName, $arguments, $result, $timeStart);
+        $this->log($methodName, $arguments, $result, $timeStart);
     }
 
     protected function getNewStaticInstance(object $instance): ObjectProxy
@@ -44,7 +44,7 @@ class CommonServiceProxy extends ObjectProxy
         return new static($this->service, $instance, $this->collector, $this->dispatcher, $this->logLevel);
     }
 
-    private function collectData(string $method, array $arguments, $result, float $timeStart): void
+    private function log(string $method, array $arguments, $result, float $timeStart): void
     {
         if (!($this->logLevel & self::LOG_ARGUMENTS)) {
             $arguments = null;
