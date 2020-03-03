@@ -17,7 +17,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-class Container implements ContainerInterface
+class Container implements ContainerInterface, ContainerDelegateInterface
 {
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
@@ -54,7 +54,7 @@ class Container implements ContainerInterface
         return new ContainerBuilder(new self());
     }
 
-    public function withParentContainer(ContainerInterface $container): ContainerInterface
+    public function withRootContainer(ContainerInterface $container): ContainerInterface
     {
         $newContainer = clone $this;
 

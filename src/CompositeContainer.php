@@ -47,10 +47,9 @@ class CompositeContainer implements ContainerInterface
     public function attach(ContainerInterface $container, bool $delegateLookup = false): void
     {
         array_unshift($this->containers, $container);
-        if ($delegateLookup && ($container instanceof Container || $container instanceof ContainerProxyInterface)) {
-            $container->withParentContainer($this);
+        if ($delegateLookup && ($container instanceof ContainerDelegateInterface)) {
+            $container->withRootContainer($this);
         }
-
     }
 
     /**
