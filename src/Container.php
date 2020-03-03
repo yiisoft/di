@@ -193,7 +193,7 @@ class Container implements ContainerInterface, ContainerDelegateInterface
         }
     }
 
-    public function registerServiceProviders(array $providers): void
+    public function addProviders(array $providers): void
     {
         foreach ($providers as $provider) {
             $this->addProvider($provider);
