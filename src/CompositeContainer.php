@@ -3,7 +3,6 @@
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use Psr\Container\ContainerExceptionInterface;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
@@ -45,19 +44,13 @@ class CompositeContainer implements ContainerInterface
      * Attaches a container to the composite container.
      * @param ContainerInterface $container
      */
-    public function attach(ContainerInterface $container, bool $parentLookup = false, bool $enableProxy = true): void
+    public function attach(ContainerInterface $container, bool $delegateLookup = false): void
     {
-        if ($parentLookup && $container instanceof Container) {
-            $container = (new ContainerBuilder($container->withParentContainer($this)))->build();
-        } elseif ($enableProxy && $this->has(ContainerProxyInterface::class)) {
-            try {
-                $container = (new ContainerBuilder($container))
-                    ->setContainerProxy($this->get(ContainerProxyInterface::class))->build();
-            } catch (ContainerExceptionInterface $e) {
-                //ignore;
-            }
-        }
         array_unshift($this->containers, $container);
+        if ($delegateLookup && ($container instanceof Container || $container instanceof ContainerProxyInterface)) {
+            $container->withParentContainer($this);
+        }
+
     }
 
     /**
