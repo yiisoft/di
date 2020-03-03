@@ -45,8 +45,12 @@ class Container implements ContainerInterface, ContainerDelegateInterface
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      */
-    private function __construct()
-    {
+    public function __construct(
+        array $definitions = [],
+        array $providers = []
+    ) {
+        $this->setMultiple($definitions);
+        $this->registerServiceProviders($providers);
     }
 
     public static function getBuilder(): ContainerBuilder
