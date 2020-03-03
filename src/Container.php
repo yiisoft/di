@@ -53,11 +53,6 @@ class Container implements ContainerInterface, ContainerDelegateInterface
         $this->registerServiceProviders($providers);
     }
 
-    public static function getBuilder(): ContainerBuilder
-    {
-        return new ContainerBuilder(new self());
-    }
-
     public function withRootContainer(ContainerInterface $container): ContainerInterface
     {
         $newContainer = clone $this;
