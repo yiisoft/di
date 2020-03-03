@@ -27,7 +27,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testAttach(): void
     {
         $compositeContainer = new CompositeContainer();
-        $container = Container::getBuilder()->registerDefinitions(['test' => EngineMarkOne::class])->build();
+        $container = new Container(['test' => EngineMarkOne::class]);
         $compositeContainer->attach($container);
         $this->assertTrue($compositeContainer->has('test'));
         $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get('test'));
@@ -36,7 +36,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testDetach(): void
     {
         $compositeContainer = new CompositeContainer();
-        $container = Container::getBuilder()->registerDefinitions(['test' => EngineMarkOne::class])->build();
+        $container = new Container(['test' => EngineMarkOne::class]);
         $compositeContainer->attach($container);
         $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get('test'));
 
@@ -50,7 +50,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $compositeContainer = $this->createContainer([EngineInterface::class => EngineMarkOne::class]);
         $this->assertTrue($compositeContainer->has(EngineInterface::class));
 
-        $container = Container::getBuilder()->registerDefinitions(['test' => EngineMarkTwo::class])->build();
+        $container = new Container(['test' => EngineMarkTwo::class]);
         $compositeContainer->attach($container);
         $this->assertTrue($compositeContainer->has('test'));
     }
@@ -58,12 +58,12 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testGetPriority(): void
     {
         $compositeContainer = $this->createContainer([EngineInterface::class => EngineMarkOne::class]);
-        $container = Container::getBuilder()->registerDefinitions([EngineInterface::class => EngineMarkTwo::class])->build();
+        $container = new Container([EngineInterface::class => EngineMarkTwo::class]);
         $compositeContainer->attach($container);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
 
-        $containerOne = Container::getBuilder()->registerDefinitions([EngineInterface::class => EngineMarkOne::class])->build();
-        $containerTwo = Container::getBuilder()->registerDefinitions([EngineInterface::class => EngineMarkTwo::class])->build();
+        $containerOne = new Container([EngineInterface::class => EngineMarkOne::class]);
+        $containerTwo = new Container([EngineInterface::class => EngineMarkTwo::class]);
         $compositeContainer = new CompositeContainer();
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);

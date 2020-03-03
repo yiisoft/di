@@ -31,7 +31,7 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderRejectDefinitionWithoutClass(): void
     {
         $this->expectException(NotInstantiableException::class);
-        $container = Container::getBuilder()->build();
+        $container = new Container();
         $container->addProvider([
             'property' => 234
         ]);
@@ -39,7 +39,7 @@ class ServiceProviderTest extends TestCase
 
     protected function ensureProviderRegisterDefinitions($provider): void
     {
-        $container = Container::getBuilder()->build();
+        $container = new Container();
 
         $this->assertTrue(
             $container->has(Car::class),

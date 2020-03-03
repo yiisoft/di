@@ -13,7 +13,7 @@ class YiisoftPsrContainerTest extends AbstractPsrContainerTest
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
-        return $this->setupContainer(Container::getBuilder()->build(), $definitions);
+        return $this->setupContainer(new Container(), $definitions);
     }
 
     public function setupContainer(ContainerInterface $container, iterable $definitions = []): ContainerInterface

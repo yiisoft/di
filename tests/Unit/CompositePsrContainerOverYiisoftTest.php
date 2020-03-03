@@ -12,7 +12,7 @@ class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainer
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
-        $container = $this->setupContainer(Container::getBuilder()->build(), $definitions);
+        $container = $this->setupContainer(new Container(), $definitions);
         return $this->createCompositeContainer($container);
     }
 
