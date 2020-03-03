@@ -62,7 +62,9 @@ final class ContainerBuilder
         } elseif ($this->containerProxy === null && $this->container->has(ContainerProxyInterface::class)) {
             try {
                 $containerProxy = $this->container->get(ContainerProxyInterface::class);
-                $this->containerProxy = $containerProxy->withDecoratedServices($this->decoratedServices);
+                if ($containerProxy) {
+                    $this->containerProxy = $containerProxy->withDecoratedServices($this->decoratedServices);
+                }
             } catch (ContainerExceptionInterface $e) {
                 $this->containerProxy = null;
             }
