@@ -67,7 +67,6 @@ class Container implements ContainerInterface, ContainerDelegateInterface
         } else {
             $rootContainer = $this->rootContainer;
             $newContainer->rootContainer = clone $rootContainer;
-
         }
         $newContainer->rootContainer->attach($container);
 
