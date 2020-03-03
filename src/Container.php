@@ -64,6 +64,10 @@ class Container implements ContainerInterface, ContainerDelegateInterface
 
         if ($this->rootContainer === null) {
             $newContainer->rootContainer = new CompositeContainer();
+        } else {
+            $rootContainer = $this->rootContainer;
+            $newContainer->rootContainer = clone $rootContainer;
+
         }
         $newContainer->rootContainer->attach($container);
 
