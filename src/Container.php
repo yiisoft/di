@@ -50,7 +50,7 @@ class Container implements ContainerInterface, ContainerDelegateInterface
         array $providers = []
     ) {
         $this->setMultiple($definitions);
-        $this->registerServiceProviders($providers);
+        $this->addProviders($providers);
     }
 
     public function withRootContainer(ContainerInterface $container): ContainerInterface
