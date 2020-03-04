@@ -3,10 +3,9 @@
 namespace Yiisoft\Di\Tests\Support;
 
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Di\Support\ServiceProvider;
 
-class CarProvider extends ServiceProvider implements ServiceProviderInterface
+class CarProvider extends ServiceProvider
 {
     public function register(Container $container): void
     {

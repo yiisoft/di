@@ -412,14 +412,17 @@ class ContainerTest extends TestCase
         $container1 = new Container([
             'first' => function () {
                 return 'first';
+            },
+            'third' => function () {
+                return 'third';
             }
         ]);
         $container2 = new Container([
             'second' => function () {
                 return  'second';
             },
-            'third' => function ($c) {
-                return $c->get('first') . $c->get('second') . 'third';
+            'first-second-third' => function ($c) {
+                return $c->get('first') . $c->get('second') . $c->get('third');
             },
         ], [], $compositeContainer);
 
@@ -428,6 +431,6 @@ class ContainerTest extends TestCase
 
         $this->assertSame('first', $compositeContainer->get('first'));
         $this->assertSame('second', $compositeContainer->get('second'));
-        $this->assertSame('firstsecondthird', $compositeContainer->get('third'));
+        $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
     }
 }
