@@ -454,8 +454,7 @@ class ContainerTest extends TestCase
 
     private function getProxyContainer (ContainerInterface $container): ContainerInterface
     {
-        return new class($container) extends AbstractContainerConfigurator implements ContainerInterface
-        {
+        return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
             private $container;
 
             private $lastId = [];
@@ -475,7 +474,6 @@ class ContainerTest extends TestCase
             public function get($id)
             {
                 $this->lastId[] = $id;
-                //dd($this->lastId);
                 return $this->container->get($id);
             }
 
