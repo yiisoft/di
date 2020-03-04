@@ -47,13 +47,17 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function __construct(
         array $definitions = [],
-        array $providers = []
+        array $providers = [],
+        ContainerInterface $rootContainer = null
     ) {
         $this->setMultiple($definitions);
         $this->addProviders($providers);
+        if ($rootContainer !== null) {
+            $this->delegateLookup($rootContainer);
+        }
     }
 
-    public function delegateLookup(ContainerInterface $container): ContainerInterface
+    protected function delegateLookup(ContainerInterface $container): ContainerInterface
     {
         $newContainer = clone $this;
 
@@ -186,7 +190,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @param array $config definitions indexed by their ids
      * @throws InvalidConfigException
      */
-    private function setMultiple(array $config): void
+    protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
