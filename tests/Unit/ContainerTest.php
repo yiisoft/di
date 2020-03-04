@@ -4,6 +4,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
@@ -387,6 +388,23 @@ class ContainerTest extends TestCase
         $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
     }
 
+    public function testContainerDelegateLookupToProxyContainer(): void
+    {
+        $compositeContainer = new CompositeContainer();
+        $container = new Container([
+            'car' => Car::class
+        ], [], $compositeContainer);
+        $engineContainer = new Container([
+            EngineInterface::class => EngineMarkOne::class
+        ]);
+        $proxyContainer  = $this->getProxyContainer($container);
+        $compositeContainer->attach($proxyContainer);
+        $compositeContainer->attach($engineContainer);
+        $engine = $compositeContainer->get('car')->getEngine();
+        $this->assertSame(EngineMarkOne::class, get_class($engine));
+        $this->assertSame('car', $proxyContainer->getLastIds()[0]);
+    }
+
     public function testContainerDelegateLookupToNestedCompositeContainer(): void
     {
         $compositeContainer = new CompositeContainer();
@@ -432,5 +450,39 @@ class ContainerTest extends TestCase
         $this->assertSame('first', $compositeContainer->get('first'));
         $this->assertSame('second', $compositeContainer->get('second'));
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
+    }
+
+    private function getProxyContainer (ContainerInterface $container): ContainerInterface
+    {
+        return new class($container) extends AbstractContainerConfigurator implements ContainerInterface
+        {
+            private $container;
+
+            private $lastId = [];
+
+            public function __construct(ContainerInterface $container)
+            {
+                $this->container = $container;
+                $this->container->delegateLookup($this);
+            }
+
+
+            public function getLastIds()
+            {
+                return $this->lastId;
+            }
+
+            public function get($id)
+            {
+                $this->lastId[] = $id;
+                //dd($this->lastId);
+                return $this->container->get($id);
+            }
+
+            public function has($id)
+            {
+                return $this->container->has($id);
+            }
+        };
     }
 }
