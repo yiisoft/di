@@ -42,11 +42,9 @@ class CompositeContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
-     * When $delegateLookup set to true, dependencies will be looked for in composite container instead of
-     * in $container directly. When set to false, dependencies would be looked for in $container only.
      * @param ContainerInterface $container
      */
-    public function attach(ContainerInterface $container, bool $delegateLookup = false): void
+    public function attach(ContainerInterface $container): void
     {
         array_unshift($this->containers, $container);
     }
