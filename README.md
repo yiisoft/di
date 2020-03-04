@@ -231,28 +231,19 @@ class CarFactoryProvider implements ServiceProviderInterface
 }
 ```
 
-To add service provider to the container you need either pass service provider class (or configuration array)
-to `addProvider` method of the container:
-
-```php
-/** @var \Yiisoft\Di\Container $container */
-$container->addProvider(CarFactoryProvider::class);
-```
-
-or pass it through configuration array using `providers` key:
+To add service provider to the container you need pass either service provider class or configuration array
+as an element of container constructor `$providers` parameter:
 
 ```php
 use Yiisoft\Di\Container;
 
-$container = new Container([
-    'providers' => [
-        CarFactoryProvider::class,
-    ],
+$container = new Container($config, [
+    CarFactoryProvider::class,  
 ]);
 ```
 
 In the code above we created service provider responsible for bootstrapping of a car factory with all its
-dependencies. Once a service providers is added through `addProvider` method or via configuration array, 
+dependencies. Once a service provider is added via configuration array, 
 `register` method of a service provider is immediately called and services got registered into the container.
 
 **Note**, service provider might decrease performance of your application if you would perform heavy operations
@@ -313,8 +304,7 @@ class CarFactoryProvider extends DeferredServiceProvider
     }
 }
 
-/** @var \Yiisoft\Di\Container $container */
-$container->addProvider(CarFactoryProvider::class);
+$container = new Container($config, [CarFactoryProvider::class]);
 
 // returns false as provider wasn't registered
 $container->has(EngineInterface::class); 
