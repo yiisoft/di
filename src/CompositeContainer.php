@@ -48,9 +48,6 @@ class CompositeContainer implements ContainerInterface
      */
     public function attach(ContainerInterface $container, bool $delegateLookup = false): void
     {
-        if ($delegateLookup && $container instanceof ContainerDelegateInterface) {
-            $container = $container->delegateLookup($this);
-        }
         array_unshift($this->containers, $container);
     }
 

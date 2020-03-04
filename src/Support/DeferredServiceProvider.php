@@ -3,6 +3,7 @@
 namespace Yiisoft\Di\Support;
 
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
+use Yiisoft\Di\AbstractContainerConfigurator;
 
 /**
  * Base class for service providers that should be deferred to register till services are
@@ -46,7 +47,7 @@ use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
  * // registered once EngineInterface was requested from the container.
  * ```
  */
-abstract class DeferredServiceProvider implements DeferredServiceProviderInterface
+abstract class DeferredServiceProvider extends AbstractContainerConfigurator implements DeferredServiceProviderInterface
 {
     /**
      * Lists classes provided by service provider. Should be a list of class names

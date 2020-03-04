@@ -10,7 +10,7 @@ use League\Container\Container;
  */
 class LeaguePsrContainerTest extends AbstractPsrContainerTest
 {
-    public function createContainer(iterable $definitions = []): ContainerInterface
+    public function createContainer(array $definitions = []): ContainerInterface
     {
         return $this->setupContainer(new Container(), $definitions);
     }

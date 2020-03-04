@@ -17,7 +17,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-class Container implements ContainerInterface, ContainerDelegateInterface
+class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
@@ -175,7 +175,7 @@ class Container implements ContainerInterface, ContainerDelegateInterface
      * @throws InvalidConfigException
      * @see `Normalizer::normalize()`
      */
-    public function set(string $id, $definition): void
+    protected function set(string $id, $definition): void
     {
         $this->instances[$id] = null;
         $this->definitions[$id] = Normalizer::normalize($definition, $id);
@@ -186,14 +186,14 @@ class Container implements ContainerInterface, ContainerDelegateInterface
      * @param array $config definitions indexed by their ids
      * @throws InvalidConfigException
      */
-    public function setMultiple(array $config): void
+    private function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
         }
     }
 
-    public function addProviders(array $providers): void
+    private function addProviders(array $providers): void
     {
         foreach ($providers as $provider) {
             $this->addProvider($provider);
@@ -222,7 +222,7 @@ class Container implements ContainerInterface, ContainerDelegateInterface
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    public function addProvider($providerDefinition): void
+    private function addProvider($providerDefinition): void
     {
         $provider = $this->buildProvider($providerDefinition);
 

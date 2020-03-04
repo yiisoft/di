@@ -28,9 +28,7 @@ use Yiisoft\Di\Tests\Support\TreeItem;
  */
 abstract class AbstractPsrContainerTest extends TestCase
 {
-    abstract public function createContainer(iterable $definitions = []): ContainerInterface;
-
-    abstract public function setupContainer(ContainerInterface $container, iterable $definitions = []): ContainerInterface;
+    abstract public function createContainer(array $definitions = []): ContainerInterface;
 
     public function testCircularClassDependencyWithoutDefinition(): void
     {

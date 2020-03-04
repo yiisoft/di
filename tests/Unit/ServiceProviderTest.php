@@ -31,10 +31,10 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderRejectDefinitionWithoutClass(): void
     {
         $this->expectException(NotInstantiableException::class);
-        $container = new Container();
-        $container->addProvider([
-            'property' => 234
+        $container = new Container([], [
+            ['property' => 234]
         ]);
+
     }
 
     protected function ensureProviderRegisterDefinitions($provider): void
@@ -54,7 +54,7 @@ class ServiceProviderTest extends TestCase
             'Container should not have EngineInterface registered before service provider added.'
         );
 
-        $container->addProvider($provider);
+        $container= new Container([], [$provider]);
 
         // ensure addProvider invoked ServiceProviderInterface::register
         $this->assertTrue(

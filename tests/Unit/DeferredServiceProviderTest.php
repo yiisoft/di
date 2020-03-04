@@ -25,7 +25,7 @@ class DeferredServiceProviderTest extends TestCase
             'Container should not have EngineInterface before service provider added.'
         );
 
-        $container->addProvider(CarDeferredProvider::class);
+        $container = new Container([], [CarDeferredProvider::class]);
 
         $this->assertTrue(
             $container->has('car'),
