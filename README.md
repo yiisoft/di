@@ -72,21 +72,6 @@ and referencing it as a static call.
 
 While it's usually not a good idea, you can set already instantiated object into container.
 
-Additionally, definitions could be added via calling `set()`:
-
-```php
-/** @var \Yiisoft\Di\Container $container */
-$container->set($id, Example::class);
-
-$container->set($id, [
-    '__class' => Example::class,
-    '__construct()' => ['a', 'b'],
-    'property1' => 'val1',
-    'setMethod()' => ['val2'],
-    'property2' => 'val3',
-]);
-```
-
 After container is configured, dependencies could be obtained via `get()`:
 
 ```php
@@ -115,7 +100,34 @@ $container = new Container([
 
 The `Container` class supports delegated lookup.
 When using delegated lookup, all dependencies are always fetched from a given root container.
-This allows us to combine multiple containers into a composite container which we can then use for lookups.
+To use delegate lookup you should set `root container` as a third parameter of the container constructor.
+
+```php
+class Car
+{
+    private EngineInterface $engine;
+   
+    public function __construct(EngineInterface $engine)
+    {
+        $this->engine = $engine;
+    }
+    
+    public function getEngine(): EngineInterface
+    {
+        return $this->engine;
+    }
+}
+$rootContainer = new Container([
+    EngineInterface::class => EngineMarkOne::class
+])
+$container = new Container([], [], $rootContainer);
+$car = $container->get(Car::class);
+$engine = $car->getEngine() //returns an instance of the `Car` class
+```
+
+### Composite containers
+
+Composie container allows us to combine multiple containers into a composite container which we can then use for lookups.
 When using this approach, one should only use the composite container.
 
 ```php
@@ -123,9 +135,69 @@ use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
-$container = new Container([], []);
-$composite->attach($container);
+$carContainer = new Container([
+    EngineInterface::class => EngineMarkOne:class,
+    CarInterface::class => Car::class
+], []);
+$bikeContainer = new Container([
+    BikeInterface::class => Bike::class
+], []);
+$composite->attach($carContainer);
+$composite->attach($bikeContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$bike = $composite->get(CarInterface::class); //returns an instance of a `Bike` class
+```
 
+Note, containers attached later override dependencies of containers attached before.
+```php
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+
+$composite = new CompositeContainer();
+$carContainer = new Container([
+    EngineInterface::class => EngineMarkOne:class,
+    CarInterface::class => Car::class
+], []);
+$composite->attach($carContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$engine = $car->getEngine(); //returns an instance of a `EngineMarkOne` class
+$engineContainer = new Container([
+    EngineInterface::class => EngineMarkTwo:class,
+], []);
+
+$composite->attach($engineContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$engine = $composite->get(CarInterface::class); //returns an instance of a `EngineMarkTwo` class
+```
+
+A composite container can be a `root container` for a container delegate lookup.
+```php
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+
+$container = new \Yiisoft\Di\CompositeContainer();
+$container1 = new Container([
+    'first' => function () {
+        return 'first';
+    },
+    'third' => function () {
+        return 'third';
+    }
+]);
+$container2 = new Container([
+    'second' => function () {
+        return  'second';
+    },
+    'first-and-second-and-third' => function ($c) {
+        return $c->get('first') . ' ' . $c->get('second') . ' ' . $c->get('third');
+    },
+]);
+
+$container->attach($container1);
+$container->attach($container2);
+$first = $container->get('first')); // returns 'first'
+$second = $container->get('second')); // returns 'second'
+$firstSecondThird = $container->get('first-and-second-and-third')); //returns 'first second third' 
 ```
 
 ## Contextual containers
@@ -198,9 +270,9 @@ Typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\Support\ServiceProviderInterface;
 
-class CarFactoryProvider implements ServiceProviderInterface
+class CarFactoryProvider extends ServiceProvider
 {
     public function register(Container $container): void
     {
