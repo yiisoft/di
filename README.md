@@ -186,7 +186,7 @@ $container1 = new Container([
 ]);
 $container2 = new Container([
     'second' => function () {
-        return  'second';
+        return 'second';
     },
     'first-and-second-and-third' => function ($c) {
         return $c->get('first') . ' ' . $c->get('second') . ' ' . $c->get('third');
@@ -270,7 +270,7 @@ Typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\ServiceProviderInterface;
+use Yiisoft\Di\Support\ServiceProvider;
 
 class CarFactoryProvider extends ServiceProvider
 {
