@@ -17,7 +17,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-class Container extends AbstractContainerConfigurator implements ContainerInterface
+final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
@@ -91,7 +91,7 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
         return $this->instances[$id];
     }
 
-    public function getId($id): string
+    private function getId($id): string
     {
         return is_string($id) ? $id : $id->getId();
     }
