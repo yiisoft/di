@@ -7,7 +7,6 @@ use Yiisoft\Di\Support\DeferredServiceProvider;
 
 class CarDeferredProvider extends DeferredServiceProvider
 {
-
     public function provides(): array
     {
         return [

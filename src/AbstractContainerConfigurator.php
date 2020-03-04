@@ -6,6 +6,6 @@ abstract class AbstractContainerConfigurator
 {
     protected function set(string $id, $definition): void
     {
-        throw new \RuntimeException('Method does not exist');
+        throw new \RuntimeException("Method 'set' does not exist.");
     }
 }

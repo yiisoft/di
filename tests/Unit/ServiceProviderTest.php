@@ -34,7 +34,6 @@ class ServiceProviderTest extends TestCase
         $container = new Container([], [
             ['property' => 234]
         ]);
-
     }
 
     protected function ensureProviderRegisterDefinitions($provider): void
