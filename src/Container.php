@@ -53,7 +53,7 @@ class Container implements ContainerInterface, ContainerDelegateInterface
         $this->addProviders($providers);
     }
 
-    public function withRootContainer(ContainerInterface $container): ContainerInterface
+    public function delegateLookup(ContainerInterface $container): ContainerInterface
     {
         $newContainer = clone $this;
 

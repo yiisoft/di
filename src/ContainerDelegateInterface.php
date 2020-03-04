@@ -6,5 +6,5 @@ use Psr\Container\ContainerInterface;
 
 interface ContainerDelegateInterface
 {
-    public function withRootContainer(ContainerInterface $container): ContainerInterface;
+    public function delegateLookup(ContainerInterface $container): ContainerInterface;
 }
