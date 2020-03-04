@@ -452,7 +452,7 @@ class ContainerTest extends TestCase
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
     }
 
-    private function getProxyContainer (ContainerInterface $container): ContainerInterface
+    private function getProxyContainer(ContainerInterface $container): ContainerInterface
     {
         return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
             private $container;
