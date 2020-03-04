@@ -16,7 +16,7 @@ abstract class AbstractContainerConfigurator
         throw new \RuntimeException("Method 'setMultiple' does not exist.");
     }
 
-    protected function delegateLookup(ContainerInterface $container): ContainerInterface
+    protected function delegateLookup(ContainerInterface $container): void
     {
         throw new \RuntimeException("Method 'delegateLookup' does not exist.");
     }

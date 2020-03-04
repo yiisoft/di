@@ -4,6 +4,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
@@ -354,5 +355,79 @@ class ContainerTest extends TestCase
 
         $this->assertSame($container, $container->get('container'));
         $this->assertSame($container, $container->get(ContainerInterface::class));
+    }
+
+    public function testContainerDelegateLookupContainer(): void
+    {
+        $rootContainer = new Container([
+            EngineInterface::class => EngineMarkTwo::class
+        ]);
+
+        $container = new Container([], [], $rootContainer);
+        $car = $container->get(Car::class);
+
+        $this->assertSame(Car::class, get_class($car));
+        $this->assertSame(EngineMarkTwo::class, get_class($car->getEngine()));
+    }
+
+    public function testContainerDelegateLookupToCompositeContainer(): void
+    {
+        $compositeContainer = new CompositeContainer();
+
+        $container1 = new Container([
+            EngineInterface::class => EngineMarkOne::class
+        ]);
+
+        $compositeContainer->attach($container1);
+
+        $container = new Container([], [], $compositeContainer);
+        $car = $container->get(Car::class);
+
+        $this->assertSame(Car::class, get_class($car));
+        $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
+    }
+
+    public function testContainerDelegateLookupToNestedCompositeContainer(): void
+    {
+        $compositeContainer = new CompositeContainer();
+        $nestedCompositeContainer = new CompositeContainer();
+
+        $container1 = new Container([
+            EngineInterface::class => EngineMarkOne::class
+        ]);
+
+        $compositeContainer->attach($container1);
+        $nestedCompositeContainer->attach($compositeContainer);
+
+        $container = new Container([], [], $nestedCompositeContainer);
+        $car = $container->get(Car::class);
+
+        $this->assertSame(Car::class, get_class($car));
+        $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
+    }
+
+    public function testContainerComplexDelegateLookup(): void
+    {
+        $compositeContainer = new CompositeContainer();
+        $container1 = new Container([
+            'first' => function () {
+                return 'first';
+            }
+        ]);
+        $container2 = new Container([
+            'second' => function () {
+                return  'second';
+            },
+            'third' => function ($c) {
+                return $c->get('first') . $c->get('second') . 'third';
+            },
+        ], [], $compositeContainer);
+
+        $compositeContainer->attach($container1);
+        $compositeContainer->attach($container2);
+
+        $this->assertSame('first', $compositeContainer->get('first'));
+        $this->assertSame('second', $compositeContainer->get('second'));
+        $this->assertSame('firstsecondthird', $compositeContainer->get('third'));
     }
 }

@@ -57,19 +57,13 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    protected function delegateLookup(ContainerInterface $container): ContainerInterface
+    protected function delegateLookup(ContainerInterface $container): void
     {
-        $newContainer = clone $this;
-
         if ($this->rootContainer === null) {
-            $newContainer->rootContainer = new CompositeContainer();
-        } else {
-            $rootContainer = $this->rootContainer;
-            $newContainer->rootContainer = clone $rootContainer;
+            $this->rootContainer = new CompositeContainer();
         }
-        $newContainer->rootContainer->attach($container);
 
-        return $newContainer;
+        $this->rootContainer->attach($container);
     }
 
     /**
