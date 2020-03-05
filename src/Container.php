@@ -17,7 +17,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-class Container implements ContainerInterface
+final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
@@ -34,6 +34,8 @@ class Container implements ContainerInterface
      */
     private $instances;
 
+    private ?ContainerInterface $rootContainer = null;
+
     /**
      * Container constructor.
      *
@@ -45,12 +47,23 @@ class Container implements ContainerInterface
      */
     public function __construct(
         array $definitions = [],
-        array $providers = []
+        array $providers = [],
+        ContainerInterface $rootContainer = null
     ) {
         $this->setMultiple($definitions);
-        foreach ($providers as $provider) {
-            $this->addProvider($provider);
+        $this->addProviders($providers);
+        if ($rootContainer !== null) {
+            $this->delegateLookup($rootContainer);
         }
+    }
+
+    protected function delegateLookup(ContainerInterface $container): void
+    {
+        if ($this->rootContainer === null) {
+            $this->rootContainer = new CompositeContainer();
+        }
+
+        $this->rootContainer->attach($container);
     }
 
     /**
@@ -76,7 +89,7 @@ class Container implements ContainerInterface
         return $this->instances[$id];
     }
 
-    public function getId($id): string
+    private function getId($id): string
     {
         return is_string($id) ? $id : $id->getId();
     }
@@ -124,7 +137,7 @@ class Container implements ContainerInterface
         }
         $this->processDefinition($this->definitions[$id]);
 
-        return $this->definitions[$id]->resolve($this, $params);
+        return $this->definitions[$id]->resolve($this->rootContainer ?? $this, $params);
     }
 
     protected function processDefinition($definition): void
@@ -133,7 +146,6 @@ class Container implements ContainerInterface
             $definition->register($this);
         }
     }
-
 
     /**
      * @param string $class
@@ -148,7 +160,7 @@ class Container implements ContainerInterface
         if (class_exists($class)) {
             $definition = new ArrayDefinition($class);
 
-            return $definition->resolve($this, $params);
+            return $definition->resolve($this->rootContainer ?? $this, $params);
         }
 
         throw new NotFoundException("No definition for $class");
@@ -161,7 +173,7 @@ class Container implements ContainerInterface
      * @throws InvalidConfigException
      * @see `Normalizer::normalize()`
      */
-    public function set(string $id, $definition): void
+    protected function set(string $id, $definition): void
     {
         $this->instances[$id] = null;
         $this->definitions[$id] = Normalizer::normalize($definition, $id);
@@ -172,10 +184,17 @@ class Container implements ContainerInterface
      * @param array $config definitions indexed by their ids
      * @throws InvalidConfigException
      */
-    public function setMultiple(array $config): void
+    protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             $this->set($id, $definition);
+        }
+    }
+
+    private function addProviders(array $providers): void
+    {
+        foreach ($providers as $provider) {
+            $this->addProvider($provider);
         }
     }
 
@@ -201,7 +220,7 @@ class Container implements ContainerInterface
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    public function addProvider($providerDefinition): void
+    private function addProvider($providerDefinition): void
     {
         $provider = $this->buildProvider($providerDefinition);
 

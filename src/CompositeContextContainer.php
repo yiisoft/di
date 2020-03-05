@@ -10,7 +10,7 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
  * This class implements a composite container with support for context switching.
  * The intended use is to allow for custom configurations of (nested) modules.
  */
-class CompositeContextContainer implements ContainerInterface
+final class CompositeContextContainer implements ContainerInterface
 {
     /**
      * Containers to look into.

@@ -9,7 +9,7 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
  * This class implements a composite container for use with containers that support the delegate lookup feature.
  * The goal of the implementation is simplicity.
  */
-class CompositeContainer implements ContainerInterface
+final class CompositeContainer implements ContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.

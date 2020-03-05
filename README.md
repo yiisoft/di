@@ -6,7 +6,7 @@
     <br>
 </p>
 
-The library is a [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
+[PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
 [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that is able to instantiate
 and configure classes resolving dependencies.
 
@@ -21,15 +21,18 @@ and configure classes resolving dependencies.
 - [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
-- Accepts array definitions so could be used with mergeable configs.
-- Provides autoload fallback for simple classes that have no explicit definition.
+- Accepts array definitions. Could be used with mergeable configs.
+- Provides autoload fallback for classes without explicit definition.
+- Allows delegated lookup and has composite container.
+- Supports aliasing.
+- Supports service providers and deferred service providers.
 
 ## Using container
 
-Usage of DI container is fairly simple. First, you set object definitions into it and then
-they're used either in the application directly or to resolve dependencies of other definitions.
+Usage of DI container is fairly simple. First, you initialize it with array of definitions and then objects created
+according to these are used either in the application directly or to resolve dependencies of other definitions.
 
-Usually there is a single container in the whole application so it's often configured in either entry
+Usually a single container is used for the whole application so it is often configured in either entry
 script such as `index.php` or a configuration file:
 
 ```php
@@ -57,35 +60,20 @@ return [
 ];
 ```
 
-Interface definition simply maps an id, that is usually an interface, to particular class.
+Interface definition maps an id, that is usually an interface, to particular class.
 
 Full definition describes how to instantiate a class in detail:
 
   - `__class` contains name of the class to be instantiated.
   - `__construct()` holds an array of constructor arguments.
   - The rest of the config and property values and method calls.
-    They are set/called in the order they are in the array.
+    They are set/called in the order they appear in the array.
     
 Closures are useful if instantiation is tricky and should be described in code.
-In case it is very tricky it's a good idea to move such code into a factory
-and referencing it as a static call.
+If it is even more complicated, it is a good idea to move such code into a factory
+and reference it as a static call.
 
-While it's usually not a good idea, you can set already instantiated object into container.
-
-Additionally, definitions could be added via calling `set()`:
-
-```php
-/** @var \Yiisoft\Di\Container $container */
-$container->set($id, Example::class);
-
-$container->set($id, [
-    '__class' => Example::class,
-    '__construct()' => ['a', 'b'],
-    'property1' => 'val1',
-    'setMethod()' => ['val2'],
-    'property2' => 'val3',
-]);
-```
+While it is usually not a good idea, you can set already instantiated object into container.
 
 After container is configured, dependencies could be obtained via `get()`:
 
@@ -94,7 +82,7 @@ After container is configured, dependencies could be obtained via `get()`:
 $object = $container->get('interface_name');
 ```
 
-Note, however, that it is a bad practice to use container directly and it's much better to rely
+Note, however, that it is a bad practice to use container directly and it is better to rely
 on autowiring made via Injector available via separate [yiisoft/injector](https://github.com/yiisoft/injector) pacakge.
 
 ## Using aliases
@@ -115,7 +103,34 @@ $container = new Container([
 
 The `Container` class supports delegated lookup.
 When using delegated lookup, all dependencies are always fetched from a given root container.
-This allows us to combine multiple containers into a composite container which we can then use for lookups.
+To use delegate lookup you should set `root container` as a third parameter of the container constructor.
+
+```php
+class Car
+{
+    private EngineInterface $engine;
+   
+    public function __construct(EngineInterface $engine)
+    {
+        $this->engine = $engine;
+    }
+    
+    public function getEngine(): EngineInterface
+    {
+        return $this->engine;
+    }
+}
+$rootContainer = new Container([
+    EngineInterface::class => EngineMarkOne::class
+]);
+$container = new Container([], [], $rootContainer);
+$car = $container->get(Car::class);
+$engine = $car->getEngine(); //returns an instance of the `Car` class
+```
+
+### Composite containers
+
+Composie container allows combining multiple containers into a composite container, which we can then use for lookups.
 When using this approach, one should only use the composite container.
 
 ```php
@@ -123,9 +138,70 @@ use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
-$container = new Container([], []);
-$composite->attach($container);
+$carContainer = new Container([
+    EngineInterface::class => EngineMarkOne:class,
+    CarInterface::class => Car::class
+], []);
+$bikeContainer = new Container([
+    BikeInterface::class => Bike::class
+], []);
+$composite->attach($carContainer);
+$composite->attach($bikeContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$bike = $composite->get(CarInterface::class); //returns an instance of a `Bike` class
+```
 
+Note, containers attached later override dependencies of containers attached earlier.
+
+```php
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+
+$composite = new CompositeContainer();
+$carContainer = new Container([
+    EngineInterface::class => EngineMarkOne:class,
+    CarInterface::class => Car::class
+], []);
+$composite->attach($carContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$engine = $car->getEngine(); //returns an instance of a `EngineMarkOne` class
+$engineContainer = new Container([
+    EngineInterface::class => EngineMarkTwo:class,
+], []);
+
+$composite->attach($engineContainer);
+$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
+$engine = $composite->get(CarInterface::class); //returns an instance of a `EngineMarkTwo` class
+```
+
+A composite container can be a `root container` for a container delegate lookup.
+```php
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+
+$container = new CompositeContainer();
+$container1 = new Container([
+    'first' => static function () {
+        return 'first';
+    },
+    'third' => static function () {
+        return 'third';
+    }
+]);
+$container2 = new Container([
+    'second' => static function () {
+        return 'second';
+    },
+    'first-and-second-and-third' => static function ($c) {
+        return $c->get('first') . ' ' . $c->get('second') . ' ' . $c->get('third');
+    },
+]);
+
+$container->attach($container1);
+$container->attach($container2);
+$first = $container->get('first'); // returns 'first'
+$second = $container->get('second'); // returns 'second'
+$firstSecondThird = $container->get('first-and-second-and-third'); //returns 'first second third' 
 ```
 
 ## Contextual containers
@@ -198,9 +274,9 @@ Typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\Support\ServiceProvider;
 
-class CarFactoryProvider implements ServiceProviderInterface
+class CarFactoryProvider extends ServiceProvider
 {
     public function register(Container $container): void
     {
@@ -231,29 +307,20 @@ class CarFactoryProvider implements ServiceProviderInterface
 }
 ```
 
-To add service provider to the container you need either pass service provider class (or configuration array)
-to `addProvider` method of the container:
-
-```php
-/** @var \Yiisoft\Di\Container $container */
-$container->addProvider(CarFactoryProvider::class);
-```
-
-or pass it through configuration array using `providers` key:
+To add service provider to the container you need to pass either service provider class or configuration array
+as an element of container constructor `$providers` parameter:
 
 ```php
 use Yiisoft\Di\Container;
 
-$container = new Container([
-    'providers' => [
-        CarFactoryProvider::class,
-    ],
+$container = new Container($config, [
+    CarFactoryProvider::class,  
 ]);
 ```
 
-In the code above we created service provider responsible for bootstrapping of a car factory with all its
-dependencies. Once a service providers is added through `addProvider` method or via configuration array, 
-`register` method of a service provider is immediately called and services got registered into the container.
+Above we created a service provider responsible for bootstrapping of a car factory with all its
+dependencies. Once a service provider added via configuration array, its `register()` method
+is immediately called and services got registered into the container.
 
 **Note**, service provider might decrease performance of your application if you would perform heavy operations
 inside the `register` method.
@@ -313,8 +380,7 @@ class CarFactoryProvider extends DeferredServiceProvider
     }
 }
 
-/** @var \Yiisoft\Di\Container $container */
-$container->addProvider(CarFactoryProvider::class);
+$container = new Container($config, [CarFactoryProvider::class]);
 
 // returns false as provider wasn't registered
 $container->has(EngineInterface::class); 
