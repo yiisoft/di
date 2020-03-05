@@ -388,7 +388,7 @@ class ContainerTest extends TestCase
         $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
     }
 
-    public function testContainerDelegateLookupToProxyContainer(): void
+    public function testContainerDelegateLookupToCompositeContainerViaProxy(): void
     {
         $compositeContainer = new CompositeContainer();
         $container = new Container([
@@ -397,7 +397,7 @@ class ContainerTest extends TestCase
         $engineContainer = new Container([
             EngineInterface::class => EngineMarkOne::class
         ]);
-        $proxyContainer  = $this->getProxyContainer($container);
+        $proxyContainer = $this->getProxyContainer($container);
         $compositeContainer->attach($proxyContainer);
         $compositeContainer->attach($engineContainer);
         $engine = $compositeContainer->get('car')->getEngine();
