@@ -91,11 +91,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $this->instances[$id];
     }
 
-    private function getId($id): string
-    {
-        return is_string($id) ? $id : $id->getId();
-    }
-
     protected function delegateLookup(ContainerInterface $container): void
     {
         if ($this->rootContainer === null) {
@@ -163,6 +158,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
         }
+    }
+
+    private function getId($id): string
+    {
+        return is_string($id) ? $id : $id->getId();
     }
 
     /**
