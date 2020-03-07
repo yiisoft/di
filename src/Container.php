@@ -91,6 +91,10 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $this->instances[$id];
     }
 
+    /**
+     * Delegate service lookup to another container.
+     * @param ContainerInterface $container
+     */
     protected function delegateLookup(ContainerInterface $container): void
     {
         if ($this->rootContainer === null) {
