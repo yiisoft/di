@@ -310,18 +310,6 @@ class ContainerTest extends TestCase
         $this->assertSame($one, $two);
     }
 
-    public function testHasInstance(): void
-    {
-        $container = new Container([
-            'engine' => EngineMarkOne::class
-        ]);
-
-        $this->assertTrue($container->has('engine'));
-        $this->assertFalse($container->hasInstance('engine'));
-        $this->assertIsObject($container->get('engine'));
-        $this->assertTrue($container->hasInstance('engine'));
-    }
-
     public function testGetByClassIndirectly(): void
     {
         $number = 42;

@@ -19,6 +19,7 @@ class ContextContainer implements ContainerInterface
      * @var string The context that this container uses
      */
     private $context;
+
     public function __construct(CompositeContextContainer $parent, string $context)
     {
         $this->container = $parent;

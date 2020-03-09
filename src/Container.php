@@ -57,13 +57,15 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    protected function delegateLookup(ContainerInterface $container): void
+    /**
+     * Returns a value indicating whether the container has the definition of the specified name.
+     * @param string $id class name, interface name or alias name
+     * @return bool whether the container is able to provide instance of class specified.
+     * @see set()
+     */
+    public function has($id): bool
     {
-        if ($this->rootContainer === null) {
-            $this->rootContainer = new CompositeContainer();
-        }
-
-        $this->rootContainer->attach($container);
+        return isset($this->definitions[$id]) || class_exists($id);
     }
 
     /**
@@ -89,9 +91,42 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $this->instances[$id];
     }
 
-    private function getId($id): string
+    /**
+     * Delegate service lookup to another container.
+     * @param ContainerInterface $container
+     */
+    protected function delegateLookup(ContainerInterface $container): void
     {
-        return is_string($id) ? $id : $id->getId();
+        if ($this->rootContainer === null) {
+            $this->rootContainer = new CompositeContainer();
+        }
+
+        $this->rootContainer->attach($container);
+    }
+
+    /**
+     * Sets a definition to the container. Definition may be defined multiple ways.
+     * @param string $id
+     * @param mixed $definition
+     * @throws InvalidConfigException
+     * @see `Normalizer::normalize()`
+     */
+    protected function set(string $id, $definition): void
+    {
+        $this->instances[$id] = null;
+        $this->definitions[$id] = Normalizer::normalize($definition, $id);
+    }
+
+    /**
+     * Sets multiple definitions at once.
+     * @param array $config definitions indexed by their ids
+     * @throws InvalidConfigException
+     */
+    protected function setMultiple(array $config): void
+    {
+        foreach ($config as $id => $definition) {
+            $this->set($id, $definition);
+        }
     }
 
     /**
@@ -122,6 +157,18 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $object;
     }
 
+    protected function processDefinition($definition): void
+    {
+        if ($definition instanceof DeferredServiceProviderInterface) {
+            $definition->register($this);
+        }
+    }
+
+    private function getId($id): string
+    {
+        return is_string($id) ? $id : $id->getId();
+    }
+
     /**
      * @param string $id
      * @param array $params
@@ -138,13 +185,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->processDefinition($this->definitions[$id]);
 
         return $this->definitions[$id]->resolve($this->rootContainer ?? $this, $params);
-    }
-
-    protected function processDefinition($definition): void
-    {
-        if ($definition instanceof DeferredServiceProviderInterface) {
-            $definition->register($this);
-        }
     }
 
     /**
@@ -166,47 +206,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         throw new NotFoundException("No definition for $class");
     }
 
-    /**
-     * Sets a definition to the container. Definition may be defined multiple ways.
-     * @param string $id
-     * @param mixed $definition
-     * @throws InvalidConfigException
-     * @see `Normalizer::normalize()`
-     */
-    protected function set(string $id, $definition): void
-    {
-        $this->instances[$id] = null;
-        $this->definitions[$id] = Normalizer::normalize($definition, $id);
-    }
-
-    /**
-     * Sets multiple definitions at once.
-     * @param array $config definitions indexed by their ids
-     * @throws InvalidConfigException
-     */
-    protected function setMultiple(array $config): void
-    {
-        foreach ($config as $id => $definition) {
-            $this->set($id, $definition);
-        }
-    }
-
     private function addProviders(array $providers): void
     {
         foreach ($providers as $provider) {
             $this->addProvider($provider);
         }
-    }
-
-    /**
-     * Returns a value indicating whether the container has the definition of the specified name.
-     * @param string $id class name, interface name or alias name
-     * @return bool whether the container is able to provide instance of class specified.
-     * @see set()
-     */
-    public function has($id): bool
-    {
-        return isset($this->definitions[$id]) || class_exists($id);
     }
 
     /**
@@ -251,27 +255,5 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $provider;
-    }
-
-    /**
-     * Returns a value indicating whether the container has already instantiated
-     * instance of the specified name.
-     * @param string|Reference $id class name, interface name or alias name
-     * @return bool whether the container has instance of class specified.
-     */
-    public function hasInstance($id): bool
-    {
-        $id = $this->getId($id);
-
-        return isset($this->instances[$id]);
-    }
-
-    /**
-     * Returns all instances set in container
-     * @return array list of instance
-     */
-    public function getInstances(): array
-    {
-        return $this->instances;
     }
 }
