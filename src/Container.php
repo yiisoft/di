@@ -51,8 +51,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $definitions = [],
         array $providers = [],
         ContainerInterface $rootContainer = null
-    )
-    {
+    ) {
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -87,7 +86,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function get($id, array $parameters = [])
     {
         $id = $this->getId($id);
-        $this->validateCache($id);
+        $this->invalidateCache($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id, $parameters);
         }
@@ -200,7 +199,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $definition;
     }
 
-    private function validateCache($id): void
+    private function invalidateCache($id): void
     {
         if (isset($this->cacheConditions[$id])) {
             $condition = $this->cacheConditions[$id];
