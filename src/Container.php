@@ -23,6 +23,8 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @var DefinitionInterface[] object definitions indexed by their types
      */
     private $definitions = [];
+
+    private $cacheConditions = [];
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -84,6 +86,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function get($id, array $parameters = [])
     {
         $id = $this->getId($id);
+        $this->validateCache($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id, $parameters);
         }
@@ -113,6 +116,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
+        if ($this->hasCacheCondition($definition)) {
+            $this->cacheConditions[$id] = $this->getCacheCondition($definition);
+            $definition = $this->clearDefinitionCacheCondition($definition);
+        }
         $this->instances[$id] = null;
         $this->definitions[$id] = Normalizer::normalize($definition, $id);
     }
@@ -161,6 +168,50 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
+        }
+    }
+
+    private function getCacheCondition(array $definition): array
+    {
+        return $definition['__cacheCondition'];
+    }
+
+    private function hasCacheCondition($definition): bool
+    {
+        if (is_array($definition) && isset($definition['__cacheCondition']) && is_array($definition['__cacheCondition'])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function clearDefinitionCacheCondition(array $definition)
+    {
+        unset($definition['__cacheCondition']);
+        if (isset($definition['__definition'])) {
+            $definition = $definition['__definition'];
+        }
+
+        return $definition;
+    }
+
+    private function validateCache($id): void
+    {
+        if (isset($this->cacheConditions[$id])) {
+            foreach ($this->cacheConditions[$id] as $service => $dependency) {
+                $currentValue = $service;
+                $dependencyValue = $dependency;
+                if (is_callable($dependency)) {
+                    $dependencyValue = $dependency($this);
+                }
+                if ($this->has($service)) {
+                    $currentValue = $this->get($service);
+                }
+                if ($currentValue != $dependencyValue) {
+                    unset($this->instances[$id]);
+                    break;
+                }
+            }
         }
     }
 
