@@ -51,7 +51,8 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $definitions = [],
         array $providers = [],
         ContainerInterface $rootContainer = null
-    ) {
+    )
+    {
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -171,14 +172,18 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    private function getCacheCondition(array $definition): array
+    private function getCacheCondition(array $definition)
     {
         return $definition['__cacheCondition'];
     }
 
     private function hasCacheCondition($definition): bool
     {
-        if (is_array($definition) && isset($definition['__cacheCondition']) && is_array($definition['__cacheCondition'])) {
+        if (is_array($definition) && isset($definition['__cacheCondition'])) {
+            if (!(is_bool($definition['__cacheCondition']) || is_callable($definition['__cacheCondition']))) {
+                throw new \RuntimeException("Definition array key '__cacheCondition' must be boolean or callable.");
+            }
+
             return true;
         }
 
@@ -198,19 +203,12 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function validateCache($id): void
     {
         if (isset($this->cacheConditions[$id])) {
-            foreach ($this->cacheConditions[$id] as $service => $dependency) {
-                $currentValue = $service;
-                $dependencyValue = $dependency;
-                if (is_callable($dependency)) {
-                    $dependencyValue = $dependency($this);
-                }
-                if ($this->has($service)) {
-                    $currentValue = $this->get($service);
-                }
-                if ($currentValue != $dependencyValue) {
-                    unset($this->instances[$id]);
-                    break;
-                }
+            $condition = $this->cacheConditions[$id];
+            if (is_callable($condition)) {
+                $condition = $condition($this);
+            }
+            if (!$condition) {
+                unset($this->instances[$id]);
             }
         }
     }
