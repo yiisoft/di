@@ -22,12 +22,16 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
      */
-    private $definitions = [];
+    private array $definitions = [];
+
+    private array $assignedCacheTags = [];
+
+    private array $cacheTags = [];
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
      */
-    private $building = [];
+    private array $building = [];
 
     /**
      * @var object[]
@@ -84,8 +88,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function get($id, array $parameters = [])
     {
         $id = $this->getId($id);
+        $this->invalidateCache($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id, $parameters);
+            $this->assignCacheTag($id);
         }
 
         return $this->instances[$id];
@@ -113,6 +119,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
+        if ($this->hasCacheTag($definition)) {
+            $this->cacheTags[$id] = $this->extractCacheTag($definition);
+            $definition = $this->clearDefinitionCacheTag($definition);
+        }
         $this->instances[$id] = null;
         $this->definitions[$id] = Normalizer::normalize($definition, $id);
     }
@@ -161,6 +171,57 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
+        }
+    }
+
+    private function extractCacheTag(array $definition)
+    {
+        return $definition['__cacheTag'];
+    }
+
+    private function hasCacheTag($definition): bool
+    {
+        if (is_array($definition) && isset($definition['__cacheTag'])) {
+            if (!is_callable($definition['__cacheTag'])) {
+                throw new \RuntimeException("Definition array key '__cacheTag' must be callable.");
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private function clearDefinitionCacheTag(array $definition)
+    {
+        unset($definition['__cacheTag']);
+        if (isset($definition['__definition'])) {
+            $definition = $definition['__definition'];
+        }
+
+        return $definition;
+    }
+
+    private function getCacheTag(string $id): string
+    {
+        return ($this->cacheTags[$id])($this);
+    }
+
+    private function assignCacheTag(string $id): void
+    {
+        if (isset($this->cacheTags[$id])) {
+            $this->assignedCacheTags[$id] = $this->getCacheTag($id);
+        }
+    }
+
+    private function invalidateCache($id): void
+    {
+        if (isset($this->cacheTags[$id])) {
+            $currentTag = $this->getCacheTag($id);
+
+            if (isset($this->assignedCacheTags[$id]) && $currentTag !== $this->assignedCacheTags[$id]) {
+                unset($this->instances[$id]);
+            }
         }
     }
 
