@@ -12,7 +12,7 @@ final class ResetableContainer extends Container implements Resetable
                 continue;
             }
 
-            unset($instance[$service]);
+            unset($this->instances[$service]);
         }
     }
 }
