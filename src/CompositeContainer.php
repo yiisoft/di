@@ -9,13 +9,13 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
  * This class implements a composite container for use with containers that support the delegate lookup feature.
  * The goal of the implementation is simplicity.
  */
-final class CompositeContainer implements ContainerInterface, Resetable
+final class CompositeContainer implements ContainerInterface, ResetableContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.
      * @var ContainerInterface[] The list of containers
      */
-    private $containers = [];
+    private array $containers = [];
 
     public function get($id, array $parameters = [])
     {
@@ -65,7 +65,7 @@ final class CompositeContainer implements ContainerInterface, Resetable
     public function reset(): void
     {
         foreach ($this->containers as $container) {
-            if ($container instanceof Resetable) {
+            if ($container instanceof ResetableContainerInterface) {
                 $container->reset();
             }
         }

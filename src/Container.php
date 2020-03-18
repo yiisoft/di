@@ -24,9 +24,9 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
      */
     private array $definitions = [];
 
-    private array $assignedCacheTags = [];
+    private array $assignedInstanceTags = [];
 
-    private array $cacheTags = [];
+    private array $instanceTagCallbacks = [];
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -88,10 +88,10 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
     public function get($id, array $parameters = [])
     {
         $id = $this->getId($id);
-        $this->invalidateCache($id);
+        $this->invalidateInstance($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id, $parameters);
-            $this->assignCacheTag($id);
+            $this->assignInstanceTag($id);
         }
 
         return $this->instances[$id];
@@ -119,9 +119,9 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
      */
     protected function set(string $id, $definition): void
     {
-        if ($this->hasCacheTag($definition)) {
-            $this->cacheTags[$id] = $this->extractCacheTag($definition);
-            $definition = $this->clearDefinitionCacheTag($definition);
+        if ($this->hasInstanceTag($definition)) {
+            $this->instanceTagCallbacks[$id] = $definition['__instanceTag'];
+            $definition = $this->getDefinitionWithoutInstanceTag($definition);
         }
         $this->instances[$id] = null;
         $this->definitions[$id] = Normalizer::normalize($definition, $id);
@@ -174,27 +174,22 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
         }
     }
 
-    private function extractCacheTag(array $definition)
+    private function hasInstanceTag($definition): bool
     {
-        return $definition['__cacheTag'];
-    }
-
-    private function hasCacheTag($definition): bool
-    {
-        if (is_array($definition) && isset($definition['__cacheTag'])) {
-            if (!is_callable($definition['__cacheTag'])) {
-                throw new \RuntimeException("Definition array key '__cacheTag' must be callable.");
-            }
-
-            return true;
+        if (!is_array($definition) || !array_key_exists('__instanceTag', $definition)) {
+            return false;
         }
 
-        return false;
+        if (!is_callable($definition['__instanceTag'])) {
+            throw new \RuntimeException("Definition array key '__instanceTag' must be callable.");
+        }
+
+        return true;
     }
 
-    private function clearDefinitionCacheTag(array $definition)
+    private function getDefinitionWithoutInstanceTag(array $definition)
     {
-        unset($definition['__cacheTag']);
+        unset($definition['__instanceTag']);
         if (isset($definition['__definition'])) {
             $definition = $definition['__definition'];
         }
@@ -202,30 +197,24 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
         return $definition;
     }
 
-    private function getCacheTag(string $id): string
+    private function getInstanceTag(string $id): string
     {
-        return ($this->cacheTags[$id])($this);
+        return ($this->instanceTagCallbacks[$id])($this);
     }
 
-    private function assignCacheTag(string $id): void
+    private function assignInstanceTag(string $id): void
     {
-        if (isset($this->cacheTags[$id])) {
-            $this->assignedCacheTags[$id] = $this->getCacheTag($id);
+        if (isset($this->instanceTagCallbacks[$id])) {
+            $this->assignedInstanceTags[$id] = $this->getInstanceTag($id);
         }
     }
 
-    private function invalidateCache($id): void
+    private function invalidateInstance($id): void
     {
-        if (isset($this->cacheTags[$id])) {
-            $currentTag = $this->getCacheTag($id);
-            $instance = $this->instances[$id];
+        if (isset($this->instanceTagCallbacks[$id])) {
+            $currentTag = $this->getInstanceTag($id);
 
-            if (isset($this->assignedCacheTags[$id]) && $currentTag !== $this->assignedCacheTags[$id]) {
-                if ($instance instanceof Resetable) {
-                    $instance->reset();
-                    $this->assignCacheTag($id);
-                    return;
-                }
+            if (isset($this->assignedInstanceTags[$id]) && $currentTag !== $this->assignedInstanceTags[$id]) {
                 unset($this->instances[$id]);
             }
         }
