@@ -17,7 +17,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-final class Container extends AbstractContainerConfigurator implements ContainerInterface
+class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
      * @var DefinitionInterface[] object definitions indexed by their types
@@ -33,12 +33,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private array $building = [];
 
+    private ?ContainerInterface $rootContainer = null;
+
     /**
      * @var object[]
      */
-    private $instances;
-
-    private ?ContainerInterface $rootContainer = null;
+    protected $instances;
 
     /**
      * Container constructor.
@@ -220,6 +220,11 @@ final class Container extends AbstractContainerConfigurator implements Container
             $currentTag = $this->getCacheTag($id);
 
             if (isset($this->assignedCacheTags[$id]) && $currentTag !== $this->assignedCacheTags[$id]) {
+                if (is_object($this->instances[$id]) && $this->instances[$id] instanceof Resetable) {
+                    $this->instances[$id]->reset();
+                    $this->assignCacheTag($id);
+                    return;
+                }
                 unset($this->instances[$id]);
             }
         }
