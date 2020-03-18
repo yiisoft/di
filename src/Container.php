@@ -218,10 +218,11 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
     {
         if (isset($this->cacheTags[$id])) {
             $currentTag = $this->getCacheTag($id);
+            $instance = $this->instances[$id];
 
             if (isset($this->assignedCacheTags[$id]) && $currentTag !== $this->assignedCacheTags[$id]) {
-                if (is_object($this->instances[$id]) && $this->instances[$id] instanceof Resetable) {
-                    $this->instances[$id]->reset();
+                if (is_object($instance) && $instance instanceof Resetable) {
+                    $instance->reset();
                     $this->assignCacheTag($id);
                     return;
                 }
