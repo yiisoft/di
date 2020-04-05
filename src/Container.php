@@ -81,11 +81,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function get($id, array $parameters = [])
+    public function get($id)
     {
         $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
-            $this->instances[$id] = $this->build($id, $parameters);
+            $this->instances[$id] = $this->build($id);
         }
 
         return $this->instances[$id];
@@ -140,7 +140,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws NotFoundException
      * @internal
      */
-    protected function build(string $id, array $params = [])
+    protected function build(string $id)
     {
         if (isset($this->building[$id])) {
             throw new CircularReferenceException(sprintf(
@@ -151,7 +151,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         $this->building[$id] = 1;
-        $object = $this->buildInternal($id, $params);
+        $object = $this->buildInternal($id);
         unset($this->building[$id]);
 
         return $object;
@@ -177,14 +177,14 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws InvalidConfigException
      * @throws NotFoundException
      */
-    private function buildInternal(string $id, array $params = [])
+    private function buildInternal(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id, $params);
+            return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
 
-        return $this->definitions[$id]->resolve($this->rootContainer ?? $this, $params);
+        return $this->definitions[$id]->resolve($this->rootContainer ?? $this);
     }
 
     /**
@@ -195,12 +195,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws InvalidConfigException
      * @throws NotFoundException
      */
-    private function buildPrimitive(string $class, array $params = [])
+    private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
             $definition = new ArrayDefinition($class);
 
-            return $definition->resolve($this->rootContainer ?? $this, $params);
+            return $definition->resolve($this->rootContainer ?? $this);
         }
 
         throw new NotFoundException("No definition for $class");
