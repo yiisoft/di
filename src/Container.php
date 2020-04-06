@@ -5,12 +5,12 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Factory\Definitions\DynamicReference;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
-use Yiisoft\Factory\Definitions\DefinitionInterface;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
 
@@ -20,7 +20,7 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
-     * @var DefinitionInterface[] object definitions indexed by their types
+     * @var array object definitions indexed by their types
      */
     private $definitions = [];
     /**
@@ -113,8 +113,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
+        $this->validateDefinition($definition);
         $this->instances[$id] = null;
-        $this->definitions[$id] = Normalizer::normalize($definition, $id);
+        $this->definitions[$id] = $definition;
     }
 
     /**
@@ -140,7 +141,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws NotFoundException
      * @internal
      */
-    protected function build(string $id)
+    private function build(string $id)
     {
         if (isset($this->building[$id])) {
             throw new CircularReferenceException(sprintf(
@@ -157,11 +158,36 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $object;
     }
 
-    protected function processDefinition($definition): void
+    private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
         }
+    }
+
+    private function validateDefinition($definition): void
+    {
+        if ($definition instanceof Reference || $definition instanceof DynamicReference) {
+            return;
+        }
+
+        if (\is_string($definition)) {
+            return;
+        }
+
+        if (\is_callable($definition)) {
+            return;
+        }
+
+        if (\is_array($definition)) {
+            return;
+        }
+
+        if (\is_object($definition)) {
+            return;
+        }
+
+        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
     }
 
     private function getId($id): string
@@ -183,8 +209,9 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
+        $definition = Normalizer::normalize($this->definitions[$id], $id);
 
-        return $this->definitions[$id]->resolve($this->rootContainer ?? $this);
+        return $definition->resolve($this->rootContainer ?? $this);
     }
 
     /**
