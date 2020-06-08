@@ -148,7 +148,7 @@ $bikeContainer = new Container([
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
 $car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$bike = $composite->get(CarInterface::class); //returns an instance of a `Bike` class
+$bike = $composite->get(BikeInterface::class); //returns an instance of a `Bike` class
 ```
 
 Note, containers attached later override dependencies of containers attached earlier.
@@ -171,7 +171,7 @@ $engineContainer = new Container([
 
 $composite->attach($engineContainer);
 $car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$engine = $composite->get(CarInterface::class); //returns an instance of a `EngineMarkTwo` class
+$engine = $composite->get(EngineInterface::class); //returns an instance of a `EngineMarkTwo` class
 ```
 
 A composite container can be a `root container` for a container delegate lookup.
