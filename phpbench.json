@@ -2,12 +2,6 @@
     "bootstrap": "vendor/autoload.php",
     "path": "tests/benchmark",
     "retry_threshold": 3,
-    "php_disable_ini": true,
-    "php_config": {
-        "extension": [
-            "json.so"
-        ]
-    },
     "outputs": {
         "html_file": {
             "extends": "html",

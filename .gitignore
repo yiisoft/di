@@ -30,12 +30,8 @@ phpunit.phar
 # phpunit cache
 .phpunit.result.cache
 
-# local tests configuration
-/tests/data/config.local.php
+# Phan
+analysis.txt
 
-# runtime cache
-/tests/runtime
-/tests/output
-
-# benchmarks
-benchmarks.html
+# Code coverage HTML
+/coverage
