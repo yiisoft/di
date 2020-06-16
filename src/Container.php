@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -22,28 +24,29 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * @var array object definitions indexed by their types
      */
-    private $definitions = [];
+    private array $definitions = [];
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
      */
-    private $building = [];
+    private array $building = [];
 
     /**
      * @var object[]
      */
-    private $instances;
+    private array $instances = [];
 
     private ?ContainerInterface $rootContainer = null;
 
     /**
      * Container constructor.
      *
-     * @param array $definitions
-     * @param ServiceProviderInterface[] $providers
+     * @param array $definitions Definitions to put into container.
+     * @param ServiceProviderInterface[]|array $providers Service providers to get definitions from.
      *
+     * @param ContainerInterface|null $rootContainer Root container to delegate lookup to in case definition
+     * is not found in current container.
      * @throws InvalidConfigException
-     * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
@@ -73,9 +76,8 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string|Reference $id the interface or an alias name that was previously registered via [[set()]].
-     * @param array $parameters parameters to set for the object obtained
-     * @return object an instance of the requested interface.
+     * @param string|Reference $id The interface or an alias name that was previously registered.
+     * @return object An instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
@@ -126,16 +128,15 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
-            $this->set($id, $definition);
+            $this->set((string)$id, $definition);
         }
     }
 
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id the interface or an alias name that was previously registered via [[set()]].
-     * @param array $params
-     * @return object new built instance of the specified class.
+     * @param string $id The interface or an alias name that was previously registered.
+     * @return object New built instance of the specified class.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
@@ -197,7 +198,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * @param string $id
-     * @param array $params
      *
      * @return mixed|object
      * @throws InvalidConfigException
@@ -216,7 +216,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * @param string $class
-     * @param array $params
      *
      * @return mixed|object
      * @throws InvalidConfigException

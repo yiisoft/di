@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -15,7 +17,7 @@ final class CompositeContainer implements ContainerInterface
      * Containers to look into starting from the beginning of the array.
      * @var ContainerInterface[] The list of containers
      */
-    private $containers = [];
+    private array $containers = [];
 
     public function get($id, array $parameters = [])
     {
@@ -30,7 +32,7 @@ final class CompositeContainer implements ContainerInterface
         throw new NotFoundException("No definition for $id");
     }
 
-    public function has($id)
+    public function has($id): bool
     {
         foreach ($this->containers as $container) {
             if ($container->has($id)) {

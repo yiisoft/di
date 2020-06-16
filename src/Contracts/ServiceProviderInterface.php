@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Contracts;
 
 use Yiisoft\Di\Container;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -18,9 +20,9 @@ final class CompositeContextContainer implements ContainerInterface
      * Longer key means container is more specific and is checked first.
      * @var array The lists of containers indexed by contexts
      */
-    private $containers = [];
+    private array $containers = [];
 
-    private $currentContext = '';
+    private string $currentContext = '';
 
     public function get($id)
     {
@@ -48,7 +50,7 @@ final class CompositeContextContainer implements ContainerInterface
         }
     }
 
-    public function has($id)
+    public function has($id): bool
     {
         foreach ($this->getContainers($this->currentContext) as $container) {
             if ($container->has($id)) {
@@ -99,7 +101,7 @@ final class CompositeContextContainer implements ContainerInterface
     /**
      * Gets a service from the container in the context.
      *
-     * @param string $id Name of the service, not typehinted to remain compatible with PSR-11 `get()`
+     * @param string $id Name of the service, not type-hinted to remain compatible with PSR-11 `get()`
      * @param string $context
      * @return mixed
      * @throws NotFoundException
@@ -118,7 +120,7 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * Checks if we have a definition for a service in the given context
-     * @param string $id Name of the service, not typehinted to remain compatible with PSR-11 `has()`
+     * @param string $id Name of the service, not type-hinted to remain compatible with PSR-11 `has()`
      * @param string $context The context to use
      * @return bool
      */

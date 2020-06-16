@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Support;
 
 use Yiisoft\Di\AbstractContainerConfigurator;

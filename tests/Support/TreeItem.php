@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Support;
 
 /**
@@ -7,13 +9,8 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class TreeItem
 {
-    private $treeItem;
+    private TreeItem $treeItem;
 
-
-    /**
-     * TreeItem constructor.
-     * @param TreeItem $treeItem
-     */
     public function __construct(TreeItem $treeItem)
     {
         $this->treeItem = $treeItem;
