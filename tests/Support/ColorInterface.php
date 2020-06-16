@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Support;
 
 /**
@@ -7,8 +9,5 @@ namespace Yiisoft\Di\Tests\Support;
  */
 interface ColorInterface
 {
-    /**
-     * @return string
-     */
     public function getColor(): string;
 }

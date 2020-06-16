@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Benchmark;
 
 use PhpBench\Benchmark\Metadata\Annotations\BeforeMethods;
@@ -25,14 +27,13 @@ class ContainerBench
 {
     const SERVICE_COUNT = 200;
 
-    /** @var CompositeContainer */
-    private $composite;
+    private CompositeContainer $composite;
 
     /** @var int[] */
-    private $indexes = [];
+    private array $indexes = [];
 
     /** @var int[] */
-    private $randomIndexes = [];
+    private array $randomIndexes = [];
 
     public function provideDefinitions(): array
     {
@@ -55,9 +56,9 @@ class ContainerBench
      */
     public function before(): void
     {
-        $definitions = [];
+        $definitions3 = [];
         $definitions2 = [];
-        $definitions['service'] = PropertyTestClass::class;
+        $definitions3['service'] = PropertyTestClass::class;
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $this->indexes[] = $i;
             $definitions2["second$i"] = Reference::to('service');

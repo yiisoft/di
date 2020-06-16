@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Support;
 
 /**
@@ -7,36 +9,19 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class Car
 {
-    /**
-     * @var ColorInterface
-     */
-    public $color;
+    public ColorInterface $color;
+    private EngineInterface $engine;
 
-    /**
-     * @var EngineInterface
-     */
-    private $engine;
-
-    /**
-     * Car constructor.
-     * @param EngineInterface $engine
-     */
     public function __construct(EngineInterface $engine)
     {
         $this->engine = $engine;
     }
 
-    /**
-     * @return EngineInterface
-     */
     public function getEngine(): EngineInterface
     {
         return $this->engine;
     }
 
-    /**
-     * @return string
-     */
     public function getEngineName(): string
     {
         return $this->engine->getName();

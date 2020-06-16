@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
@@ -416,18 +418,18 @@ class ContainerTest extends TestCase
     {
         $compositeContainer = new CompositeContainer();
         $container1 = new Container([
-            'first' => function () {
+            'first' => static function () {
                 return 'first';
             },
-            'third' => function () {
+            'third' => static function () {
                 return 'third';
             }
         ]);
         $container2 = new Container([
-            'second' => function () {
+            'second' => static function () {
                 return  'second';
             },
-            'first-second-third' => function ($c) {
+            'first-second-third' => static function ($c) {
                 return $c->get('first') . $c->get('second') . $c->get('third');
             },
         ], [], $compositeContainer);
@@ -443,9 +445,9 @@ class ContainerTest extends TestCase
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
     {
         return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
-            private $container;
+            private ContainerInterface $container;
 
-            private $lastId = [];
+            private array $lastId = [];
 
             public function __construct(ContainerInterface $container)
             {
@@ -454,7 +456,7 @@ class ContainerTest extends TestCase
             }
 
 
-            public function getLastIds()
+            public function getLastIds(): array
             {
                 return $this->lastId;
             }
@@ -465,7 +467,7 @@ class ContainerTest extends TestCase
                 return $this->container->get($id);
             }
 
-            public function has($id)
+            public function has($id): bool
             {
                 return $this->container->has($id);
             }

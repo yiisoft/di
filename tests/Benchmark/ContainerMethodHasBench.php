@@ -1,8 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Benchmark;
 
-use Yiisoft\Di\CompositeContainer;
+use PhpBench\Benchmark\Metadata\Annotations\BeforeMethods;
+use PhpBench\Benchmark\Metadata\Annotations\Groups;
+use PhpBench\Benchmark\Metadata\Annotations\Iterations;
+use PhpBench\Benchmark\Metadata\Annotations\Revs;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\GearBox;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
@@ -16,10 +21,9 @@ use Yiisoft\Factory\Definitions\Reference;
  */
 class ContainerMethodHasBench
 {
-    const SERVICE_COUNT = 200;
+    private const SERVICE_COUNT = 200;
 
-    /** @var Container */
-    private $container;
+    private Container $container;
 
     /**
      * Load the bulk of the definitions.
@@ -27,16 +31,12 @@ class ContainerMethodHasBench
     public function before(): void
     {
         $definitions = [];
-        $definitions2 = [];
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
-            $this->indexes[] = $i;
             $definitions["service$i"] = Reference::to('service');
-            $definitions2["second$i"] = Reference::to('service');
-            $definitions3["third$i"] = Reference::to('service');
         }
+        $definitions['service'] = PropertyTestClass::class;
 
         $this->container = new Container($definitions);
-        $this->container->set('service', PropertyTestClass::class);
     }
 
     public function benchPredefinedExisting(): void

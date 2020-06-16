@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -10,15 +12,12 @@ use Psr\Container\ContainerInterface;
  */
 class ContextContainer implements ContainerInterface
 {
-    /**
-     * @var CompositeContextContainer
-     */
-    private $container;
+    private CompositeContextContainer $container;
 
     /**
      * @var string The context that this container uses
      */
-    private $context;
+    private string $context;
 
     public function __construct(CompositeContextContainer $parent, string $context)
     {
@@ -31,7 +30,7 @@ class ContextContainer implements ContainerInterface
         return $this->container->getFromContext($id, $this->context);
     }
 
-    public function has($id)
+    public function has($id): bool
     {
         return $this->container->hasInContext($id, $this->context);
     }
