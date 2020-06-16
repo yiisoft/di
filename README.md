@@ -12,7 +12,7 @@ and configure classes resolving dependencies.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
 [![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
-[![Build status](https://github.com/yiisoft/di/workflows/build/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3Abuild))
+[![Build status](https://github.com/yiisoft/di/workflows/build/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3Abuild)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/di/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/di/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdi%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/di/master)
@@ -66,7 +66,7 @@ Interface definition maps an id, that is usually an interface, to particular cla
 
 Full definition describes how to instantiate a class in detail:
 
-  - `__class` contains a name of the class to be instantiated.
+  - `__class` contains name of the class to be instantiated.
   - `__construct()` holds an array of constructor arguments.
   - The rest of the config and property values and method calls.
     They are set/called in the order they appear in the array.
