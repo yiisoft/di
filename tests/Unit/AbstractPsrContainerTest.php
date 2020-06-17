@@ -1,26 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Container\ContainerExceptionInterface;
-use Yiisoft\Di\Tests\Support\A;
-use Yiisoft\Di\Tests\Support\B;
-use Yiisoft\Di\Tests\Support\Car;
-use Yiisoft\Di\Tests\Support\CarFactory;
-use Yiisoft\Di\Tests\Support\ColorPink;
-use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
-use Yiisoft\Di\Tests\Support\Cycle\Egg;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
-use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
-use Yiisoft\Di\Tests\Support\MethodTestClass;
-use Yiisoft\Di\Tests\Support\PropertyTestClass;
-use Yiisoft\Di\Tests\Support\TreeItem;
 
 /**
  * General tests for PSR-11 container.

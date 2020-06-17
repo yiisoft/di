@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Factory\Definitions\DynamicReference;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
-use Yiisoft\Factory\Definitions\DefinitionInterface;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
 
@@ -20,34 +22,37 @@ use Yiisoft\Factory\Definitions\ArrayDefinition;
 class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     /**
-     * @var DefinitionInterface[] object definitions indexed by their types
+     * @var array object definitions indexed by their types
      */
     private array $definitions = [];
 
     private array $assignedInstanceTags = [];
 
     private array $instanceTagCallbacks = [];
+
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
      */
     private array $building = [];
 
-    private ?ContainerInterface $rootContainer = null;
-
     /**
      * @var object[]
      */
-    protected $instances;
+
+    private array $instances = [];
+
+    private ?ContainerInterface $rootContainer = null;
 
     /**
      * Container constructor.
      *
-     * @param array $definitions
-     * @param ServiceProviderInterface[] $providers
+     * @param array $definitions Definitions to put into container.
+     * @param ServiceProviderInterface[]|string[] $providers Service providers to get definitions from.
      *
+     * @param ContainerInterface|null $rootContainer Root container to delegate lookup to in case definition
+     * is not found in current container.
      * @throws InvalidConfigException
-     * @throws NotInstantiableException
      */
     public function __construct(
         array $definitions = [],
@@ -77,20 +82,19 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string|Reference $id the interface or an alias name that was previously registered via [[set()]].
-     * @param array $parameters parameters to set for the object obtained
-     * @return object an instance of the requested interface.
+     * @param string|Reference $id The interface or an alias name that was previously registered.
+     * @return object An instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function get($id, array $parameters = [])
+    public function get($id)
     {
         $id = $this->getId($id);
         $this->invalidateInstance($id);
         if (!isset($this->instances[$id])) {
-            $this->instances[$id] = $this->build($id, $parameters);
+            $this->instances[$id] = $this->build($id);
             $this->assignInstanceTag($id);
         }
 
@@ -123,8 +127,9 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
             $this->instanceTagCallbacks[$id] = $definition['__instanceTag'];
             $definition = $this->getDefinitionWithoutInstanceTag($definition);
         }
+        $this->validateDefinition($definition);
         $this->instances[$id] = null;
-        $this->definitions[$id] = Normalizer::normalize($definition, $id);
+        $this->definitions[$id] = $definition;
     }
 
     /**
@@ -135,22 +140,21 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
     protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
-            $this->set($id, $definition);
+            $this->set((string)$id, $definition);
         }
     }
 
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id the interface or an alias name that was previously registered via [[set()]].
-     * @param array $params
-     * @return object new built instance of the specified class.
+     * @param string $id The interface or an alias name that was previously registered.
+     * @return object New built instance of the specified class.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @internal
      */
-    protected function build(string $id, array $params = [])
+    private function build(string $id)
     {
         if (isset($this->building[$id])) {
             throw new CircularReferenceException(sprintf(
@@ -161,13 +165,13 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
         }
 
         $this->building[$id] = 1;
-        $object = $this->buildInternal($id, $params);
+        $object = $this->buildInternal($id);
         unset($this->building[$id]);
 
         return $object;
     }
 
-    protected function processDefinition($definition): void
+    private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
@@ -220,6 +224,31 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
         }
     }
 
+    private function validateDefinition($definition): void
+    {
+        if ($definition instanceof Reference || $definition instanceof DynamicReference) {
+            return;
+        }
+
+        if (\is_string($definition)) {
+            return;
+        }
+
+        if (\is_callable($definition)) {
+            return;
+        }
+
+        if (\is_array($definition)) {
+            return;
+        }
+
+        if (\is_object($definition)) {
+            return;
+        }
+
+        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
+    }
+
     private function getId($id): string
     {
         return is_string($id) ? $id : $id->getId();
@@ -227,36 +256,35 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
 
     /**
      * @param string $id
-     * @param array $params
      *
      * @return mixed|object
      * @throws InvalidConfigException
      * @throws NotFoundException
      */
-    private function buildInternal(string $id, array $params = [])
+    private function buildInternal(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id, $params);
+            return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
+        $definition = Normalizer::normalize($this->definitions[$id], $id);
 
-        return $this->definitions[$id]->resolve($this->rootContainer ?? $this, $params);
+        return $definition->resolve($this->rootContainer ?? $this);
     }
 
     /**
      * @param string $class
-     * @param array $params
      *
      * @return mixed|object
      * @throws InvalidConfigException
      * @throws NotFoundException
      */
-    private function buildPrimitive(string $class, array $params = [])
+    private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
             $definition = new ArrayDefinition($class);
 
-            return $definition->resolve($this->rootContainer ?? $this, $params);
+            return $definition->resolve($this->rootContainer ?? $this);
         }
 
         throw new NotFoundException("No definition for $class");

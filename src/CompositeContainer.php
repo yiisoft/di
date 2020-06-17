@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
@@ -30,7 +32,7 @@ final class CompositeContainer implements ContainerInterface, ResetableContainer
         throw new NotFoundException("No definition for $id");
     }
 
-    public function has($id)
+    public function has($id): bool
     {
         foreach ($this->containers as $container) {
             if ($container->has($id)) {

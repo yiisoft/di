@@ -12,9 +12,11 @@ and configure classes resolving dependencies.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
 [![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
-[![Build Status](https://travis-ci.com/yiisoft/di.svg?branch=master)](https://travis-ci.com/yiisoft/di)
+[![Build status](https://github.com/yiisoft/di/workflows/build/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3Abuild)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/di/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/di/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdi%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/di/master)
+[![static analysis](https://github.com/yiisoft/di/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3A%22static+analysis%22)
 
 ## Features
 
@@ -148,7 +150,7 @@ $bikeContainer = new Container([
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
 $car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$bike = $composite->get(CarInterface::class); //returns an instance of a `Bike` class
+$bike = $composite->get(BikeInterface::class); //returns an instance of a `Bike` class
 ```
 
 Note, containers attached later override dependencies of containers attached earlier.
@@ -171,7 +173,7 @@ $engineContainer = new Container([
 
 $composite->attach($engineContainer);
 $car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$engine = $composite->get(CarInterface::class); //returns an instance of a `EngineMarkTwo` class
+$engine = $composite->get(EngineInterface::class); //returns an instance of a `EngineMarkTwo` class
 ```
 
 A composite container can be a `root container` for a container delegate lookup.
