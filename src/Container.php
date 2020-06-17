@@ -36,13 +36,12 @@ class Container extends AbstractContainerConfigurator implements ContainerInterf
      */
     private array $building = [];
 
+    private ?ContainerInterface $rootContainer = null;
+
     /**
      * @var object[]
      */
-
-    private array $instances = [];
-
-    private ?ContainerInterface $rootContainer = null;
+    protected array $instances = [];
 
     /**
      * Container constructor.

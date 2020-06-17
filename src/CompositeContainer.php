@@ -24,7 +24,7 @@ final class CompositeContainer implements ContainerInterface, ResetableContainer
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 if ($parameters !== []) {
-                    return $container->get($id, $parameters);
+                    return $container->get($id);
                 }
                 return $container->get($id);
             }
