@@ -288,6 +288,30 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(ColorPink::class, $object->color);
     }
 
+    public function testReferencesInArrayInDependencies(): void
+    {
+        $container = new Container([
+            'engine1' => EngineMarkOne::class,
+            'engine2' => EngineMarkTwo::class,
+            'engine3' => EngineMarkTwo::class,
+            'car' => [
+                '__class' => Car::class,
+                '__construct()' => [
+                    Reference::to('engine1'),
+                    [
+                        'engine2' => Reference::to('engine2'),
+                        'engine3' => Reference::to('engine3'),
+                    ],
+                ],
+            ],
+        ]);
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $moreEngines = $car->getMoreEngines();
+        $this->assertSame($container->get('engine2'), $moreEngines['engine2']);
+        $this->assertSame($container->get('engine3'), $moreEngines['engine3']);
+    }
+
     public function testGetByReference(): void
     {
         $container = new Container([
