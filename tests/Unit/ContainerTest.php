@@ -294,13 +294,19 @@ class ContainerTest extends TestCase
             'engine1' => EngineMarkOne::class,
             'engine2' => EngineMarkTwo::class,
             'engine3' => EngineMarkTwo::class,
+            'engine4' => EngineMarkTwo::class,
             'car' => [
                 '__class' => Car::class,
                 '__construct()' => [
                     Reference::to('engine1'),
                     [
                         'engine2' => Reference::to('engine2'),
-                        'engine3' => Reference::to('engine3'),
+                        'more' => [
+                            'engine3' => Reference::to('engine3'),
+                            'more' => [
+                                'engine4' => Reference::to('engine4'),
+                            ],
+                        ],
                     ],
                 ],
             ],
@@ -309,7 +315,8 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(Car::class, $car);
         $moreEngines = $car->getMoreEngines();
         $this->assertSame($container->get('engine2'), $moreEngines['engine2']);
-        $this->assertSame($container->get('engine3'), $moreEngines['engine3']);
+        $this->assertSame($container->get('engine3'), $moreEngines['more']['engine3']);
+        $this->assertSame($container->get('engine4'), $moreEngines['more']['more']['engine4']);
     }
 
     public function testGetByReference(): void
