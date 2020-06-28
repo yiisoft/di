@@ -19,13 +19,15 @@ final class CompositeContainer implements ContainerInterface
      */
     private array $containers = [];
 
-    public function get($id, array $parameters = [])
+    public function get($id)
     {
         foreach ($this->containers as $container) {
+            if ($container->has($id, true)) {
+                return $container->get($id);
+            }
+        }
+        foreach ($this->containers as $container) {
             if ($container->has($id)) {
-                if ($parameters !== []) {
-                    return $container->get($id, $parameters);
-                }
                 return $container->get($id);
             }
         }

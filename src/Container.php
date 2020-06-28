@@ -66,9 +66,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @return bool whether the container is able to provide instance of class specified.
      * @see set()
      */
-    public function has($id): bool
+    public function has($id, bool $strict = false): bool
     {
-        return isset($this->definitions[$id]) || class_exists($id);
+        return isset($this->definitions[$id]) || (!$strict && class_exists($id));
     }
 
     /**
