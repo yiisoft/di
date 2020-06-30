@@ -22,11 +22,6 @@ final class CompositeContainer implements ContainerInterface
     public function get($id)
     {
         foreach ($this->containers as $container) {
-            if ($container->has($id, true)) {
-                return $container->get($id);
-            }
-        }
-        foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 return $container->get($id);
             }

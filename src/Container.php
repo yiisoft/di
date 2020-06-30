@@ -38,6 +38,8 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private ?ContainerInterface $rootContainer = null;
 
+    private bool $strictMode;
+
     /**
      * Container constructor.
      *
@@ -51,8 +53,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function __construct(
         array $definitions = [],
         array $providers = [],
-        ContainerInterface $rootContainer = null
+        ContainerInterface $rootContainer = null,
+        bool $strictMode = false
     ) {
+        $this->strictMode = $strictMode;
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -66,9 +70,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @return bool whether the container is able to provide instance of class specified.
      * @see set()
      */
-    public function has($id, bool $strict = false): bool
+    public function has($id): bool
     {
-        return isset($this->definitions[$id]) || (!$strict && class_exists($id));
+        return isset($this->definitions[$id]) || (!$this->strictMode && class_exists($id));
     }
 
     /**
@@ -206,7 +210,11 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildInternal(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id);
+            if (!$this->strictMode) {
+                return $this->buildPrimitive($id);
+            }
+
+            throw new NotFoundException("No definition for $id");
         }
         $this->processDefinition($this->definitions[$id]);
         $definition = Normalizer::normalize($this->definitions[$id], $id);
