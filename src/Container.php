@@ -38,8 +38,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private ?ContainerInterface $rootContainer = null;
 
-    private bool $strictMode;
-
     /**
      * Container constructor.
      *
