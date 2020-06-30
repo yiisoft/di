@@ -11,6 +11,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\Car;
 
 /**
  * General tests for PSR-11 composite container.
@@ -71,13 +72,18 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $compositeContainer->attach($containerTwo);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
 
-        $containerOne = new Container([EngineMarkOne::class => [
-            '__class' => EngineMarkTwo::class,
-        ]]);
-        $containerTwo = new Container();
         $compositeContainer = new CompositeContainer();
+        $containerOne = new Container([EngineMarkOne::class => EngineMarkTwo::class,]);
+        $containerTwo = new Container([], [], $compositeContainer);
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineMarkOne::class));
+
+        $compositeContainer = new CompositeContainer();
+        $containerOne = new Container([EngineInterface::class => EngineMarkTwo::class]);
+        $containerTwo = new Container([EngineInterface::class => EngineMarkOne::class], [], $compositeContainer);
+        $compositeContainer->attach($containerOne);
+        $compositeContainer->attach($containerTwo);
+        $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get(Car::class)->getEngine());
     }
 }
