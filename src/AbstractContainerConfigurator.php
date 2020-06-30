@@ -22,4 +22,9 @@ abstract class AbstractContainerConfigurator
     {
         throw new \RuntimeException("Method 'delegateLookup' does not exist.");
     }
+
+    protected function hasDefinition($id): bool
+    {
+        throw new \RuntimeException("Method 'hasDefinition' does not exist.");
+    }
 }

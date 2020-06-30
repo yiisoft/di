@@ -53,10 +53,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function __construct(
         array $definitions = [],
         array $providers = [],
-        ContainerInterface $rootContainer = null,
-        bool $strictMode = false
+        ContainerInterface $rootContainer = null
     ) {
-        $this->strictMode = $strictMode;
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -72,7 +70,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function has($id): bool
     {
-        return isset($this->definitions[$id]) || (!$this->strictMode && class_exists($id));
+        return isset($this->definitions[$id]) || class_exists($id);
     }
 
     /**
@@ -95,6 +93,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $this->instances[$id];
+    }
+
+    protected function hasDefinition($id): bool
+    {
+        return isset($this->definitions[$id]);
     }
 
     /**
@@ -210,11 +213,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildInternal(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            if (!$this->strictMode) {
-                return $this->buildPrimitive($id);
-            }
-
-            throw new NotFoundException("No definition for $id");
+            return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
         $definition = Normalizer::normalize($this->definitions[$id], $id);

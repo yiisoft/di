@@ -471,6 +471,11 @@ class ContainerTest extends TestCase
             {
                 return $this->container->has($id);
             }
+
+            protected function hasDefinition($id): bool
+            {
+                return $this->container->hasDefinition($id);
+            }
         };
     }
 }
