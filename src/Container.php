@@ -89,11 +89,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
+        $id = $this->getId($id);
+
         if (!$this->has($id)) {
             throw new NotFoundException("No definition for $id");
         }
 
-        $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id);
         }
