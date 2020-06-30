@@ -12,6 +12,8 @@ use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\A;
+use Yiisoft\Di\Tests\Support\B;
 
 /**
  * General tests for PSR-11 composite container.
@@ -73,17 +75,14 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
 
         $compositeContainer = new CompositeContainer();
-        $containerOne = new Container([EngineMarkOne::class => EngineMarkTwo::class,]);
-        $containerTwo = new Container([], [], $compositeContainer);
-        $compositeContainer->attach($containerOne);
-        $compositeContainer->attach($containerTwo);
-        $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineMarkOne::class));
-
-        $compositeContainer = new CompositeContainer();
-        $containerOne = new Container([EngineInterface::class => EngineMarkTwo::class]);
+        $containerOne = new Container([
+            A::class => B::class,
+            EngineInterface::class => EngineMarkTwo::class
+        ]);
         $containerTwo = new Container([EngineInterface::class => EngineMarkOne::class], [], $compositeContainer);
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);
+        $this->assertInstanceOf(B::class, $compositeContainer->get(A::class));
         $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get(Car::class)->getEngine());
     }
 }
