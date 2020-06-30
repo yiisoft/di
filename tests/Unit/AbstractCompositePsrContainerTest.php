@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Di\Container;
-use Yiisoft\Di\CompositeContainer;
 use Psr\Container\NotFoundExceptionInterface;
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\Container;
+use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -70,5 +71,19 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
+
+        $compositeContainer = new CompositeContainer();
+        $containerOne = new Container();
+        $containerTwo = new Container([EngineMarkOne::class => EngineMarkTwo::class], [], $compositeContainer, true);
+        $compositeContainer->attach($containerOne);
+        $compositeContainer->attach($containerTwo);
+        $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineMarkOne::class));
+
+        $compositeContainer = new CompositeContainer();
+        $containerOne = new Container([EngineInterface::class => EngineMarkTwo::class]);
+        $containerTwo = new Container([EngineInterface::class => EngineMarkOne::class], [], $compositeContainer);
+        $compositeContainer->attach($containerOne);
+        $compositeContainer->attach($containerTwo);
+        $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get(Car::class)->getEngine());
     }
 }
