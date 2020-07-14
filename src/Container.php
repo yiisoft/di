@@ -85,7 +85,6 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
-        $id = $this->getId($id);
         if (!isset($this->instances[$id])) {
             $this->instances[$id] = $this->build($id);
         }
@@ -189,11 +188,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
-    }
-
-    private function getId($id): string
-    {
-        return is_string($id) ? $id : $id->getId();
     }
 
     /**

@@ -319,19 +319,6 @@ class ContainerTest extends TestCase
         $this->assertSame($container->get('engine4'), $moreEngines['more']['more']['engine4']);
     }
 
-    public function testGetByReference(): void
-    {
-        $container = new Container([
-            'engine' => EngineMarkOne::class,
-            'e1'     => Reference::to('engine'),
-        ]);
-        $one = $container->get(Reference::to('engine'));
-        $two = $container->get(Reference::to('e1'));
-        $this->assertInstanceOf(EngineMarkOne::class, $one);
-        $this->assertInstanceOf(EngineMarkOne::class, $two);
-        $this->assertSame($one, $two);
-    }
-
     public function testSameInstance(): void
     {
         $container = new Container([
