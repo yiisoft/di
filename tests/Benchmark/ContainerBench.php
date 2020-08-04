@@ -25,7 +25,7 @@ use Yiisoft\Factory\Definitions\Reference;
  */
 class ContainerBench
 {
-    const SERVICE_COUNT = 200;
+    public const SERVICE_COUNT = 200;
 
     private CompositeContainer $composite;
 
