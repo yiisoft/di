@@ -410,7 +410,10 @@ services to the container only when they are actually needed.
 
 To run benchmarks execute the next command
 
+`composer require phpbench/phpbench` 
 `$ ./vendor/bin/phpbench run`
+
+Note: Only works for php 7.4.
 
 Result example
 

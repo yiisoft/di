@@ -20,6 +20,7 @@
         "irc": "irc://irc.freenode.net/yii",
         "source": "https://github.com/yiisoft/di"
     },
+    "minimum-stability": "dev",
     "require": {
         "php": "^7.4",
         "ext-mbstring": "*",
@@ -29,9 +30,11 @@
     "require-dev": {
         "infection/infection": "^0.16.3",
         "phan/phan": "^3.0.2",
-        "phpunit/phpunit": "^9.2",
-        "phpbench/phpbench": "^0.17.0",
+        "phpunit/phpunit": "^9.3",
         "league/container": "^3.2"
+    },
+    "suggest": {
+        "phpbench/phpbench": "To run benchmarks."
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
@@ -54,14 +57,10 @@
     "scripts": {
         "test": [
             "phpunit --coverage-html coverage"
-        ],
-        "bench": [
-            "phpbench run"
         ]
     },
     "scripts-descriptions": {
-        "test": "Run all tests",
-        "bench": "Run all benchmarks"
+        "test": "Run all tests"
     },
     "config": {
         "sort-packages": true
