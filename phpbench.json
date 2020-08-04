@@ -1,6 +1,6 @@
 {
     "bootstrap": "vendor/autoload.php",
-    "path": "tests/benchmark",
+    "path": "tests/Benchmark",
     "retry_threshold": 3,
     "outputs": {
         "html_file": {
