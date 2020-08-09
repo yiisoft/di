@@ -22,14 +22,14 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php": "^7.4",
+        "php": "^7.4|^8.0",
         "ext-mbstring": "*",
         "psr/container": "1.0.0",
         "yiisoft/factory": "^3.0@dev"
     },
     "require-dev": {
         "infection/infection": "^0.16.3",
-        "phan/phan": "^3.0.2",
+        "phan/phan": "^3.0",
         "phpunit/phpunit": "^9.3",
         "league/container": "^3.2"
     },
@@ -64,5 +64,6 @@
     },
     "config": {
         "sort-packages": true
-    }
+    },
+    "prefer-stable": true
 }
