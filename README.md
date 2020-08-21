@@ -242,8 +242,8 @@ $moduleBContainer = new Container([
     LoggerInterface::class => LoggerB::class
 ], []);
 
-$composite->attach($moduleAContainer, '/moduleB');
-$composite->attach($moduleBContainer, '/moduleA');
+$composite->attach($moduleAContainer, '/moduleA');
+$composite->attach($moduleBContainer, '/moduleB');
 $composite->attach($appContainer);
 $composite->attach($extensionContainer);
 $composite->attach($coreContainer);
