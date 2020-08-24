@@ -28,7 +28,7 @@
         "yiisoft/factory": "^3.0@dev"
     },
     "require-dev": {
-        "infection/infection": "^0.16.3 || ^0.17.0",
+        "infection/infection": "^0.17.0",
         "phan/phan": "^3.0",
         "phpunit/phpunit": "^9.3",
         "league/container": "^3.2"
