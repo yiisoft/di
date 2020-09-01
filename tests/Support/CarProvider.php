@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\Contracts\ServiceProviderInterface;
 
-class CarProvider extends ServiceProvider
+class CarProvider implements ServiceProviderInterface
 {
     public function getDefinitions(): array
     {

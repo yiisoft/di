@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\DeferredServiceProvider;
+use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 
-class CarDeferredProvider extends DeferredServiceProvider
+class CarDeferredProvider implements DeferredServiceProviderInterface
 {
     public function provides(): array
     {
