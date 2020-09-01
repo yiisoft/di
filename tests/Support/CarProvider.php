@@ -9,9 +9,11 @@ use Yiisoft\Di\Support\ServiceProvider;
 
 class CarProvider extends ServiceProvider
 {
-    public function register(Container $container): void
+    public function getDefinitions(): array
     {
-        $container->set('car', Car::class);
-        $container->set(EngineInterface::class, EngineMarkOne::class);
+        return [
+            'car' =>  Car::class,
+            EngineInterface::class => EngineMarkOne::class,
+            ];
     }
 }

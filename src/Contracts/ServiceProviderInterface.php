@@ -19,29 +19,15 @@ use Yiisoft\Di\Container;
  * ```php
  * class CarProvider implements ServiceProviderInterface
  * {
- *    public function register(Container $container): void
+ *    public function getDefinitions(): array
  *    {
- *        $this->registerDependencies();
- *        $this->registerService();
+ *        return [
+ *            'car' =>  ['__class' => Car::class],
+ *            'car-factory' => CarFactory::class,
+ *            EngineInterface::class => EngineMarkOne::class,
+ *            ];
  *    }
  *
- *    protected function registerDependencies(): void
- *    {
- *        $container = $this->container;
- *        $container->set(EngineInterface::class, SolarEngine::class);
- *        $container->set(WheelInterface::class, [
- *            '__class' => Wheel::class,
- *            'color' => 'black',
- *        ]);
- *    }
- *
- *    protected function registerService(): void
- *    {
- *        $this->container->set(Car::class, [
- *              '__class' => Car::class,
- *              'color' => 'red',
- *        ]);
- *    }
  * }
  * ```
  */
@@ -55,7 +41,6 @@ interface ServiceProviderInterface
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.
      *
-     * @param Container $container the container in which to register the services.
      */
-    public function register(Container $container): void;
+    public function getDefinitions(): array;
 }

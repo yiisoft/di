@@ -15,6 +15,7 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
+use Yiisoft\Router\UrlMatcherInterface;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -89,7 +90,9 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->instances[$id] = $this->build($id);
         }
 
-        return $this->instances[$id];
+        $instance = $this->instances[$id];
+
+        return $instance;
     }
 
     /**
@@ -161,7 +164,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
-            $definition->register($this);
+            $definitions = $definition->getDefinitions();
+            foreach ($definitions as $id => $def) {
+                $this->set($id, $def);
+            }
         }
     }
 
@@ -253,7 +259,10 @@ final class Container extends AbstractContainerConfigurator implements Container
                 $this->definitions[$id] = $provider;
             }
         } else {
-            $provider->register($this);
+            $definitions = $provider->getDefinitions();
+            foreach ($definitions as $id => $definition) {
+                $this->set($id, $definition);
+            }
         }
     }
 

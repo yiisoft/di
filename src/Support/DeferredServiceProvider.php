@@ -31,13 +31,13 @@ use Yiisoft\Di\AbstractContainerConfigurator;
  *         ];
  *     }
  *
- *     public function register(): void
+ *     public function getDefinitions(): array
  *     {
- *         $container = $this->container;
- *
- *         $container->set(Car::class, Car::class);
- *         $container->set(CarFactory::class, CarFactory::class);
- *         $container->set(EngineInterface::class, EngineMarkOne::class);
+ *         return [
+ *              'car' =>  ['__class' => Car::class],
+ *              'car-factory' => CarFactory::class,
+ *              EngineInterface::class => EngineMarkOne::class,
+ *             ];
  *     }
  * }
  *
@@ -49,7 +49,7 @@ use Yiisoft\Di\AbstractContainerConfigurator;
  * // registered once EngineInterface was requested from the container.
  * ```
  */
-abstract class DeferredServiceProvider extends AbstractContainerConfigurator implements DeferredServiceProviderInterface
+abstract class DeferredServiceProvider implements DeferredServiceProviderInterface
 {
     /**
      * Lists classes provided by service provider. Should be a list of class names
