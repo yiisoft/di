@@ -15,7 +15,6 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
-use Yiisoft\Router\UrlMatcherInterface;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -90,9 +89,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->instances[$id] = $this->build($id);
         }
 
-        $instance = $this->instances[$id];
-
-        return $instance;
+        return $this->instances[$id];
     }
 
     /**
