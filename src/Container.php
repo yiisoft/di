@@ -36,7 +36,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private array $instances = [];
 
-    private ?ContainerInterface $rootContainer = null;
+    private ?CompositeContainer $rootContainer = null;
 
     /**
      * Container constructor.
