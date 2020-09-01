@@ -36,6 +36,8 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private array $instances = [];
 
+    private array $tags;
+
     private ?ContainerInterface $rootContainer = null;
 
     /**
@@ -51,8 +53,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function __construct(
         array $definitions = [],
         array $providers = [],
+        array $tags = [],
         ContainerInterface $rootContainer = null
     ) {
+        $this->tags = $tags;
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -115,6 +119,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function set(string $id, $definition): void
     {
         $this->validateDefinition($definition);
+        $tags = $this->extractTags($definition);
+        $this->setTags($id, $tags);
         $this->instances[$id] = null;
         $this->definitions[$id] = $definition;
     }
@@ -131,11 +137,45 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
+    private function extractTags(&$definition): array
+    {
+        if (is_array($definition) && isset($definition['__tags']) && is_array($definition['__tags'])) {
+            $tags = $definition['__tags'];
+            unset($definition['__tags']);
+            if (isset($definition['__definition'])) {
+                $definition = $definition['__definition'];
+            }
+            $this->checkTags($tags);
+
+            return $tags;
+        }
+
+        return [];
+    }
+
+    private function checkTags(array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if (!(is_string($tag))) {
+                throw new InvalidConfigException('Invalid tag: ' . var_export($tag, true));
+            }
+        }
+    }
+
+    private function setTags(string $id, array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag])) {
+                $this->tags[$tag][] = $id;
+            }
+        }
+    }
+
     /**
      * Creates new instance by either interface name or alias.
      *
      * @param string $id The interface or an alias name that was previously registered.
-     * @return object New built instance of the specified class.
+     * @return mixed|object New built instance of the specified class.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
@@ -143,6 +183,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function build(string $id)
     {
+        if ($this->isTagAlias($id)) {
+            return $this->getTaggedServices($id);
+        }
+
         if (isset($this->building[$id])) {
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
@@ -157,6 +201,25 @@ final class Container extends AbstractContainerConfigurator implements Container
 
         return $object;
     }
+
+    private function isTagAlias(string $id): bool
+    {
+        return substr($id, 0, 4) === 'tag@';
+    }
+
+    private function getTaggedServices(string $tagAlias): array
+    {
+        $tag = substr($tagAlias, 4);
+        $services = [];
+        if (isset($this->tags[$tag])) {
+            foreach ($this->tags[$tag] as $service) {
+                $services[] = $this->get($service);
+            }
+        }
+
+        return $services;
+    }
+
 
     private function processDefinition($definition): void
     {

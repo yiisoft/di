@@ -372,7 +372,7 @@ class ContainerTest extends TestCase
             EngineInterface::class => EngineMarkTwo::class
         ]);
 
-        $container = new Container([], [], $rootContainer);
+        $container = new Container([], [], [], $rootContainer);
         $car = $container->get(Car::class);
 
         $this->assertSame(Car::class, get_class($car));
@@ -389,7 +389,7 @@ class ContainerTest extends TestCase
 
         $compositeContainer->attach($container1);
 
-        $container = new Container([], [], $compositeContainer);
+        $container = new Container([], [], [], $compositeContainer);
         $car = $container->get(Car::class);
 
         $this->assertSame(Car::class, get_class($car));
@@ -401,7 +401,7 @@ class ContainerTest extends TestCase
         $compositeContainer = new CompositeContainer();
         $container = new Container([
             'car' => Car::class
-        ], [], $compositeContainer);
+        ], [], [], $compositeContainer);
         $engineContainer = new Container([
             EngineInterface::class => EngineMarkOne::class
         ]);
@@ -425,7 +425,7 @@ class ContainerTest extends TestCase
         $compositeContainer->attach($container1);
         $nestedCompositeContainer->attach($compositeContainer);
 
-        $container = new Container([], [], $nestedCompositeContainer);
+        $container = new Container([], [], [], $nestedCompositeContainer);
         $car = $container->get(Car::class);
 
         $this->assertSame(Car::class, get_class($car));
@@ -445,12 +445,12 @@ class ContainerTest extends TestCase
         ]);
         $container2 = new Container([
             'second' => static function () {
-                return  'second';
+                return 'second';
             },
             'first-second-third' => static function ($c) {
                 return $c->get('first') . $c->get('second') . $c->get('third');
             },
-        ], [], $compositeContainer);
+        ], [], [], $compositeContainer);
 
         $compositeContainer->attach($container1);
         $compositeContainer->attach($container2);
@@ -458,6 +458,160 @@ class ContainerTest extends TestCase
         $this->assertSame('first', $compositeContainer->get('first'));
         $this->assertSame('second', $compositeContainer->get('second'));
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
+    }
+
+    public function testTagsInArrayDefinition(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine'],
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+                '__tags' => ['engine'],
+            ]
+        ]);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+    }
+
+    public function testTagsInClosureDefinition(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__definition' => function () {
+                    return new EngineMarkOne();
+                },
+                '__tags' => ['engine'],
+            ],
+            EngineMarkTwo::class => [
+                '__definition' => function () {
+                    return new EngineMarkTwo();
+                },
+                '__tags' => ['engine'],
+            ]
+        ]);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+    }
+
+    public function testTagsMultiple(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine', 'mark_one'],
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+                '__tags' => ['engine'],
+            ]
+        ]);
+
+        $engines = $container->get('tag@engine');
+        $markOneEngines = $container->get('tag@mark_one');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertIsArray($markOneEngines);
+        $this->assertSame(EngineMarkOne::class, get_class($markOneEngines[0]));
+        $this->assertCount(1, $markOneEngines);
+    }
+
+    public function testTagsEmpty(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+            ]
+        ]);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(0, $engines);
+    }
+
+    public function testTagsWithExternalDefinition(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine'],
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+            ]
+        ], [], ['engine' => [EngineMarkTwo::class]]);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
+    }
+
+    public function testTagsWithExternalDefinitionMerge(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine'],
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+                '__tags' => ['engine'],
+            ]
+        ], [], ['mark_two' => [EngineMarkTwo::class]]);
+
+        $engines = $container->get('tag@engine');
+        $markTwoEngines = $container->get('tag@mark_two');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertIsArray($markTwoEngines);
+        $this->assertCount(1, $markTwoEngines);
+        $this->assertSame(EngineMarkTwo::class, get_class($markTwoEngines[0]));
+    }
+
+    public function testTagsAsArrayInConstructor(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine'],
+            ],
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+                '__tags' => ['engine'],
+            ],
+            Car::class => [
+                '__construct()' => ['moreEngines' => Reference::to('tag@engine')]
+            ],
+        ]);
+
+        $engines = $container->get(Car::class)->getMoreEngines();
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
