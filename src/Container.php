@@ -7,6 +7,7 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Factory\Factory;
 use Yiisoft\Factory\Definitions\DynamicReference;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
@@ -38,6 +39,8 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private ?CompositeContainer $rootContainer = null;
 
+    private Factory $factory;
+
     /**
      * Container constructor.
      *
@@ -53,6 +56,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $providers = [],
         ContainerInterface $rootContainer = null
     ) {
+        $this->factory = new Factory();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
@@ -273,7 +277,8 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        $provider = Normalizer::normalize($providerDefinition)->resolve($this);
+
+        $provider = $this->factory->create($providerDefinition);
         if (!($provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 'Service provider should be an instance of ' . ServiceProviderInterface::class
