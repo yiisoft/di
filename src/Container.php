@@ -112,7 +112,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws InvalidConfigException
      * @see `Normalizer::normalize()`
      */
-    protected function set(string $id, $definition): void
+    private function set(string $id, $definition): void
     {
         $this->validateDefinition($definition);
         $this->instances[$id] = null;
@@ -124,7 +124,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @param array $config definitions indexed by their ids
      * @throws InvalidConfigException
      */
-    protected function setMultiple(array $config): void
+    private function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             $this->set((string)$id, $definition);
