@@ -118,8 +118,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        $this->validateDefinition($definition);
         $tags = $this->extractTags($definition);
+        $definition = $this->extractDefinition($definition);
+        $this->validateDefinition($definition);
         $this->setTags($id, $tags);
         $this->instances[$id] = null;
         $this->definitions[$id] = $definition;
@@ -137,16 +138,21 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    private function extractTags(&$definition): array
+    private function extractDefinition($definition)
+    {
+        if (is_array($definition) && isset($definition['__definition'])) {
+            $definition = $definition['__definition'];
+        }
+
+        return $definition;
+    }
+
+    private function extractTags($definition): array
     {
         if (is_array($definition) && isset($definition['__tags']) && is_array($definition['__tags'])) {
             $tags = $definition['__tags'];
             unset($definition['__tags']);
-            if (isset($definition['__definition'])) {
-                $definition = $definition['__definition'];
-            }
             $this->checkTags($tags);
-
             return $tags;
         }
 
