@@ -7,7 +7,7 @@ namespace Yiisoft\Di\Tests\Support;
 /**
  * A car
  */
-class Car
+class Car implements CarInterface
 {
     public ColorInterface $color;
     private EngineInterface $engine;
