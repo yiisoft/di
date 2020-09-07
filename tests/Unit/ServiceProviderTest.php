@@ -18,27 +18,12 @@ use Yiisoft\Di\Tests\Support\CarProvider;
  */
 class ServiceProviderTest extends TestCase
 {
-    public function testAddProviderByClassName(): void
+    public function testAddProvider(): void
     {
-        $this->ensureProviderRegisterDefinitions(CarProvider::class);
+        $this->ensureProviderRegistered(new CarProvider);
     }
 
-    public function testAddProviderByDefinition(): void
-    {
-        $this->ensureProviderRegisterDefinitions([
-            '__class' => CarProvider::class,
-        ]);
-    }
-
-    public function testAddProviderRejectDefinitionWithoutClass(): void
-    {
-        $this->expectException(NotInstantiableException::class);
-        $container = new Container([], [
-            ['property' => 234]
-        ]);
-    }
-
-    protected function ensureProviderRegisterDefinitions($provider): void
+    protected function ensureProviderRegistered($provider): void
     {
         $container = new Container();
 

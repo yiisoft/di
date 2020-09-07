@@ -244,16 +244,20 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Adds service provider to the container. Unless service provider is deferred
      * it would be immediately registered.
      *
-     * @param string|array $providerDefinition
+     * @param object $provider
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    private function addProvider($providerDefinition): void
+    private function addProvider($provider): void
     {
-        $provider = $this->buildProvider($providerDefinition);
+        if (!($provider instanceof ServiceProviderInterface)) {
+            throw new InvalidConfigException(
+                'Service provider should be an instance of ' . ServiceProviderInterface::class
+            );
+        }
 
         if ($provider instanceof DeferredServiceProviderInterface) {
             foreach ($provider->provides() as $id) {
@@ -265,26 +269,5 @@ final class Container extends AbstractContainerConfigurator implements Container
                 $this->set($id, $definition);
             }
         }
-    }
-
-    /**
-     * Builds service provider by definition.
-     *
-     * @param string|array $providerDefinition class name or definition of provider.
-     * @return ServiceProviderInterface instance of service provider;
-     *
-     * @throws InvalidConfigException
-     */
-    private function buildProvider($providerDefinition): ServiceProviderInterface
-    {
-
-        $provider = $this->factory->create($providerDefinition);
-        if (!($provider instanceof ServiceProviderInterface)) {
-            throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProviderInterface::class
-            );
-        }
-
-        return $provider;
     }
 }
