@@ -72,6 +72,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function has($id): bool
     {
+        if ($this->isTagAlias($id)) {
+            $tag = substr($id, 4);
+            return isset($this->tags[$tag]);
+        }
+
         return isset($this->definitions[$id]) || class_exists($id);
     }
 

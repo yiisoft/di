@@ -71,4 +71,32 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $compositeContainer->attach($containerTwo);
         $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
     }
+
+    public function testTags(): void
+    {
+        $compositeContainer = new CompositeContainer();
+        $firstContainer = new Container([
+            EngineMarkOne::class => [
+                '__class' => EngineMarkOne::class,
+                '__tags' => ['engine'],
+            ],
+        ]);
+
+        $secondContainer = new Container([
+            EngineMarkTwo::class => [
+                '__class' => EngineMarkTwo::class,
+                '__tags' => ['engine'],
+            ]
+        ]);
+
+        $compositeContainer->attach($firstContainer);
+        $compositeContainer->attach($secondContainer);
+
+        $engines = $compositeContainer->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+    }
 }
