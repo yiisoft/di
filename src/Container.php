@@ -150,10 +150,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function extractTags($definition): array
     {
         if (is_array($definition) && isset($definition['__tags']) && is_array($definition['__tags'])) {
-            $tags = $definition['__tags'];
-            unset($definition['__tags']);
-            $this->checkTags($tags);
-            return $tags;
+            $this->checkTags($definition['__tags']);
+            return $definition['__tags'];
         }
 
         return [];
@@ -210,7 +208,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private function isTagAlias(string $id): bool
     {
-        return substr($id, 0, 4) === 'tag@';
+        return strpos($id, 'tag@') === 0;
     }
 
     private function getTaggedServices(string $tagAlias): array
