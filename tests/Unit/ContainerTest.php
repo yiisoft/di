@@ -218,7 +218,7 @@ class ContainerTest extends TestCase
     public function testCircularReference(): void
     {
         $container = new Container([
-            TreeItem::class, TreeItem::class,
+            TreeItem::class => TreeItem::class,
         ]);
 
         $this->expectException(CircularReferenceException::class);
