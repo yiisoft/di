@@ -127,6 +127,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
+            if (!is_string($id)) {
+                throw new InvalidConfigException('Key must be a string');
+            }
             $this->set((string)$id, $definition);
         }
     }

@@ -44,6 +44,17 @@ class ContainerTest extends TestCase
         $container->get('scalar');
     }
 
+    public function testIntegerKeys(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $container = new Container([
+            EngineMarkOne::class,
+            EngineMarkTwo::class,
+        ]);
+
+        $container->get(Car::class);
+    }
+
     public function testOptionalClassDependency(): void
     {
         $this->markTestIncomplete('TODO: implement optional dependencies');
@@ -218,7 +229,7 @@ class ContainerTest extends TestCase
     public function testCircularReference(): void
     {
         $container = new Container([
-            TreeItem::class, TreeItem::class,
+            TreeItem::class => TreeItem::class,
         ]);
 
         $this->expectException(CircularReferenceException::class);
