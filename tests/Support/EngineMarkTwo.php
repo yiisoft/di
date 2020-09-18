@@ -10,8 +10,14 @@ namespace Yiisoft\Di\Tests\Support;
 class EngineMarkTwo implements EngineInterface
 {
     public const NAME = 'Mark Two';
+    public const NUMBER = 2;
 
     private int $number;
+
+    public function __construct(int $number = self::NUMBER)
+    {
+        $this->number = $number;
+    }
 
     public function getName(): string
     {

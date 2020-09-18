@@ -54,6 +54,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         ContainerInterface $rootContainer = null
     ) {
         $this->setMultiple($definitions);
+        if (!$this->has(ContainerInterface::class)) {
+            $this->set(ContainerInterface::class, $rootContainer ?? $this);
+        }
         $this->addProviders($providers);
         if ($rootContainer !== null) {
             $this->delegateLookup($rootContainer);

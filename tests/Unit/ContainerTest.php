@@ -16,7 +16,6 @@ use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarFactory;
-use Yiisoft\Di\Tests\Support\ColorPink;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
@@ -28,6 +27,9 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Di\Tests\Support\EngineFactory;
+use Yiisoft\Injector\Injector;
+use Yiisoft\Di\Tests\Support\ColorPink;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -239,14 +241,53 @@ class ContainerTest extends TestCase
     public function testCallable(): void
     {
         $container = new Container([
-            'engine' => EngineMarkOne::class,
-            'test' => static function (ContainerInterface $container) {
-                return $container->get('engine');
-            }
+            EngineInterface::class => EngineMarkOne::class,
+            'test' => fn (ContainerInterface $container) => $container->get(EngineInterface::class),
         ]);
 
         $object = $container->get('test');
         $this->assertInstanceOf(EngineMarkOne::class, $object);
+    }
+
+    public function testCallableWithInjector(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke([$factory, 'create']),
+        ]);
+
+        $engine = $container->get(EngineInterface::class);
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertSame($engine, $car->getEngine());
+    }
+
+    public function testCallableWithArgs(): void
+    {
+        $container = new Container([
+            'engine1' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkOne::NAME),
+            'engine2' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkTwo::NAME),
+        ]);
+        $engine1 = $container->get('engine1');
+        $this->assertInstanceOf(EngineMarkOne::class, $engine1);
+        $this->assertSame(EngineMarkOne::NUMBER, $engine1->getNumber());
+        $engine2 = $container->get('engine2');
+        $this->assertInstanceOf(EngineMarkTwo::class, $engine2);
+        $this->assertSame(EngineMarkTwo::NUMBER, $engine2->getNumber());
+    }
+
+    public function testCallableWithDependencies(): void
+    {
+        $container = new Container([
+            'car1' => fn (CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName($engineFactory, EngineMarkOne::NAME),
+            'car2' => fn (CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName($engineFactory, EngineMarkTwo::NAME),
+        ]);
+        $car1 = $container->get('car1');
+        $this->assertInstanceOf(Car::class, $car1);
+        $this->assertInstanceOf(EngineMarkOne::class, $car1->getEngine());
+        $car2 = $container->get('car2');
+        $this->assertInstanceOf(Car::class, $car2);
+        $this->assertInstanceOf(EngineMarkTwo::class, $car2->getEngine());
     }
 
     public function testObject(): void
@@ -262,7 +303,7 @@ class ContainerTest extends TestCase
     public function testStaticCall(): void
     {
         $container = new Container([
-            'engine' => EngineMarkOne::class,
+            EngineInterface::class => EngineMarkOne::class,
             'static' => [CarFactory::class, 'create'],
         ]);
 
@@ -367,7 +408,6 @@ class ContainerTest extends TestCase
     public function testContainerInContainer(): void
     {
         $container = new Container([
-            ContainerInterface::class => Reference::to('container'),
             'container' => static function (ContainerInterface $container) {
                 return $container;
             },
@@ -458,7 +498,7 @@ class ContainerTest extends TestCase
             'second' => static function () {
                 return  'second';
             },
-            'first-second-third' => static function ($c) {
+            'first-second-third' => static function (ContainerInterface $c) {
                 return $c->get('first') . $c->get('second') . $c->get('third');
             },
         ], [], $compositeContainer);
