@@ -183,13 +183,17 @@ class ContainerTest extends TestCase
     public function testAlias(): void
     {
         $container = new Container([
-            'engine-mark-one' => Reference::to('engine'),
-            'engine' => EngineMarkOne::class,
             EngineInterface::class => Reference::to('engine'),
+            'engine' => Reference::to('engine-mark-one'),
+            'engine-mark-one' => EngineMarkOne::class,
         ]);
 
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine-mark-one'));
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
+        $engine1 = $container->get('engine-mark-one');
+        $engine2 = $container->get('engine');
+        $engine3 = $container->get(EngineInterface::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $engine1);
+        $this->assertSame($engine1, $engine2);
+        $this->assertSame($engine2, $engine3);
     }
 
     public function testCircularAlias(): void
