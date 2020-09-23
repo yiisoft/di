@@ -17,10 +17,13 @@ class CarFactory
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public static function create(ContainerInterface $container): Car
+    public static function create(EngineInterface $engine): Car
     {
-        /** @var EngineInterface $engine */
-        $engine = $container->get('engine');
         return new Car($engine);
+    }
+
+    public function createByEngineName(EngineFactory $factory, $name): Car
+    {
+        return new Car($factory->createByName($name));
     }
 }
