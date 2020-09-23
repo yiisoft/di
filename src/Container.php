@@ -14,6 +14,7 @@ use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Factory\Definitions\TagDefinition;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -120,9 +121,25 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        Normalizer::validate($definition);
+        [$definition, $tags] = Normalizer::parse($definition);
+        $this->saveTags($id, $tags);
         unset($this->instances[$id]);
         $this->definitions[$id] = $definition;
+    }
+
+    private function saveTags(string $id, array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if (isset($this->definitions[$tag])) {
+                $definition = $this->definitions[$tag];
+                if (!$definition instanceof TagDefinition) {
+                    throw new InvalidConfigException("cannot create tag $tag, name already in use");
+                }
+                $definition->addReferenceTo($id);
+            } else {
+                $this->definitions[$tag] = new TagDefinition([$id]);
+            }
+        }
     }
 
     /**

@@ -21,12 +21,27 @@ final class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
+        if (strncmp($id, '#', 1) === 0) {
+            return $this->collectTags($id);
+        }
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 return $container->get($id);
             }
         }
         throw new NotFoundException("No definition for $id");
+    }
+
+    private function collectTags(string $id): array
+    {
+        $res = [];
+        foreach ($this->containers as $container) {
+            if ($container->has($id)) {
+                $res = array_merge($res, $container->get($id));
+            }
+        }
+
+        return $res;
     }
 
     public function has($id): bool
