@@ -7,7 +7,6 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\DynamicReference;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
@@ -79,7 +78,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string|Reference $id The interface or an alias name that was previously registered.
+     * @param string $id The interface or an alias name that was previously registered.
      * @return object An instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -117,7 +116,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        $this->validateDefinition($definition);
+        Normalizer::validate($definition);
         $this->instances[$id] = null;
         $this->definitions[$id] = $definition;
     }
@@ -169,31 +168,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
         }
-    }
-
-    private function validateDefinition($definition): void
-    {
-        if ($definition instanceof Reference || $definition instanceof DynamicReference) {
-            return;
-        }
-
-        if (\is_string($definition)) {
-            return;
-        }
-
-        if (\is_callable($definition)) {
-            return;
-        }
-
-        if (\is_array($definition)) {
-            return;
-        }
-
-        if (\is_object($definition)) {
-            return;
-        }
-
-        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
     }
 
     /**
