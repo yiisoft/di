@@ -31,6 +31,7 @@
         "infection/infection": "^0.17.0",
         "phan/phan": "^3.0",
         "phpunit/phpunit": "^9.3",
+        "phpbench/phpbench": "~0.17",
         "yiisoft/injector": "^1.0@dev",
         "league/container": "^3.2"
     },
