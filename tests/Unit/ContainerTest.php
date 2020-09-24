@@ -190,9 +190,7 @@ class ContainerTest extends TestCase
             'car' => [
                 '__class' => Car::class,
                 '__construct()' => [
-                    new CallableDefinition(
-                        static fn(EngineInterface $engine) => $engine,
-                    ),
+                    static fn(EngineInterface $engine) => $engine,
                 ],
             ],
             EngineInterface::class => EngineMarkTwo::class,
