@@ -137,6 +137,25 @@ final class Container extends AbstractContainerConfigurator implements Container
     }
 
     /**
+     * Returns the currently created instances.
+     * @return object[]
+     */
+    protected function getInstances(): array
+    {
+        return $this->instances;
+    }
+
+    /**
+     * Replaces instances.
+     * @param object[]|null[] $instances
+     * @param bool $merge specifies to install instances or merge with existing ones.
+     */
+    protected function setInstances(array $instances, bool $merge = false): void
+    {
+        $this->instances = $merge ? \array_merge($this->instances, $instances) : $instances;
+    }
+
+    /**
      * Creates new instance by either interface name or alias.
      *
      * @param string $id The interface or an alias name that was previously registered.

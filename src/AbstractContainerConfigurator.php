@@ -22,4 +22,14 @@ abstract class AbstractContainerConfigurator
     {
         throw new \RuntimeException("Method 'delegateLookup' does not exist.");
     }
+
+    protected function getInstances(): array
+    {
+        throw new \RuntimeException("Method 'getInstances' does not exist.");
+    }
+
+    protected function setInstances(array $instances, bool $merge = false): void
+    {
+        throw new \RuntimeException("Method 'setInstances' does not exist.");
+    }
 }
