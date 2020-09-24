@@ -31,6 +31,7 @@ use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Di\Tests\Support\ColorPink;
 use Yiisoft\Factory\Definitions\CallableDefinition;
+use Yiisoft\Factory\Definitions\ValueDefinition;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -200,6 +201,22 @@ class ContainerTest extends TestCase
         $car = $container->get('car');
         $engine = $container->get(EngineInterface::class);
         $this->assertSame($engine, $car->getEngine());
+    }
+
+    public function testKeepClosureDefinition(): void
+    {
+        $engine = new EngineMarkOne;
+        $closure = fn(EngineInterface $engine) => $engine;
+
+        $container = new Container([
+            EngineInterface::class => $engine,
+            'closure' => new ValueDefinition($closure),
+            'engine' => $closure,
+        ]);
+
+        $closure = $container->get('closure');
+        $this->assertSame($closure, $container->get('closure'));
+        $this->assertSame($engine, $container->get('engine'));
     }
 
     public function testAlias(): void
