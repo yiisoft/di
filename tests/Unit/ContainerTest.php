@@ -121,6 +121,15 @@ class ContainerTest extends TestCase
         $container->get(Chicken::class);
     }
 
+    public function testCircularContainerInterface(): void
+    {
+        $container = new Container([
+            ContainerInterface::class => fn (ContainerInterface $container) => $container,
+        ]);
+
+        $this->assertSame($container, $container->get(ContainerInterface::class));
+    }
+
     public function testClassSimple(): void
     {
         $container = new Container([
