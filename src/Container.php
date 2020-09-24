@@ -31,7 +31,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private array $building = [];
 
     /**
-     * @var object[]
+     * @var object[]|null[]
      */
     private array $instances = [];
 
@@ -138,7 +138,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * Returns the currently created instances.
-     * @return object[]
+     * @return object[]|null[]
      */
     protected function getInstances(): array
     {
