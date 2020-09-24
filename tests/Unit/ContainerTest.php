@@ -130,6 +130,20 @@ class ContainerTest extends TestCase
         $this->assertSame($container, $container->get(ContainerInterface::class));
     }
 
+    public function testChangeContainer(): void
+    {
+        $one = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+        ]);
+        $two = new Container([
+            ContainerInterface::class => $one,
+            EngineInterface::class => fn(ContainerInterface $container) => $container->get(EngineInterface::class),
+        ]);
+
+        $this->assertSame($one, $two->get(ContainerInterface::class));
+        $this->assertInstanceOf(EngineMarkOne::class, $two->get(EngineInterface::class));
+    }
+
     public function testClassSimple(): void
     {
         $container = new Container([
