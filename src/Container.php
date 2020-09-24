@@ -149,6 +149,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function build(string $id)
     {
         if (isset($this->building[$id])) {
+            if ($id === ContainerInterface::class) {
+                return $this;
+            }
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
                 $id,
