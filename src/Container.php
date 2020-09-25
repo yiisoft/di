@@ -60,6 +60,8 @@ final class Container extends AbstractContainerConfigurator implements Container
         if ($rootContainer !== null) {
             $this->delegateLookup($rootContainer);
         }
+        # Prevent circular reference to ContainerInterface
+        $this->get(ContainerInterface::class);
     }
 
     /**

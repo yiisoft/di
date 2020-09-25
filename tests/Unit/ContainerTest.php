@@ -121,13 +121,49 @@ class ContainerTest extends TestCase
         $container->get(Chicken::class);
     }
 
-    public function testCircularContainerInterface(): void
+    public function testSaveOldContainer(): void
     {
         $container = new Container([
-            ContainerInterface::class => fn (ContainerInterface $container) => $container,
+            'new-container' => fn (ContainerInterface $container) => new Container([], [], $container),
+
+            'old-container' => function (PropertyTestClass $saver) {
+                return $saver->property;
+            },
+            ContainerInterface::class => function (ContainerInterface $container, PropertyTestClass $saver) {
+                $saver->property = $container;
+                return $container->get('new-container');
+            },
+            'container' => fn (ContainerInterface $container) => $container,
         ]);
 
-        $this->assertSame($container, $container->get(ContainerInterface::class));
+        $newcontainer = $container->get('new-container');
+        $this->assertNotSame($container, $newcontainer);
+        $this->assertSame($newcontainer, $container->get('new-container'));
+        $this->assertSame($newcontainer, $container->get('container'));
+        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
+        $this->assertSame($container, $container->get('old-container'));
+    }
+
+    public function testNestedContainer(): void
+    {
+        $container = new Container([
+            'new-container' => fn (ContainerInterface $container) => new Container([
+                EngineInterface::class => EngineMarkOne::class,
+            ], [], $container),
+            ContainerInterface::class => function (ContainerInterface $container) {
+                return $container->get('new-container');
+            },
+            'container' => fn (ContainerInterface $container) => $container,
+        ]);
+
+        ### Order is crucial! Problem appears when 'new-container' is resolveed first
+        $newcontainer = $container->get('new-container');
+        $this->assertNotSame($container, $newcontainer);
+        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
+        $this->assertSame($newcontainer, $container->get('container'));
+        $this->assertInstanceOf(EngineMarkOne::class, $newcontainer->get(EngineInterface::class));
+        $this->expectException(NotFoundException::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
     }
 
     public function testClassSimple(): void
