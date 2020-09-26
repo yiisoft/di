@@ -106,7 +106,9 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->rootContainer = new CompositeContainer();
         }
 
-        $this->rootContainer->attach($container);
+        if ($this->rootContainer instanceof CompositeContainerInterface) {
+            $this->rootContainer->attach($container);
+        }
     }
 
     /**
