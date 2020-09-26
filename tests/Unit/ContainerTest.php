@@ -30,6 +30,7 @@ use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Di\Tests\Support\ColorPink;
+use Yiisoft\Di\Tests\Support\ColorInterface;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -78,6 +79,18 @@ class ContainerTest extends TestCase
         $a = $container->get(A::class);
         $this->assertInstanceOf(B::class, $a->b);
         $this->assertNull($a->b->a);
+    }
+
+    public function testHas(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+        ]);
+
+        $this->assertFalse($container->has(NonExistentClass::class));
+        $this->assertTrue($container->has(EngineMarkOne::class));
+        $this->assertTrue($container->has(EngineInterface::class));
+        $this->assertFalse($container->has(ColorInterface::class));
     }
 
     public function testWithoutDefinition(): void
