@@ -51,17 +51,19 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $definitions = [],
         array $providers = [],
         ContainerInterface $rootContainer = null
-    ) {
+    )
+    {
         $this->set(ContainerInterface::class, $rootContainer ?? $this);
         $this->setMultiple($definitions);
 
+        $this->setInjector($rootContainer ?? $this);
         $this->addProviders($providers);
         if ($rootContainer !== null) {
             $this->delegateLookup($rootContainer);
         }
         # Prevent circular reference to ContainerInterface
         $container = $this->get(ContainerInterface::class);
-        $this->set(Injector::class, new Injector($container));
+        $this->setInjector($container);
     }
 
     /**
@@ -260,5 +262,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $provider;
+    }
+
+    private function setInjector(ContainerInterface $container): void
+    {
+        $injector = new Injector($container);
+        $this->set(Injector::class, $injector);
     }
 }
