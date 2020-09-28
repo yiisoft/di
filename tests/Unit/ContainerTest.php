@@ -562,7 +562,7 @@ class ContainerTest extends TestCase
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
     }
 
-    public function testCircularReferenceException(): void
+    public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
         $provider = new class() extends ServiceProvider {
             public function register(Container $container): void
