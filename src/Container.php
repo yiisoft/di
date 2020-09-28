@@ -14,6 +14,7 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
+use Yiisoft\Injector\Injector;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -56,6 +57,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         if (!$this->has(ContainerInterface::class)) {
             $this->set(ContainerInterface::class, $rootContainer ?? $this);
         }
+
         $this->addProviders($providers);
         if ($rootContainer !== null) {
             $this->delegateLookup($rootContainer);
@@ -150,6 +152,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function build(string $id)
     {
+        if ($id === Injector::class) {
+            return new Injector($this);
+        }
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
