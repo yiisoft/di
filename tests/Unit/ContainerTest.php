@@ -9,9 +9,6 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
@@ -35,8 +32,6 @@ use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Yii\Debug\Proxy\ContainerProxy;
-use Yiisoft\Yii\Debug\Proxy\ContainerProxyConfig;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
