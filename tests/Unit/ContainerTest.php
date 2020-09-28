@@ -156,15 +156,16 @@ class ContainerTest extends TestCase
                 new class() extends ServiceProvider {
                     public function register(Container $container): void
                     {
-                        $container->set(ContainerInterface::class, static function (ContainerInterface $container) {
-                            return new ProxyContainer($container);
-                        });
+                        $container->set(
+                            ContainerInterface::class,
+                            fn(ContainerInterface $container) => new ProxyContainer($container)
+                        );
                     }
                 },
             ],
         );
 
-        $this->assertTrue($container->get(ContainerInterface::class) instanceof ProxyContainer);
+        $this->assertInstanceOf(ProxyContainer::class, $container->get(ContainerInterface::class));
     }
 
     public function testClassSimple(): void
