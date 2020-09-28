@@ -12,6 +12,7 @@ use Yiisoft\Di\Container;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
@@ -169,7 +170,7 @@ class ContainerTest extends TestCase
             'container' => fn (ContainerInterface $container) => $container,
         ]);
 
-        ### Order is crucial! Problem appears when 'new-container' is resolveed first
+        ### The order is crucial! Problem can appear when resolving 'new-container' first
         $newcontainer = $container->get('new-container');
         $this->assertNotSame($container, $newcontainer);
         $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
@@ -177,6 +178,57 @@ class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $newcontainer->get(EngineInterface::class));
         $this->expectException(NotFoundException::class);
         $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
+    }
+
+    public function testNestedContainerInProvider(): void
+    {
+        $container = new Container(
+            [],
+            [
+                new class() extends ServiceProvider {
+                    public function register(Container $container): void
+                    {
+                        $container->set(ContainerInterface::class, static function (ContainerInterface $container) {
+                            return $container->get('new-container');
+                        });
+                    }
+                },
+                new class() extends ServiceProvider {
+                    public function register(Container $container): void
+                    {
+                        $container->set('new-container', fn (ContainerInterface $container) => new Container([
+                            EngineInterface::class => EngineMarkOne::class,
+                        ], [], $container));
+                    }
+                },
+                new class() extends ServiceProvider {
+                    public function register(Container $container): void
+                    {
+                        $container->set('container', fn (ContainerInterface $container) => $container);
+                    }
+                },
+                new class() extends ServiceProvider {
+                    public function register(Container $container): void
+                    {
+                        $container->set(B::class, function () {
+                            throw new \RuntimeException();
+                        });
+                    }
+                },
+            ],
+        );
+
+        ### The order is crucial! Problem can appear when resolving 'new-container' first
+        $newcontainer = $container->get('new-container');
+        $this->assertNotSame($container, $newcontainer);
+        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
+        $this->assertSame($newcontainer, $container->get('container'));
+        $this->assertInstanceOf(EngineMarkOne::class, $newcontainer->get(EngineInterface::class));
+        $this->assertFalse($container->has(EngineInterface::class));
+        $this->assertTrue($newcontainer->has(EngineInterface::class));
+
+        $this->expectException(\RuntimeException::class);
+        $container->get(B::class);
     }
 
     public function testClassSimple(): void
