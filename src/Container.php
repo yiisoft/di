@@ -53,17 +53,19 @@ final class Container extends AbstractContainerConfigurator implements Container
         ContainerInterface $rootContainer = null
     )
     {
-        $this->set(ContainerInterface::class, $rootContainer ?? $this);
+        $this->delegateLookup($rootContainer);
+
+        $this->set(ContainerInterface::class, $this->rootContainer ?? $this);
+        $this->set(Injector::class, new Injector($this->rootContainer ?? $this));
+
         $this->setMultiple($definitions);
 
-        $this->setInjector($rootContainer ?? $this);
         $this->addProviders($providers);
-        if ($rootContainer !== null) {
-            $this->delegateLookup($rootContainer);
-        }
         # Prevent circular reference to ContainerInterface
         $container = $this->get(ContainerInterface::class);
-        $this->setInjector($container);
+        if ($container !== $this) {
+            $this->set(Injector::class, new Injector($container));
+        }
     }
 
     /**
@@ -102,8 +104,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Delegate service lookup to another container.
      * @param ContainerInterface $container
      */
-    protected function delegateLookup(ContainerInterface $container): void
+    protected function delegateLookup(?ContainerInterface $container): void
     {
+        if ($container === null) {
+            return;
+        }
+
         if ($this->rootContainer === null) {
             $this->rootContainer = new CompositeContainer();
         }
@@ -262,11 +268,5 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $provider;
-    }
-
-    private function setInjector(ContainerInterface $container): void
-    {
-        $injector = new Injector($container);
-        $this->set(Injector::class, $injector);
     }
 }
