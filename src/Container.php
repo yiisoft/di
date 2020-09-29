@@ -54,13 +54,17 @@ final class Container extends AbstractContainerConfigurator implements Container
     ) {
         $this->delegateLookup($rootContainer);
         $this->setMultiple($definitions);
-        if (!$this->has(ContainerInterface::class)) {
-            $this->set(ContainerInterface::class, $rootContainer ?? $this);
-        }
         $this->addProviders($providers);
+        $this->resolveRecursiveContainer();
+    }
 
-        # Prevent circular reference to ContainerInterface
-        $this->get(ContainerInterface::class);
+    private function resolveRecursiveContainer(): void
+    {
+        if ($this->has(ContainerInterface::class)) {
+            $this->get(ContainerInterface::class);
+        } else {
+            $this->set(ContainerInterface::class, $this->rootContainer ?? $this);
+        }
     }
 
     /**
