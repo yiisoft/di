@@ -278,7 +278,7 @@ class ContainerTest extends TestCase
             'car' => [
                 '__class' => Car::class,
                 '__construct()' => [
-                    static fn(EngineInterface $engine) => $engine,
+                    static fn (EngineInterface $engine) => $engine,
                 ],
             ],
             EngineInterface::class => EngineMarkTwo::class,
@@ -291,8 +291,8 @@ class ContainerTest extends TestCase
 
     public function testKeepClosureDefinition(): void
     {
-        $engine = new EngineMarkOne;
-        $closure = fn(EngineInterface $engine) => $engine;
+        $engine = new EngineMarkOne();
+        $closure = fn (EngineInterface $engine) => $engine;
 
         $container = new Container([
             EngineInterface::class => $engine,
