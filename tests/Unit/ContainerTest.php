@@ -33,6 +33,8 @@ use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Factory\Definitions\CallableDefinition;
+use Yiisoft\Factory\Definitions\ValueDefinition;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -89,7 +91,7 @@ class ContainerTest extends TestCase
             EngineInterface::class => EngineMarkOne::class,
         ]);
 
-        $this->assertFalse($container->has(NonExistentClass::class));
+        $this->assertFalse($container->has('non_existing'));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
         $this->assertFalse($container->has(ColorInterface::class));
@@ -134,6 +136,29 @@ class ContainerTest extends TestCase
 
         $this->expectException(CircularReferenceException::class);
         $container->get(Chicken::class);
+    }
+
+    public function testNestedContainer(): void
+    {
+        $container = new Container([
+            ContainerInterface::class => function (ContainerInterface $container) {
+                return new Container([
+                    ColorInterface::class => ColorPink::class,
+                    'engine' => fn (EngineInterface $engine) => $engine,
+                ], [], $container);
+            },
+            EngineInterface::class => EngineMarkOne::class,
+        ]);
+
+        $newContainer = $container->get(ContainerInterface::class);
+        $this->assertNotSame($container, $newContainer);
+        $this->assertFalse($newContainer->has(EngineInterface::class));
+        $engine = $newContainer->get('engine');
+        $this->assertInstanceOf(EngineMarkOne::class, $engine);
+        $this->assertSame($engine, $newContainer->get(Car::class)->getEngine());
+        $this->assertInstanceOf(ColorPink::class, $newContainer->get(ColorInterface::class));
+        $this->expectException(NotFoundException::class);
+        $this->assertInstanceOf(ColorPink::class, $container->get(ColorInterface::class));
     }
 
     public function testRootContainerInContainerInterfaceDefinition(): void
@@ -227,6 +252,39 @@ class ContainerTest extends TestCase
         /** @var MethodTestClass $object */
         $object = $container->get('method_test');
         $this->assertSame(42, $object->getValue());
+    }
+
+    public function testClosureInConstruct(): void
+    {
+        $container = new Container([
+            'car' => [
+                '__class' => Car::class,
+                '__construct()' => [
+                    static fn (EngineInterface $engine) => $engine,
+                ],
+            ],
+            EngineInterface::class => EngineMarkTwo::class,
+        ]);
+
+        $car = $container->get('car');
+        $engine = $container->get(EngineInterface::class);
+        $this->assertSame($engine, $car->getEngine());
+    }
+
+    public function testKeepClosureDefinition(): void
+    {
+        $engine = new EngineMarkOne();
+        $closure = fn (EngineInterface $engine) => $engine;
+
+        $container = new Container([
+            EngineInterface::class => $engine,
+            'closure' => new ValueDefinition($closure),
+            'engine' => $closure,
+        ]);
+
+        $closure = $container->get('closure');
+        $this->assertSame($closure, $container->get('closure'));
+        $this->assertSame($engine, $container->get('engine'));
     }
 
     public function testAlias(): void

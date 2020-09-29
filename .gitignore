@@ -30,7 +30,7 @@ phpunit.phar
 # phpunit cache
 .phpunit.result.cache
 
-# Phan
+# Static analysis
 analysis.txt
 
 # Code coverage HTML

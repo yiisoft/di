@@ -8,6 +8,10 @@ use Psr\Container\ContainerInterface;
 
 abstract class AbstractContainerConfigurator
 {
+    /**
+     * @param string $id
+     * @param mixed $definition
+     */
     protected function set(string $id, $definition): void
     {
         throw new \RuntimeException("Method 'set' does not exist.");
