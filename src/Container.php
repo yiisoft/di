@@ -52,15 +52,13 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $providers = [],
         ContainerInterface $rootContainer = null
     ) {
+        $this->delegateLookup($rootContainer);
         $this->setMultiple($definitions);
         if (!$this->has(ContainerInterface::class)) {
             $this->set(ContainerInterface::class, $rootContainer ?? $this);
         }
-
         $this->addProviders($providers);
-        if ($rootContainer !== null) {
-            $this->delegateLookup($rootContainer);
-        }
+
         # Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
     }
@@ -101,8 +99,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Delegate service lookup to another container.
      * @param ContainerInterface $container
      */
-    protected function delegateLookup(ContainerInterface $container): void
+    protected function delegateLookup(?ContainerInterface $container): void
     {
+        if ($container === null) {
+            return;
+        }
         if ($this->rootContainer === null) {
             $this->rootContainer = new CompositeContainer();
         }
