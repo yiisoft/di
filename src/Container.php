@@ -7,7 +7,6 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
@@ -121,7 +120,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function set(string $id, $definition): void
     {
         Normalizer::validate($definition);
-        $this->instances[$id] = null;
+        unset($this->instances[$id]);
         $this->definitions[$id] = $definition;
     }
 
@@ -136,7 +135,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             if (!is_string($id)) {
                 throw new InvalidConfigException('Key must be a string');
             }
-            $this->set((string)$id, $definition);
+            $this->set($id, $definition);
         }
     }
 
@@ -173,6 +172,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $object;
     }
 
+    /**
+     * @param mixed $definition
+     */
     private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
@@ -227,7 +229,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Adds service provider to the container. Unless service provider is deferred
      * it would be immediately registered.
      *
-     * @param string|array $providerDefinition
+     * @param mixed $providerDefinition
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -250,7 +252,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * Builds service provider by definition.
      *
-     * @param string|array $providerDefinition class name or definition of provider.
+     * @param mixed $providerDefinition class name or definition of provider.
      * @return ServiceProviderInterface instance of service provider;
      *
      * @throws InvalidConfigException
@@ -258,11 +260,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
-        if (!($provider instanceof ServiceProviderInterface)) {
-            throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProviderInterface::class
-            );
-        }
+        assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
+            'Service provider should be an instance of ' . ServiceProviderInterface::class
+        ));
 
         return $provider;
     }

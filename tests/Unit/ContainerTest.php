@@ -88,7 +88,7 @@ class ContainerTest extends TestCase
             EngineInterface::class => EngineMarkOne::class,
         ]);
 
-        $this->assertFalse($container->has(NonExistentClass::class));
+        $this->assertFalse($container->has('non_existing'));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
         $this->assertFalse($container->has(ColorInterface::class));

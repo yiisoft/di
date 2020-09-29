@@ -63,7 +63,7 @@ abstract class DeferredServiceProvider extends AbstractContainerConfigurator imp
      * ];
      * ```
      *
-     * @return array list of provided classes.
+     * @return string[] list of provided classes.
      */
     abstract public function provides(): array;
 
