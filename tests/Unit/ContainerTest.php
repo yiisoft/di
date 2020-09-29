@@ -135,49 +135,27 @@ class ContainerTest extends TestCase
         $container->get(Chicken::class);
     }
 
-    public function testSaveOldContainer(): void
-    {
-        $container = new Container([
-            'new-container' => fn (ContainerInterface $container) => new Container([], [], $container),
-
-            'old-container' => function (PropertyTestClass $saver) {
-                return $saver->property;
-            },
-            ContainerInterface::class => function (ContainerInterface $container, PropertyTestClass $saver) {
-                $saver->property = $container;
-                return $container->get('new-container');
-            },
-            'container' => fn (ContainerInterface $container) => $container,
-        ]);
-
-        $newcontainer = $container->get('new-container');
-        $this->assertNotSame($container, $newcontainer);
-        $this->assertSame($newcontainer, $container->get('new-container'));
-        $this->assertSame($newcontainer, $container->get('container'));
-        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
-        $this->assertSame($container, $container->get('old-container'));
-    }
-
     public function testNestedContainer(): void
     {
         $container = new Container([
-            'new-container' => fn (ContainerInterface $container) => new Container([
-                EngineInterface::class => EngineMarkOne::class,
-            ], [], $container),
             ContainerInterface::class => function (ContainerInterface $container) {
-                return $container->get('new-container');
+                return new Container([
+                    ColorInterface::class => ColorPink::class,
+                    'engine' => fn (EngineInterface $engine) => $engine,
+                ], [], $container);
             },
-            'container' => fn (ContainerInterface $container) => $container,
+            EngineInterface::class => EngineMarkOne::class,
         ]);
 
-        ### The order is crucial! Problem can appear when resolving 'new-container' first
-        $newcontainer = $container->get('new-container');
-        $this->assertNotSame($container, $newcontainer);
-        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
-        $this->assertSame($newcontainer, $container->get('container'));
-        $this->assertInstanceOf(EngineMarkOne::class, $newcontainer->get(EngineInterface::class));
+        $newContainer = $container->get(ContainerInterface::class);
+        $this->assertNotSame($container, $newContainer);
+        $this->assertFalse($newContainer->has(EngineInterface::class));
+        $engine = $newContainer->get('engine');
+        $this->assertInstanceOf(EngineMarkOne::class, $engine);
+        $this->assertSame($engine, $newContainer->get(Car::class)->getEngine());
+        $this->assertInstanceOf(ColorPink::class, $newContainer->get(ColorInterface::class));
         $this->expectException(NotFoundException::class);
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get(EngineInterface::class));
+        $this->assertInstanceOf(ColorPink::class, $container->get(ColorInterface::class));
     }
 
     public function testNestedContainerInProvider(): void
