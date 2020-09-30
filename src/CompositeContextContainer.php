@@ -18,7 +18,7 @@ final class CompositeContextContainer implements ContainerInterface
      * Containers to look into.
      * The first level of this array is sorted by the length of the key, from long to short.
      * Longer key means container is more specific and is checked first.
-     * @var array The lists of containers indexed by contexts
+     * @var ContainerInterface[][] The lists of containers indexed by contexts
      */
     private array $containers = [];
 
@@ -37,8 +37,7 @@ final class CompositeContextContainer implements ContainerInterface
     }
 
     /**
-     * @param string $context
-     * @return ContainerInterface[] All containers in the context specified
+     * @return iterable<string,ContainerInterface> All containers in the context specified
      */
     private function getContainers(string $context): iterable
     {
@@ -62,8 +61,8 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
-     * @param string $context The context for the new container.
      * @param ContainerInterface $container
+     * @param string $context The context for the new container.
      */
     public function attach(ContainerInterface $container, string $context = ''): void
     {
@@ -74,7 +73,7 @@ final class CompositeContextContainer implements ContainerInterface
             $this->containers[$context] = [
                 $container
             ];
-            uksort($this->containers, static function ($a, $b) {
+            uksort($this->containers, static function (string $a, string $b) {
                 return mb_strlen($b) <=> mb_strlen($a);
             });
         }

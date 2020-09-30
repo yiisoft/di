@@ -54,10 +54,9 @@ return [
         'propertyName' => 'value',
         'setX()' => [42],
     ],
-    'closure' => function(ContainerInterface $container) {
-        return new MyClass($container->get('db'));
-    },
-    'static_call' => [MyFactory::class, 'create'],
+    'closure' => fn (SomeFactory $factory) => $factory->create('args'),
+    'static_call_preferred' => fn () => MyFactory::create('args'),
+    'static_call_supported' => [MyFactory::class, 'create'],
     'object' => new MyClass(),
 ];
 ```

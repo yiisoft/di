@@ -7,14 +7,13 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\DynamicReference;
-use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
+use Yiisoft\Injector\Injector;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -38,7 +37,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private array $tags;
 
-    private ?ContainerInterface $rootContainer = null;
+    private ?CompositeContainer $rootContainer = null;
 
     /**
      * Container constructor.
@@ -56,12 +55,18 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $tags = [],
         ContainerInterface $rootContainer = null
     ) {
+
         $this->tags = $tags;
+        $this->delegateLookup($rootContainer);
+
         $this->setMultiple($definitions);
-        $this->addProviders($providers);
-        if ($rootContainer !== null) {
-            $this->delegateLookup($rootContainer);
+        if (!$this->has(ContainerInterface::class)) {
+            $this->set(ContainerInterface::class, $rootContainer ?? $this);
         }
+        $this->addProviders($providers);
+
+        # Prevent circular reference to ContainerInterface
+        $this->get(ContainerInterface::class);
     }
 
     /**
@@ -85,7 +90,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * Same instance of the class will be returned each time this method is called.
      *
-     * @param string|Reference $id The interface or an alias name that was previously registered.
+     * @param string $id The interface or an alias name that was previously registered.
      * @return object An instance of the requested interface.
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -105,8 +110,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Delegate service lookup to another container.
      * @param ContainerInterface $container
      */
-    protected function delegateLookup(ContainerInterface $container): void
+    protected function delegateLookup(?ContainerInterface $container): void
     {
+        if ($container === null) {
+            return;
+        }
         if ($this->rootContainer === null) {
             $this->rootContainer = new CompositeContainer();
         }
@@ -125,8 +133,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         $tags = $this->extractTags($definition);
         $definition = $this->extractDefinition($definition);
-        $this->validateDefinition($definition);
+        Normalizer::validate($definition);
         $this->setTags($id, $tags);
+
         $this->instances[$id] = null;
         $this->definitions[$id] = $definition;
     }
@@ -139,7 +148,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
-            $this->set((string)$id, $definition);
+            if (!is_string($id)) {
+                throw new InvalidConfigException('Key must be a string');
+            }
+            $this->set($id, $definition);
         }
     }
 
@@ -196,7 +208,14 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->getTaggedServices($id);
         }
 
+        if ($id === Injector::class) {
+            return new Injector($this);
+        }
+
         if (isset($this->building[$id])) {
+            if ($id === ContainerInterface::class) {
+                return $this;
+            }
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s',
                 $id,
@@ -229,37 +248,14 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $services;
     }
 
-
+    /**
+     * @param mixed $definition
+     */
     private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definition->register($this);
         }
-    }
-
-    private function validateDefinition($definition): void
-    {
-        if ($definition instanceof Reference || $definition instanceof DynamicReference) {
-            return;
-        }
-
-        if (\is_string($definition)) {
-            return;
-        }
-
-        if (\is_callable($definition)) {
-            return;
-        }
-
-        if (\is_array($definition)) {
-            return;
-        }
-
-        if (\is_object($definition)) {
-            return;
-        }
-
-        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
     }
 
     /**
@@ -309,7 +305,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Adds service provider to the container. Unless service provider is deferred
      * it would be immediately registered.
      *
-     * @param string|array $providerDefinition
+     * @param mixed $providerDefinition
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -332,7 +328,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * Builds service provider by definition.
      *
-     * @param string|array $providerDefinition class name or definition of provider.
+     * @param mixed $providerDefinition class name or definition of provider.
      * @return ServiceProviderInterface instance of service provider;
      *
      * @throws InvalidConfigException
@@ -340,11 +336,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
-        if (!($provider instanceof ServiceProviderInterface)) {
-            throw new InvalidConfigException(
-                'Service provider should be an instance of ' . ServiceProviderInterface::class
-            );
-        }
+        assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
+            'Service provider should be an instance of ' . ServiceProviderInterface::class
+        ));
 
         return $provider;
     }
