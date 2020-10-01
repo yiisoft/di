@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Unit;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
@@ -34,6 +35,7 @@ use Yiisoft\Di\Tests\Support\ColorPink;
 use Yiisoft\Factory\Definitions\CallableDefinition;
 use Yiisoft\Factory\Definitions\ValueDefinition;
 use Yiisoft\Di\Tests\Support\ColorInterface;
+use Yiisoft\Di\Tests\Support\VariadicConstructor;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -242,6 +244,68 @@ class ContainerTest extends TestCase
         /** @var ConstructorTestClass $object */
         $object = $container->get('constructor_test');
         $this->assertSame(42, $object->getParameter());
+    }
+
+    public function testExcessiveConstructorParameters(): void
+    {
+        $container = new Container([
+            'constructor_test' => [
+                '__class' => ConstructorTestClass::class,
+                '__construct()' => [
+                    'parameter' => 42,
+                    'surplus1' => 43,
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $container->get('constructor_test');
+    }
+
+    public function testVariadicConstructorParameters(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            'stringIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'first' => 1,
+                    'parameters' => 42,
+                    'second' => 43,
+                    'third' => 44,
+                ],
+            ],
+            'integerIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [1, new EngineMarkOne(), 42, 43, 44],
+            ],
+        ]);
+
+        $object = $container->get('stringIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+
+        $object = $container->get('integerIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+    }
+
+    public function testMixedIndexedContructorParameters(): void
+    {
+        $container = new Container([
+            'test' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'parameters' => 42,
+                    43,
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $container->get('test');
     }
 
     public function testClassProperties(): void
