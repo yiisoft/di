@@ -246,7 +246,7 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getParameter());
     }
 
-    public function testExcessiveConstructorParameters(): void
+    public function testExcessiveConstructorParametersIgnored(): void
     {
         $container = new Container([
             'constructor_test' => [
@@ -258,8 +258,9 @@ class ContainerTest extends TestCase
             ],
         ]);
 
-        $this->expectException(InvalidConfigException::class);
-        $container->get('constructor_test');
+        /** @var ConstructorTestClass $object */
+        $object = $container->get('constructor_test');
+        $this->assertSame([42], $object->getAllParameters());
     }
 
     public function testVariadicConstructorParameters(): void
@@ -292,7 +293,7 @@ class ContainerTest extends TestCase
         $this->assertSame([42, 43, 44], $object->getParameters());
     }
 
-    public function testMixedIndexedContructorParameters(): void
+    public function testMixedIndexedConstructorParametersAreNotAllowed(): void
     {
         $container = new Container([
             'test' => [
@@ -304,7 +305,7 @@ class ContainerTest extends TestCase
             ],
         ]);
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(InvalidConfigException::class);
         $container->get('test');
     }
 
