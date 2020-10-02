@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Unit;
 
-use InvalidArgumentException;
+use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
@@ -32,7 +32,6 @@ use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Di\Tests\Support\ColorPink;
-use Yiisoft\Factory\Definitions\CallableDefinition;
 use Yiisoft\Factory\Definitions\ValueDefinition;
 use Yiisoft\Di\Tests\Support\ColorInterface;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
@@ -244,6 +243,25 @@ class ContainerTest extends TestCase
         /** @var ConstructorTestClass $object */
         $object = $container->get('constructor_test');
         $this->assertSame(42, $object->getParameter());
+    }
+
+    // See https://github.com/yiisoft/di/issues/157#issuecomment-701458616
+    public function testIntegerIndexedConstructorArguments(): void
+    {
+        $container = new Container([
+            'items' => [
+                '__class' => ArrayIterator::class,
+                '__construct()' => [
+                    [],
+                    ArrayIterator::STD_PROP_LIST,
+                ],
+            ],
+        ]);
+
+        $items = $container->get('items');
+
+        $this->assertInstanceOf(ArrayIterator::class, $items);
+        $this->assertSame(ArrayIterator::STD_PROP_LIST, $items->getFlags());
     }
 
     public function testExcessiveConstructorParametersIgnored(): void
