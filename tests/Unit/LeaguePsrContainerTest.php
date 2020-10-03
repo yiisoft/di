@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Unit;
 
-use Psr\Container\ContainerInterface;
 use League\Container\Container;
+use Psr\Container\ContainerInterface;
 
 /**
  * Test the League PSR-11 Container.
