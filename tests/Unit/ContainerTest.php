@@ -10,17 +10,17 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarFactory;
+use Yiisoft\Di\Tests\Support\ColorInterface;
+use Yiisoft\Di\Tests\Support\ColorPink;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
+use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -29,12 +29,11 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Di\Tests\Support\EngineFactory;
-use Yiisoft\Injector\Injector;
-use Yiisoft\Di\Tests\Support\ColorPink;
-use Yiisoft\Factory\Definitions\CallableDefinition;
 use Yiisoft\Factory\Definitions\ValueDefinition;
-use Yiisoft\Di\Tests\Support\ColorInterface;
+use Yiisoft\Factory\Exceptions\CircularReferenceException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Injector\Injector;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
