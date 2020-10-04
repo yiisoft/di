@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Support;
 
-use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
+use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 
 /**
  * Base class for service providers that should be deferred to register till services are

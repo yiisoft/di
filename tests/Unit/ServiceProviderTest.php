@@ -6,10 +6,10 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Tests\Support\EngineInterface;
-use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
+use Yiisoft\Di\Tests\Support\EngineInterface;
+use Yiisoft\Factory\Exceptions\NotInstantiableException;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}
