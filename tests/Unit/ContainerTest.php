@@ -29,11 +29,12 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Injector\Injector;
 use Yiisoft\Factory\Definitions\ValueDefinition;
+use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
-use Yiisoft\Injector\Injector;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -261,6 +262,69 @@ class ContainerTest extends TestCase
 
         $this->assertInstanceOf(ArrayIterator::class, $items);
         $this->assertSame(ArrayIterator::STD_PROP_LIST, $items->getFlags());
+    }
+
+    public function testExcessiveConstructorParametersIgnored(): void
+    {
+        $container = new Container([
+            'constructor_test' => [
+                '__class' => ConstructorTestClass::class,
+                '__construct()' => [
+                    'parameter' => 42,
+                    'surplus1' => 43,
+                ],
+            ],
+        ]);
+
+        /** @var ConstructorTestClass $object */
+        $object = $container->get('constructor_test');
+        $this->assertSame([42], $object->getAllParameters());
+    }
+
+    public function testVariadicConstructorParameters(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            'stringIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'first' => 1,
+                    'parameters' => 42,
+                    'second' => 43,
+                    'third' => 44,
+                ],
+            ],
+            'integerIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [1, new EngineMarkOne(), 42, 43, 44],
+            ],
+        ]);
+
+        $object = $container->get('stringIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+
+        $object = $container->get('integerIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+    }
+
+    public function testMixedIndexedConstructorParametersAreNotAllowed(): void
+    {
+        $container = new Container([
+            'test' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'parameters' => 42,
+                    43,
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $container->get('test');
     }
 
     public function testClassProperties(): void
