@@ -53,20 +53,14 @@ final class Container extends AbstractContainerConfigurator implements Container
         ContainerInterface $rootContainer = null
     ) {
         $this->delegateLookup($rootContainer);
-        $this->setDefaults();
         $this->setMultiple($definitions);
+        if (!$this->has(ContainerInterface::class)) {
+            $this->set(ContainerInterface::class, $rootContainer ?? $this);
+        }
         $this->addProviders($providers);
 
         # Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
-    }
-
-    private function setDefaults(): void
-    {
-        $this->definitions = [
-            ContainerInterface::class => $this->rootContainer ?? $this,
-            Injector::class => new Injector($this),
-        ];
     }
 
     /**
@@ -158,6 +152,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function build(string $id)
     {
+        if ($id === Injector::class) {
+            return new Injector($this);
+        }
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
