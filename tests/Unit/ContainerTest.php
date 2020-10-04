@@ -657,6 +657,32 @@ class ContainerTest extends TestCase
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
     }
 
+    public function testCircularReferenceExceptionWhileResolvingProviders(): void
+    {
+        $provider = new class() extends ServiceProvider {
+            public function register(Container $container): void
+            {
+                $container->set(ContainerInterface::class, static function (ContainerInterface $container) {
+                    // E.g. wrapping container with proxy class
+                    return $container;
+                });
+                $container->get(B::class);
+            }
+        };
+
+        $this->expectException(\RuntimeException::class);
+        new Container(
+            [
+                B::class => function () {
+                    throw new \RuntimeException();
+                },
+            ],
+            [
+                $provider,
+            ]
+        );
+    }
+
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
     {
         return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
