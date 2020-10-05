@@ -34,14 +34,14 @@ final class CompositeContainer implements ContainerInterface
 
     private function collectTags(string $id): array
     {
-        $res = [];
+        $results = [];
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
-                $res = array_merge($res, $container->get($id));
+                $results = array_merge($results, $container->get($id));
             }
         }
 
-        return $res;
+        return $results;
     }
 
     public function has($id): bool
