@@ -10,17 +10,17 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarFactory;
+use Yiisoft\Di\Tests\Support\ColorInterface;
+use Yiisoft\Di\Tests\Support\ColorPink;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
+use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -29,12 +29,12 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Di\Tests\Support\ColorPink;
-use Yiisoft\Factory\Definitions\CallableDefinition;
 use Yiisoft\Factory\Definitions\ValueDefinition;
-use Yiisoft\Di\Tests\Support\ColorInterface;
+use Yiisoft\Di\Tests\Support\VariadicConstructor;
+use Yiisoft\Factory\Exceptions\CircularReferenceException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -262,6 +262,69 @@ class ContainerTest extends TestCase
 
         $this->assertInstanceOf(ArrayIterator::class, $items);
         $this->assertSame(ArrayIterator::STD_PROP_LIST, $items->getFlags());
+    }
+
+    public function testExcessiveConstructorParametersIgnored(): void
+    {
+        $container = new Container([
+            'constructor_test' => [
+                '__class' => ConstructorTestClass::class,
+                '__construct()' => [
+                    'parameter' => 42,
+                    'surplus1' => 43,
+                ],
+            ],
+        ]);
+
+        /** @var ConstructorTestClass $object */
+        $object = $container->get('constructor_test');
+        $this->assertSame([42], $object->getAllParameters());
+    }
+
+    public function testVariadicConstructorParameters(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            'stringIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'first' => 1,
+                    'parameters' => 42,
+                    'second' => 43,
+                    'third' => 44,
+                ],
+            ],
+            'integerIndexed' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [1, new EngineMarkOne(), 42, 43, 44],
+            ],
+        ]);
+
+        $object = $container->get('stringIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+
+        $object = $container->get('integerIndexed');
+        $this->assertSame(1, $object->getFirst());
+        $this->assertInstanceOf(EngineMarkOne::class, $object->getEngine());
+        $this->assertSame([42, 43, 44], $object->getParameters());
+    }
+
+    public function testMixedIndexedConstructorParametersAreNotAllowed(): void
+    {
+        $container = new Container([
+            'test' => [
+                '__class' => VariadicConstructor::class,
+                '__construct()' => [
+                    'parameters' => 42,
+                    43,
+                ],
+            ],
+        ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $container->get('test');
     }
 
     public function testClassProperties(): void
@@ -656,6 +719,32 @@ class ContainerTest extends TestCase
         $this->assertSame('first', $compositeContainer->get('first'));
         $this->assertSame('second', $compositeContainer->get('second'));
         $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
+    }
+
+    public function testCircularReferenceExceptionWhileResolvingProviders(): void
+    {
+        $provider = new class() extends ServiceProvider {
+            public function register(Container $container): void
+            {
+                $container->set(ContainerInterface::class, static function (ContainerInterface $container) {
+                    // E.g. wrapping container with proxy class
+                    return $container;
+                });
+                $container->get(B::class);
+            }
+        };
+
+        $this->expectException(\RuntimeException::class);
+        new Container(
+            [
+                B::class => function () {
+                    throw new \RuntimeException();
+                },
+            ],
+            [
+                $provider,
+            ]
+        );
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
