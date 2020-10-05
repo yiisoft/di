@@ -5,16 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\Definitions\TagDefinition;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Factory\Definitions\TagDefinition;
-use Yiisoft\Factory\Exceptions\NotFoundException;
-use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exceptions\NotFoundException;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container

@@ -7,6 +7,7 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\Definitions\TagDefinition;
 use Yiisoft\Factory\Definitions\ArrayDefinition;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
@@ -14,7 +15,6 @@ use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Factory\Definitions\TagDefinition;
 
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
