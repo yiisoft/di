@@ -448,6 +448,18 @@ class ContainerTest extends TestCase
         $container->get(TreeItem::class);
     }
 
+    public function testChangeInjector(): void
+    {
+        $container = new Container([
+            Injector::class => new Injector(new Container([
+                EngineInterface::class => EngineMarkOne::class,
+            ])),
+            'car' => fn (EngineInterface $engine) => new Car($engine),
+        ]);
+
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get('car')->getEngine());
+    }
+
     public function testCallable(): void
     {
         $container = new Container([
