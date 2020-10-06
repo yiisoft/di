@@ -26,4 +26,11 @@ class CarFactory
     {
         return new Car($factory->createByName($name));
     }
+
+    public function createWithColor(ColorInterface $color): Car
+    {
+        $car = new Car(EngineFactory::createDefault());
+
+        return $car->setColor($color);
+    }
 }
