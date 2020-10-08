@@ -514,23 +514,49 @@ class ContainerTest extends TestCase
 
     public function testObject(): void
     {
+        $engine = new EngineMarkOne();
         $container = new Container([
-            'engine' => new EngineMarkOne()
+            'engine' => $engine,
         ]);
 
         $object = $container->get('engine');
-        $this->assertInstanceOf(EngineMarkOne::class, $object);
+        $this->assertSame($engine, $object);
     }
 
-    public function testStaticCall(): void
+    public function testArrayStaticCall(): void
     {
         $container = new Container([
             EngineInterface::class => EngineMarkOne::class,
-            'static' => [CarFactory::class, 'create'],
+            'car' => [CarFactory::class, 'create'],
         ]);
 
-        $object = $container->get('static');
-        $this->assertInstanceOf(Car::class, $object);
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+    }
+
+    public function testArrayDynamicCall(): void
+    {
+        $container = new Container([
+            ColorInterface::class => ColorPink::class,
+            'car' => [CarFactory::class, 'createWithColor'],
+        ]);
+
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorPink::class, $car->getColor());
+    }
+
+    public function testArrayDynamicCallWithObject(): void
+    {
+        $container = new Container([
+            ColorInterface::class => ColorPink::class,
+            'car' => [new CarFactory(), 'createWithColor'],
+        ]);
+
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorPink::class, $car->getColor());
     }
 
     public function testInvokeable(): void
