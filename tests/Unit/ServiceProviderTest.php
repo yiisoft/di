@@ -9,7 +9,7 @@ use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
-use Yiisoft\Factory\Exceptions\NotInstantiableException;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}
@@ -32,7 +32,7 @@ class ServiceProviderTest extends TestCase
 
     public function testAddProviderRejectDefinitionWithoutClass(): void
     {
-        $this->expectException(NotInstantiableException::class);
+        $this->expectException(InvalidConfigException::class);
         $container = new Container([], [
             ['property' => 234]
         ]);
