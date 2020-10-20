@@ -30,7 +30,7 @@
     },
     "require-dev": {
         "infection/infection": "^0.17.0",
-        "vimeo/psalm": "^3.16",
+        "vimeo/psalm": "^3.16 || ^4.0",
         "phpunit/phpunit": "^9.3",
         "phpbench/phpbench": "~0.17",
         "league/container": "^3.2"
