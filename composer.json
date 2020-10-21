@@ -29,7 +29,7 @@
         "yiisoft/injector": "^1.0"
     },
     "require-dev": {
-        "infection/infection": "^0.17.0",
+        "infection/infection": "^0.17.0 || ^0.18.0",
         "vimeo/psalm": "^3.16",
         "phpunit/phpunit": "^9.3",
         "phpbench/phpbench": "~0.17",
