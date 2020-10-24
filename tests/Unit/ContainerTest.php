@@ -388,6 +388,38 @@ class ContainerTest extends TestCase
         $this->assertSame($engine, $container->get('engine'));
     }
 
+    public function testClosureInProperty(): void
+    {
+        $color = new ColorPink();
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            ColorInterface::class => $color,
+            'car' => [
+                '__class' => Car::class,
+                'color' => fn () => $color,
+            ],
+        ]);
+
+        $car = $container->get('car');
+        $this->assertSame($color, $car->getColor());
+    }
+
+    public function testClosureInMethodCall(): void
+    {
+        $color = new ColorPink();
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            ColorInterface::class => $color,
+            'car' => [
+                '__class' => Car::class,
+                'setColor()' => [fn () => $color],
+            ],
+        ]);
+
+        $car = $container->get('car');
+        $this->assertSame($color, $car->getColor());
+    }
+
     public function testAlias(): void
     {
         $container = new Container([
@@ -617,6 +649,38 @@ class ContainerTest extends TestCase
         $this->assertSame($container->get('engine2'), $moreEngines['engine2']);
         $this->assertSame($container->get('engine3'), $moreEngines['more']['engine3']);
         $this->assertSame($container->get('engine4'), $moreEngines['more']['more']['engine4']);
+    }
+
+    public function testReferencesInProperties(): void
+    {
+        $color = new ColorPink();
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            ColorInterface::class => $color,
+            'car' => [
+                '__class' => Car::class,
+                'color' => Reference::to(ColorInterface::class),
+            ],
+        ]);
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertSame($color, $car->getColor());
+    }
+
+    public function testReferencesInMethodCall(): void
+    {
+        $color = new ColorPink();
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            ColorInterface::class => $color,
+            'car' => [
+                '__class' => Car::class,
+                'setColor()' => [Reference::to(ColorInterface::class)],
+            ],
+        ]);
+        $car = $container->get('car');
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertSame($color, $car->getColor());
     }
 
     public function testSameInstance(): void
