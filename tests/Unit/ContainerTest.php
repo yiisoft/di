@@ -683,6 +683,29 @@ class ContainerTest extends TestCase
         $this->assertSame($color, $car->getColor());
     }
 
+    public function testCallableArrayValueInConstructor()
+    {
+        $array = [
+            [EngineMarkTwo::class, 'getNumber']
+        ];
+        $container = new Container(
+            [
+                EngineInterface::class => EngineMarkOne::class,
+                Car::class => [
+                    '__class' => Car::class,
+                    '__construct()' => [
+                        Reference::to(EngineInterface::class),
+                        $array
+                    ]
+                ]
+            ]
+        );
+
+        /** @var Car $object */
+        $object = $container->get(Car::class);
+        $this->assertSame($array, $object->getMoreEngines());
+    }
+
     public function testSameInstance(): void
     {
         $container = new Container([
