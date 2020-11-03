@@ -71,4 +71,4 @@ jobs:
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run phpbench
-        run: vendor/bin/phpbench run
+        run: vendor/bin/phpbench run --ansi
