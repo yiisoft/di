@@ -29,11 +29,11 @@
         "yiisoft/injector": "^1.0"
     },
     "require-dev": {
-        "vimeo/psalm": "^4.0",
-        "infection/infection": "^0.20.0",
-        "phpunit/phpunit": "^9.3",
+        "league/container": "^3.2",
         "phpbench/phpbench": "^1.0.0",
-        "league/container": "^3.2"
+        "phpunit/phpunit": "^9.4",
+        "roave/infection-static-analysis-plugin": "^1.3",
+        "vimeo/psalm": "^4.1"
     },
     "suggest": {
         "yiisoft/injector": "^1.0@dev",
