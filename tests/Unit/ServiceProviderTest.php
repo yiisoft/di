@@ -34,7 +34,7 @@ class ServiceProviderTest extends TestCase
     {
         $this->expectException(InvalidConfigException::class);
         $container = new Container([], [
-            ['property' => 234]
+            ['property' => 234],
         ]);
     }
 
@@ -55,7 +55,7 @@ class ServiceProviderTest extends TestCase
             'Container should not have EngineInterface registered before service provider added.'
         );
 
-        $container= new Container([], [$provider]);
+        $container = new Container([], [$provider]);
 
         // ensure addProvider invoked ServiceProviderInterface::register
         $this->assertTrue(

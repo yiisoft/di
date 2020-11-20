@@ -15,6 +15,7 @@ class ConstructorTestClass
 
     /**
      * ConstructorTestClass constructor.
+     *
      * @param $parameter
      */
     public function __construct($parameter)

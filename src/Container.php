@@ -42,9 +42,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @param array $definitions Definitions to put into container.
      * @param ServiceProviderInterface[]|string[] $providers Service providers to get definitions from.
-     *
      * @param ContainerInterface|null $rootContainer Root container to delegate lookup to in case definition
      * is not found in current container.
+     *
      * @throws InvalidConfigException
      */
     public function __construct(
@@ -57,7 +57,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->setMultiple($definitions);
         $this->addProviders($providers);
 
-        # Prevent circular reference to ContainerInterface
+        // Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
     }
 
@@ -71,8 +71,11 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * Returns a value indicating whether the container has the definition of the specified name.
+     *
      * @param string $id class name, interface name or alias name
+     *
      * @return bool whether the container is able to provide instance of class specified.
+     *
      * @see set()
      */
     public function has($id): bool
@@ -86,11 +89,13 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Same instance of the class will be returned each time this method is called.
      *
      * @param string $id The interface or an alias name that was previously registered.
-     * @return object An instance of the requested interface.
+     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
+     *
+     * @return object An instance of the requested interface.
      */
     public function get($id)
     {
@@ -103,6 +108,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * Delegate service lookup to another container.
+     *
      * @param ContainerInterface $container
      */
     protected function delegateLookup(?ContainerInterface $container): void
@@ -119,9 +125,12 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * Sets a definition to the container. Definition may be defined multiple ways.
+     *
      * @param string $id
      * @param mixed $definition
+     *
      * @throws InvalidConfigException
+     *
      * @see `Normalizer::normalize()`
      */
     protected function set(string $id, $definition): void
@@ -133,7 +142,9 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     /**
      * Sets multiple definitions at once.
+     *
      * @param array $config definitions indexed by their ids
+     *
      * @throws InvalidConfigException
      */
     protected function setMultiple(array $config): void
@@ -150,10 +161,13 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Creates new instance by either interface name or alias.
      *
      * @param string $id The interface or an alias name that was previously registered.
-     * @return object New built instance of the specified class.
+     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
+     *
+     * @return object New built instance of the specified class.
+     *
      * @internal
      */
     private function build(string $id)
@@ -189,9 +203,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * @param string $id
      *
-     * @return mixed|object
      * @throws InvalidConfigException
      * @throws NotFoundException
+     *
+     * @return mixed|object
      */
     private function buildInternal(string $id)
     {
@@ -207,9 +222,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     /**
      * @param string $class
      *
-     * @return mixed|object
      * @throws InvalidConfigException
      * @throws NotFoundException
+     *
+     * @return mixed|object
      */
     private function buildPrimitive(string $class)
     {
@@ -237,6 +253,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
+     *
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
@@ -257,9 +274,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Builds service provider by definition.
      *
      * @param mixed $providerDefinition class name or definition of provider.
-     * @return ServiceProviderInterface instance of service provider;
      *
      * @throws InvalidConfigException
+     *
+     * @return ServiceProviderInterface instance of service provider;
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {

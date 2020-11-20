@@ -15,6 +15,7 @@ interface DeferredServiceProviderInterface extends ServiceProviderInterface
      * given identifier or not.
      *
      * @param string $id class, interface or identifier in the Container.
+     *
      * @return bool whether service provider would register definition or not.
      */
     public function hasDefinitionFor(string $id): bool;

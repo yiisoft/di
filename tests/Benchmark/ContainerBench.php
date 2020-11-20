@@ -46,7 +46,7 @@ class ContainerBench
                     EngineMarkOne::class => EngineMarkOne::class,
                     EngineMarkTwo::class => EngineMarkTwo::class,
                 ],
-            ]
+            ],
         ];
     }
 
@@ -81,6 +81,7 @@ class ContainerBench
 
     /**
      * @Groups({"construct"})
+     *
      * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
      * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
      */

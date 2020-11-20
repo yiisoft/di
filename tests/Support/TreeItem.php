@@ -11,7 +11,7 @@ class TreeItem
 {
     private TreeItem $treeItem;
 
-    public function __construct(TreeItem $treeItem)
+    public function __construct(self $treeItem)
     {
         $this->treeItem = $treeItem;
     }
