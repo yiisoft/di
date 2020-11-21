@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Throwable;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -478,6 +479,55 @@ class ContainerTest extends TestCase
 
         $this->expectException(CircularReferenceException::class);
         $container->get(TreeItem::class);
+    }
+
+    /**
+     * @link https://github.com/yiisoft/di/pull/189
+     */
+    public function testFalsePositiveCircularReferenceWithClassID(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $container = new Container([]);
+
+        // Build an object
+        $container->get(ColorPink::class);
+
+        // set definition to container
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, ColorPink::class, ColorPink::class);
+
+        try {
+            // Build an object
+            $container->get(ColorPink::class);
+        } catch (CircularReferenceException $e) {
+            $this->fail('Circular reference detected false positively.');
+        }
+    }
+
+    /**
+     * @link https://github.com/yiisoft/di/pull/189
+     */
+    public function testFalsePositiveCircularReferenceWithStringID(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $container = new Container();
+        try {
+            // Build an object
+            $container->get('test');
+        } catch (NotFoundException $e) {
+            // It is expected
+        }
+
+        // set definition to container
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, 'test', ColorPink::class);
+
+        try {
+            // Build an object
+            $container->get('test');
+        } catch (CircularReferenceException $e) {
+            $this->fail('Circular reference detected false positively.');
+        }
     }
 
     public function testChangeInjector(): void

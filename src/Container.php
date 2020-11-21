@@ -15,6 +15,13 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Injector\Injector;
 
+use function array_key_exists;
+use function array_keys;
+use function assert;
+use function class_exists;
+use function implode;
+use function is_string;
+
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
@@ -29,12 +36,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      * to detect circular references
      */
     private array $building = [];
-
     /**
      * @var object[]
      */
     private array $instances = [];
-
     private ?CompositeContainer $rootContainer = null;
 
     /**
@@ -99,7 +104,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
-        if (!isset($this->instances[$id])) {
+        if (!array_key_exists($id, $this->instances)) {
             $this->instances[$id] = $this->build($id);
         }
 
@@ -184,8 +189,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         $this->building[$id] = 1;
-        $object = $this->buildInternal($id);
-        unset($this->building[$id]);
+        try {
+            $object = $this->buildInternal($id);
+        } finally {
+            unset($this->building[$id]);
+        }
 
         return $object;
     }
