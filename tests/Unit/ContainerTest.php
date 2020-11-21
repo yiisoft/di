@@ -481,6 +481,55 @@ class ContainerTest extends TestCase
         $container->get(TreeItem::class);
     }
 
+    /**
+     * @link https://github.com/yiisoft/di/pull/189
+     */
+    public function testFalsePositiveCircularReferenceWithClassID(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $container = new Container([]);
+
+        // Build an object
+        $container->get(ColorPink::class);
+
+        // set definition to container
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, ColorPink::class, ColorPink::class);
+
+        try {
+            // Build an object
+            $container->get(ColorPink::class);
+        } catch (CircularReferenceException $e) {
+            $this->fail('Circular reference detected false positively.');
+        }
+    }
+
+    /**
+     * @link https://github.com/yiisoft/di/pull/189
+     */
+    public function testFalsePositiveCircularReferenceWithStringID(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $container = new Container();
+        try {
+            // Build an object
+            $container->get('test');
+        } catch (NotFoundException $e) {
+            // It is expected
+        }
+
+        // set definition to container
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, 'test', ColorPink::class);
+
+        try {
+            // Build an object
+            $container->get('test');
+        } catch (CircularReferenceException $e) {
+            $this->fail('Circular reference detected false positively.');
+        }
+    }
+
     public function testChangeInjector(): void
     {
         $container = new Container([
@@ -871,32 +920,6 @@ class ContainerTest extends TestCase
                 $provider,
             ]
         );
-    }
-
-    public function testBuildingVarClean(): void
-    {
-        $container = new Container();
-        $container->get(ColorPink::class);
-        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, ColorPink::class, ColorPink::class);
-        try {
-            $container->get(ColorPink::class);
-        } catch (Throwable $e) {
-            $this->fail('Test 1 Error: ' . $e->getMessage());
-        }
-
-        $container = new Container();
-        try {
-            $container->get('test');
-        } catch (NotFoundException $e) {
-        }
-        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, 'test', ColorPink::class);
-        try {
-            $container->get('test');
-        } catch (Throwable $e) {
-            $this->fail('Test 2 Error: ' . $e->getMessage());
-        }
-
-        $this->expectNotToPerformAssertions();
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
