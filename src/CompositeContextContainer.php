@@ -18,6 +18,7 @@ final class CompositeContextContainer implements ContainerInterface
      * Containers to look into.
      * The first level of this array is sorted by the length of the key, from long to short.
      * Longer key means container is more specific and is checked first.
+     *
      * @var ContainerInterface[][] The lists of containers indexed by contexts
      */
     private array $containers = [];
@@ -61,6 +62,7 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
+     *
      * @param ContainerInterface $container
      * @param string $context The context for the new container.
      */
@@ -71,7 +73,7 @@ final class CompositeContextContainer implements ContainerInterface
         } else {
             // If the context is new we reorder the containers array.
             $this->containers[$context] = [
-                $container
+                $container,
             ];
             uksort($this->containers, static function (string $a, string $b) {
                 return mb_strlen($b) <=> mb_strlen($a);
@@ -81,6 +83,7 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * Removes a container from the list of containers.
+     *
      * @param ContainerInterface $container
      */
     public function detach(ContainerInterface $container): void
@@ -102,8 +105,10 @@ final class CompositeContextContainer implements ContainerInterface
      *
      * @param string $id Name of the service, not type-hinted to remain compatible with PSR-11 `get()`
      * @param string $context
-     * @return mixed
+     *
      * @throws NotFoundException
+     *
+     * @return mixed
      */
     public function getFromContext($id, string $context)
     {
@@ -119,8 +124,10 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * Checks if we have a definition for a service in the given context
+     *
      * @param string $id Name of the service, not type-hinted to remain compatible with PSR-11 `has()`
      * @param string $context The context to use
+     *
      * @return bool
      */
     public function hasInContext($id, string $context): bool
@@ -135,7 +142,9 @@ final class CompositeContextContainer implements ContainerInterface
 
     /**
      * This will return a container that only resolves services from a specific context.
+     *
      * @param string $context
+     *
      * @return ContainerInterface
      */
     public function getContextContainer(string $context): ContainerInterface

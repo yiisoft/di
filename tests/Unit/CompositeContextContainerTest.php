@@ -40,7 +40,7 @@ class CompositeContextContainerTest extends TestCase
             PropertyTestClass::class => [
                 '__class' => PropertyTestClass::class,
             ],
-            EngineInterface::class => EngineMarkOne::class
+            EngineInterface::class => EngineMarkOne::class,
         ], []);
 
         $composite->attach($container1);

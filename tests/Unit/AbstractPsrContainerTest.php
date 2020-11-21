@@ -56,7 +56,7 @@ abstract class AbstractPsrContainerTest extends TestCase
     public function testObject(): void
     {
         $container = $this->createContainer([
-            'engine' => new EngineMarkOne()
+            'engine' => new EngineMarkOne(),
         ]);
         $object = $container->get('engine');
         $this->assertInstanceOf(EngineMarkOne::class, $object);

@@ -11,7 +11,6 @@ class MethodTestClass
 {
     private $value;
 
-
     /**
      * @return mixed
      */
