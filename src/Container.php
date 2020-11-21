@@ -15,6 +15,7 @@ use Yiisoft\Factory\Exceptions\NotFoundException;
 use Yiisoft\Factory\Exceptions\NotInstantiableException;
 use Yiisoft\Injector\Injector;
 
+use function array_key_exists;
 use function array_keys;
 use function assert;
 use function class_exists;
@@ -98,7 +99,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
-        return $this->instances[$id] ?? ($this->instances[$id] = $this->build($id));
+        if (!array_key_exists($id, $this->instances)) {
+            $this->instances[$id] = $this->build($id);
+        }
+
+        return $this->instances[$id];
     }
 
     /**

@@ -895,6 +895,8 @@ class ContainerTest extends TestCase
         } catch (Throwable $e) {
             $this->fail('Test 2 Error: ' . $e->getMessage());
         }
+
+        $this->expectNotToPerformAssertions();
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
