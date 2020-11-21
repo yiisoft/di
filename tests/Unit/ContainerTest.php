@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Throwable;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -872,31 +873,28 @@ class ContainerTest extends TestCase
         );
     }
 
-    public function testBuildingVar(): void
-    {
-        $building = null;
-        $container = new Container([
-            ColorPink::class => static function (ContainerInterface $container) use (&$building): ColorPink {
-                $building = ((array)$container)["\000Yiisoft\Di\Container\000building"];
-                return new ColorPink();
-            }
-        ]);
-        $container->get(ColorPink::class);
-        $this->assertSame([ColorPink::class => 1], $building);
-    }
-
     public function testBuildingVarClean(): void
     {
         $container = new Container();
         $container->get(ColorPink::class);
-        $this->assertCount(0, ((array)$container)["\000Yiisoft\Di\Container\000building"]);
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, ColorPink::class, ColorPink::class);
+        try {
+            $container->get(ColorPink::class);
+        } catch (Throwable $e) {
+            $this->fail('Test 1 Error: ' . $e->getMessage());
+        }
 
         $container = new Container();
         try {
-            $container->get(NonExistentClass::class);
+            $container->get('test');
         } catch (NotFoundException $e) {
         }
-        $this->assertCount(0, ((array)$container)["\000Yiisoft\Di\Container\000building"]);
+        (fn (string $id, $definition) => $this->set($id, $definition))->call($container, 'test', ColorPink::class);
+        try {
+            $container->get('test');
+        } catch (Throwable $e) {
+            $this->fail('Test 2 Error: ' . $e->getMessage());
+        }
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
