@@ -28,13 +28,13 @@ use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
-use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Injector\Injector;
-use Yiisoft\Factory\Definitions\ValueDefinition;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
+use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Definitions\ValueDefinition;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Injector\Injector;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -870,6 +870,33 @@ class ContainerTest extends TestCase
                 $provider,
             ]
         );
+    }
+
+    public function testBuildingVar(): void
+    {
+        $building = null;
+        $container = new Container([
+            ColorPink::class => static function (ContainerInterface $container) use (&$building): ColorPink {
+                $building = ((array)$container)["\000Yiisoft\Di\Container\000building"];
+                return new ColorPink();
+            }
+        ]);
+        $container->get(ColorPink::class);
+        $this->assertSame([ColorPink::class => 1], $building);
+    }
+
+    public function testBuildingVarClean(): void
+    {
+        $container = new Container();
+        $container->get(ColorPink::class);
+        $this->assertCount(0, ((array)$container)["\000Yiisoft\Di\Container\000building"]);
+
+        $container = new Container();
+        try {
+            $container->get(NonExistentClass::class);
+        } catch (NotFoundException $e) {
+        }
+        $this->assertCount(0, ((array)$container)["\000Yiisoft\Di\Container\000building"]);
     }
 
     private function getProxyContainer(ContainerInterface $container): ContainerInterface
