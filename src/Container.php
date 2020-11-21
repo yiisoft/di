@@ -98,7 +98,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
-        return $this->instances[$id] ?? ($this->instances[$id] = $this->build($id));
+        if (!array_key_exists($id, $this->instances)) {
+            $this->instances[$id] = $this->build($id);
+        }
+
+        return $this->instances[$id];
     }
 
     /**
