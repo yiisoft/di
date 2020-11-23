@@ -32,7 +32,7 @@
         "league/container": "^3.3",
         "phpbench/phpbench": "^1.0.0",
         "phpunit/phpunit": "^9.4",
-        "roave/infection-static-analysis-plugin": "^1.4",
+        "roave/infection-static-analysis-plugin": "^1.5",
         "vimeo/psalm": "^4.2"
     },
     "suggest": {
