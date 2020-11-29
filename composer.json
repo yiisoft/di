@@ -59,9 +59,8 @@
         }
     },
     "scripts": {
-        "test": [
-            "phpunit --colors --no-interaction"
-        ]
+        "test": "phpunit --testdox --no-interaction",
+        "test-watch": "phpunit-watcher watch"
     },
     "scripts-descriptions": {
         "test": "Run all tests"
