@@ -68,10 +68,11 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private function setDefaultDefinitions(): void
     {
-        $this->definitions = [
-            ContainerInterface::class => $this->rootContainer ?? $this,
-            Injector::class => new Injector($this),
-        ];
+        $container = $this->rootContainer ?? $this;
+        $this->setMultiple([
+            ContainerInterface::class => $container,
+            Injector::class => new Injector($container),
+        ]);
     }
 
     /**
@@ -126,6 +127,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         $this->rootContainer->attach($container);
+        $this->setDefaultDefinitions();
     }
 
     /**
