@@ -124,10 +124,10 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
         if ($this->rootContainer === null) {
             $this->rootContainer = new CompositeContainer();
+            $this->setDefaultDefinitions();
         }
 
         $this->rootContainer->attach($container);
-        $this->setDefaultDefinitions();
     }
 
     /**
