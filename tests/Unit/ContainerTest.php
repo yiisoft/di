@@ -161,7 +161,9 @@ class ContainerTest extends TestCase
                         [
                             ColorInterface::class => ColorPink::class,
                             'engine' => fn (EngineInterface $engine) => $engine,
-                        ], [], $container
+                        ],
+                        [],
+                        $container
                     );
                 },
                 EngineInterface::class => EngineMarkOne::class,
@@ -203,7 +205,9 @@ class ContainerTest extends TestCase
                             fn (ContainerInterface $container) => new Container(
                                 [
                                     EngineInterface::class => EngineMarkOne::class,
-                                ], [], $container
+                                ],
+                                [],
+                                $container
                             )
                         );
                     }
@@ -926,7 +930,9 @@ class ContainerTest extends TestCase
             [
                 EngineInterface::class => EngineMarkOne::class,
                 'injected' => static fn (Injector $injector) => $injector->make(Car::class),
-            ], [], $rootContainer
+            ],
+            [],
+            $rootContainer
         );
         $car = $container->get(Car::class);
         $c = $container->get(ContainerInterface::class);
@@ -963,7 +969,9 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'car' => Car::class,
-            ], [], $compositeContainer
+            ],
+            [],
+            $compositeContainer
         );
         $engineContainer = new Container(
             [
@@ -986,7 +994,8 @@ class ContainerTest extends TestCase
                 EngineInterface::class => EngineMarkOne::class,
                 'car' => Car::class,
                 'engine' => static fn (EngineInterface $engine) => $engine,
-            ], []
+            ],
+            []
         );
         $proxyContainer = $this->getProxyContainer($container);
         $container = $container->get(ContainerInterface::class);
@@ -1040,7 +1049,9 @@ class ContainerTest extends TestCase
                 'first-second-third' => static function (ContainerInterface $c) {
                     return $c->get('first') . $c->get('second') . $c->get('third');
                 },
-            ], [], $compositeContainer
+            ],
+            [],
+            $compositeContainer
         );
 
         $compositeContainer->attach($container1);
