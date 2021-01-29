@@ -19,7 +19,9 @@ use function array_key_exists;
 use function array_keys;
 use function assert;
 use function class_exists;
+use function get_class;
 use function implode;
+use function is_object;
 use function is_string;
 
 /**
@@ -158,7 +160,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         foreach ($config as $id => $definition) {
             if (!is_string($id)) {
-                throw new InvalidConfigException('Key must be a string');
+                throw new InvalidConfigException(sprintf('Key must be a string. %s given.', $this->getVariableType($id)));
             }
             $this->set($id, $definition);
         }
@@ -184,7 +186,7 @@ final class Container extends AbstractContainerConfigurator implements Container
                 return $this;
             }
             throw new CircularReferenceException(sprintf(
-                'Circular reference to "%s" detected while building: %s',
+                'Circular reference to "%s" detected while building: %s.',
                 $id,
                 implode(',', array_keys($this->building))
             ));
@@ -245,7 +247,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $definition->resolve($this->rootContainer ?? $this);
         }
 
-        throw new NotFoundException("No definition for $class");
+        throw new NotFoundException("No definition for $class.");
     }
 
     private function addProviders(array $providers): void
@@ -293,9 +295,18 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
-            'Service provider should be an instance of ' . ServiceProviderInterface::class
-        ));
+            sprintf('Service provider should be an instance of %s. %s given.', ServiceProviderInterface::class,  $this->getVariableType($provider)
+        )));
 
         return $provider;
+    }
+
+    private function getVariableType($variable): string
+    {
+        if (is_object($variable)) {
+            return get_class($variable);
+        }
+
+        return gettype($variable);
     }
 }
