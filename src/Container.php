@@ -295,8 +295,12 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         $provider = Normalizer::normalize($providerDefinition)->resolve($this);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
-            sprintf('Service provider should be an instance of %s. %s given.', ServiceProviderInterface::class,  $this->getVariableType($provider)
-        )));
+            sprintf(
+                'Service provider should be an instance of %s. %s given.',
+                ServiceProviderInterface::class,
+                $this->getVariableType($provider)
+            )
+        ));
 
         return $provider;
     }
