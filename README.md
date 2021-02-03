@@ -31,6 +31,7 @@ and configure classes resolving dependencies.
 - Supports aliasing.
 - Supports service providers and deferred service providers.
 
+
 ## Using the container
 
 Usage of the DI container is fairly simple: You first initialize it with an
@@ -96,8 +97,9 @@ better to rely on autowiring as provided by the Injector available from the
 
 ## Using aliases
 
-The DI container supports aliases via the `Reference` class. This way objects
-can also be retrieved by a more handy name:
+The DI container supports aliases via the
+`Yiisoft\Factory\Definitions\Reference` class. This way objects can also be
+retrieved by a more handy name:
 
 ```php
 use Yiisoft\Di\Container;
@@ -111,9 +113,12 @@ $object = $container->get('engine_one');
 
 ## Delegated lookups and composite containers
 
-The `Container` class supports delegated lookups. This means, that dependencies
-are always fetched from a given *root container*. It can be passed as third
-parameter to the container constructor:
+Another feature of the `Container` class are *delegated lookups*. This means
+that *all* dependencies for definitions in the container should be resolved via
+a *root container* - and not by the container itself.
+
+To use delegated lookups a root container can be passed as third argument to
+the constructor:
 
 ```php
 class Car
@@ -130,14 +135,25 @@ class Car
         return $this->engine;
     }
 }
-$rootContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class
-]);
-$container = new Container([], [], $rootContainer);
 
+$rootContainer = new Container([
+    EngineInterface::class => EngineMarkTwo::class
+]);
+$container = new Container([
+    EngineInterface::class => EngineMarkOne::class,
+], [], $rootContainer);
+
+// returns an instance of `Car`
 $car = $container->get(Car::class);
-$engine = $car->getEngine(); //returns an instance of the `Car` class
+// returns an instance of `EngineMarkTwo`
+$engine = $car->getEngine();
 ```
+
+Note, that the root container is only used for resolving dependencies. You can
+not directly fetch entries of the root container from the container via `get()`.
+
+Delegated lookups are mainly useful for composite containers.
+
 
 ### Composite containers
 
@@ -353,7 +369,7 @@ application if you perform heavy operations inside the `register()` method.
 
 ## Using deferred service providers
 
-To prevent the potential perfomance decrease when using service providers you
+To prevent the potential performance decrease when using service providers you
 can use so-called *deferred service providers*.
 
 They extend from `Yiisoft\Di\Support\DeferredServiceProvider` and must
@@ -430,13 +446,11 @@ the container will first check the result of the `provides()` method.
 Because `EngineInterface` is listed there it will then call the `register()`
 method of the `CarFactoryProvider`.
 
-**Note**, you can use deferred service providers not just to defer bootstrap of
-heavy services but also to register your services to the container only when
-they are actually needed.
 
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
+
 
 # Benchmarks
 
