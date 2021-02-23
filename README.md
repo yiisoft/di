@@ -31,13 +31,19 @@ and configure classes resolving dependencies.
 - Supports aliasing.
 - Supports service providers and deferred service providers.
 
-## Using container
 
-Usage of DI container is fairly simple. First, you initialize it with array of definitions and then objects created
-according to these are used either in the application directly or to resolve dependencies of other definitions.
+## Using the container
 
-Usually a single container is used for the whole application so it is often configured in either entry
-script such as `index.php` or a configuration file:
+Usage of the DI container is fairly simple: You first initialize it with an
+array of *definitions*. The array keys are usually interface names. It will
+then use these definitions to create an object whenever that type is requested.
+This happens for example when fetching a type directly from the container
+somewhere in the application. But objects are also created implicitly if a
+definition has a dependency to another definition.
+
+Usually a single container is used for the whole application. It is often
+configured either in the entry script such as `index.php` or a configuration
+file:
 
 ```php
 use Yiisoft\Di\Container;
@@ -45,7 +51,7 @@ use Yiisoft\Di\Container;
 $container = new Container($config);
 ```
 
-Config could be stored in a `.php` file returning array:
+The configuration can be stored in a `.php` file that returns an array:
 
 ```php
 return [
@@ -63,35 +69,37 @@ return [
 ];
 ```
 
-Interface definition maps an id, that is usually an interface, to particular class.
+As seen above an object can be defined in several ways:
 
-Full definition describes how to instantiate a class in detail:
+ * In the simple case an interface definition maps an id to a particular class.
+ * A full definition describes how to instantiate a class in more detail:
+   * `__class` contains the name of the class to be instantiated.
+   * `__construct()` holds an array of constructor arguments.
+   * The rest of the config are property values and method calls. They are
+     set/called in the order they appear in the array.
+ * Closures are useful if instantiation is tricky and can better be described in code.
+ * If it is even more complicated, it is a good idea to move such code into a
+   factory and reference it as a static call.
+ * While it is usually not a good idea, you can also set an already
+   instantiated object into the container.
 
-  - `__class` contains name of the class to be instantiated.
-  - `__construct()` holds an array of constructor arguments.
-  - The rest of the config and property values and method calls.
-    They are set/called in the order they appear in the array.
-    
-Closures are useful if instantiation is tricky and should be described in code.
-If it is even more complicated, it is a good idea to move such code into a factory
-and reference it as a static call.
-
-While it is usually not a good idea, you can set already instantiated object into container.
-
-After container is configured, dependencies could be obtained via `get()`:
+After the container is configured, dependencies can be obtained via `get()`:
 
 ```php
 /** @var \Yiisoft\Di\Container $container */
 $object = $container->get('interface_name');
 ```
 
-Note, however, that it is a bad practice to use container directly and it is better to rely
-on autowiring made via Injector available via separate [yiisoft/injector](https://github.com/yiisoft/injector) pacakge.
+Note, however, that it is bad practice using a container directly. It is much
+better to rely on autowiring as provided by the Injector available from the
+[yiisoft/injector](https://github.com/yiisoft/injector) package.
+
 
 ## Using aliases
 
-Container supports aliases via `Reference` class. It could be useful to have an ability
-to retrieve objects both by their interface and named explicitly:
+The DI container supports aliases via the
+`Yiisoft\Factory\Definitions\Reference` class. This way objects can also be
+retrieved by a more handy name:
 
 ```php
 use Yiisoft\Di\Container;
@@ -100,41 +108,58 @@ $container = new Container([
     EngineInterface::class => EngineMarkOne::class,
     'engine_one' => EngineInterface::class,
 ]);
+$object = $container->get('engine_one');
 ```
 
-## Delegated lookup and composite containers
+## Delegated lookups and composite containers
 
-The `Container` class supports delegated lookup.
-When using delegated lookup, all dependencies are always fetched from a given root container.
-To use delegate lookup you should set `root container` as a third parameter of the container constructor.
+Another feature of the `Container` class are *delegated lookups*. This means
+that *all* dependencies for definitions in the container should be resolved via
+a *root container* - and not by the container itself.
+
+To use delegated lookups a root container can be passed as third argument to
+the constructor:
 
 ```php
 class Car
 {
     private EngineInterface $engine;
-   
+
     public function __construct(EngineInterface $engine)
     {
         $this->engine = $engine;
     }
-    
+
     public function getEngine(): EngineInterface
     {
         return $this->engine;
     }
 }
+
 $rootContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class
+    EngineInterface::class => EngineMarkTwo::class
 ]);
-$container = new Container([], [], $rootContainer);
+$container = new Container([
+    EngineInterface::class => EngineMarkOne::class,
+], [], $rootContainer);
+
+// returns an instance of `Car`
 $car = $container->get(Car::class);
-$engine = $car->getEngine(); //returns an instance of the `Car` class
+// returns an instance of `EngineMarkTwo`
+$engine = $car->getEngine();
 ```
+
+Note, that the root container is only used for resolving dependencies. You can
+not directly fetch entries of the root container from the container via `get()`.
+
+Delegated lookups are mainly useful for composite containers.
+
 
 ### Composite containers
 
-Composie container allows combining multiple containers into a composite container, which we can then use for lookups.
-When using this approach, one should only use the composite container.
+A composite container combines multiple containers in a single container. When
+using this approach, objects should only be fetched from the composite
+container.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
@@ -142,7 +167,7 @@ use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
 $carContainer = new Container([
-    EngineInterface::class => EngineMarkOne:class,
+    EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
 $bikeContainer = new Container([
@@ -150,11 +175,14 @@ $bikeContainer = new Container([
 ], []);
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
-$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$bike = $composite->get(BikeInterface::class); //returns an instance of a `Bike` class
+
+// Returns an instance of a `Car` class.
+$car = $composite->get(CarInterface::class);
+// Returns an instance of a `Bike` class.
+$bike = $composite->get(BikeInterface::class);
 ```
 
-Note, containers attached later override dependencies of containers attached earlier.
+Note, that containers attached later override dependencies of containers attached earlier.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
@@ -162,55 +190,30 @@ use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
 $carContainer = new Container([
-    EngineInterface::class => EngineMarkOne:class,
+    EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
 $composite->attach($carContainer);
-$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$engine = $car->getEngine(); //returns an instance of a `EngineMarkOne` class
+
+// Returns an instance of a `Car` class.
+$car = $composite->get(CarInterface::class);
+// Returns an instance of a `EngineMarkOne` class.
+$engine = $car->getEngine();
+
 $engineContainer = new Container([
-    EngineInterface::class => EngineMarkTwo:class,
+    EngineInterface::class => EngineMarkTwo::class,
 ], []);
-
 $composite->attach($engineContainer);
-$car = $composite->get(CarInterface::class); //returns an instance of a `Car` class
-$engine = $composite->get(EngineInterface::class); //returns an instance of a `EngineMarkTwo` class
-```
-
-A composite container can be a `root container` for a container delegate lookup.
-```php
-use Yiisoft\Di\CompositeContainer;
-use Yiisoft\Di\Container;
-
-$container = new CompositeContainer();
-$container1 = new Container([
-    'first' => static function () {
-        return 'first';
-    },
-    'third' => static function () {
-        return 'third';
-    }
-]);
-$container2 = new Container([
-    'second' => static function () {
-        return 'second';
-    },
-    'first-and-second-and-third' => static function ($c) {
-        return $c->get('first') . ' ' . $c->get('second') . ' ' . $c->get('third');
-    },
-]);
-
-$container->attach($container1);
-$container->attach($container2);
-$first = $container->get('first'); // returns 'first'
-$second = $container->get('second'); // returns 'second'
-$firstSecondThird = $container->get('first-and-second-and-third'); //returns 'first second third' 
+// Returns an instance of a `Car` class.
+$car = $composite->get(CarInterface::class);
+// Returns an instance of a `EngineMarkTwo` class.
+$engine = $composite->get(EngineInterface::class);
 ```
 
 ## Contextual containers
 
 In an application there are several levels at which we might want to have configuration for the DI container.
-For example, in Yii application these could be:
+For example, in a Yii application these could be:
 
 - An extension providing default configuration
 - An application with configuration
@@ -220,10 +223,10 @@ While in general you never want to inject DI containers into your objects, there
 Yii application modules that need access to the container.
 
 To support this use case while still supporting custom configuration at the module level we have implemented contextual containers.
-The main class is `CompositeContextContainer`; it is like `CompositeContainer` in the sense that it doesn't contain any definitions.
+The main class is `CompositeContextContainer`. It is like a `CompositeContainer` in the sense that it doesn't contain any definitions.
 The `attach()` function of the contextual container has an extra string parameter defining the context of the container.
 
-Using context we can create a simple scoping system:
+Using this context we can create a simple scoping system:
 
 ```php
 use Yiisoft\Di\Container;
@@ -259,21 +262,24 @@ $moduleBContainer->get(LoggerInterface::class); // LoggerB
 ```
 
 Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
-In case of Yii contextual containers for the modules are created automatically. 
+In the case of Yii contextual containers for the modules are created automatically.
+
 
 ## Using service providers
 
-A service provider is a special class that responsible for binding complex services or groups of dependencies 
-into the container including registering services with its references, event listeners, middleware etc.
+A service provider is a special class that is responsible for binding complex
+services or groups of dependencies into the container. This includes
+registering services with its references, event listeners, middleware etc.
 
-All service providers extend the `Yiisoft\Di\Support\ServiceProvider` class and contain a `register` method. 
-Within the register method, you should only bind things into the container. You should never attempt to 
-implement in a service provider any business logic, functionality related to environment bootstrap, 
-functionality that changes DB or anything else than not related to binding things into the container.
-To access the container in a service provider you should use `container` field. Container being passed
-to service provider through constructor and saved to `container` field.
+Service providers extend from `Yiisoft\Di\Support\ServiceProvider` and must
+contain a `register()` method. It should only bind things into the container
+and therefore only contain code that is related to this task. It should *never*
+implement any business logic or other functionality like environment bootstrap
+or DB changes.
 
-Typical service provider could look like:
+To access the container in a service provider you should use the `$container` argument.
+
+A typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
@@ -309,35 +315,42 @@ class CarFactoryProvider extends ServiceProvider
     }
 }
 ```
+Here we created a service provider responsible for bootstrapping of a car
+factory with all its dependencies.
 
-To add service provider to the container you need to pass either service provider class or configuration array
-as an element of container constructor `$providers` parameter:
+To add this service provider to a container you can pass either its class or a
+configuration array in the `$providers` constructor parameter:
 
 ```php
 use Yiisoft\Di\Container;
 
 $container = new Container($config, [
-    CarFactoryProvider::class,  
+    CarFactoryProvider::class,
 ]);
 ```
 
-Above we created a service provider responsible for bootstrapping of a car factory with all its
-dependencies. Once a service provider added via configuration array, its `register()` method
-is immediately called and services got registered into the container.
+When a service provider is added, its `register()` method is called
+*immediately* and services get registered into the container.
 
-**Note**, service provider might decrease performance of your application if you would perform heavy operations
-inside the `register` method.
+Thus service providers might *decrease* the performance of your
+application if you perform heavy operations inside the `register()` method.
+
 
 ## Using deferred service providers
 
-As stated before, service provider might decrease performance of your application registering heavy services. So
-to prevent performance decrease you can use so-called deferred service providers. 
+To prevent the potential performance decrease when using service providers you
+can use so-called *deferred service providers*.
 
-deferred service providers extend the `Yiisoft\Di\Support\DeferredServiceProvider` and in addition to `register` method
-contain a `provides` method that returns array with names and identifiers of services service providers bind to 
-the container. Deferred service providers being added to the container the same way as regular service providers but 
-`register` method of deferred service provider got called only once one of the services listed in `provides` method 
-is requested from the container. Example:
+They extend from `Yiisoft\Di\Support\DeferredServiceProvider` and must
+implement an additional `provides()` method (besides `register()`). This method
+returns an array with names and identifiers of services that the service
+provider binds to the container.
+
+Deferred service providers are added to a container just like regular service
+providers. But the `register()` method is only called when one of the services
+listed in `provides()` is requested from the container.
+
+Here's an example:
 
 ```php
 use Yiisoft\Di\Container;
@@ -354,7 +367,7 @@ class CarFactoryProvider extends DeferredServiceProvider
             WheelInterface::class,
         ];
     }
-    
+
     public function register(Container $container): void
     {
         $this->registerDependencies($container);
@@ -395,17 +408,18 @@ $engine = $container->get(EngineInterface::class);
 $container->has(EngineInterface::class); 
 ```
 
-In the code above we added `CarFactoryProvider` to the container but `register` method of `CarFactoryProvider` wasn't 
-executed till `EngineInterface` was requested from the container. When we requested `EngineInterface`, container looked at 
-`provides` list of the `CarFactoryProvider` and, as `EngineInterface` is listed in `provides`, container called `register`
+In the code above we add a `CarFactoryProvider` to the container. The
+`register()` method of `CarFactoryProvider` isn't executed until
+`EngineInterface` gets requested from the container. When this happens,
+the container will first check the result of the `provides()` method.
+Because `EngineInterface` is listed there it will then call the `register()`
 method of the `CarFactoryProvider`.
 
-**Note**, you can use deferred service providers not just to defer bootstrap of heavy services but also to register your 
-services to the container only when they are actually needed. 
 
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
+
 
 # Benchmarks
 
@@ -453,6 +467,7 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 >   * mode: Mode of all iterations.
 >   * worst: Minimum time of all iterations (minimal of all iterations).
 
+
 ## Commands examples
 
 * Default report for all benchmarks that outputs the result to `HTML-file` and `MD-file`
@@ -492,7 +507,7 @@ Generated MD-file example
 >   * subject: Benchmark class method.
 >   * set: Set of data (provided by ParamProvider).
 >   * revs: Number of revolutions (represent the number of times that the code is executed).
->   * iter: Number of iteration.  
+>   * iter: Number of iteration.
 >   * mem_peak: (mean) Peak memory used by iteration as retrieved by memory_get_peak_usage.
 >   * time_rev:  Mean time taken by all iterations in variant.
 >   * comp_z_value: Z-score.

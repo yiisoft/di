@@ -21,13 +21,12 @@ use Yiisoft\Di\Container;
  * {
  *    public function register(Container $container): void
  *    {
- *        $this->registerDependencies();
- *        $this->registerService();
+ *        $this->registerDependencies($container);
+ *        $this->registerService($container);
  *    }
  *
- *    protected function registerDependencies(): void
+ *    protected function registerDependencies($container): void
  *    {
- *        $container = $this->container;
  *        $container->set(EngineInterface::class, SolarEngine::class);
  *        $container->set(WheelInterface::class, [
  *            '__class' => Wheel::class,
@@ -35,9 +34,9 @@ use Yiisoft\Di\Container;
  *        ]);
  *    }
  *
- *    protected function registerService(): void
+ *    protected function registerService($container): void
  *    {
- *        $this->container->set(Car::class, [
+ *        $container->set(Car::class, [
  *              '__class' => Car::class,
  *              'color' => 'red',
  *        ]);
@@ -50,7 +49,8 @@ interface ServiceProviderInterface
     /**
      * Registers classes in the container.
      *
-     * - This method should only set classes definitions to the Container preventing any side-effects.
+     * - This method should only set class definitions to the Container and
+     *   not have any side-effects.
      * - This method should be idempotent
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.
