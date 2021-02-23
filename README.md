@@ -38,7 +38,7 @@ Usage of the DI container is fairly simple: You first initialize it with an
 array of *definitions*. The array keys are usually interface names. It will
 then use these definitions to create an object whenever that type is requested.
 This happens for example when fetching a type directly from the container
-somewhere in the application. But objects are also created implicitely if a
+somewhere in the application. But objects are also created implicitly if a
 definition has a dependency to another definition.
 
 Usually a single container is used for the whole application. It is often
@@ -90,7 +90,7 @@ After the container is configured, dependencies can be obtained via `get()`:
 $object = $container->get('interface_name');
 ```
 
-Note, however, that it is bad practice to use a container directly. It's much
+Note, however, that it is bad practice using a container directly. It is much
 better to rely on autowiring as provided by the Injector available from the
 [yiisoft/injector](https://github.com/yiisoft/injector) package.
 
@@ -167,7 +167,7 @@ use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
 $carContainer = new Container([
-    EngineInterface::class => EngineMarkOne:class,
+    EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
 $bikeContainer = new Container([
@@ -176,9 +176,9 @@ $bikeContainer = new Container([
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
 
-// returns an instance of a `Car` class
+// Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
-// returns an instance of a `Bike` class
+// Returns an instance of a `Bike` class.
 $bike = $composite->get(BikeInterface::class);
 ```
 
@@ -190,23 +190,23 @@ use Yiisoft\Di\Container;
 
 $composite = new CompositeContainer();
 $carContainer = new Container([
-    EngineInterface::class => EngineMarkOne:class,
+    EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
 $composite->attach($carContainer);
 
-// returns an instance of a `Car` class
+// Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
-// returns an instance of a `EngineMarkOne` class
+// Returns an instance of a `EngineMarkOne` class.
 $engine = $car->getEngine();
 
 $engineContainer = new Container([
-    EngineInterface::class => EngineMarkTwo:class,
+    EngineInterface::class => EngineMarkTwo::class,
 ], []);
 $composite->attach($engineContainer);
-// returns an instance of a `Car` class
+// Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
-// returns an instance of a `EngineMarkTwo` class
+// Returns an instance of a `EngineMarkTwo` class.
 $engine = $composite->get(EngineInterface::class);
 ```
 
@@ -238,7 +238,7 @@ $container->attach($container1);
 $container->attach($container2);
 $first = $container->get('first'); // returns 'first'
 $second = $container->get('second'); // returns 'second'
-$firstSecondThird = $container->get('first-and-second-and-third'); //returns 'first second third' 
+$firstSecondThird = $container->get('first-and-second-and-third'); // returns 'first second third' 
 ```
 
 ## Contextual containers
