@@ -210,37 +210,6 @@ $car = $composite->get(CarInterface::class);
 $engine = $composite->get(EngineInterface::class);
 ```
 
-A composite container can be a *root container* for delegate container lookups.
-
-```php
-use Yiisoft\Di\CompositeContainer;
-use Yiisoft\Di\Container;
-
-$container = new CompositeContainer();
-$container1 = new Container([
-    'first' => static function () {
-        return 'first';
-    },
-    'third' => static function () {
-        return 'third';
-    }
-]);
-$container2 = new Container([
-    'second' => static function () {
-        return 'second';
-    },
-    'first-and-second-and-third' => static function ($c) {
-        return $c->get('first') . ' ' . $c->get('second') . ' ' . $c->get('third');
-    },
-]);
-
-$container->attach($container1);
-$container->attach($container2);
-$first = $container->get('first'); // returns 'first'
-$second = $container->get('second'); // returns 'second'
-$firstSecondThird = $container->get('first-and-second-and-third'); // returns 'first second third' 
-```
-
 ## Contextual containers
 
 In an application there are several levels at which we might want to have configuration for the DI container.
