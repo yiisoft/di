@@ -307,6 +307,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         return $provider;
     }
 
+    /**
+     * @param mixed $variable
+     */
     private function getVariableType($variable): string
     {
         if (is_object($variable)) {
