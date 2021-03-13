@@ -105,11 +105,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws NotFoundException
      * @throws NotInstantiableException
      *
-     * @return object An instance of the requested interface.
+     * @return mixed|object An instance of the requested interface.
      *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
-     * @psalm-return ($id is class-string ? T : object)
+     * @psalm-return ($id is class-string ? T : mixed)
      */
     public function get($id)
     {
@@ -181,7 +181,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws InvalidConfigException
      * @throws NotFoundException
      *
-     * @return object New built instance of the specified class.
+     * @return mixed|object New built instance of the specified class.
      *
      * @internal
      */
