@@ -106,6 +106,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @throws NotInstantiableException
      *
      * @return object An instance of the requested interface.
+     *
+     * @psalm-template T
+     * @psalm-param string|class-string<T> $id
+     * @psalm-return ($id is class-string ? T : object)
      */
     public function get($id)
     {
