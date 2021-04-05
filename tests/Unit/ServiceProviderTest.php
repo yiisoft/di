@@ -26,7 +26,7 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderByDefinition(): void
     {
         $this->ensureProviderRegisterDefinitions([
-            '__class' => CarProvider::class,
+            'class' => CarProvider::class,
         ]);
     }
 

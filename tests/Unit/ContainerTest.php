@@ -273,8 +273,8 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'constructor_test' => [
-                    '__class' => ConstructorTestClass::class,
-                    '__construct()' => [42],
+                    'class' => ConstructorTestClass::class,
+                    'constructor' => [42],
                 ],
             ]
         );
@@ -290,8 +290,8 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'items' => [
-                    '__class' => ArrayIterator::class,
-                    '__construct()' => [
+                    'class' => ArrayIterator::class,
+                    'constructor' => [
                         [],
                         ArrayIterator::STD_PROP_LIST,
                     ],
@@ -310,8 +310,8 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'constructor_test' => [
-                    '__class' => ConstructorTestClass::class,
-                    '__construct()' => [
+                    'class' => ConstructorTestClass::class,
+                    'constructor' => [
                         'parameter' => 42,
                         'surplus1' => 43,
                     ],
@@ -330,8 +330,8 @@ class ContainerTest extends TestCase
             [
                 EngineInterface::class => EngineMarkOne::class,
                 'stringIndexed' => [
-                    '__class' => VariadicConstructor::class,
-                    '__construct()' => [
+                    'class' => VariadicConstructor::class,
+                    'constructor' => [
                         'first' => 1,
                         'parameters' => 42,
                         'second' => 43,
@@ -339,8 +339,8 @@ class ContainerTest extends TestCase
                     ],
                 ],
                 'integerIndexed' => [
-                    '__class' => VariadicConstructor::class,
-                    '__construct()' => [1, new EngineMarkOne(), 42, 43, 44],
+                    'class' => VariadicConstructor::class,
+                    'constructor' => [1, new EngineMarkOne(), 42, 43, 44],
                 ],
             ]
         );
@@ -361,8 +361,8 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'test' => [
-                    '__class' => VariadicConstructor::class,
-                    '__construct()' => [
+                    'class' => VariadicConstructor::class,
+                    'constructor' => [
                         'parameters' => 42,
                         43,
                     ],
@@ -379,8 +379,10 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'property_test' => [
-                    '__class' => PropertyTestClass::class,
-                    'property' => 42,
+                    'class' => PropertyTestClass::class,
+                    'setProperties' => [
+                        'property' => 42,
+                    ],
                 ],
             ]
         );
@@ -395,8 +397,10 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'method_test' => [
-                    '__class' => MethodTestClass::class,
-                    'setValue()' => [42],
+                    'class' => MethodTestClass::class,
+                    'callMethods' => [
+                        'setValue' => [42],
+                    ],
                 ],
             ]
         );
@@ -411,8 +415,8 @@ class ContainerTest extends TestCase
         $container = new Container(
             [
                 'car' => [
-                    '__class' => Car::class,
-                    '__construct()' => [
+                    'class' => Car::class,
+                    'constructor' => [
                         static fn (EngineInterface $engine) => $engine,
                     ],
                 ],
@@ -451,8 +455,10 @@ class ContainerTest extends TestCase
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
-                    '__class' => Car::class,
-                    'color' => fn () => $color,
+                    'class' => Car::class,
+                    'setProperties' => [
+                        'color' => fn () => $color,
+                    ],
                 ],
             ]
         );
@@ -469,8 +475,10 @@ class ContainerTest extends TestCase
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
-                    '__class' => Car::class,
-                    'setColor()' => [fn () => $color],
+                    'class' => Car::class,
+                    'callMethods' => [
+                        'setColor' => [fn () => $color],
+                    ],
                 ],
             ]
         );
@@ -761,11 +769,13 @@ class ContainerTest extends TestCase
                 'engine' => EngineMarkOne::class,
                 'color' => ColorPink::class,
                 'car' => [
-                    '__class' => Car::class,
-                    '__construct()' => [
+                    'class' => Car::class,
+                    'constructor' => [
                         Reference::to('engine'),
                     ],
-                    'color' => Reference::to('color'),
+                    'setProperties' => [
+                        'color' => Reference::to('color'),
+                    ],
                 ],
             ]
         );
@@ -783,8 +793,8 @@ class ContainerTest extends TestCase
                 'engine3' => EngineMarkTwo::class,
                 'engine4' => EngineMarkTwo::class,
                 'car' => [
-                    '__class' => Car::class,
-                    '__construct()' => [
+                    'class' => Car::class,
+                    'constructor' => [
                         Reference::to('engine1'),
                         [
                             'engine2' => Reference::to('engine2'),
@@ -815,8 +825,10 @@ class ContainerTest extends TestCase
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
-                    '__class' => Car::class,
-                    'color' => Reference::to(ColorInterface::class),
+                    'class' => Car::class,
+                    'setProperties' => [
+                        'color' => Reference::to(ColorInterface::class),
+                    ],
                 ],
             ]
         );
@@ -833,8 +845,10 @@ class ContainerTest extends TestCase
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
-                    '__class' => Car::class,
-                    'setColor()' => [Reference::to(ColorInterface::class)],
+                    'class' => Car::class,
+                    'callMethods' => [
+                        'setColor' => [Reference::to(ColorInterface::class)],
+                    ],
                 ],
             ]
         );
@@ -852,8 +866,8 @@ class ContainerTest extends TestCase
             [
                 EngineInterface::class => EngineMarkOne::class,
                 Car::class => [
-                    '__class' => Car::class,
-                    '__construct()' => [
+                    'class' => Car::class,
+                    'constructor' => [
                         Reference::to(EngineInterface::class),
                         $array,
                     ],
@@ -886,7 +900,9 @@ class ContainerTest extends TestCase
             [
                 EngineInterface::class => EngineMarkOne::class,
                 EngineMarkOne::class => [
-                    'setNumber()' => [$number],
+                    'callMethods' => [
+                        'setNumber' => [$number],
+                    ],
                 ],
             ]
         );
