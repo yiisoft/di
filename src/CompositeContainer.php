@@ -27,7 +27,7 @@ final class CompositeContainer implements ContainerInterface
                 return $container->get($id);
             }
         }
-        throw new NotFoundException("No definition for $id");
+        throw new NotFoundException($id);
     }
 
     public function has($id): bool
