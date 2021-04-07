@@ -253,7 +253,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $definition->resolve($this->rootContainer ?? $this);
         }
 
-        throw new NotFoundException("No definition for $class.");
+        throw new NotFoundException($class);
     }
 
     private function addProviders(array $providers): void
