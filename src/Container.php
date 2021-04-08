@@ -7,8 +7,7 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\Arrays\ArrayDefinition;
-use Yiisoft\Factory\Definitions\Arrays\Key;
+use Yiisoft\Factory\Definitions\ArrayDefinition;
 use Yiisoft\Factory\Definitions\Normalizer;
 use Yiisoft\Factory\Exceptions\CircularReferenceException;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
@@ -249,7 +248,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = new ArrayDefinition([Key::CLASS_NAME => $class]);
+            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class]);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }
