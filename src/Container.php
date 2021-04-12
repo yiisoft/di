@@ -29,6 +29,8 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
+    private const ALLOWED_META = [];
+
     /**
      * @var array object definitions indexed by their types
      */
@@ -232,7 +234,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id);
+        $definition = Normalizer::normalize($this->definitions[$id], $id, [], self::ALLOWED_META);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
