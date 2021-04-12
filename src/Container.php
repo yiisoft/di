@@ -29,6 +29,8 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
+    private const TAGS_META = '__tags';
+    private const DEFINITION_META = '__definition';
     /**
      * @var array object definitions indexed by their types
      */
@@ -161,9 +163,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        $tags = $this->extractTags($definition);
-        $definition = $this->extractDefinition($definition);
+        [$definition, $tags] = $this->parseDefinition($definition);
+
         Normalizer::validate($definition);
+        $this->validateTags($tags);
+
         $this->setTags($id, $tags);
 
         unset($this->instances[$id]);
@@ -187,26 +191,21 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    private function extractDefinition($definition)
+    /**
+     * @param mixed $definition
+     */
+    private function parseDefinition($definition): array
     {
-        if (is_array($definition) && isset($definition['__definition'])) {
-            $definition = $definition['__definition'];
+        if (!is_array($definition)) {
+            return [$definition, []];
         }
+        $tags = (array)($definition[self::TAGS_META] ?? []);
+        unset($definition[self::TAGS_META]);
 
-        return $definition;
+        return [$definition[self::DEFINITION_META] ?? $definition, $tags];
     }
 
-    private function extractTags($definition): array
-    {
-        if (is_array($definition) && isset($definition['__tags']) && is_array($definition['__tags'])) {
-            $this->checkTags($definition['__tags']);
-            return $definition['__tags'];
-        }
-
-        return [];
-    }
-
-    private function checkTags(array $tags): void
+    private function validateTags(array $tags): void
     {
         foreach ($tags as $tag) {
             if (!(is_string($tag))) {
