@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Support;
 
-use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\AbstractContainerConfigurator;
+use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 
 /**
  * Base class for service providers that should be deferred to register till services are
@@ -72,6 +72,7 @@ abstract class DeferredServiceProvider extends AbstractContainerConfigurator imp
      * given identifier or not.
      *
      * @param string $id class, interface or identifier in the Container.
+     *
      * @return bool whether service provider would register definition or not.
      */
     public function hasDefinitionFor(string $id): bool

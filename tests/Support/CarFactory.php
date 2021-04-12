@@ -13,9 +13,11 @@ class CarFactory
 {
     /**
      * @param ContainerInterface $container
-     * @return Car
+     *
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws \Psr\Container\NotFoundExceptionInterface
+     *
+     * @return Car
      */
     public static function create(EngineInterface $engine): Car
     {
@@ -25,5 +27,12 @@ class CarFactory
     public function createByEngineName(EngineFactory $factory, $name): Car
     {
         return new Car($factory->createByName($name));
+    }
+
+    public function createWithColor(ColorInterface $color): Car
+    {
+        $car = new Car(EngineFactory::createDefault());
+
+        return $car->setColor($color);
     }
 }

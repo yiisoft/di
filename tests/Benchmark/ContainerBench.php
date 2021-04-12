@@ -5,17 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Benchmark;
 
 use PhpBench\Benchmark\Metadata\Annotations\BeforeMethods;
+use PhpBench\Benchmark\Metadata\Annotations\Groups;
 use PhpBench\Benchmark\Metadata\Annotations\Iterations;
 use PhpBench\Benchmark\Metadata\Annotations\ParamProviders;
 use PhpBench\Benchmark\Metadata\Annotations\Revs;
-use PhpBench\Benchmark\Metadata\Annotations\Groups;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
-use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
+use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Factory\Definitions\Reference;
 
 /**
@@ -46,7 +46,7 @@ class ContainerBench
                     EngineMarkOne::class => EngineMarkOne::class,
                     EngineMarkTwo::class => EngineMarkTwo::class,
                 ],
-            ]
+            ],
         ];
     }
 
@@ -81,6 +81,7 @@ class ContainerBench
 
     /**
      * @Groups({"construct"})
+     *
      * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
      * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
      */

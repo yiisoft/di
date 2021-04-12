@@ -25,15 +25,16 @@
         "php": "^7.4|^8.0",
         "ext-mbstring": "*",
         "psr/container": "1.0.0",
-        "yiisoft/factory": "^3.0@dev"
+        "yiisoft/factory": "^3.0@dev",
+        "yiisoft/injector": "^1.0"
     },
     "require-dev": {
-        "infection/infection": "^0.17.0",
-        "vimeo/psalm": "^3.16",
-        "phpunit/phpunit": "^9.3",
-        "phpbench/phpbench": "~0.17",
-        "yiisoft/injector": "^1.0@dev",
-        "league/container": "^3.2"
+        "league/container": "^3.3",
+        "phpbench/phpbench": "^1.0.0",
+        "phpunit/phpunit": "^9.4",
+        "roave/infection-static-analysis-plugin": "^1.6",
+        "spatie/phpunit-watcher": "^1.23",
+        "vimeo/psalm": "^4.2"
     },
     "suggest": {
         "yiisoft/injector": "^1.0@dev",
@@ -58,9 +59,8 @@
         }
     },
     "scripts": {
-        "test": [
-            "phpunit --coverage-html coverage"
-        ]
+        "test": "phpunit --testdox --no-interaction",
+        "test-watch": "phpunit-watcher watch"
     },
     "scripts-descriptions": {
         "test": "Run all tests"

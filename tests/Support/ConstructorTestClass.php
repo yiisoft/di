@@ -11,14 +11,17 @@ class ConstructorTestClass
 {
     private $parameter;
 
+    private array $allParameters;
 
     /**
      * ConstructorTestClass constructor.
+     *
      * @param $parameter
      */
     public function __construct($parameter)
     {
         $this->parameter = $parameter;
+        $this->allParameters = func_get_args();
     }
 
     /**
@@ -27,5 +30,10 @@ class ConstructorTestClass
     public function getParameter()
     {
         return $this->parameter;
+    }
+
+    public function getAllParameters(): array
+    {
+        return $this->allParameters;
     }
 }
