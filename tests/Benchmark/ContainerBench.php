@@ -16,7 +16,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
-use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Definition\Reference;
 
 /**
  * @Iterations(5)
@@ -82,8 +82,8 @@ class ContainerBench
     /**
      * @Groups({"construct"})
      *
-     * @throws \Yiisoft\Factory\Exceptions\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exceptions\NotInstantiableException
+     * @throws \Yiisoft\Factory\Exception\InvalidConfigException
+     * @throws \Yiisoft\Factory\Exception\NotInstantiableException
      */
     public function benchConstruct(): void
     {

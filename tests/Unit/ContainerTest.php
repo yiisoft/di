@@ -29,11 +29,11 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
-use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Factory\Definitions\ValueDefinition;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Factory\Definition\ValueDefinition;
+use Yiisoft\Factory\Exception\CircularReferenceException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Factory\Exception\NotFoundException;
 use Yiisoft\Injector\Injector;
 
 /**

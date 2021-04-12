@@ -6,7 +6,7 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Factory\Exception\NotFoundException;
 
 /**
  * This class implements a composite container with support for context switching.

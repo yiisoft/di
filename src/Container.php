@@ -7,12 +7,12 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\ArrayDefinition;
-use Yiisoft\Factory\Definitions\Normalizer;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
-use Yiisoft\Factory\Exceptions\NotInstantiableException;
+use Yiisoft\Factory\Definition\ArrayDefinition;
+use Yiisoft\Factory\Definition\Normalizer;
+use Yiisoft\Factory\Exception\CircularReferenceException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Factory\Exception\NotFoundException;
+use Yiisoft\Factory\Exception\NotInstantiableException;
 use Yiisoft\Injector\Injector;
 
 use function array_key_exists;
