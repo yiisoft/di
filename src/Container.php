@@ -67,7 +67,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $tags = [],
         ContainerInterface $rootContainer = null
     ) {
-
         $this->tags = $tags;
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
