@@ -57,9 +57,9 @@ The configuration can be stored in a `.php` file that returns an array:
 return [
     EngineInterface::class => EngineMarkOne::class,
     'full_definition' => [
-        '__class' => EngineMarkOne::class,
+        'class' => EngineMarkOne::class,
         '__construct()' => [42], 
-        'propertyName' => 'value',
+        '@propertyName' => 'value',
         'setX()' => [42],
     ],
     'closure' => fn (SomeFactory $factory) => $factory->create('args'),
@@ -73,9 +73,9 @@ As seen above an object can be defined in several ways:
 
  * In the simple case an interface definition maps an id to a particular class.
  * A full definition describes how to instantiate a class in more detail:
-   * `__class` contains the name of the class to be instantiated.
+   * `class` contains the name of the class to be instantiated.
    * `__construct()` holds an array of constructor arguments.
-   * The rest of the config are property values and method calls. They are
+   * The rest of the config are property values (prefixed with `@`) and method calls, postfixed with `()`. They are
      set/called in the order they appear in the array.
  * Closures are useful if instantiation is tricky and can better be described in code.
  * If it is even more complicated, it is a good idea to move such code into a
@@ -297,20 +297,20 @@ class CarFactoryProvider extends ServiceProvider
     {
         $container->set(EngineInterface::class, SolarEngine::class);
         $container->set(WheelInterface::class, [
-            '__class' => Wheel::class,
-            'color' => 'black',
+            'class' => Wheel::class,
+            '@color' => 'black',
         ]);
         $container->set(CarInterface::class, [
-            '__class' => BMW::class,
-            'model' => 'X5',
+            'class' => BMW::class,
+            '@model' => 'X5',
         ]);
     }
 
     protected function registerService(Container $container): void
     {
         $container->set(CarFactory::class, [
-              '__class' => CarFactory::class,
-              'color' => 'red',
+              'class' => CarFactory::class,
+              '@color' => 'red',
         ]);
     }
 }
@@ -378,20 +378,20 @@ class CarFactoryProvider extends DeferredServiceProvider
     {
         $container->set(EngineInterface::class, SolarEngine::class);
         $container->set(WheelInterface::class, [
-            '__class' => Wheel::class,
-            'color' => 'black',
+            'class' => Wheel::class,
+            '@color' => 'black',
         ]);
         $container->set(CarInterface::class, [
-            '__class' => BMW::class,
-            'model' => 'X5',
+            'class' => BMW::class,
+            '@model' => 'X5',
         ]);
     }
 
     protected function registerService(Container $container): void
     {
         $container->set(CarFactory::class, [
-              '__class' => CarFactory::class,
-              'color' => 'red',
+              'class' => CarFactory::class,
+              '@color' => 'red',
         ]);
     }
 }
