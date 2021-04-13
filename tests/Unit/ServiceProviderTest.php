@@ -9,7 +9,7 @@ use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}
@@ -26,7 +26,7 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderByDefinition(): void
     {
         $this->ensureProviderRegisterDefinitions([
-            '__class' => CarProvider::class,
+            'class' => CarProvider::class,
         ]);
     }
 

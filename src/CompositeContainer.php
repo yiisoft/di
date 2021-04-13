@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Factory\Exceptions\NotFoundException;
+use Yiisoft\Factory\Exception\NotFoundException;
 
 /**
  * This class implements a composite container for use with containers that support the delegate lookup feature.
