@@ -30,7 +30,7 @@ use Yiisoft\Di\Container;
  *        $container->set(EngineInterface::class, SolarEngine::class);
  *        $container->set(WheelInterface::class, [
  *            'class' => Wheel::class,
- *            '@color' => 'black',
+ *            '$color' => 'black',
  *        ]);
  *    }
  *
@@ -38,7 +38,7 @@ use Yiisoft\Di\Container;
  *    {
  *        $container->set(Car::class, [
  *              'class' => Car::class,
- *              '@color' => 'red',
+ *              '$color' => 'red',
  *        ]);
  *    }
  * }

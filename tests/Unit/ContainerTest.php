@@ -380,7 +380,7 @@ class ContainerTest extends TestCase
             [
                 'property_test' => [
                     'class' => PropertyTestClass::class,
-                    '@property' => 42,
+                    '$property' => 42,
                 ],
             ]
         );
@@ -452,7 +452,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    '@color' => fn () => $color,
+                    '$color' => fn () => $color,
                 ],
             ]
         );
@@ -765,7 +765,7 @@ class ContainerTest extends TestCase
                     '__construct()' => [
                         Reference::to('engine'),
                     ],
-                    '@color' => Reference::to('color'),
+                    '$color' => Reference::to('color'),
                 ],
             ]
         );
@@ -816,7 +816,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    '@color' => Reference::to(ColorInterface::class),
+                    '$color' => Reference::to(ColorInterface::class),
                 ],
             ]
         );
