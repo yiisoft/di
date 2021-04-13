@@ -29,16 +29,16 @@ use Yiisoft\Di\Container;
  *    {
  *        $container->set(EngineInterface::class, SolarEngine::class);
  *        $container->set(WheelInterface::class, [
- *            '__class' => Wheel::class,
- *            'color' => 'black',
+ *            'class' => Wheel::class,
+ *            '@color' => 'black',
  *        ]);
  *    }
  *
  *    protected function registerService($container): void
  *    {
  *        $container->set(Car::class, [
- *              '__class' => Car::class,
- *              'color' => 'red',
+ *              'class' => Car::class,
+ *              '@color' => 'red',
  *        ]);
  *    }
  * }

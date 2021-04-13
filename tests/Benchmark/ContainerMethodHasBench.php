@@ -11,7 +11,7 @@ use PhpBench\Benchmark\Metadata\Annotations\Revs;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\GearBox;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
-use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Definition\Reference;
 
 /**
  * @Iterations(5)

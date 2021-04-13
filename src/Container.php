@@ -7,12 +7,12 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definitions\ArrayDefinition;
-use Yiisoft\Factory\Definitions\Normalizer;
-use Yiisoft\Factory\Exceptions\CircularReferenceException;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
-use Yiisoft\Factory\Exceptions\NotFoundException;
-use Yiisoft\Factory\Exceptions\NotInstantiableException;
+use Yiisoft\Factory\Definition\ArrayDefinition;
+use Yiisoft\Factory\Definition\Normalizer;
+use Yiisoft\Factory\Exception\CircularReferenceException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Factory\Exception\NotFoundException;
+use Yiisoft\Factory\Exception\NotInstantiableException;
 use Yiisoft\Injector\Injector;
 
 use function array_key_exists;
@@ -29,6 +29,8 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
+    private const ALLOWED_META = [];
+
     /**
      * @var array object definitions indexed by their types
      */
@@ -232,7 +234,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id);
+        $definition = Normalizer::normalize($this->definitions[$id], $id, [], self::ALLOWED_META);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
@@ -248,7 +250,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = new ArrayDefinition($class);
+            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class]);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }
