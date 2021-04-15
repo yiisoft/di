@@ -29,7 +29,8 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
-    private const ALLOWED_META = [];
+    private const META_TAGS = 'tags';
+    private const ALLOWED_META = ['tags'];
 
     /**
      * @var array object definitions indexed by their types
@@ -44,6 +45,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @var object[]
      */
     private array $instances = [];
+
+    private array $tags;
+
     private ?CompositeContainer $rootContainer = null;
 
     /**
@@ -61,8 +65,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     public function __construct(
         array $definitions = [],
         array $providers = [],
+        array $tags = [],
         ContainerInterface $rootContainer = null
     ) {
+        $this->tags = $tags;
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
@@ -92,6 +98,11 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function has($id): bool
     {
+        if ($this->isTagAlias($id)) {
+            $tag = substr($id, 4);
+            return isset($this->tags[$tag]);
+        }
+
         return isset($this->definitions[$id]) || class_exists($id);
     }
 
@@ -152,7 +163,14 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
+        [$definition, $meta] = Normalizer::parse($definition, self::ALLOWED_META);
+
         Normalizer::validate($definition);
+        if (isset($meta[self::META_TAGS])) {
+            $this->validateTags($meta[self::META_TAGS]);
+            $this->setTags($id,$meta[self::META_TAGS]);
+        }
+
         unset($this->instances[$id]);
         $this->definitions[$id] = $definition;
     }
@@ -174,6 +192,24 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
+    private function validateTags(array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if (!is_string($tag)) {
+                throw new InvalidConfigException('Invalid tag. Expected a string, got ' . var_export($tag, true) . '.');
+            }
+        }
+    }
+
+    private function setTags(string $id, array $tags): void
+    {
+        foreach ($tags as $tag) {
+            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
+                $this->tags[$tag][] = $id;
+            }
+        }
+    }
+
     /**
      * Creates new instance by either interface name or alias.
      *
@@ -189,6 +225,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function build(string $id)
     {
+        if ($this->isTagAlias($id)) {
+            return $this->getTaggedServices($id);
+        }
+
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
@@ -208,6 +248,24 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $object;
+    }
+
+    private function isTagAlias(string $id): bool
+    {
+        return strpos($id, 'tag@') === 0;
+    }
+
+    private function getTaggedServices(string $tagAlias): array
+    {
+        $tag = substr($tagAlias, 4);
+        $services = [];
+        if (isset($this->tags[$tag])) {
+            foreach ($this->tags[$tag] as $service) {
+                $services[] = $this->get($service);
+            }
+        }
+
+        return $services;
     }
 
     /**

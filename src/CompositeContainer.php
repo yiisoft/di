@@ -22,6 +22,20 @@ final class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
+        if ($this->isTagAlias($id)) {
+            $tags = [];
+            foreach ($this->containers as $container) {
+                if (!$container instanceof Container) {
+                    continue;
+                }
+                if ($container->has($id)) {
+                    $tags = array_merge($container->get($id), $tags);
+                }
+            }
+
+            return $tags;
+        }
+
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 return $container->get($id);
@@ -62,5 +76,10 @@ final class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
+    }
+
+    private function isTagAlias(string $id): bool
+    {
+        return strpos($id, 'tag@') === 0;
     }
 }
