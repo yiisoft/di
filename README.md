@@ -415,7 +415,39 @@ the container will first check the result of the `provides()` method.
 Because `EngineInterface` is listed there it will then call the `register()`
 method of the `CarFactoryProvider`.
 
+## Container tags
 
+You can tag services in the next way
+
+```php
+$container = new Container([  
+    BlueCarService::class => [
+        'class' => BlueCarService::class,
+        'tags' => ['car'], 
+    ],
+    RedCarService::class => [
+        'definition' => fn () => new RedCarService(),
+        'tags' => ['car'],
+    ],
+]);
+```
+
+And now we can get tagged services from the container in the next way
+Another way to tag services is set tags via container constructor
+```php
+    $container->get('tag@car');
+```
+The result is an array of `BlueCarService` and `RedCarService` instances.
+
+```php
+$container = new Container([  
+    BlueCarService::class => [
+        'class' => BlueCarService::class,
+    ],
+    RedCarService::class => fn () => new RedCarService(),
+], [], ['car' => [BlueCarService::class, RedCarService::class]]);
+
+```
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).

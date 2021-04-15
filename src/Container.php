@@ -30,8 +30,7 @@ use function is_string;
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     private const TAGS_META = 'tags';
-    private const DEFINITION_META = 'definition';
-    private const ALLOWED_META = [];
+    private const ALLOWED_META = ['tags'];
 
     /**
      * @var array object definitions indexed by their types
@@ -164,12 +163,13 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        [$definition, $tags] = $this->parseDefinition($definition);
+        [$definition, $meta] = Normalizer::parse($definition, self::ALLOWED_META);
 
         Normalizer::validate($definition);
-        $this->validateTags($tags);
-
-        $this->setTags($id, $tags);
+        if (isset($meta[self::TAGS_META])) {
+            $this->validateTags($meta[self::TAGS_META]);
+            $this->setTags($id,$meta[self::TAGS_META]);
+        }
 
         unset($this->instances[$id]);
         $this->definitions[$id] = $definition;
@@ -190,20 +190,6 @@ final class Container extends AbstractContainerConfigurator implements Container
             }
             $this->set($id, $definition);
         }
-    }
-
-    /**
-     * @param mixed $definition
-     */
-    private function parseDefinition($definition): array
-    {
-        if (!is_array($definition)) {
-            return [$definition, []];
-        }
-        $tags = (array)($definition[self::TAGS_META] ?? []);
-        unset($definition[self::TAGS_META]);
-
-        return [$definition[self::DEFINITION_META] ?? $definition, $tags];
     }
 
     private function validateTags(array $tags): void
