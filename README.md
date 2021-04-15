@@ -417,7 +417,7 @@ method of the `CarFactoryProvider`.
 
 ## Container tags
 
-You can tag services in the next way
+You can tag services in the following way:
 
 ```php
 $container = new Container([  
@@ -432,22 +432,29 @@ $container = new Container([
 ]);
 ```
 
-And now we can get tagged services from the container in the next way
+Now we can get tagged services from the container in the following way:
 
 ```php
-    $container->get('tag@car');
+$container->get('tag@car');
 ```
-The result is an array of `BlueCarService` and `RedCarService` instances.
 
-Another way to tag services is setting tags via container constructor
+The result is an array that contains two instances: `BlueCarService` and `RedCarService`.
+
+Another way to tag services is setting tags via container constructor:
+
 ```php
-$container = new Container([  
-    BlueCarService::class => [
-        'class' => BlueCarService::class,
+$container = new Container(
+    [  
+        BlueCarService::class => [
+            'class' => BlueCarService::class,
+        ],
+        RedCarService::class => fn () => new RedCarService(),
     ],
-    RedCarService::class => fn () => new RedCarService(),
-], [], ['car' => [BlueCarService::class, RedCarService::class]]);
-
+    [],
+    [
+        'car' => [BlueCarService::class, RedCarService::class]
+    ]
+);
 ```
 ## Further reading
 

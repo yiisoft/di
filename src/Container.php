@@ -29,7 +29,7 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
-    private const TAGS_META = 'tags';
+    private const META_TAGS = 'tags';
     private const ALLOWED_META = ['tags'];
 
     /**
@@ -166,9 +166,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         [$definition, $meta] = Normalizer::parse($definition, self::ALLOWED_META);
 
         Normalizer::validate($definition);
-        if (isset($meta[self::TAGS_META])) {
-            $this->validateTags($meta[self::TAGS_META]);
-            $this->setTags($id,$meta[self::TAGS_META]);
+        if (isset($meta[self::META_TAGS])) {
+            $this->validateTags($meta[self::META_TAGS]);
+            $this->setTags($id,$meta[self::META_TAGS]);
         }
 
         unset($this->instances[$id]);
@@ -195,8 +195,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function validateTags(array $tags): void
     {
         foreach ($tags as $tag) {
-            if (!(is_string($tag))) {
-                throw new InvalidConfigException('Invalid tag: ' . var_export($tag, true));
+            if (!is_string($tag)) {
+                throw new InvalidConfigException('Invalid tag. Expected a string, got ' . var_export($tag, true) . '.');
             }
         }
     }
@@ -204,7 +204,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function setTags(string $id, array $tags): void
     {
         foreach ($tags as $tag) {
-            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag])) {
+            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
                 $this->tags[$tag][] = $id;
             }
         }
