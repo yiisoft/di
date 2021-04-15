@@ -86,7 +86,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
                 'tags' => ['engine'],
-            ]
+            ],
         ]);
 
         $compositeContainer->attach($firstContainer);

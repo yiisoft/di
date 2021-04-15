@@ -168,7 +168,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         Normalizer::validate($definition);
         if (isset($meta[self::META_TAGS])) {
             $this->validateTags($meta[self::META_TAGS]);
-            $this->setTags($id,$meta[self::META_TAGS]);
+            $this->setTags($id, $meta[self::META_TAGS]);
         }
 
         unset($this->instances[$id]);

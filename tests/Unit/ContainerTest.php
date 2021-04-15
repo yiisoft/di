@@ -1078,7 +1078,7 @@ class ContainerTest extends TestCase
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
                 'tags' => ['engine'],
-            ]
+            ],
         ]);
 
         $engines = $container->get('tag@engine');
@@ -1102,7 +1102,7 @@ class ContainerTest extends TestCase
                     return new EngineMarkTwo();
                 },
                 'tags' => ['engine'],
-            ]
+            ],
         ]);
 
         $engines = $container->get('tag@engine');
@@ -1122,7 +1122,7 @@ class ContainerTest extends TestCase
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
                 'tags' => ['engine'],
-            ]
+            ],
         ]);
 
         $engines = $container->get('tag@engine');
@@ -1144,7 +1144,7 @@ class ContainerTest extends TestCase
             ],
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
-            ]
+            ],
         ]);
 
         $engines = $container->get('tag@engine');
@@ -1162,7 +1162,7 @@ class ContainerTest extends TestCase
             ],
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
-            ]
+            ],
         ], [], ['engine' => [EngineMarkTwo::class]]);
 
         $engines = $container->get('tag@engine');
@@ -1182,7 +1182,7 @@ class ContainerTest extends TestCase
             EngineMarkTwo::class => [
                 'class' => EngineMarkTwo::class,
                 'tags' => ['engine'],
-            ]
+            ],
         ], [], ['mark_two' => [EngineMarkTwo::class]]);
 
         $engines = $container->get('tag@engine');
@@ -1210,7 +1210,7 @@ class ContainerTest extends TestCase
                 'tags' => ['engine'],
             ],
             Car::class => [
-                '__construct()' => ['moreEngines' => Reference::to('tag@engine')]
+                '__construct()' => ['moreEngines' => Reference::to('tag@engine')],
             ],
         ]);
 
