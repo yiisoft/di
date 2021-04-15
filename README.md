@@ -439,7 +439,7 @@ And now we can get tagged services from the container in the next way
 ```
 The result is an array of `BlueCarService` and `RedCarService` instances.
 
-Another way to tag services is seting tags via container constructor
+Another way to tag services is setting tags via container constructor
 ```php
 $container = new Container([  
     BlueCarService::class => [
