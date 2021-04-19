@@ -17,4 +17,3 @@ class ColorRed implements ColorInterface
         return static::COLOR_PINK;
     }
 }
-

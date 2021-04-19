@@ -13,7 +13,7 @@ class StateResetter
         $this->resetters = $resetters;
     }
 
-    public function reset()
+    public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
             $resetter();

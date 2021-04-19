@@ -1279,7 +1279,7 @@ class ContainerTest extends TestCase
                 'class' => Car::class,
                 'setColor()' => [fn () => $color],
                 'reset' => function () {
-                    $this->color = new ColorPink;
+                    $this->color = new ColorPink();
                 },
             ],
         ]);
