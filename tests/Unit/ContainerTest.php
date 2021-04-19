@@ -1238,7 +1238,7 @@ class ContainerTest extends TestCase
         ]);
 
         $engine = $container->get(EngineInterface::class);
-        $this->assertSame(42, $engine->getNumber());
+        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
 
         $engine->setNumber(45);
         $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
@@ -1300,6 +1300,48 @@ class ContainerTest extends TestCase
         $this->assertSame($car, $container->get(Car::class));
         $this->assertSame(42, $car->getEngine()->getNumber());
         $this->assertSame('pink', $car->getColor()->getColor());
+    }
+
+    public function testResetterInCompositeContainer(): void
+    {
+        $composite = new CompositeContainer();
+        $firstContainer = new Container([
+            'engineMarkOne' => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+        ]);
+        $secondConatiner = new Container([
+            'engineMarkTwo' => [
+                'class' => EngineMarkTwo::class,
+                'setNumber()' => [43],
+                'reset' => function () {
+                    $this->number = 43;
+                },
+            ],
+        ]);
+        $composite->attach($firstContainer);
+        $composite->attach($secondConatiner);
+
+        $engineMarkOne = $composite->get('engineMarkOne');
+        $engineMarkTwo = $composite->get('engineMarkTwo');
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+
+        $engineMarkOne->setNumber(45);
+        $engineMarkTwo->setNumber(46);
+        $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
+
+        $composite->get(StateResetter::class)->reset();
+
+        $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
+        $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
     }
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void

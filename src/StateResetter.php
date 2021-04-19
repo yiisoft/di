@@ -19,4 +19,9 @@ class StateResetter
             $resetter();
         }
     }
+
+    public function getResetters(): array
+    {
+        return $this->resetters;
+    }
 }
