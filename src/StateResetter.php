@@ -16,12 +16,11 @@ class StateResetter
     public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
+            if ($resetter instanceof StateResetter) {
+                $resetter->reset();
+                continue;
+            }
             $resetter();
         }
-    }
-
-    public function getResetters(): array
-    {
-        return $this->resetters;
     }
 }
