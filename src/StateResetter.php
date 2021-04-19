@@ -21,7 +21,7 @@ class StateResetter
     public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
-            if ($resetter instanceof StateResetter) {
+            if ($resetter instanceof self) {
                 $resetter->reset();
                 continue;
             }
