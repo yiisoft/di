@@ -457,31 +457,39 @@ $container = new Container(
 );
 ```
 
-## Resetting state of statefull services
+## Resetting services state
 
-When you build long-running applications with tools like Swoole or Roadrunner you should reset the state of stateful
-services every request. For this purpose you can use `StateResetter`. You should add a resetter to each stateful service
-in the following way:
+Despite stateful services is not a great practice, these are inevitable in many cases. When you build long-running
+applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should
+reset the state of such services every request. For this purpose you can use `StateResetter`. The way state is reset
+is defined for each individual service by providing "reset" callback in the following way:
 
 ```php
-    $container = new Container([
-        EngineInterface::class => EngineMarkOne::class,
-        EngineMarkOne::class => [
-            'class' => EngineMarkOne::class,
-            'setNumber()' => [42],
-            'reset' => function () {
-                $this->number = 42;
-            },
-        ],
-     ]);
+$container = new Container([
+    EngineInterface::class => EngineMarkOne::class,
+    EngineMarkOne::class => [
+        'class' => EngineMarkOne::class,
+        'setNumber()' => [42],
+        'reset' => function () {
+            $this->number = 42;
+        },
+    ],
+ ]);
 ```
 
-A resetter is an anonymous function that has access to the private and protected properties of the service instance, so you 
-can set initial state of the service without creating a new instance. 
+The callback has access to the private and protected properties of the service instance, so you can set initial state
+of the service efficiently without creating a new instance. 
 
-After each request you should reset statful services in the folowing way:
+The reset itself should be triggered after each request-response cycle. For RoadRunner it would look like the following:
+
 ```php
+while ($request = $psr7->acceptRequest()) {
+    $response = $application->handle($request);
+    $psr7->respond($response);
+    $application->afterEmit($response);
     $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+    gc_collect_cycles();
+}
 ```
 
 ## Further reading
