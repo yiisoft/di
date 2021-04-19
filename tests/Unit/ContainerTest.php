@@ -12,6 +12,7 @@ use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
+use Yiisoft\Di\StateResetterInterface;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
@@ -1229,6 +1230,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container([
             EngineInterface::class => EngineMarkOne::class,
+            StateResetterInterface::class => StateResetter::class,
             EngineMarkOne::class => [
                 'class' => EngineMarkOne::class,
                 'setNumber()' => [42],
@@ -1244,7 +1246,7 @@ class ContainerTest extends TestCase
         $engine->setNumber(45);
         $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
 
-        $container->get(StateResetter::class)->reset();
+        $container->get(StateResetterInterface::class)->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1338,6 +1340,50 @@ class ContainerTest extends TestCase
         $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
 
         $composite->get(StateResetter::class)->reset();
+
+        $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
+        $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+    }
+
+    public function testResetterInCompositeContainerWithExternalResetter(): void
+    {
+        $composite = new CompositeContainer();
+        $firstContainer = new Container([
+            StateResetterInterface::class => StateResetter::class,
+            'engineMarkOne' => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+        ]);
+        $secondContainer = new Container([
+            StateResetterInterface::class => StateResetter::class,
+            'engineMarkTwo' => [
+                'class' => EngineMarkTwo::class,
+                'setNumber()' => [43],
+                'reset' => function () {
+                    $this->number = 43;
+                },
+            ],
+        ]);
+        $composite->attach($firstContainer);
+        $composite->attach($secondContainer);
+
+        $engineMarkOne = $composite->get('engineMarkOne');
+        $engineMarkTwo = $composite->get('engineMarkTwo');
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+
+        $engineMarkOne->setNumber(45);
+        $engineMarkTwo->setNumber(46);
+        $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
+
+        $composite->get(StateResetterInterface::class)->reset();
 
         $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
         $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
