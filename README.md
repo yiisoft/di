@@ -479,6 +479,11 @@ in the following way:
 A resetter is an anonymous function than has access to the private and protected properties of the service instance, so you 
 can set initial state of the service without creating a new instance. 
 
+After each request you should reset statful services in the folowing way:
+```php
+    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
