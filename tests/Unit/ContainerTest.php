@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use TypeError;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -1251,8 +1252,8 @@ class ContainerTest extends TestCase
 
     public function testWrongResetter(): void
     {
-        $this->expectException(\TypeError::class);
-        $container = new Container([
+        $this->expectException(TypeError::class);
+        new Container([
             EngineInterface::class => EngineMarkOne::class,
             EngineMarkOne::class => [
                 'class' => EngineMarkOne::class,
@@ -1314,7 +1315,7 @@ class ContainerTest extends TestCase
                 },
             ],
         ]);
-        $secondConatiner = new Container([
+        $secondContainer = new Container([
             'engineMarkTwo' => [
                 'class' => EngineMarkTwo::class,
                 'setNumber()' => [43],
@@ -1324,7 +1325,7 @@ class ContainerTest extends TestCase
             ],
         ]);
         $composite->attach($firstContainer);
-        $composite->attach($secondConatiner);
+        $composite->attach($secondContainer);
 
         $engineMarkOne = $composite->get('engineMarkOne');
         $engineMarkTwo = $composite->get('engineMarkTwo');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
@@ -122,9 +123,9 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         if ($id === StateResetter::class) {
             $resetters = [];
-            foreach ($this->resetters as $id => $resetter) {
-                if (isset($this->instances[$id])) {
-                    $resetters[] = $resetter->bindTo($this->instances[$id], get_class($this->instances[$id]));
+            foreach ($this->resetters as $resetterId => $resetter) {
+                if (isset($this->instances[$resetterId])) {
+                    $resetters[] = $resetter->bindTo($this->instances[$resetterId], get_class($this->instances[$resetterId]));
                 }
             }
             return new StateResetter($resetters);
@@ -226,7 +227,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
-    private function setResetter(string $id, \Closure $resetter): void
+    private function setResetter(string $id, Closure $resetter): void
     {
         $this->resetters[$id] = $resetter;
     }
