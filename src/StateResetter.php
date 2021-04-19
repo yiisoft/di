@@ -14,9 +14,9 @@ use Psr\Container\ContainerInterface;
 class StateResetter
 {
     private array $resetters;
-    private ContainerInterface $container;
+    private ?ContainerInterface $container;
 
-    public function __construct(array $resetters, ContainerInterface $container)
+    public function __construct(array $resetters = [], ContainerInterface $container = null)
     {
         $this->resetters = $resetters;
         $this->container = $container;
@@ -29,7 +29,11 @@ class StateResetter
                 $resetter->reset();
                 continue;
             }
-            $resetter($this->container);
+            if ($this->container !== null) {
+                $resetter($this->container);
+                continue;
+            }
+            $resetter();
         }
     }
 }
