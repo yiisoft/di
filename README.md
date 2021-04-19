@@ -456,6 +456,29 @@ $container = new Container(
     ]
 );
 ```
+
+## Resetting state of statefull services
+
+When you build long-running applications with tools like Swoole or Roadrunner you should reset the state of stateful
+services every request. For this purpose you can use `StateResetter`. You should add a resetter to each stateful service
+in the following way:
+
+```php
+    $container = new Container([
+        EngineInterface::class => EngineMarkOne::class,
+        EngineMarkOne::class => [
+            'class' => EngineMarkOne::class,
+            'setNumber()' => [42],
+            'reset' => function () {
+                $this->number = 42;
+            },
+        ],
+     ]);
+```
+
+A resetter is an anonymous function than has access to the private and protected properties of the service instance, so you 
+can set initial state of the service without creating a new instance. 
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
