@@ -29,11 +29,7 @@ class StateResetter implements StateResetterInterface
                 $resetter->reset();
                 continue;
             }
-            if ($this->container !== null) {
-                $resetter($this->container);
-                continue;
-            }
-            $resetter();
+            $resetter($this->container);
         }
     }
 
