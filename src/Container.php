@@ -30,7 +30,8 @@ use function is_string;
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
     private const META_TAGS = 'tags';
-    private const ALLOWED_META = ['tags'];
+    private const META_RESET = 'reset';
+    private const ALLOWED_META = ['tags', 'reset'];
 
     /**
      * @var array object definitions indexed by their types
@@ -47,6 +48,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     private array $instances = [];
 
     private array $tags;
+
+    private array $resetters = [];
 
     private ?CompositeContainer $rootContainer = null;
 
@@ -76,15 +79,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
         // Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
-    }
-
-    private function setDefaultDefinitions(): void
-    {
-        $container = $this->rootContainer ?? $this;
-        $this->setMultiple([
-            ContainerInterface::class => $container,
-            Injector::class => new Injector($container),
-        ]);
     }
 
     /**
@@ -126,6 +120,16 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
+        if ($id === StateResetter::class) {
+            $resetters = [];
+            foreach ($this->resetters as $id => $resetter) {
+                if (isset($this->instances[$id])) {
+                    $resetters[] = $resetter->bindTo($this->instances[$id], get_class($this->instances[$id]));
+                }
+            }
+            return new StateResetter($resetters);
+        }
+
         if (!array_key_exists($id, $this->instances)) {
             $this->instances[$id] = $this->build($id);
         }
@@ -170,6 +174,9 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->validateTags($meta[self::META_TAGS]);
             $this->setTags($id, $meta[self::META_TAGS]);
         }
+        if (isset($meta[self::META_RESET])) {
+            $this->setResetter($id, $meta[self::META_RESET]);
+        }
 
         unset($this->instances[$id]);
         $this->definitions[$id] = $definition;
@@ -192,6 +199,15 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
     }
 
+    private function setDefaultDefinitions(): void
+    {
+        $container = $this->rootContainer ?? $this;
+        $this->setMultiple([
+            ContainerInterface::class => $container,
+            Injector::class => new Injector($container),
+        ]);
+    }
+
     private function validateTags(array $tags): void
     {
         foreach ($tags as $tag) {
@@ -208,6 +224,11 @@ final class Container extends AbstractContainerConfigurator implements Container
                 $this->tags[$tag][] = $id;
             }
         }
+    }
+
+    private function setResetter(string $id, \Closure $resetter): void
+    {
+        $this->resetters[$id] = $resetter;
     }
 
     /**
