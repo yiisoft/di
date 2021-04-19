@@ -1279,8 +1279,8 @@ class ContainerTest extends TestCase
             Car::class => [
                 'class' => Car::class,
                 'setColor()' => [fn () => $color],
-                'reset' => function () {
-                    $this->color = new ColorPink();
+                'reset' => function (ContainerInterface $container) {
+                    $this->color = $container->get(ColorInterface::class);
                 },
             ],
         ]);
@@ -1300,7 +1300,7 @@ class ContainerTest extends TestCase
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame($car, $container->get(Car::class));
         $this->assertSame(42, $car->getEngine()->getNumber());
-        $this->assertSame('pink', $car->getColor()->getColor());
+        $this->assertSame($color, $car->getColor());
     }
 
     public function testResetterInCompositeContainer(): void

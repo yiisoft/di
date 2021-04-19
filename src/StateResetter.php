@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * State resetter allows to reset state of the services that are currently stored in the container and have "reset"
  * callback defined. The reset should be triggered after each request-response cycle in case you build long-running
@@ -12,10 +14,12 @@ namespace Yiisoft\Di;
 class StateResetter
 {
     private array $resetters;
+    private ContainerInterface $container;
 
-    public function __construct(array $resetters)
+    public function __construct(array $resetters, ContainerInterface $container)
     {
         $this->resetters = $resetters;
+        $this->container = $container;
     }
 
     public function reset(): void
@@ -25,7 +29,7 @@ class StateResetter
                 $resetter->reset();
                 continue;
             }
-            $resetter();
+            $resetter($this->container);
         }
     }
 }

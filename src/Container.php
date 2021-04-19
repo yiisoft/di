@@ -128,7 +128,7 @@ final class Container extends AbstractContainerConfigurator implements Container
                     $resetters[] = $callback->bindTo($this->instances[$serviceId], get_class($this->instances[$serviceId]));
                 }
             }
-            return new StateResetter($resetters);
+            return new StateResetter($resetters, $this);
         }
 
         if (!array_key_exists($id, $this->instances)) {
