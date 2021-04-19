@@ -25,9 +25,9 @@ final class CompositeContainer implements ContainerInterface
         if ($id === StateResetter::class) {
             $resetters = [];
             foreach ($this->containers as $container) {
-                if ($container->has(StateResetter::class))
-                $resetters = array_merge($container->get(StateResetter::class)->getResetters(), $resetters);
-
+                if ($container->has(StateResetter::class)) {
+                    $resetters = array_merge($container->get(StateResetter::class)->getResetters(), $resetters);
+                }
             }
             return new StateResetter($resetters);
         }
