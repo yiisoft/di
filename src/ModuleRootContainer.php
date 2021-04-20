@@ -180,7 +180,7 @@ final class ModuleRootContainer implements ContainerInterface
     {
         return array_filter(
             $module['definitions'] ?? [],
-            fn(string $id) => $this->getNamespaceMatch($id, $namespace) === 0,
+            fn (string $id) => $this->getNamespaceMatch($id, $namespace) === 0,
             ARRAY_FILTER_USE_KEY
         );
     }

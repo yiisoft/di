@@ -104,7 +104,7 @@ final class ModuleContainer implements ContainerInterface
         return $definition->resolve($this);
     }
 
-    private function getSubmoduleContainer(string $id): ?ModuleContainer
+    private function getSubmoduleContainer(string $id): ?self
     {
         $namespaceChosen = null;
         $length = $this->getNamespaceMatch($id, $this->namespace);
@@ -123,7 +123,7 @@ final class ModuleContainer implements ContainerInterface
                 $submodules = $definitions[ModuleRootContainer::KEY_SUBMODULES] ?? [];
                 unset($definitions[ModuleRootContainer::KEY_SUBMODULES]);
 
-                $this->submoduleContainers[$namespaceChosen] = new ModuleContainer(
+                $this->submoduleContainers[$namespaceChosen] = new self(
                     $namespaceChosen,
                     $definitions,
                     $submodules
