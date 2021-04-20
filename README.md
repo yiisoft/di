@@ -456,6 +456,42 @@ $container = new Container(
     ]
 );
 ```
+
+## Resetting services state
+
+Despite stateful services is not a great practice, these are inevitable in many cases. When you build long-running
+applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should
+reset the state of such services every request. For this purpose you can use `StateResetter`. The way state is reset
+is defined for each individual service by providing "reset" callback in the following way:
+
+```php
+$container = new Container([
+    EngineInterface::class => EngineMarkOne::class,
+    EngineMarkOne::class => [
+        'class' => EngineMarkOne::class,
+        'setNumber()' => [42],
+        'reset' => function () {
+            $this->number = 42;
+        },
+    ],
+ ]);
+```
+
+The callback has access to the private and protected properties of the service instance, so you can set initial state
+of the service efficiently without creating a new instance. 
+
+The reset itself should be triggered after each request-response cycle. For RoadRunner it would look like the following:
+
+```php
+while ($request = $psr7->acceptRequest()) {
+    $response = $application->handle($request);
+    $psr7->respond($response);
+    $application->afterEmit($response);
+    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+    gc_collect_cycles();
+}
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).

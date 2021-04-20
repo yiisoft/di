@@ -7,9 +7,11 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use TypeError;
 use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Support\ServiceProvider;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
@@ -17,6 +19,7 @@ use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarFactory;
 use Yiisoft\Di\Tests\Support\ColorInterface;
 use Yiisoft\Di\Tests\Support\ColorPink;
+use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
@@ -1220,6 +1223,127 @@ class ContainerTest extends TestCase
         $this->assertCount(2, $engines);
         $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
         $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+    }
+
+    public function testResetter(): void
+    {
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            StateResetterInterface::class => StateResetter::class,
+            EngineMarkOne::class => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+        ]);
+
+        $engine = $container->get(EngineInterface::class);
+        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+
+        $engine->setNumber(45);
+        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+
+        $container->get(StateResetterInterface::class)->reset();
+
+        $this->assertSame($engine, $container->get(EngineInterface::class));
+        $this->assertSame(42, $engine->getNumber());
+    }
+
+    public function testWrongResetter(): void
+    {
+        $this->expectException(TypeError::class);
+        new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            EngineMarkOne::class => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => [34],
+            ],
+        ]);
+    }
+
+    public function testNestedResetter(): void
+    {
+        $color = new ColorPink();
+        $container = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            EngineMarkOne::class => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+            ColorInterface::class => $color,
+            Car::class => [
+                'class' => Car::class,
+                'setColor()' => [fn () => $color],
+                'reset' => function (ContainerInterface $container) {
+                    $this->color = $container->get(ColorInterface::class);
+                },
+            ],
+        ]);
+
+        $engine = $container->get(EngineInterface::class);
+        $car = $container->get(Car::class);
+        $this->assertSame($engine, $car->getEngine());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+
+        $engine->setNumber(45);
+        $car->setColor(new ColorRed());
+        $this->assertSame(45, $container->get(Car::class)->getEngine()->getNumber());
+        $this->assertSame('red', $container->get(Car::class)->getColor()->getColor());
+
+        $container->get(StateResetter::class)->reset();
+
+        $this->assertSame($engine, $container->get(EngineInterface::class));
+        $this->assertSame($car, $container->get(Car::class));
+        $this->assertSame(42, $car->getEngine()->getNumber());
+        $this->assertSame($color, $car->getColor());
+    }
+
+    public function testResetterInCompositeContainer(): void
+    {
+        $composite = new CompositeContainer();
+        $firstContainer = new Container([
+            'engineMarkOne' => [
+                'class' => EngineMarkOne::class,
+                'setNumber()' => [42],
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+        ]);
+        $secondContainer = new Container([
+            'engineMarkTwo' => [
+                'class' => EngineMarkTwo::class,
+                'setNumber()' => [43],
+                'reset' => function () {
+                    $this->number = 43;
+                },
+            ],
+        ]);
+        $composite->attach($firstContainer);
+        $composite->attach($secondContainer);
+
+        $engineMarkOne = $composite->get('engineMarkOne');
+        $engineMarkTwo = $composite->get('engineMarkTwo');
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+
+        $engineMarkOne->setNumber(45);
+        $engineMarkTwo->setNumber(46);
+        $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
+
+        $composite->get(StateResetter::class)->reset();
+
+        $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
+        $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
+        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
+        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
     }
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
