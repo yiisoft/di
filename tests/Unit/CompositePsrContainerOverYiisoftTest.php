@@ -7,7 +7,6 @@ namespace Yiisoft\Di\Tests\Unit;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
-use Yiisoft\Di\StateResetterInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 
@@ -25,7 +24,7 @@ class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainer
     public function testResetterInCompositeContainerWithExternalResetter(): void
     {
         $composite = $this->createContainer([
-            StateResetterInterface::class => function (ContainerInterface $container) {
+            StateResetter::class => function (ContainerInterface $container) {
                 $resetter = new StateResetter([], $container);
                 $resetter->setResetters([
                     'engineMarkOne' => function () {
@@ -41,7 +40,6 @@ class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainer
             },
         ]);
         $secondContainer = new Container([
-            StateResetterInterface::class => StateResetter::class,
             'engineMarkTwo' => ['class' => EngineMarkTwo::class,
                 'setNumber()' => [43],
                 'reset' => function () {
@@ -59,7 +57,7 @@ class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainer
         $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
         $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
 
-        $composite->get(StateResetterInterface::class)->reset();
+        $composite->get(StateResetter::class)->reset();
 
         $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
         $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));

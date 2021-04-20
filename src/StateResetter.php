@@ -11,7 +11,7 @@ use Psr\Container\ContainerInterface;
  * callback defined. The reset should be triggered after each request-response cycle in case you build long-running
  * applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/).
  */
-class StateResetter implements StateResetterInterface
+class StateResetter
 {
     private array $resetters;
     private ContainerInterface $container;
@@ -25,7 +25,7 @@ class StateResetter implements StateResetterInterface
     public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
-            if ($resetter instanceof StateResetterInterface) {
+            if ($resetter instanceof self) {
                 $resetter->reset();
                 continue;
             }

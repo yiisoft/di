@@ -121,7 +121,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     public function get($id)
     {
-        if ($id === StateResetter::class) {
+        if ($id === StateResetter::class && !isset($this->definitions[$id])) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
@@ -133,9 +133,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
         if (!array_key_exists($id, $this->instances)) {
             $this->instances[$id] = $this->build($id);
-            if ($id === StateResetterInterface::class) {
-                $this->instances[$id]->setResetters($this->resetters);
-            }
         }
 
         return $this->instances[$id];
