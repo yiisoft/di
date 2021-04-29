@@ -1410,43 +1410,43 @@ class ContainerTest extends TestCase
         };
     }
 
-   /* public function testParseCallableDefinition(): void
-    {
-        $fn = static fn () => new EngineMarkOne();
-        $definition = [
-            'definition' => $fn,
-            'tags' => ['one', 'two'],
-        ];
-        [$definition, $meta] = Normalizer::parse($definition, ['tags']);
-        $this->assertSame($fn, $definition);
-        $this->assertSame(['tags' => ['one', 'two']], $meta);
-    }
+    /* public function testParseCallableDefinition(): void
+     {
+         $fn = static fn () => new EngineMarkOne();
+         $definition = [
+             'definition' => $fn,
+             'tags' => ['one', 'two'],
+         ];
+         [$definition, $meta] = Normalizer::parse($definition, ['tags']);
+         $this->assertSame($fn, $definition);
+         $this->assertSame(['tags' => ['one', 'two']], $meta);
+     }
 
-    public function testParseArrayCallableDefinition(): void
-    {
-        $definition = [
-            'definition' => [StaticFactory::class, 'create'],
-            'tags' => ['one', 'two'],
-        ];
-        [$definition, $meta] = Normalizer::parse($definition, ['tags']);
-        $this->assertSame([StaticFactory::class, 'create'], $definition);
-        $this->assertSame(['tags' => ['one', 'two']], $meta);
-    }
+     public function testParseArrayCallableDefinition(): void
+     {
+         $definition = [
+             'definition' => [StaticFactory::class, 'create'],
+             'tags' => ['one', 'two'],
+         ];
+         [$definition, $meta] = Normalizer::parse($definition, ['tags']);
+         $this->assertSame([StaticFactory::class, 'create'], $definition);
+         $this->assertSame(['tags' => ['one', 'two']], $meta);
+     }
 
-    public function testParseArrayDefinition(): void
-    {
-        $container = new Container([
-            EngineMarkOne::class => [
-                ArrayDefinition::CONSTRUCTOR => [42],
-                'tags' => ['one', 'two'],
-            ],
-        ]);
+     public function testParseArrayDefinition(): void
+     {
+         $container = new Container([
+             EngineMarkOne::class => [
+                 ArrayDefinition::CONSTRUCTOR => [42],
+                 'tags' => ['one', 'two'],
+             ],
+         ]);
 
-        $this->assertInstanceOf(ArrayDefinition::class, $definition);
-        $this->assertSame(EngineMarkOne::class, $definition->getClass());
-        $this->assertSame([42], $definition->getConstructorArguments());
-        $this->assertSame(['tags' => ['one', 'two']], $meta);
-    }*/
+         $this->assertInstanceOf(ArrayDefinition::class, $definition);
+         $this->assertSame(EngineMarkOne::class, $definition->getClass());
+         $this->assertSame([42], $definition->getConstructorArguments());
+         $this->assertSame(['tags' => ['one', 'two']], $meta);
+     }*/
 
     public function testErrorOnMethodTypo(): void
     {
