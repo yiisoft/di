@@ -27,6 +27,7 @@ use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\GearBox;
 use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
@@ -1407,5 +1408,66 @@ class ContainerTest extends TestCase
                 return $this->container->has($id);
             }
         };
+    }
+
+   /* public function testParseCallableDefinition(): void
+    {
+        $fn = static fn () => new EngineMarkOne();
+        $definition = [
+            'definition' => $fn,
+            'tags' => ['one', 'two'],
+        ];
+        [$definition, $meta] = Normalizer::parse($definition, ['tags']);
+        $this->assertSame($fn, $definition);
+        $this->assertSame(['tags' => ['one', 'two']], $meta);
+    }
+
+    public function testParseArrayCallableDefinition(): void
+    {
+        $definition = [
+            'definition' => [StaticFactory::class, 'create'],
+            'tags' => ['one', 'two'],
+        ];
+        [$definition, $meta] = Normalizer::parse($definition, ['tags']);
+        $this->assertSame([StaticFactory::class, 'create'], $definition);
+        $this->assertSame(['tags' => ['one', 'two']], $meta);
+    }
+
+    public function testParseArrayDefinition(): void
+    {
+        $container = new Container([
+            EngineMarkOne::class => [
+                ArrayDefinition::CONSTRUCTOR => [42],
+                'tags' => ['one', 'two'],
+            ],
+        ]);
+
+        $this->assertInstanceOf(ArrayDefinition::class, $definition);
+        $this->assertSame(EngineMarkOne::class, $definition->getClass());
+        $this->assertSame([42], $definition->getConstructorArguments());
+        $this->assertSame(['tags' => ['one', 'two']], $meta);
+    }*/
+
+    public function testErrorOnMethodTypo(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?');
+
+        new Container([
+            GearBox::class => [
+                'setId' => [42],
+            ],
+        ]);
+    }
+
+    public function testErrorOnPropertyTypo(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?');
+        new Container([
+            GearBox::class => [
+                'dev' => true,
+            ],
+        ]);
     }
 }
