@@ -71,4 +71,17 @@ final class DefinitionParserTest extends TestCase
             'dev' => true,
         ]);
     }
+
+    public function testErrorOnDisallowMeta(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
+        );
+        (new DefinitionParser(['tags']))->parse([
+            'class' => EngineMarkOne::class,
+            'tags' => ['a', 'b'],
+            'dev' => 42,
+        ]);
+    }
 }

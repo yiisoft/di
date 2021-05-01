@@ -12,7 +12,7 @@ use function is_array;
 use function is_string;
 
 /**
- * @internal Split metadata and defintion
+ * @internal Split metadata and definition
  *
  * Support configuration:
  *
@@ -70,7 +70,10 @@ final class DefinitionParser
         if (isset($definition[self::DEFINITION_META])) {
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
-            return [$newDefinition, $this->filterMeta($definition)];
+            foreach ($definition as $key => $_value) {
+                $this->checkMetaKey($key);
+            }
+            return [$newDefinition, $definition];
         }
 
         $meta = [];
@@ -90,16 +93,7 @@ final class DefinitionParser
                 continue;
             }
 
-            if (!in_array($key, $this->allowedMeta, true)) {
-                throw new InvalidConfigException(
-                    sprintf(
-                        'Invalid definition: metadata "%s" is not allowed. Did you mean "%s()" or "$%s"?',
-                        $key,
-                        $key,
-                        $key,
-                    )
-                );
-            }
+            $this->checkMetaKey($key);
 
             $meta[$key] = $value;
             unset($definition[$key]);
@@ -108,15 +102,20 @@ final class DefinitionParser
         return [$definition, $meta];
     }
 
-    private function filterMeta(array $meta): array
+    /**
+     * @throws InvalidConfigException
+     */
+    private function checkMetaKey(string $key): void
     {
-        return array_filter(
-            $meta,
-            /** @param mixed $key */
-            function ($key) {
-                return in_array($key, $this->allowedMeta, true);
-            },
-            ARRAY_FILTER_USE_KEY
-        );
+        if (!in_array($key, $this->allowedMeta, true)) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Invalid definition: metadata "%s" is not allowed. Did you mean "%s()" or "$%s"?',
+                    $key,
+                    $key,
+                    $key,
+                )
+            );
+        }
     }
 }
