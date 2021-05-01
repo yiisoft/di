@@ -318,7 +318,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id, [], false);
+        $definition = Normalizer::normalize($this->definitions[$id], $id, []);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
