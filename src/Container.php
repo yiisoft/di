@@ -23,8 +23,6 @@ use function class_exists;
 use function get_class;
 use function implode;
 use function in_array;
-use function is_array;
-use function is_callable;
 use function is_object;
 use function is_string;
 
@@ -33,11 +31,11 @@ use function is_string;
  */
 final class Container extends AbstractContainerConfigurator implements ContainerInterface
 {
-    private const DEFINITION_META = 'definition';
-
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = ['tags', 'reset'];
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+
+    private DefinitionParser $definitionParser;
 
     /**
      * @var array object definitions indexed by their types
@@ -77,6 +75,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $tags = [],
         ContainerInterface $rootContainer = null
     ) {
+        $this->definitionParser = new DefinitionParser(self::ALLOWED_META);
         $this->tags = $tags;
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
@@ -173,7 +172,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function set(string $id, $definition): void
     {
-        [$definition, $meta] = self::parseDefinition($id, $definition);
+        [$definition, $meta] = $this->definitionParser->parse($definition);
 
         Normalizer::validate($definition);
         if (isset($meta[self::META_TAGS])) {
@@ -203,40 +202,6 @@ final class Container extends AbstractContainerConfigurator implements Container
             }
             $this->set($id, $definition);
         }
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    private function parseDefinition(string $id, $definition): array
-    {
-        if (!is_array($definition)) {
-            return [$definition, []];
-        }
-
-        if (
-            !array_key_exists(ArrayDefinition::CLASS_NAME, $definition) &&
-            !is_callable($definition, true)
-        ) {
-            $definition[ArrayDefinition::CLASS_NAME] = $id;
-        }
-
-        $meta = [];
-        if (isset($definition[self::DEFINITION_META])) {
-            $newDefinition = $definition[self::DEFINITION_META];
-            unset($definition[self::DEFINITION_META]);
-            $meta = array_filter($definition, static function ($key) {
-                return in_array($key, self::ALLOWED_META, true);
-            }, ARRAY_FILTER_USE_KEY);
-            $definition = $newDefinition;
-        }
-
-        if (is_callable($definition, true)) {
-            return [$definition, $meta];
-        }
-
-        $definition = new ArrayDefinition($definition, self::ALLOWED_META);
-        return [$definition, $definition->getMeta()];
     }
 
     private function setDefaultDefinitions(): void
