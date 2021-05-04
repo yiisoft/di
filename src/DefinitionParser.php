@@ -14,7 +14,7 @@ use function is_string;
 /**
  * @internal Splits metadata and definition.
  *
- * Support configuration:
+ * Supports the following configuration:
  *
  * 1) With a dedicated definition:
  *
