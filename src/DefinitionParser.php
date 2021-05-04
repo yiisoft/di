@@ -12,7 +12,7 @@ use function is_array;
 use function is_string;
 
 /**
- * @internal Split metadata and definition
+ * @internal Splits metadata and definition.
  *
  * Support configuration:
  *
