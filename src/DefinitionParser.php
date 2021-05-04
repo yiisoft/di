@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use InvalidArgumentException;
+use League\Container\Definition\DefinitionInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
 use function in_array;
 use function is_array;
+use function is_object;
 use function is_string;
 
 /**
@@ -63,6 +66,7 @@ final class DefinitionParser
     public function parse($definition): array
     {
         if (!is_array($definition)) {
+            $this->checkNotPhpArrayDefinition($definition);
             return [$definition, []];
         }
 
@@ -70,17 +74,35 @@ final class DefinitionParser
         if (isset($definition[self::DEFINITION_META])) {
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
+
             foreach ($definition as $key => $_value) {
                 $this->checkMetaKey($key);
             }
+
+            if (is_array($newDefinition)) {
+                $this->prepareDefinitionFromArray($newDefinition);
+            } else {
+                $this->checkNotPhpArrayDefinition($newDefinition);
+            }
+
             return [$newDefinition, $definition];
         }
 
         $meta = [];
+        $this->prepareDefinitionFromArray($definition, $meta);
+        return [$definition, $meta];
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    private function prepareDefinitionFromArray(array &$definition, array &$meta = null): void
+    {
         foreach ($definition as $key => $value) {
             // It is not array definition
             if (!is_string($key)) {
-                break;
+                $this->checkNotPhpArrayDefinition($definition);
+                return;
             }
 
             // Array definition keys
@@ -95,11 +117,37 @@ final class DefinitionParser
 
             $this->checkMetaKey($key);
 
-            $meta[$key] = $value;
-            unset($definition[$key]);
+            if ($meta !== null) {
+                $meta[$key] = $value;
+                unset($definition[$key]);
+            }
+        }
+    }
+
+    /**
+     * @param mixed $definition
+     *
+     * @throws InvalidConfigException
+     */
+    private function checkNotPhpArrayDefinition($definition): void
+    {
+        if ($definition instanceof DefinitionInterface) {
+            return;
         }
 
-        return [$definition, $meta];
+        if (is_array($definition)) {
+            return;
+        }
+
+        if (is_string($definition) && !empty($definition)) {
+            return;
+        }
+
+        if (is_object($definition)) {
+            return;
+        }
+
+        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
     }
 
     /**
