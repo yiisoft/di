@@ -168,7 +168,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @throws InvalidConfigException
      *
-     * @see `Normalizer::normalize()`
+     * @see `DefinitionNormalizer::normalize()`
      */
     protected function set(string $id, $definition): void
     {
@@ -317,7 +317,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id, []);
+        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
@@ -333,7 +333,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = ArrayDefinition::create($class);
+            $definition = ArrayDefinition::fromPreparedData($class);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }
@@ -384,7 +384,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        $provider = Normalizer::normalize($providerDefinition)->resolve($this);
+        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($this);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
             sprintf(
                 'Service provider should be an instance of %s. %s given.',

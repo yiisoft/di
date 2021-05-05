@@ -51,6 +51,8 @@ final class DefinitionParser
 {
     private const DEFINITION_META = 'definition';
 
+    public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
+
     private array $allowedMeta;
 
     public function __construct(array $allowedMeta)
@@ -98,10 +100,9 @@ final class DefinitionParser
      */
     private function prepareDefinitionFromArray(array &$definition, array &$meta = null): void
     {
-        $result = [
-            ArrayDefinition::IS_PREPARED_CONFIG => true,
-            ArrayDefinition::METHODS_AND_PROPERTIES => [],
-        ];
+        $class = null;
+        $constructorArguments = [];
+        $methodsAndProperties = [];
         foreach ($definition as $key => $value) {
             // It is not array definition
             if (!is_string($key)) {
@@ -112,25 +113,25 @@ final class DefinitionParser
             // Class
             if ($key === ArrayDefinition::CLASS_NAME) {
                 ArrayDefinitionValidator::validateClassName($value);
-                $result[$key] = $value;
+                $class = $value;
                 continue;
             }
 
             // Constructor arguments
             if ($key === ArrayDefinition::CONSTRUCTOR) {
                 ArrayDefinitionValidator::validateConstructorArguments($value);
-                $result[$key] = $value;
+                $constructorArguments = $value;
                 continue;
             }
 
             // Methods and properties
             if (substr($key, -2) === '()') {
                 ArrayDefinitionValidator::validateMethodArguments($value);
-                $result[ArrayDefinition::METHODS_AND_PROPERTIES][$key] = [ArrayDefinition::FLAG_METHOD, $key, $value];
+                $methodsAndProperties[$key] = [ArrayDefinition::FLAG_METHOD, $key, $value];
                 continue;
             }
             if (strncmp($key, '$', 1) === 0) {
-                $result[ArrayDefinition::METHODS_AND_PROPERTIES][$key] = [ArrayDefinition::FLAG_PROPERTY, $key, $value];
+                $methodsAndProperties[$key] = [ArrayDefinition::FLAG_PROPERTY, $key, $value];
                 continue;
             }
 
@@ -140,7 +141,12 @@ final class DefinitionParser
                 $meta[$key] = $value;
             }
         }
-        $definition = $result;
+        $definition = [
+            $class,
+            $constructorArguments,
+            $methodsAndProperties,
+            self::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
+        ];
     }
 
     /**
