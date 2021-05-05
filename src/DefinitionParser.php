@@ -17,9 +17,9 @@ use function is_object;
 use function is_string;
 
 /**
- * @internal Split metadata and definition
+ * @internal Splits metadata and definition.
  *
- * Support configuration:
+ * Supports the following configuration:
  *
  * 1) With a dedicated definition:
  *
