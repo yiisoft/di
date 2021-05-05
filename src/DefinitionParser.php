@@ -66,7 +66,7 @@ final class DefinitionParser
     public function parse($definition): array
     {
         if (!is_array($definition)) {
-            $this->checkNotPhpArrayDefinition($definition);
+            $this->checkNotArrayDefinitionConfig($definition);
             return [$definition, []];
         }
 
@@ -82,7 +82,7 @@ final class DefinitionParser
             if (is_array($newDefinition)) {
                 $this->prepareDefinitionFromArray($newDefinition);
             } else {
-                $this->checkNotPhpArrayDefinition($newDefinition);
+                $this->checkNotArrayDefinitionConfig($newDefinition);
             }
 
             return [$newDefinition, $definition];
@@ -105,7 +105,7 @@ final class DefinitionParser
         foreach ($definition as $key => $value) {
             // It is not array definition
             if (!is_string($key)) {
-                $this->checkNotPhpArrayDefinition($definition);
+                $this->checkNotArrayDefinitionConfig($definition);
                 return;
             }
 
@@ -148,7 +148,7 @@ final class DefinitionParser
      *
      * @throws InvalidConfigException
      */
-    private function checkNotPhpArrayDefinition($definition): void
+    private function checkNotArrayDefinitionConfig($definition): void
     {
         if ($definition instanceof DefinitionInterface) {
             return;
