@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\DefinitionParser;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\StaticFactory;
+use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
 final class DefinitionParserTest extends TestCase
@@ -43,7 +44,12 @@ final class DefinitionParserTest extends TestCase
             'tags' => ['one', 'two'],
         ];
         [$definition, $meta] = (new DefinitionParser(['tags']))->parse($definition);
-        $this->assertSame(['class' => EngineMarkOne::class, '__construct()' => [42]], $definition);
+        $this->assertSame([
+            ArrayDefinition::IS_PREPARED_CONFIG => true,
+            ArrayDefinition::METHODS_AND_PROPERTIES => [],
+            ArrayDefinition::CLASS_NAME => EngineMarkOne::class,
+            ArrayDefinition::CONSTRUCTOR => [42],
+        ], $definition);
         $this->assertSame(['tags' => ['one', 'two']], $meta);
     }
 

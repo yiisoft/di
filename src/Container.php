@@ -333,7 +333,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class]);
+            $definition = ArrayDefinition::create($class);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }

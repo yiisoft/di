@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use InvalidArgumentException;
 use League\Container\Definition\DefinitionInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
+use Yiisoft\Factory\Definition\ArrayDefinitionValidator;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
+use function get_class;
+use function gettype;
 use function in_array;
 use function is_array;
 use function is_object;
@@ -98,6 +100,10 @@ final class DefinitionParser
      */
     private function prepareDefinitionFromArray(array &$definition, array &$meta = null): void
     {
+        $result = [
+            ArrayDefinition::IS_PREPARED_CONFIG => true,
+            ArrayDefinition::METHODS_AND_PROPERTIES => [],
+        ];
         foreach ($definition as $key => $value) {
             // It is not array definition
             if (!is_string($key)) {
@@ -105,13 +111,28 @@ final class DefinitionParser
                 return;
             }
 
-            // Array definition keys
-            if (
-                $key === ArrayDefinition::CLASS_NAME ||
-                $key === ArrayDefinition::CONSTRUCTOR ||
-                substr($key, -2) === '()' ||
-                strncmp($key, '$', 1) === 0
-            ) {
+            // Class
+            if ($key === ArrayDefinition::CLASS_NAME) {
+                ArrayDefinitionValidator::validateClassName($value);
+                $result[$key] = $value;
+                continue;
+            }
+
+            // Constructor arguments
+            if ($key === ArrayDefinition::CONSTRUCTOR) {
+                ArrayDefinitionValidator::validateConstructorArguments($value);
+                $result[$key] = $value;
+                continue;
+            }
+
+            // Methods and properties
+            if (substr($key, -2) === '()') {
+                ArrayDefinitionValidator::validateMethodArguments($value);
+                $result[ArrayDefinition::METHODS_AND_PROPERTIES][$key] = [ArrayDefinition::FLAG_METHOD, $key, $value];
+                continue;
+            }
+            if (strncmp($key, '$', 1) === 0) {
+                $result[ArrayDefinition::METHODS_AND_PROPERTIES][$key] = [ArrayDefinition::FLAG_PROPERTY, $key, $value];
                 continue;
             }
 
@@ -119,9 +140,9 @@ final class DefinitionParser
 
             if ($meta !== null) {
                 $meta[$key] = $value;
-                unset($definition[$key]);
             }
         }
+        $definition = $result;
     }
 
     /**
