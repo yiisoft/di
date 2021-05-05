@@ -9,8 +9,6 @@ use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\ArrayDefinitionValidator;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
-use function get_class;
-use function gettype;
 use function in_array;
 use function is_array;
 use function is_object;
