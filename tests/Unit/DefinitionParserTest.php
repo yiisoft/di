@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\DefinitionParser;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\StaticFactory;
-use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
 final class DefinitionParserTest extends TestCase
