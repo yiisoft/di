@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use League\Container\Definition\DefinitionInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\ArrayDefinitionValidator;
 use Yiisoft\Factory\Exception\InvalidConfigException;
@@ -156,15 +155,11 @@ final class DefinitionParser
      */
     private function checkNotArrayDefinitionConfig($definition): void
     {
-        if ($definition instanceof DefinitionInterface) {
-            return;
-        }
-
         if (is_array($definition)) {
             return;
         }
 
-        if (is_string($definition) && !empty($definition)) {
+        if (is_string($definition) && $definition !== '') {
             return;
         }
 

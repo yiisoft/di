@@ -32,6 +32,7 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
+use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Definition\ValueDefinition;
 use Yiisoft\Factory\Exception\CircularReferenceException;
@@ -418,7 +419,7 @@ class ContainerTest extends TestCase
                 'car' => [
                     'class' => Car::class,
                     '__construct()' => [
-                        static fn (EngineInterface $engine) => $engine,
+                        DynamicReference::to(static fn (EngineInterface $engine) => $engine),
                     ],
                 ],
                 EngineInterface::class => EngineMarkTwo::class,
