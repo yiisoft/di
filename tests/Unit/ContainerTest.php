@@ -412,7 +412,7 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
-    public function testClosureInConstruct(): void
+    public function testDynamicClosureInConstruct(): void
     {
         $container = new Container(
             [
@@ -449,7 +449,7 @@ class ContainerTest extends TestCase
         $this->assertSame($engine, $container->get('engine'));
     }
 
-    public function testClosureInProperty(): void
+    public function testDynamicClosureInProperty(): void
     {
         $color = new ColorPink();
         $container = new Container(
@@ -458,7 +458,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    '$color' => fn () => $color,
+                    '$color' => DynamicReference::to(fn () => $color),
                 ],
             ]
         );
@@ -467,7 +467,7 @@ class ContainerTest extends TestCase
         $this->assertSame($color, $car->getColor());
     }
 
-    public function testClosureInMethodCall(): void
+    public function testDynamicClosureInMethodCall(): void
     {
         $color = new ColorPink();
         $container = new Container(
@@ -476,7 +476,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    'setColor()' => [fn () => $color],
+                    'setColor()' => [DynamicReference::to(fn () => $color)],
                 ],
             ]
         );
@@ -1280,7 +1280,7 @@ class ContainerTest extends TestCase
             ColorInterface::class => $color,
             Car::class => [
                 'class' => Car::class,
-                'setColor()' => [fn () => $color],
+                'setColor()' => [DynamicReference::to(fn () => $color)],
                 'reset' => function (ContainerInterface $container) {
                     $this->color = $container->get(ColorInterface::class);
                 },
