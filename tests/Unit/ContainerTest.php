@@ -412,6 +412,23 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
+    public function testClosureInConstructor(): void
+    {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                EngineInterface::class => EngineMarkOne::class,
+                ConstructorTestClass::class => [
+                    'class' => ConstructorTestClass::class,
+                    '__construct()' => [$color],
+                ],
+            ]
+        );
+
+        $testClass = $container->get(ConstructorTestClass::class);
+        $this->assertSame($color, $testClass->getParameter());
+    }
+
     public function testDynamicClosureInConstruct(): void
     {
         $container = new Container(
