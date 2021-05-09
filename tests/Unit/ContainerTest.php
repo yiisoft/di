@@ -466,6 +466,22 @@ class ContainerTest extends TestCase
         $this->assertSame($engine, $container->get('engine'));
     }
 
+    public function testClosureInProperty(): void
+    {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                PropertyTestClass::class => [
+                    'class' => PropertyTestClass::class,
+                    '$property' => $color,
+                ],
+            ]
+        );
+
+        $testClass = $container->get(PropertyTestClass::class);
+        $this->assertSame($color, $testClass->property);
+    }
+
     public function testDynamicClosureInProperty(): void
     {
         $color = new ColorPink();
