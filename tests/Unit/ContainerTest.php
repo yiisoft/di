@@ -484,6 +484,23 @@ class ContainerTest extends TestCase
         $this->assertSame($color, $car->getColor());
     }
 
+    public function testClosureInMethodCall(): void
+    {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                EngineInterface::class => EngineMarkOne::class,
+                MethodTestClass::class => [
+                    'class' => MethodTestClass::class,
+                    'setValue()' => [$color],
+                ],
+            ]
+        );
+
+        $testClass = $container->get(MethodTestClass::class);
+        $this->assertSame($color, $testClass->getValue());
+    }
+
     public function testDynamicClosureInMethodCall(): void
     {
         $color = new ColorPink();
