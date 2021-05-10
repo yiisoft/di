@@ -33,6 +33,7 @@ use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Definition\ValueDefinition;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
@@ -411,14 +412,31 @@ class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
-    public function testClosureInConstruct(): void
+    public function testClosureInConstructor(): void
+    {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                EngineInterface::class => EngineMarkOne::class,
+                ConstructorTestClass::class => [
+                    'class' => ConstructorTestClass::class,
+                    '__construct()' => [$color],
+                ],
+            ]
+        );
+
+        $testClass = $container->get(ConstructorTestClass::class);
+        $this->assertSame($color, $testClass->getParameter());
+    }
+
+    public function testDynamicClosureInConstruct(): void
     {
         $container = new Container(
             [
                 'car' => [
                     'class' => Car::class,
                     '__construct()' => [
-                        static fn (EngineInterface $engine) => $engine,
+                        DynamicReference::to(static fn (EngineInterface $engine) => $engine),
                     ],
                 ],
                 EngineInterface::class => EngineMarkTwo::class,
@@ -450,6 +468,22 @@ class ContainerTest extends TestCase
 
     public function testClosureInProperty(): void
     {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                PropertyTestClass::class => [
+                    'class' => PropertyTestClass::class,
+                    '$property' => $color,
+                ],
+            ]
+        );
+
+        $testClass = $container->get(PropertyTestClass::class);
+        $this->assertSame($color, $testClass->property);
+    }
+
+    public function testDynamicClosureInProperty(): void
+    {
         $color = new ColorPink();
         $container = new Container(
             [
@@ -457,7 +491,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    '$color' => fn () => $color,
+                    '$color' => DynamicReference::to(fn () => $color),
                 ],
             ]
         );
@@ -468,6 +502,23 @@ class ContainerTest extends TestCase
 
     public function testClosureInMethodCall(): void
     {
+        $color = fn () => new ColorPink();
+        $container = new Container(
+            [
+                EngineInterface::class => EngineMarkOne::class,
+                MethodTestClass::class => [
+                    'class' => MethodTestClass::class,
+                    'setValue()' => [$color],
+                ],
+            ]
+        );
+
+        $testClass = $container->get(MethodTestClass::class);
+        $this->assertSame($color, $testClass->getValue());
+    }
+
+    public function testDynamicClosureInMethodCall(): void
+    {
         $color = new ColorPink();
         $container = new Container(
             [
@@ -475,7 +526,7 @@ class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    'setColor()' => [fn () => $color],
+                    'setColor()' => [DynamicReference::to(fn () => $color)],
                 ],
             ]
         );
@@ -1279,7 +1330,7 @@ class ContainerTest extends TestCase
             ColorInterface::class => $color,
             Car::class => [
                 'class' => Car::class,
-                'setColor()' => [fn () => $color],
+                'setColor()' => [DynamicReference::to(fn () => $color)],
                 'reset' => function (ContainerInterface $container) {
                     $this->color = $container->get(ColorInterface::class);
                 },
