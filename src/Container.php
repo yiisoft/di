@@ -314,7 +314,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id, [], false);
+        $definition = Normalizer::normalize($this->definitions[$id], $id, []);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
@@ -330,7 +330,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class], false);
+            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class]);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }
