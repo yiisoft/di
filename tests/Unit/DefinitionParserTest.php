@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\DefinitionParser;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\StaticFactory;
-use Yiisoft\Factory\Exception\InvalidConfigException;
 
 final class DefinitionParserTest extends TestCase
 {
@@ -50,43 +49,5 @@ final class DefinitionParserTest extends TestCase
             DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
         ], $definition);
         $this->assertSame(['tags' => ['one', 'two']], $meta);
-    }
-
-    public function testErrorOnMethodTypo(): void
-    {
-        $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?'
-        );
-
-        (new DefinitionParser([]))->parse([
-            'class' => EngineMarkOne::class,
-            'setId' => [42],
-        ]);
-    }
-
-    public function testErrorOnPropertyTypo(): void
-    {
-        $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
-        );
-        (new DefinitionParser([]))->parse([
-            'class' => EngineMarkOne::class,
-            'dev' => true,
-        ]);
-    }
-
-    public function testErrorOnDisallowMeta(): void
-    {
-        $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
-        );
-        (new DefinitionParser(['tags']))->parse([
-            'class' => EngineMarkOne::class,
-            'tags' => ['a', 'b'],
-            'dev' => 42,
-        ]);
     }
 }

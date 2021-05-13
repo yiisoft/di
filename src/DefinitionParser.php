@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Definition\ArrayDefinitionValidator;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
-use function in_array;
 use function is_array;
-use function is_object;
-use function is_string;
+use function is_callable;
 
 /**
  * @internal Splits metadata and definition.
@@ -52,22 +49,14 @@ final class DefinitionParser
 
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
 
-    private array $allowedMeta;
-
-    public function __construct(array $allowedMeta)
-    {
-        $this->allowedMeta = $allowedMeta;
-    }
-
     /**
      * @param mixed $definition
      *
      * @throws InvalidConfigException
      */
-    public function parse($definition): array
+    public static function parse($definition): array
     {
         if (!is_array($definition)) {
-            $this->checkNotArrayDefinitionConfig($definition);
             return [$definition, []];
         }
 
@@ -76,56 +65,34 @@ final class DefinitionParser
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
 
-            foreach ($definition as $key => $_value) {
-                $this->checkMetaKey($key);
-            }
-
-            if (is_array($newDefinition)) {
-                $this->prepareDefinitionFromArray($newDefinition);
-            } else {
-                $this->checkNotArrayDefinitionConfig($newDefinition);
-            }
-
             return [$newDefinition, $definition];
         }
 
-        $meta = [];
-        $this->prepareDefinitionFromArray($definition, $meta);
-        return [$definition, $meta];
-    }
+        // Callable definition
+        if (is_callable($definition, true)) {
+            return [$definition, []];
+        }
 
-    /**
-     * @throws InvalidConfigException
-     */
-    private function prepareDefinitionFromArray(array &$definition, array &$meta = null): void
-    {
+        // Array definition
+        $meta = [];
         $class = null;
         $constructorArguments = [];
         $methodsAndProperties = [];
         foreach ($definition as $key => $value) {
-            // It is not array definition
-            if (!is_string($key)) {
-                $this->checkNotArrayDefinitionConfig($definition);
-                return;
-            }
-
             // Class
             if ($key === ArrayDefinition::CLASS_NAME) {
-                ArrayDefinitionValidator::validateClassName($value);
                 $class = $value;
                 continue;
             }
 
             // Constructor arguments
             if ($key === ArrayDefinition::CONSTRUCTOR) {
-                ArrayDefinitionValidator::validateConstructorArguments($value);
                 $constructorArguments = $value;
                 continue;
             }
 
             // Methods and properties
             if (substr($key, -2) === '()') {
-                ArrayDefinitionValidator::validateMethodArguments($value);
                 $methodsAndProperties[$key] = [ArrayDefinition::FLAG_METHOD, $key, $value];
                 continue;
             }
@@ -134,56 +101,16 @@ final class DefinitionParser
                 continue;
             }
 
-            $this->checkMetaKey($key);
-
-            if ($meta !== null) {
-                $meta[$key] = $value;
-            }
+            $meta[$key] = $value;
         }
-        $definition = [
-            $class,
-            $constructorArguments,
-            $methodsAndProperties,
-            self::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
+        return [
+            [
+                $class,
+                $constructorArguments,
+                $methodsAndProperties,
+                self::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
+            ],
+            $meta,
         ];
-    }
-
-    /**
-     * @param mixed $definition
-     *
-     * @throws InvalidConfigException
-     */
-    private function checkNotArrayDefinitionConfig($definition): void
-    {
-        if (is_array($definition)) {
-            return;
-        }
-
-        if (is_string($definition) && $definition !== '') {
-            return;
-        }
-
-        if (is_object($definition)) {
-            return;
-        }
-
-        throw new InvalidConfigException('Invalid definition:' . var_export($definition, true));
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    private function checkMetaKey(string $key): void
-    {
-        if (!in_array($key, $this->allowedMeta, true)) {
-            throw new InvalidConfigException(
-                sprintf(
-                    'Invalid definition: metadata "%s" is not allowed. Did you mean "%s()" or "$%s"?',
-                    $key,
-                    $key,
-                    $key,
-                )
-            );
-        }
     }
 }
