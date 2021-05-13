@@ -93,11 +93,11 @@ final class DefinitionParser
 
             // Methods and properties
             if (substr($key, -2) === '()') {
-                $methodsAndProperties[$key] = [ArrayDefinition::FLAG_METHOD, $key, $value];
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $key, $value];
                 continue;
             }
             if (strncmp($key, '$', 1) === 0) {
-                $methodsAndProperties[$key] = [ArrayDefinition::FLAG_PROPERTY, $key, $value];
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $key, $value];
                 continue;
             }
 
