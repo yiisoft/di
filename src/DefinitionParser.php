@@ -7,6 +7,7 @@ namespace Yiisoft\Di;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
+use function count;
 use function is_array;
 use function is_callable;
 
@@ -92,12 +93,12 @@ final class DefinitionParser
             }
 
             // Methods and properties
-            if (substr($key, -2) === '()') {
-                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $key, $value];
+            if (count($methodArray = explode('()', $key)) === 2) {
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
                 continue;
             }
-            if (strncmp($key, '$', 1) === 0) {
-                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $key, $value];
+            if (count($propertyArray = explode('$', $key)) === 2) {
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
                 continue;
             }
 
