@@ -1,17 +1,12 @@
 {
-    "bootstrap": "vendor/autoload.php",
-    "path": "tests/Benchmark",
-    "retry_threshold": 3,
-    "outputs": {
-        "html_file": {
-            "extends": "html",
-            "file": "benchmarks.html",
-            "title": "DI benchmark report"
-        },
-        "md_file": {
-            "extends": "markdown",
-            "file": "benchmarks.md",
-            "title": "DI benchmark report"
+    "runner.bootstrap": "vendor/autoload.php",
+    "runner.path": "tests/Benchmark",
+    "runner.retry_threshold": 3,
+    "report.outputs": {
+        "csv_file": {
+            "extends": "delimited",
+            "delimiter": ",",
+            "file": "benchmarks.csv"
         }
     }
 }

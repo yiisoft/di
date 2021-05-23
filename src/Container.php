@@ -9,7 +9,7 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Definition\Normalizer;
+use Yiisoft\Factory\Definition\DefinitionValidator;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
@@ -22,6 +22,8 @@ use function assert;
 use function class_exists;
 use function get_class;
 use function implode;
+use function in_array;
+use function is_array;
 use function is_object;
 use function is_string;
 
@@ -32,7 +34,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = ['tags', 'reset'];
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
 
     /**
      * @var array object definitions indexed by their types
@@ -43,6 +45,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      * to detect circular references
      */
     private array $building = [];
+
+    /**
+     * @var bool $validate Validate definitions when set
+     */
+    private bool $validate;
+
     /**
      * @var object[]
      */
@@ -70,9 +78,11 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $definitions = [],
         array $providers = [],
         array $tags = [],
-        ContainerInterface $rootContainer = null
+        ContainerInterface $rootContainer = null,
+        bool $validate = true
     ) {
         $this->tags = $tags;
+        $this->validate = $validate;
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
@@ -164,15 +174,20 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @throws InvalidConfigException
      *
-     * @see `Normalizer::normalize()`
+     * @see `DefinitionNormalizer::normalize()`
      */
     protected function set(string $id, $definition): void
     {
-        [$definition, $meta] = Normalizer::parse($definition, self::ALLOWED_META);
+        [$definition, $meta] = DefinitionParser::parse($definition);
+        if ($this->validate) {
+            $this->validateDefinition($definition, $id);
+            $this->validateMeta($meta);
+        }
 
-        Normalizer::validate($definition);
         if (isset($meta[self::META_TAGS])) {
-            $this->validateTags($meta[self::META_TAGS]);
+            if ($this->validate) {
+                $this->validateTags($meta[self::META_TAGS]);
+            }
             $this->setTags($id, $meta[self::META_TAGS]);
         }
         if (isset($meta[self::META_RESET])) {
@@ -193,7 +208,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     protected function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
-            if (!is_string($id)) {
+            if ($this->validate && !is_string($id)) {
                 throw new InvalidConfigException(sprintf('Key must be a string. %s given.', $this->getVariableType($id)));
             }
             $this->set($id, $definition);
@@ -207,6 +222,43 @@ final class Container extends AbstractContainerConfigurator implements Container
             ContainerInterface::class => $container,
             Injector::class => new Injector($container),
         ]);
+    }
+
+    /**
+     * @param mixed $definition
+     *
+     * @throws InvalidConfigException
+     */
+    private function validateDefinition($definition, ?string $id = null): void
+    {
+        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            [$class, $constructorArguments, $methodsAndProperties] = $definition;
+            $definition = array_merge(
+                $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
+                [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
+                $methodsAndProperties,
+            );
+        }
+        DefinitionValidator::validate($definition, $id);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    private function validateMeta(array $meta): void
+    {
+        foreach ($meta as $key => $_value) {
+            if (!in_array($key, self::ALLOWED_META, true)) {
+                throw new InvalidConfigException(
+                    sprintf(
+                        'Invalid definition: metadata "%s" is not allowed. Did you mean "%s()" or "$%s"?',
+                        $key,
+                        $key,
+                        $key,
+                    )
+                );
+            }
+        }
     }
 
     private function validateTags(array $tags): void
@@ -314,7 +366,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = Normalizer::normalize($this->definitions[$id], $id, [], false);
+        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
         return $definition->resolve($this->rootContainer ?? $this);
     }
@@ -330,7 +382,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = new ArrayDefinition([ArrayDefinition::CLASS_NAME => $class], false);
+            $definition = ArrayDefinition::fromPreparedData($class);
 
             return $definition->resolve($this->rootContainer ?? $this);
         }
@@ -381,7 +433,10 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     private function buildProvider($providerDefinition): ServiceProviderInterface
     {
-        $provider = Normalizer::normalize($providerDefinition)->resolve($this);
+        if ($this->validate) {
+            $this->validateDefinition($providerDefinition);
+        }
+        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($this);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
             sprintf(
                 'Service provider should be an instance of %s. %s given.',

@@ -32,8 +32,8 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
-use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Definition\DynamicReference;
+use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Definition\ValueDefinition;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
@@ -1458,5 +1458,51 @@ class ContainerTest extends TestCase
                 return $this->container->has($id);
             }
         };
+    }
+
+    public function testErrorOnMethodTypo(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?'
+        );
+
+        new Container([
+            EngineInterface::class => [
+                'class' => EngineMarkOne::class,
+                'setId' => [42],
+            ],
+        ]);
+    }
+
+    public function testErrorOnPropertyTypo(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
+        );
+
+        new Container([
+            EngineInterface::class => [
+                'class' => EngineMarkOne::class,
+                'dev' => true,
+            ],
+        ]);
+    }
+
+    public function testErrorOnDisallowMeta(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
+        );
+
+        new Container([
+            EngineInterface::class => [
+                'class' => EngineMarkOne::class,
+                'tags' => ['a', 'b'],
+                'dev' => 42,
+            ],
+        ]);
     }
 }

@@ -546,9 +546,9 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 
 ## Commands examples
 
-* Default report for all benchmarks that outputs the result to `HTML-file` and `MD-file`
+* Default report for all benchmarks that outputs the result to `CSV-file`
 
-`$ ./vendor/bin/phpbench run --report=default --progress=dots  --output=md_file --output=html_file`
+`$ ./vendor/bin/phpbench run --report=default --progress=dots  --output=csv_file`
 
 Generated MD-file example
 
@@ -589,9 +589,9 @@ Generated MD-file example
 >   * comp_z_value: Z-score.
 >   * comp_deviation: Relative deviation (margin of error).
 
-* Aggregate report for the `lookup` group that outputs the result to `console` and` MD-file` 
+* Aggregate report for the `lookup` group that outputs the result to `console` and `CSV-file` 
 
-`$ ./vendor/bin/phpbench run --report=aggregate --progress=dots  --output=md_file --output=console --group=lookup
+`$ ./vendor/bin/phpbench run --report=aggregate --progress=dots  --output=csv_file --output=console --group=lookup
 `
 
 >**Notice**
