@@ -66,8 +66,7 @@ final class Container extends AbstractContainerConfigurator implements Container
      * Container constructor.
      *
      * @param array $definitions Definitions to put into container.
-     * @param array $providers Service providers
-     * to get definitions from.
+     * @param array $providers Service providers to get definitions from.
      * @param ContainerInterface|null $rootContainer Root container to delegate
      * lookup to when resolving dependencies. If provided the current container
      * is no longer queried for dependencies.
