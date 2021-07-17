@@ -61,6 +61,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private array $resetters = [];
 
     private ?CompositeContainer $rootContainer = null;
+    private ResolverContainer $resolverContainer;
 
     /**
      * Container constructor.
@@ -85,7 +86,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
-        $this->addProviders($providers);
+        $this->addProviders($providers, new ResolverContainer($this));
 
         // Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
@@ -154,15 +155,16 @@ final class Container extends AbstractContainerConfigurator implements Container
      */
     protected function delegateLookup(?ContainerInterface $container): void
     {
-        if ($container === null) {
-            return;
-        }
-        if ($this->rootContainer === null) {
-            $this->rootContainer = new CompositeContainer();
-            $this->setDefaultDefinitions();
+        if ($container !== null) {
+            if ($this->rootContainer === null) {
+                $this->rootContainer = new CompositeContainer();
+                $this->setDefaultDefinitions();
+            }
+
+            $this->rootContainer->attach($container);
         }
 
-        $this->rootContainer->attach($container);
+        $this->resolverContainer = new ResolverContainer($this->rootContainer ?? $this);
     }
 
     /**
@@ -367,7 +369,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
-        return $definition->resolve($this->rootContainer ?? $this);
+        return $definition->resolve($this->resolverContainer);
     }
 
     /**
@@ -383,16 +385,16 @@ final class Container extends AbstractContainerConfigurator implements Container
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
 
-            return $definition->resolve($this->rootContainer ?? $this);
+            return $definition->resolve($this->resolverContainer);
         }
 
         throw new NotFoundException($class);
     }
 
-    private function addProviders(array $providers): void
+    private function addProviders(array $providers, ResolverContainer $resolverContainer): void
     {
         foreach ($providers as $provider) {
-            $this->addProvider($provider);
+            $this->addProvider($provider, $resolverContainer);
         }
     }
 
@@ -408,9 +410,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    private function addProvider($providerDefinition): void
+    private function addProvider($providerDefinition, ResolverContainer $resolverContainer): void
     {
-        $provider = $this->buildProvider($providerDefinition);
+        $provider = $this->buildProvider($providerDefinition, $resolverContainer);
 
         if ($provider instanceof DeferredServiceProviderInterface) {
             foreach ($provider->provides() as $id) {
@@ -430,12 +432,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @return ServiceProviderInterface instance of service provider;
      */
-    private function buildProvider($providerDefinition): ServiceProviderInterface
+    private function buildProvider($providerDefinition, ResolverContainer $resolverContainer): ServiceProviderInterface
     {
         if ($this->validate) {
             $this->validateDefinition($providerDefinition);
         }
-        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($this);
+        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($resolverContainer);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
             sprintf(
                 'Service provider should be an instance of %s. %s given.',
