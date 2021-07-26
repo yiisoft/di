@@ -7,12 +7,12 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Yiisoft\Factory\ResolverContainerInterface;
+use Yiisoft\Factory\DependencyResolverInterface;
 
 /**
  * @internal
  */
-final class ResolverContainer implements ResolverContainerInterface
+final class ResolverContainer implements DependencyResolverInterface
 {
     private ContainerInterface $container;
 
@@ -51,12 +51,12 @@ final class ResolverContainer implements ResolverContainerInterface
      *
      * @psalm-suppress InvalidThrow
      */
-    public function getForReference(string $id)
+    public function resolve(string $id)
     {
         return $this->get($id);
     }
 
-    public function cloneObjectOnResolve(): bool
+    public function shouldCloneOnResolve(): bool
     {
         return false;
     }

@@ -10,6 +10,8 @@ use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
+use Yiisoft\Factory\DependencyResolver;
+use Yiisoft\Factory\DependencyResolverInterface;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
@@ -61,7 +63,7 @@ final class Container extends AbstractContainerConfigurator implements Container
     private array $resetters = [];
 
     private ?CompositeContainer $rootContainer = null;
-    private ResolverContainer $resolverContainer;
+    private DependencyResolverInterface $dependencyResolver;
 
     /**
      * Container constructor.
@@ -86,7 +88,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
-        $this->addProviders($providers, new ResolverContainer($this));
+        $this->addProviders($providers, new DependencyResolver($this));
 
         // Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
@@ -164,7 +166,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->rootContainer->attach($container);
         }
 
-        $this->resolverContainer = new ResolverContainer($this->rootContainer ?? $this);
+        $this->dependencyResolver = new DependencyResolver($this->rootContainer ?? $this);
     }
 
     /**
@@ -369,7 +371,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
-        return $definition->resolve($this->resolverContainer);
+        return $definition->resolve($this->dependencyResolver);
     }
 
     /**
@@ -385,16 +387,16 @@ final class Container extends AbstractContainerConfigurator implements Container
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
 
-            return $definition->resolve($this->resolverContainer);
+            return $definition->resolve($this->dependencyResolver);
         }
 
         throw new NotFoundException($class);
     }
 
-    private function addProviders(array $providers, ResolverContainer $resolverContainer): void
+    private function addProviders(array $providers, DependencyResolverInterface $dependencyResolver): void
     {
         foreach ($providers as $provider) {
-            $this->addProvider($provider, $resolverContainer);
+            $this->addProvider($provider, $dependencyResolver);
         }
     }
 
@@ -410,9 +412,9 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    private function addProvider($providerDefinition, ResolverContainer $resolverContainer): void
+    private function addProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): void
     {
-        $provider = $this->buildProvider($providerDefinition, $resolverContainer);
+        $provider = $this->buildProvider($providerDefinition, $dependencyResolver);
 
         if ($provider instanceof DeferredServiceProviderInterface) {
             foreach ($provider->provides() as $id) {
@@ -432,12 +434,12 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @return ServiceProviderInterface instance of service provider;
      */
-    private function buildProvider($providerDefinition, ResolverContainer $resolverContainer): ServiceProviderInterface
+    private function buildProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): ServiceProviderInterface
     {
         if ($this->validate) {
             $this->validateDefinition($providerDefinition);
         }
-        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($resolverContainer);
+        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($dependencyResolver);
         assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
             sprintf(
                 'Service provider should be an instance of %s. %s given.',
