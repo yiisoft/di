@@ -12,7 +12,7 @@ use Yiisoft\Factory\DependencyResolverInterface;
 /**
  * @internal
  */
-final class ResolverContainer implements DependencyResolverInterface
+final class DependencyResolver implements DependencyResolverInterface
 {
     private ContainerInterface $container;
 
