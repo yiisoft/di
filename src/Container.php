@@ -10,7 +10,6 @@ use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
-use Yiisoft\Factory\DependencyResolver;
 use Yiisoft\Factory\DependencyResolverInterface;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
