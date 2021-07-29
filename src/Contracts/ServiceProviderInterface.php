@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Contracts;
 
-use Yiisoft\Di\Container;
+use Yiisoft\Di\AbstractContainerConfigurator;
 
 /**
  * Represents a component responsible for class registration in the Container.
@@ -55,7 +55,7 @@ interface ServiceProviderInterface
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.
      *
-     * @param AbstractContainerConfigurator $container the container configurator which registeres the services.
+     * @param AbstractContainerConfigurator $container the container configurator which registers the services.
      */
     public function register(AbstractContainerConfigurator $container): void;
 }
