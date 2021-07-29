@@ -19,7 +19,7 @@ use Yiisoft\Di\Container;
  * ```php
  * class CarProvider implements ServiceProviderInterface
  * {
- *    public function register(Container $container): void
+ *    public function register(AbstractContainerConfigurator $container): void
  *    {
  *        $this->registerDependencies($container);
  *        $this->registerService($container);
@@ -55,7 +55,7 @@ interface ServiceProviderInterface
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.
      *
-     * @param Container $container the container in which to register the services.
+     * @param AbstractContainerConfigurator $container the container configurator which registeres the services.
      */
-    public function register(Container $container): void;
+    public function register(AbstractContainerConfigurator $container): void;
 }
