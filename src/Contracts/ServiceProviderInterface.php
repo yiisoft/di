@@ -55,7 +55,7 @@ interface ServiceProviderInterface
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.
      *
-     * @param AbstractContainerConfigurator $container the container configurator which registers the services.
+     * @param AbstractContainerConfigurator $containerConfigurator the container configurator which registers the services.
      */
-    public function register(AbstractContainerConfigurator $container): void;
+    public function register(AbstractContainerConfigurator $containerConfigurator): void;
 }

@@ -192,9 +192,9 @@ class ContainerTest extends TestCase
             [],
             [
                 new class() extends ServiceProvider {
-                    public function register(Container $container): void
+                    public function register(AbstractContainerConfigurator $containerConfigurator): void
                     {
-                        $container->set(
+                        $containerConfigurator->set(
                             ContainerInterface::class,
                             static function (ContainerInterface $container) {
                                 return $container->get('new-container');
@@ -203,9 +203,9 @@ class ContainerTest extends TestCase
                     }
                 },
                 new class() extends ServiceProvider {
-                    public function register(Container $container): void
+                    public function register(AbstractContainerConfigurator $containerConfigurator): void
                     {
-                        $container->set(
+                        $containerConfigurator->set(
                             'new-container',
                             fn (ContainerInterface $container) => new Container(
                                 [
@@ -213,21 +213,21 @@ class ContainerTest extends TestCase
                                 ],
                                 [],
                                 [],
-                                $container
+                                $containerConfigurator
                             )
                         );
                     }
                 },
                 new class() extends ServiceProvider {
-                    public function register(Container $container): void
+                    public function register(AbstractContainerConfigurator $containerConfigurator): void
                     {
-                        $container->set('container', fn (ContainerInterface $container) => $container);
+                        $containerConfigurator->set('container', fn (ContainerInterface $container) => $containerConfigurator);
                     }
                 },
                 new class() extends ServiceProvider {
-                    public function register(Container $container): void
+                    public function register(AbstractContainerConfigurator $containerConfigurator): void
                     {
-                        $container->set(
+                        $containerConfigurator->set(
                             B::class,
                             function () {
                                 throw new \RuntimeException();
@@ -1400,16 +1400,16 @@ class ContainerTest extends TestCase
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
         $provider = new class() extends ServiceProvider {
-            public function register(Container $container): void
+            public function register(AbstractContainerConfigurator $containerConfigurator): void
             {
-                $container->set(
+                $containerConfigurator->set(
                     ContainerInterface::class,
                     static function (ContainerInterface $container) {
                         // E.g. wrapping container with proxy class
                         return $container;
                     }
                 );
-                $container->get(B::class);
+                $containerConfigurator->get(B::class);
             }
         };
 
