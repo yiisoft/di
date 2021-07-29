@@ -210,61 +210,6 @@ $car = $composite->get(CarInterface::class);
 $engine = $composite->get(EngineInterface::class);
 ```
 
-## Contextual containers
-
-In an application there are several levels at which we might want to have configuration for the DI container.
-For example, in a Yii application these could be:
-
-- An extension providing default configuration
-- An application with configuration
-- A module inside the application that uses different configuration than the main application
-
-While in general you never want to inject DI containers into your objects, there are some exceptions such as
-Yii application modules that need access to the container.
-
-To support this use case while still supporting custom configuration at the module level we have implemented contextual containers.
-The main class is `CompositeContextContainer`. It is like a `CompositeContainer` in the sense that it doesn't contain any definitions.
-The `attach()` function of the contextual container has an extra string parameter defining the context of the container.
-
-Using this context we can create a simple scoping system:
-
-```php
-use Yiisoft\Di\Container;
-use Yiisoft\Di\CompositeContextContainer;
-
-$composite = new CompositeContextContainer();
-$coreContainer = new Container([], []);
-$extensionContainer = new Container([], []);
-
-$appContainer = new Container([
-    LoggerInterface::class => MainLogger::class
-], []);
-$moduleAContainer = new Container([
-    LoggerInterface::class => LoggerA::class
-], []);
-$moduleBContainer = new Container([
-    LoggerInterface::class => LoggerB::class
-], []);
-
-$composite->attach($moduleAContainer, '/moduleA');
-$composite->attach($moduleBContainer, '/moduleB');
-$composite->attach($appContainer);
-$composite->attach($extensionContainer);
-$composite->attach($coreContainer);
-
-// The composite context container will allow us to create contextual containers with virtually no overhead.
-$moduleAContainer = $composite->getContextContainer('/moduleA');
-$moduleBContainer = $composite->getContextContainer('/moduleB');
-
-$composite->get(LoggerInterface::class); // MainLogger
-$moduleAContainer->get(LoggerInterface::class); // LoggerA
-$moduleBContainer->get(LoggerInterface::class); // LoggerB
-```
-
-Searching is done using the longest prefix first and then checking the containers in the order in which they were added.
-In the case of Yii contextual containers for the modules are created automatically.
-
-
 ## Using service providers
 
 A service provider is a special class that is responsible for binding complex
