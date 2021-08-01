@@ -477,7 +477,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         } elseif ($definition instanceof ArrayDefinition) {
             $class = $definition->getClass();
         } else {
-            throw new \RuntimeException("Could not determinate object class");
+            throw new \RuntimeException('Could not determinate object class');
         }
 
         return new LazyDefinitionDecorator($factory, $definition, $class);
