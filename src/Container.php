@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
+use Yiisoft\Factory\Definition\Decorator\LazyDefinitionDecorator;
+use Yiisoft\Factory\Definition\DefinitionInterface;
 use Yiisoft\Factory\Definition\DefinitionValidator;
 use Yiisoft\Factory\DependencyResolverInterface;
 use Yiisoft\Factory\Exception\CircularReferenceException;
@@ -16,6 +19,16 @@ use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
 use Yiisoft\Factory\Exception\NotInstantiableException;
 use Yiisoft\Injector\Injector;
+use function array_key_exists;
+use function array_keys;
+use function assert;
+use function class_exists;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_object;
+use function is_string;
 
 use function array_key_exists;
 use function array_keys;
@@ -35,7 +48,8 @@ final class Container extends AbstractContainerConfigurator implements Container
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+    private const META_LAZY = 'lazy';
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET, self::META_LAZY];
 
     /**
      * @var array object definitions indexed by their types
@@ -63,6 +77,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private ?CompositeContainer $rootContainer = null;
     private DependencyResolverInterface $dependencyResolver;
+    private LazyLoadingValueHolderFactory $lazyFactory;
 
     /**
      * Container constructor.
@@ -194,6 +209,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
         if (isset($meta[self::META_RESET])) {
             $this->setResetter($id, $meta[self::META_RESET]);
+        }
+        if (isset($meta[self::META_LAZY]) && $meta[self::META_LAZY] === true) {
+            $definition = $this->decorateLazy($id, $definition);
         }
 
         unset($this->instances[$id]);
@@ -460,5 +478,20 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return gettype($variable);
+    }
+
+    private function decorateLazy(string $id, $definition): DefinitionInterface
+    {
+        $factory = $this->getLazyLoadingValueHolderFactory();
+
+        return new LazyDefinitionDecorator($factory, $definition, $id);
+    }
+
+    private function getLazyLoadingValueHolderFactory(): LazyLoadingValueHolderFactory
+    {
+        if (!class_exists(LazyLoadingValueHolderFactory::class)) {
+            throw new \RuntimeException('You should install `ocramius/proxy-manager` if you want to use lazy services.');
+        }
+        return $this->lazyFactory ??= new LazyLoadingValueHolderFactory();
     }
 }

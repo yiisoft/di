@@ -30,6 +30,7 @@
     },
     "require-dev": {
         "league/container": "^3.3",
+        "ocramius/proxy-manager": "^2.13",
         "phpbench/phpbench": "^1.0.0",
         "phpunit/phpunit": "^9.4",
         "roave/infection-static-analysis-plugin": "^1.6",
@@ -38,7 +39,8 @@
     },
     "suggest": {
         "yiisoft/injector": "^1.0@dev",
-        "phpbench/phpbench": "To run benchmarks."
+        "phpbench/phpbench": "To run benchmarks.",
+        "ocramius/proxy-manager": "Install this package if you want to use lazy loading."
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
