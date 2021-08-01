@@ -30,17 +30,6 @@ use function is_array;
 use function is_object;
 use function is_string;
 
-use function array_key_exists;
-use function array_keys;
-use function assert;
-use function class_exists;
-use function get_class;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_object;
-use function is_string;
-
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
@@ -200,6 +189,7 @@ final class Container extends AbstractContainerConfigurator implements Container
             $this->validateDefinition($definition, $id);
             $this->validateMeta($meta);
         }
+        $definition = DefinitionNormalizer::normalize($definition, $id);
 
         if (isset($meta[self::META_TAGS])) {
             if ($this->validate) {
@@ -386,9 +376,8 @@ final class Container extends AbstractContainerConfigurator implements Container
             return $this->buildPrimitive($id);
         }
         $this->processDefinition($this->definitions[$id]);
-        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
-        return $definition->resolve($this->dependencyResolver);
+        return $this->definitions[$id]->resolve($this->dependencyResolver);
     }
 
     /**
