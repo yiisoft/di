@@ -6,7 +6,6 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
-use ProxyManager\Proxy\LazyLoadingInterface;
 use Psr\Container\ContainerInterface;
 use TypeError;
 use Yiisoft\Di\AbstractContainerConfigurator;
@@ -1354,23 +1353,6 @@ class ContainerTest extends TestCase
         $this->assertSame($car, $container->get(Car::class));
         $this->assertSame(42, $car->getEngine()->getNumber());
         $this->assertSame($color, $car->getColor());
-    }
-
-    public function testLazy(): void
-    {
-        $number = 42;
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'setNumber()' => [$number],
-                'lazy' => true,
-            ],
-        ]);
-
-        $engine = $container->get(EngineMarkOne::class);
-
-        self::assertInstanceOf(LazyLoadingInterface::class, $engine);
-        self::assertSame($number, $engine->getNumber());
     }
 
     public function testResetterInCompositeContainer(): void
