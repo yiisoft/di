@@ -469,11 +469,18 @@ final class Container extends AbstractContainerConfigurator implements Container
         return gettype($variable);
     }
 
-    private function decorateLazy(string $id, $definition): DefinitionInterface
+    private function decorateLazy(string $id, DefinitionInterface $definition): DefinitionInterface
     {
         $factory = $this->getLazyLoadingValueHolderFactory();
+        if (class_exists($id) || interface_exists($id)) {
+            $class = $id;
+        } elseif ($definition instanceof ArrayDefinition) {
+            $class = $definition->getClass();
+        } else {
+            throw new \RuntimeException("Could not determinate object class");
+        }
 
-        return new LazyDefinitionDecorator($factory, $definition, $id);
+        return new LazyDefinitionDecorator($factory, $definition, $class);
     }
 
     private function getLazyLoadingValueHolderFactory(): LazyLoadingValueHolderFactory
