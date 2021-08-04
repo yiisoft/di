@@ -8,8 +8,11 @@ use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
+use Yiisoft\Di\Tests\Support\EngineExtensionProvider;
+use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Di\Tests\Support\EngineMarkOne;
+use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}
@@ -21,21 +24,27 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderByClassName(): void
     {
         $this->ensureProviderRegisterDefinitions(CarProvider::class);
+        $this->ensureProviderRegisterExtentions(EngineExtensionProvider::class);
     }
 
-    public function testAddProviderByDefinition(): void
+    public function testAddProviderByInstance(): void
     {
-        $this->ensureProviderRegisterDefinitions([
-            'class' => CarProvider::class,
-        ]);
+        $this->ensureProviderRegisterDefinitions(new CarProvider());
+        $this->ensureProviderRegisterExtentions(new EngineExtensionProvider());
     }
 
-    public function testAddProviderRejectDefinitionWithoutClass(): void
+    protected function ensureProviderRegisterExtentions($provider): void
     {
-        $this->expectException(InvalidConfigException::class);
-        $container = new Container([], [
-            ['property' => 234],
-        ]);
+        $container = new Container([
+            Car::class => Car::class,
+            EngineInterface::class => EngineMarkOne::class,
+        ], [$provider]);
+
+        $this->assertTrue($container->has(Car::class));
+        $this->assertTrue($container->has(EngineInterface::class));
+        $this->assertInstanceOf(Car::class, $container->get(Car::class));
+        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(EngineMarkTwo::class, $container->get(Car::class)->getEngine());
     }
 
     protected function ensureProviderRegisterDefinitions($provider): void

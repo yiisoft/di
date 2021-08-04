@@ -10,7 +10,6 @@ use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
-use Yiisoft\Factory\DependencyResolverInterface;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
@@ -31,7 +30,7 @@ use function is_string;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-final class Container extends AbstractContainerConfigurator implements ContainerInterface
+final class Container implements ContainerInterface
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
@@ -61,9 +60,6 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private array $resetters = [];
 
-    private ?CompositeContainer $rootContainer = null;
-    private DependencyResolverInterface $dependencyResolver;
-
     /**
      * Container constructor.
      *
@@ -79,15 +75,13 @@ final class Container extends AbstractContainerConfigurator implements Container
         array $definitions = [],
         array $providers = [],
         array $tags = [],
-        ContainerInterface $rootContainer = null,
         bool $validate = true
     ) {
         $this->tags = $tags;
         $this->validate = $validate;
-        $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
-        $this->addProviders($providers, new DependencyResolver($this));
+        $this->addProviders($providers);
 
         // Prevent circular reference to ContainerInterface
         $this->get(ContainerInterface::class);
@@ -147,25 +141,6 @@ final class Container extends AbstractContainerConfigurator implements Container
         }
 
         return $this->instances[$id];
-    }
-
-    /**
-     * Delegate service lookup to another container.
-     *
-     * @param ContainerInterface $container
-     */
-    protected function delegateLookup(?ContainerInterface $container): void
-    {
-        if ($container !== null) {
-            if ($this->rootContainer === null) {
-                $this->rootContainer = new CompositeContainer();
-                $this->setDefaultDefinitions();
-            }
-
-            $this->rootContainer->attach($container);
-        }
-
-        $this->dependencyResolver = new DependencyResolver($this->rootContainer ?? $this);
     }
 
     /**
@@ -241,6 +216,11 @@ final class Container extends AbstractContainerConfigurator implements Container
                 $methodsAndProperties,
             );
         }
+
+        if ($definition instanceof ExtensibleService) {
+            throw new InvalidConfigException('Invalid definition. ExtensibleService is only allowed in provider extensions.');
+        }
+
         DefinitionValidator::validate($definition, $id);
     }
 
@@ -350,7 +330,10 @@ final class Container extends AbstractContainerConfigurator implements Container
     private function processDefinition($definition): void
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
-            $definition->register($this);
+            $definitions = $definition->getDefinitions();
+            foreach ($definitions as $id => $def) {
+                $this->set($id, $def);
+            }
         }
     }
 
@@ -370,7 +353,7 @@ final class Container extends AbstractContainerConfigurator implements Container
         $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
 
-        return $definition->resolve($this->dependencyResolver);
+        return $definition->resolve(new DependencyResolver($this->get(ContainerInterface::class)));
     }
 
     /**
@@ -386,16 +369,33 @@ final class Container extends AbstractContainerConfigurator implements Container
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
 
-            return $definition->resolve($this->dependencyResolver);
+            return $definition->resolve(new DependencyResolver($this->get(ContainerInterface::class)));
         }
 
         throw new NotFoundException($class);
     }
 
-    private function addProviders(array $providers, DependencyResolverInterface $dependencyResolver): void
+    private function addProviders(array $providers): void
     {
+        $extensions = [];
         foreach ($providers as $provider) {
-            $this->addProvider($provider, $dependencyResolver);
+            $providerInstance = $this->buildProvider($provider);
+            $extensions[] = $providerInstance->getExtensions();
+            $this->addProviderDefinitions($providerInstance);
+        }
+
+        foreach ($extensions as $providerExtensions) {
+            foreach ($providerExtensions as $id => $extension) {
+                if (!isset($this->definitions[$id])) {
+                    throw new InvalidConfigException("Extended service '$id' doesn't exist.");
+                }
+
+                if (!$this->definitions[$id] instanceof ExtensibleService) {
+                    $this->definitions[$id] = new ExtensibleService($this->definitions[$id]);
+                }
+
+                $this->definitions[$id]->addExtension($extension);
+            }
         }
     }
 
@@ -411,16 +411,17 @@ final class Container extends AbstractContainerConfigurator implements Container
      * @see ServiceProviderInterface
      * @see DeferredServiceProviderInterface
      */
-    private function addProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): void
+    private function addProviderDefinitions($provider): void
     {
-        $provider = $this->buildProvider($providerDefinition, $dependencyResolver);
-
         if ($provider instanceof DeferredServiceProviderInterface) {
             foreach ($provider->provides() as $id) {
                 $this->definitions[$id] = $provider;
             }
         } else {
-            $provider->register($this);
+            $definitions = $provider->getDefinitions();
+            foreach ($definitions as $id => $definition) {
+                $this->set($id, $definition);
+            }
         }
     }
 
@@ -433,21 +434,30 @@ final class Container extends AbstractContainerConfigurator implements Container
      *
      * @return ServiceProviderInterface instance of service provider;
      */
-    private function buildProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): ServiceProviderInterface
+    private function buildProvider($provider): ServiceProviderInterface
     {
         if ($this->validate) {
-            $this->validateDefinition($providerDefinition);
+            assert(is_string($provider) || (is_object($provider) && $provider instanceof ServiceProviderInterface),
+                new InvalidConfigException(
+                sprintf(
+                    'Service provider should be a class name or an instance of %s. %s given.',
+                    ServiceProviderInterface::class,
+                    $this->getVariableType($provider)
+                )
+            ));
+
         }
-        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($dependencyResolver);
-        assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
+
+        $providerInstance = is_object($provider) ? $provider : new $provider();
+        assert($providerInstance instanceof ServiceProviderInterface, new InvalidConfigException(
             sprintf(
                 'Service provider should be an instance of %s. %s given.',
                 ServiceProviderInterface::class,
-                $this->getVariableType($provider)
+                $this->getVariableType($providerInstance)
             )
         ));
 
-        return $provider;
+        return $providerInstance;
     }
 
     /**

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Support;
 
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\DeferredServiceProvider;
+use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 
-class CarDeferredProvider extends DeferredServiceProvider
+class CarDeferredProvider implements DeferredServiceProviderInterface
 {
     public function provides(): array
     {
@@ -17,10 +17,17 @@ class CarDeferredProvider extends DeferredServiceProvider
         ];
     }
 
-    public function register(Container $container): void
+    public function getDefinitions(): array
     {
-        $container->set('car', ['class' => Car::class]);
-        $container->set('car-factory', CarFactory::class);
-        $container->set(EngineInterface::class, EngineMarkOne::class);
+        return [
+            'car' => ['class' => Car::class],
+            'car-factory' => CarFactory::class,
+            EngineInterface::class => EngineMarkOne::class,
+            ];
+    }
+
+    public function getExtensions():array
+    {
+        return [];
     }
 }
