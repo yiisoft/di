@@ -6,7 +6,6 @@ namespace Yiisoft\Di;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
@@ -406,31 +405,29 @@ final class Container implements ContainerInterface
     /**
      * Builds service provider by definition.
      *
-     * @param mixed $provider class name or instance of provider.
+     * @param mixed $provider Class name or instance of provider.
      *
-     * @throws InvalidConfigException
+     * @throws InvalidConfigException If provider argument is not valid.
      *
-     * @return ServiceProviderInterface instance of service provider;
+     * @return ServiceProviderInterface Instance of service provider.
      *
      * @psalm-suppress MoreSpecificReturnType
      */
     private function buildProvider($provider): ServiceProviderInterface
     {
-        if ($this->validate) {
-            if (!is_string($provider)) {
-                new InvalidConfigException(
-                    sprintf(
-                        'Service provider should be a class name or an instance of %s. %s given.',
-                        ServiceProviderInterface::class,
-                        $this->getVariableType($provider)
-                    )
-                );
-            }
+        if ($this->validate && !is_string($provider)) {
+            throw InvalidConfigException(
+                sprintf(
+                    'Service provider should be a class name or an instance of %s. %s given.',
+                    ServiceProviderInterface::class,
+                    $this->getVariableType($provider)
+                )
+            );
         }
 
         $providerInstance = is_object($provider) ? $provider : new $provider();
         if (!$providerInstance instanceof ServiceProviderInterface) {
-            new InvalidConfigException(
+            throw InvalidConfigException(
                 sprintf(
                     'Service provider should be an instance of %s. %s given.',
                     ServiceProviderInterface::class,
