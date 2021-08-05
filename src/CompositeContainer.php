@@ -51,7 +51,7 @@ final class CompositeContainer implements ContainerInterface
                 try {
                     return $container->get($id);
                 } catch (\Throwable $e) {
-                    $firstError = $firstError ?? $e;
+                    $firstError ??= $e;
                 }
             }
         }
