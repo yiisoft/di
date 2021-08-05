@@ -329,9 +329,7 @@ final class Container implements ContainerInterface
     {
         if ($definition instanceof DeferredServiceProviderInterface) {
             $definitions = $definition->getDefinitions();
-            foreach ($definitions as $id => $def) {
-                $this->set($id, $def);
-            }
+            $this->setMultiple($definitions);
         }
     }
 
@@ -419,9 +417,7 @@ final class Container implements ContainerInterface
             }
         } else {
             $definitions = $provider->getDefinitions();
-            foreach ($definitions as $id => $definition) {
-                $this->set($id, $definition);
-            }
+            $this->setMultiple($definitions);
         }
     }
 
