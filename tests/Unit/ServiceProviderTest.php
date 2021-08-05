@@ -33,7 +33,7 @@ class ServiceProviderTest extends TestCase
         $this->ensureProviderRegisterExtentions(new EngineExtensionProvider());
     }
 
-    protected function ensureProviderRegisterExtentions($provider): void
+    protected function ensureProviderRegisterExtensions($provider): void
     {
         $container = new Container([
             Car::class => Car::class,

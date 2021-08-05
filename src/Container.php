@@ -416,7 +416,7 @@ final class Container implements ContainerInterface
     private function buildProvider($provider): ServiceProviderInterface
     {
         if ($this->validate && !is_string($provider)) {
-            throw InvalidConfigException(
+            throw new InvalidConfigException(
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
                     ServiceProviderInterface::class,
@@ -427,7 +427,7 @@ final class Container implements ContainerInterface
 
         $providerInstance = is_object($provider) ? $provider : new $provider();
         if (!$providerInstance instanceof ServiceProviderInterface) {
-            throw InvalidConfigException(
+            throw new InvalidConfigException(
                 sprintf(
                     'Service provider should be an instance of %s. %s given.',
                     ServiceProviderInterface::class,
