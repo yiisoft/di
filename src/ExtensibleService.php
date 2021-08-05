@@ -24,12 +24,12 @@ final class ExtensibleService implements DefinitionInterface
         $this->extensions[] = $closure;
     }
 
-    public function resolve(DependencyResolverInterface $container)
+    public function resolve(DependencyResolverInterface $resolver)
     {
-        $service = (Normalizer::normalize($this->definition))->resolve($container);
-        $containerInterface = $container->get(ContainerInterface::class);
+        $service = (Normalizer::normalize($this->definition))->resolve($resolver);
+        $container = $resolver->get(ContainerInterface::class);
         foreach ($this->extensions as $extension) {
-            $service = $extension($containerInterface, $service);
+            $service = $extension($container, $service);
         }
 
         return $service;
