@@ -8,11 +8,10 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use TypeError;
-use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
@@ -1154,67 +1153,38 @@ class ContainerTest extends TestCase
         $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
     }
 
-//    public function testCircularReferenceExceptionWhileResolvingProviders(): void
-//    {
-//        $provider = new class() extends ServiceProvider {
-//            public function register(Container $container): void
-//            {
-//                $container->set(
-//                    ContainerInterface::class,
-//                    static function (ContainerInterface $container) {
-//                        // E.g. wrapping container with proxy class
-//                        return $container;
-//                    }
-//                );
-//                $container->get(B::class);
-//            }
-//        };
-//
-//        $this->expectException(\RuntimeException::class);
-//        new Container(
-//            [
-//                B::class => function () {
-//                    throw new \RuntimeException();
-//                },
-//            ],
-//            [
-//                $provider,
-//            ]
-//        );
-//    }
-
-    private function getProxyContainer(ContainerInterface $container): ContainerInterface
+    public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
-        return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
-            private ContainerInterface $container;
-
-            private array $lastId = [];
-
-            public function __construct(ContainerInterface $container)
+        $provider = new class() implements ServiceProviderInterface {
+            public function getDefinitions(): array
             {
-                $this->container = $container;
-                $this->container->delegateLookup($this);
+                return [
+                    ContainerInterface::class => static function (ContainerInterface $container) {
+                        // E.g. wrapping container with proxy class
+                        return $container;
+                    }
+                ];
+
             }
 
-            public function getLastIds(): array
+            public function getExtensions(): array
             {
-                return $this->lastId;
-            }
-
-            public function get($id)
-            {
-                $this->lastId[] = $id;
-                if ($id === EngineInterface::class) {
-                    return $this->container->get(EngineMarkTwo::class);
-                }
-                return $this->container->get($id);
-            }
-
-            public function has($id): bool
-            {
-                return $this->container->has($id);
+                return [];
             }
         };
+
+        $this->expectException(\RuntimeException::class);
+        $container = new Container(
+            [
+                B::class => function () {
+                    throw new \RuntimeException();
+                },
+            ],
+            [
+                $provider,
+            ]
+        );
+        $container->get(B::class);
     }
 
     public function testErrorOnMethodTypo(): void
