@@ -193,10 +193,9 @@ final class Container implements ContainerInterface
 
     private function setDefaultDefinitions(): void
     {
-        $container = $this->rootContainer ?? $this;
         $this->setMultiple([
-            ContainerInterface::class => $container,
-            Injector::class => new Injector($container),
+            ContainerInterface::class => $this,
+            Injector::class => new Injector($this),
         ]);
     }
 
