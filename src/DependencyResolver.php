@@ -58,14 +58,14 @@ final class DependencyResolver implements DependencyResolverInterface
         return $this->get($id);
     }
 
-    public function shouldCloneOnResolve(): bool
-    {
-        return false;
-    }
-
     public function invoke(callable $callable)
     {
         return $this->getInjector()->invoke($callable);
+    }
+
+    public function shouldCloneOnResolve(): bool
+    {
+        return false;
     }
 
     private function getInjector(): Injector
