@@ -60,6 +60,8 @@ final class Container implements ContainerInterface
 
     private array $resetters = [];
 
+    private DependencyResolver $dependencyResolver;
+
     /**
      * Container constructor.
      *
@@ -82,9 +84,6 @@ final class Container implements ContainerInterface
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
-
-        // Prevent circular reference to ContainerInterface
-        $this->get(ContainerInterface::class);
     }
 
     /**
@@ -352,8 +351,9 @@ final class Container implements ContainerInterface
         }
         $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
+        $this->dependencyResolver = $this->dependencyResolver ?? new DependencyResolver($this->get(ContainerInterface::class));
 
-        return $definition->resolve(new DependencyResolver($this->get(ContainerInterface::class)));
+        return $definition->resolve($this->dependencyResolver);
     }
 
     /**
@@ -368,8 +368,9 @@ final class Container implements ContainerInterface
     {
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
+            $this->dependencyResolver = $this->dependencyResolver ?? new DependencyResolver($this->get(ContainerInterface::class));
 
-            return $definition->resolve(new DependencyResolver($this->get(ContainerInterface::class)));
+            return $definition->resolve($this->dependencyResolver);
         }
 
         throw new NotFoundException($class);
