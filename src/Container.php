@@ -387,7 +387,7 @@ final class Container implements ContainerInterface
         foreach ($extensions as $providerExtensions) {
             foreach ($providerExtensions as $id => $extension) {
                 if (!isset($this->definitions[$id])) {
-                    throw new InvalidConfigException("Extended service '$id' doesn't exist.");
+                    throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }
 
                 if (!$this->definitions[$id] instanceof ExtensibleService) {
@@ -437,25 +437,27 @@ final class Container implements ContainerInterface
     private function buildProvider($provider): ServiceProviderInterface
     {
         if ($this->validate) {
-            assert(is_string($provider) || (is_object($provider) && $provider instanceof ServiceProviderInterface),
+            if (!is_string($provider)) {
                 new InvalidConfigException(
-                sprintf(
-                    'Service provider should be a class name or an instance of %s. %s given.',
-                    ServiceProviderInterface::class,
-                    $this->getVariableType($provider)
-                )
-            ));
-
+                    sprintf(
+                        'Service provider should be a class name or an instance of %s. %s given.',
+                        ServiceProviderInterface::class,
+                        $this->getVariableType($provider)
+                    )
+                );
+            }
         }
 
         $providerInstance = is_object($provider) ? $provider : new $provider();
-        assert($providerInstance instanceof ServiceProviderInterface, new InvalidConfigException(
-            sprintf(
-                'Service provider should be an instance of %s. %s given.',
-                ServiceProviderInterface::class,
-                $this->getVariableType($providerInstance)
-            )
-        ));
+        if (!$providerInstance instanceof ServiceProviderInterface) {
+            new InvalidConfigException(
+                sprintf(
+                    'Service provider should be an instance of %s. %s given.',
+                    ServiceProviderInterface::class,
+                    $this->getVariableType($providerInstance)
+                )
+            );
+        }
 
         return $providerInstance;
     }
