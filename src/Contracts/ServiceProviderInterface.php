@@ -22,7 +22,7 @@ use Yiisoft\Di\Container;
  *    public function getDefinitions(): array
  *    {
  *        return [
- *            'car' =>  ['__class' => Car::class],
+ *            'car' =>  ['class' => Car::class],
  *            'car-factory' => CarFactory::class,
  *            EngineInterface::class => EngineMarkOne::class,
  *        ];
@@ -34,9 +34,9 @@ use Yiisoft\Di\Container;
 interface ServiceProviderInterface
 {
     /**
-     * Registers classes in the container.
+     * Returns definitions for the container.
      *
-     * - This method should only set classes definitions to the Container preventing any side-effects.
+     * - This method should only returns definitions for the Container preventing any side-effects.
      * - This method should be idempotent
      * This method may be called multiple times with different container objects,
      * or multiple times with the same object.

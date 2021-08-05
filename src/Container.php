@@ -18,7 +18,6 @@ use Yiisoft\Injector\Injector;
 
 use function array_key_exists;
 use function array_keys;
-use function assert;
 use function class_exists;
 use function get_class;
 use function implode;
@@ -59,7 +58,7 @@ final class Container implements ContainerInterface
     private array $tags;
 
     private array $resetters = [];
-
+    /** @psalm-suppress PropertyNotSetInConstructor */
     private DependencyResolver $dependencyResolver;
 
     /**
@@ -67,11 +66,12 @@ final class Container implements ContainerInterface
      *
      * @param array $definitions Definitions to put into container.
      * @param array $providers Service providers to get definitions from.
-     * @param ContainerInterface|null $rootContainer Root container to delegate
      * lookup to when resolving dependencies. If provided the current container
      * is no longer queried for dependencies.
      *
      * @throws InvalidConfigException
+     *
+     * @psalm-suppress PropertyNotSetInConstructor
      */
     public function __construct(
         array $definitions = [],
@@ -336,6 +336,7 @@ final class Container implements ContainerInterface
             return $this->buildPrimitive($id);
         }
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
         $this->dependencyResolver = $this->dependencyResolver ?? new DependencyResolver($this->get(ContainerInterface::class));
 
         return $definition->resolve($this->dependencyResolver);
@@ -353,6 +354,7 @@ final class Container implements ContainerInterface
     {
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
+            /** @psalm-suppress RedundantPropertyInitializationCheck */
             $this->dependencyResolver = $this->dependencyResolver ?? new DependencyResolver($this->get(ContainerInterface::class));
 
             return $definition->resolve($this->dependencyResolver);
@@ -388,7 +390,7 @@ final class Container implements ContainerInterface
     /**
      * Adds service provider definitions to the container.
      *
-     * @param mixed $providerDefinition
+     * @param object $provider
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
@@ -404,11 +406,13 @@ final class Container implements ContainerInterface
     /**
      * Builds service provider by definition.
      *
-     * @param mixed $providerDefinition class name or definition of provider.
+     * @param mixed $provider class name or instance of provider.
      *
      * @throws InvalidConfigException
      *
      * @return ServiceProviderInterface instance of service provider;
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
     private function buildProvider($provider): ServiceProviderInterface
     {
@@ -435,6 +439,9 @@ final class Container implements ContainerInterface
             );
         }
 
+        /**
+         * @psalm-suppress LessSpecificReturnStatement
+         */
         return $providerInstance;
     }
 

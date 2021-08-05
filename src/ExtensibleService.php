@@ -11,9 +11,11 @@ use Yiisoft\Factory\DependencyResolverInterface;
 
 final class ExtensibleService implements DefinitionInterface
 {
+    /** @psalm-var  array<string,mixed> */
     private $definition;
-    private array $extensions;
+    private array $extensions = [];
 
+    /** @param mixed $definition */
     public function __construct($definition)
     {
         $this->definition = $definition;
@@ -24,12 +26,12 @@ final class ExtensibleService implements DefinitionInterface
         $this->extensions[] = $closure;
     }
 
-    public function resolve(DependencyResolverInterface $resolver)
+    public function resolve(DependencyResolverInterface $container)
     {
-        $service = (Normalizer::normalize($this->definition))->resolve($resolver);
-        $container = $resolver->get(ContainerInterface::class);
+        $service = (Normalizer::normalize($this->definition))->resolve($container);
+        $containerInterface = $container->get(ContainerInterface::class);
         foreach ($this->extensions as $extension) {
-            $service = $extension($container, $service);
+            $service = $extension($containerInterface, $service);
         }
 
         return $service;
