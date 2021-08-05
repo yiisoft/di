@@ -323,17 +323,6 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param mixed $definition
-     */
-    private function processDefinition($definition): void
-    {
-        if ($definition instanceof DeferredServiceProviderInterface) {
-            $definitions = $definition->getDefinitions();
-            $this->setMultiple($definitions);
-        }
-    }
-
-    /**
      * @param string $id
      *
      * @throws InvalidConfigException
@@ -346,7 +335,6 @@ final class Container implements ContainerInterface
         if (!isset($this->definitions[$id])) {
             return $this->buildPrimitive($id);
         }
-        $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
         $this->dependencyResolver = $this->dependencyResolver ?? new DependencyResolver($this->get(ContainerInterface::class));
 
@@ -398,8 +386,7 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * Adds service provider to the container. Unless service provider is deferred
-     * it would be immediately registered.
+     * Adds service provider definitions to the container.
      *
      * @param mixed $providerDefinition
      *
@@ -407,18 +394,11 @@ final class Container implements ContainerInterface
      * @throws NotInstantiableException
      *
      * @see ServiceProviderInterface
-     * @see DeferredServiceProviderInterface
      */
     private function addProviderDefinitions($provider): void
     {
-        if ($provider instanceof DeferredServiceProviderInterface) {
-            foreach ($provider->provides() as $id) {
-                $this->definitions[$id] = $provider;
-            }
-        } else {
-            $definitions = $provider->getDefinitions();
-            $this->setMultiple($definitions);
-        }
+        $definitions = $provider->getDefinitions();
+        $this->setMultiple($definitions);
     }
 
     /**

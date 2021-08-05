@@ -111,51 +111,7 @@ $container = new Container([
 $object = $container->get('engine_one');
 ```
 
-## Delegated lookups and composite containers
-
-Another feature of the `Container` class are *delegated lookups*. This means
-that *all* dependencies for definitions in the container should be resolved via
-a *root container* - and not by the container itself.
-
-To use delegated lookups a root container can be passed as third argument to
-the constructor:
-
-```php
-class Car
-{
-    private EngineInterface $engine;
-
-    public function __construct(EngineInterface $engine)
-    {
-        $this->engine = $engine;
-    }
-
-    public function getEngine(): EngineInterface
-    {
-        return $this->engine;
-    }
-}
-
-$rootContainer = new Container([
-    EngineInterface::class => EngineMarkTwo::class
-]);
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-], [], $rootContainer);
-
-// returns an instance of `Car`
-$car = $container->get(Car::class);
-// returns an instance of `EngineMarkTwo`
-$engine = $car->getEngine();
-```
-
-Note, that the root container is only used for resolving dependencies. You can
-not directly fetch entries of the root container from the container via `get()`.
-
-Delegated lookups are mainly useful for composite containers.
-
-
-### Composite containers
+## Composite containers
 
 A composite container combines multiple containers in a single container. When
 using this approach, objects should only be fetched from the composite
@@ -211,6 +167,8 @@ $engine = $composite->get(EngineInterface::class);
 ```
 
 ## Using service providers
+
+//TODO: Change text to new providers
 
 A service provider is a special class that is responsible for binding complex
 services or groups of dependencies into the container. This includes
@@ -282,6 +240,8 @@ application if you perform heavy operations inside the `register()` method.
 
 
 ## Using deferred service providers
+
+//TODO: Change text to new providers
 
 To prevent the potential performance decrease when using service providers you
 can use so-called *deferred service providers*.
