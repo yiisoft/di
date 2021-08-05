@@ -25,12 +25,27 @@ final class ExtensibleService implements DefinitionInterface
     private $definition;
     private array $extensions = [];
 
-    /** @param mixed $definition */
+    /**
+     * @param mixed $definition Definition to allow registering extensions for.
+     */
     public function __construct($definition)
     {
         $this->definition = $definition;
     }
 
+    /**
+     * Add an extension.
+     *
+     * An extension is a callable that returns a modified service object:
+     *
+     * ```php
+     * static function (ContainerInterface $container, $service) {
+     *     return $service->withAnotherOption(42);
+     * }
+     * ```
+     *
+     * @param \Closure $closure An extension to register.
+     */
     public function addExtension(\Closure $closure): void
     {
         $this->extensions[] = $closure;
