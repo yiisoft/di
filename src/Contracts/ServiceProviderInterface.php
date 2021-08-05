@@ -25,7 +25,7 @@ use Yiisoft\Di\Container;
  *            'car' =>  ['__class' => Car::class],
  *            'car-factory' => CarFactory::class,
  *            EngineInterface::class => EngineMarkOne::class,
- *            ];
+ *        ];
  *    }
  *
  * }

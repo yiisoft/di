@@ -23,7 +23,7 @@ class CarDeferredProvider implements DeferredServiceProviderInterface
             'car' => ['class' => Car::class],
             'car-factory' => CarFactory::class,
             EngineInterface::class => EngineMarkOne::class,
-            ];
+        ];
     }
 
     public function getExtensions():array
