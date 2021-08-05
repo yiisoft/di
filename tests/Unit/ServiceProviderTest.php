@@ -24,13 +24,13 @@ class ServiceProviderTest extends TestCase
     public function testAddProviderByClassName(): void
     {
         $this->ensureProviderRegisterDefinitions(CarProvider::class);
-        $this->ensureProviderRegisterExtentions(EngineExtensionProvider::class);
+        $this->ensureProviderRegisterExtensions(EngineExtensionProvider::class);
     }
 
     public function testAddProviderByInstance(): void
     {
         $this->ensureProviderRegisterDefinitions(new CarProvider());
-        $this->ensureProviderRegisterExtentions(new EngineExtensionProvider());
+        $this->ensureProviderRegisterExtensions(new EngineExtensionProvider());
     }
 
     protected function ensureProviderRegisterExtensions($provider): void
