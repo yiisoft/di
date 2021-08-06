@@ -194,7 +194,6 @@ final class Container implements ContainerInterface
     {
         $this->setMultiple([
             ContainerInterface::class => $this,
-            Injector::class => new Injector($this),
         ]);
     }
 
