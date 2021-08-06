@@ -44,9 +44,9 @@ final class ExtensibleService implements DefinitionInterface
      * }
      * ```
      *
-     * @param \Closure $closure An extension to register.
+     * @param callable $closure An extension to register.
      */
-    public function addExtension(\Closure $closure): void
+    public function addExtension(callable $closure): void
     {
         $this->extensions[] = $closure;
     }
