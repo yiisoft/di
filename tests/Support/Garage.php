@@ -21,4 +21,3 @@ final class Garage
         return $this->car;
     }
 }
-

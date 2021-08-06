@@ -13,7 +13,7 @@ class CarProvider implements ServiceProviderInterface
     {
         return [
             'car' => Car::class,
-            EngineInterface::class => EngineMarkOne::class
+            EngineInterface::class => EngineMarkOne::class,
         ];
     }
 

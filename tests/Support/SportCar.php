@@ -46,4 +46,3 @@ class SportCar
         return $this->maxSpeed;
     }
 }
-

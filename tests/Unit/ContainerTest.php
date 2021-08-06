@@ -1162,9 +1162,8 @@ class ContainerTest extends TestCase
                     ContainerInterface::class => static function (ContainerInterface $container) {
                         // E.g. wrapping container with proxy class
                         return $container;
-                    }
+                    },
                 ];
-
             }
 
             public function getExtensions(): array

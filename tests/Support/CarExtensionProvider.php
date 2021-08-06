@@ -21,9 +21,9 @@ class CarExtensionProvider implements ServiceProviderInterface
                 $car->setColor(new ColorRed());
                 return $car;
             },
-            EngineInterface::class => static function(ContainerInterface $container, EngineInterface $engine) {
+            EngineInterface::class => static function (ContainerInterface $container, EngineInterface $engine) {
                 return $container->get(EngineMarkTwo::class);
-            }
+            },
         ];
     }
 }
