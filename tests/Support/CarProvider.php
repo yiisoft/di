@@ -14,7 +14,7 @@ class CarProvider implements ServiceProviderInterface
         return [
             'car' => Car::class,
             EngineInterface::class => EngineMarkOne::class
-            ];
+        ];
     }
 
     public function getExtensions(): array

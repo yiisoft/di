@@ -7,7 +7,7 @@ namespace Yiisoft\Di\Tests\Support;
 /**
  * A garage
  */
-class Garage
+final class Garage
 {
     private SportCar $car;
 

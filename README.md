@@ -29,7 +29,7 @@ and configure classes resolving dependencies.
 - Provides autoload fallback for classes without explicit definition.
 - Allows delegated lookup and has composite container.
 - Supports aliasing.
-- Supports service providers and deferred service providers.
+- Supports service providers.
 
 
 ## Using the container
@@ -169,13 +169,12 @@ $engine = $composite->get(EngineInterface::class);
 ## Using service providers
 
 A service provider is a special class that is responsible for providing complex
-services or groups of dependencies for the container and extensions of existed services. 
+services or groups of dependencies for the container and extensions of existing services. 
 
-Service providers extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
-contain a `getDefinitions()` and `getExtensions()` methods. It should only provide things for the container
-and therefore only contain code that is related to this task. It should *never*
-implement any business logic or other functionality like environment bootstrap
-or DB changes.
+A provider should extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
+contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
+and therefore should only contain code that is related to this task. It should *never*
+implement any business logic or other functionality such as environment bootstrap or applying changes to database.
 
 A typical service provider could look like:
 
@@ -207,6 +206,7 @@ class CarFactoryProvider extends ServiceProviderInterface
     public function getExtensions(): array
     {
         return [
+            // Note that Garage should already be defined in container 
             Garage::class => function(ContainerInterface $container, Garage $garage) {
                 $car = $container->get(CarFactory::class)->create();
                 $garage->setCar($car);
@@ -217,12 +217,12 @@ class CarFactoryProvider extends ServiceProviderInterface
     } 
 }
 ```
-Here we created a service provider responsible for bootstrapping of a car
-factory with all its dependencies.
 
-An extension is a callable that returns a modified service object. In our case we get existed `Garage` service
-and put the car into the garage by calling the method `setCar()`. Thus, before applying this provider, we had 
-an empty garage and with the help of the extension we put the car in the garage.
+Here we created a service provider responsible for bootstrapping of a car factory with all its dependencies.
+
+An extension is a callable that returns a modified service object. In our case we get existing `Garage` service
+and put a car into the garage by calling the method `setCar()`. Thus, before applying this provider, we had 
+an empty garage and with the help of the extension we fill it.
 
 To add this service provider to a container you can pass either its class or a
 configuration array in the `$providers` constructor parameter:
@@ -235,8 +235,8 @@ $container = new Container($config, [
 ]);
 ```
 
-When a service provider is added, its `getDefinitions()` and `getExtensions()` methods is called
-*immediately* and services and its extensions get registered into the container.
+When a service provider is added, its `getDefinitions()` and `getExtensions()` methods are called
+*immediately* both services and their extensions get registered into the container.
 
 ## Container tags
 
