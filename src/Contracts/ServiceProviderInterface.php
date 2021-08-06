@@ -4,42 +4,27 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Contracts;
 
-use Yiisoft\Di\Container;
-
 /**
  * Represents a component responsible for class registration in the Container.
  *
  * The goal of service providers is to centralize and organize in one place
  * registration of classes bound by any logic or classes with complex dependencies.
  *
- * You can simply organize registration of service and it's dependencies in a single
+ * You can simply organize registration of a service and its dependencies in a single
  * provider class except of creating bootstrap file or configuration array for the Container.
  *
  * Example:
+ *
  * ```php
  * class CarProvider implements ServiceProviderInterface
  * {
- *    public function register(Container $container): void
+ *    public function getDefinitions(): array
  *    {
- *        $this->registerDependencies($container);
- *        $this->registerService($container);
- *    }
- *
- *    protected function registerDependencies($container): void
- *    {
- *        $container->set(EngineInterface::class, SolarEngine::class);
- *        $container->set(WheelInterface::class, [
- *            'class' => Wheel::class,
- *            '$color' => 'black',
- *        ]);
- *    }
- *
- *    protected function registerService($container): void
- *    {
- *        $container->set(Car::class, [
- *              'class' => Car::class,
- *              '$color' => 'red',
- *        ]);
+ *        return [
+ *            'car' =>  ['class' => Car::class],
+ *            'car-factory' => CarFactory::class,
+ *            EngineInterface::class => EngineMarkOne::class,
+ *        ];
  *    }
  * }
  * ```
@@ -47,15 +32,32 @@ use Yiisoft\Di\Container;
 interface ServiceProviderInterface
 {
     /**
-     * Registers classes in the container.
+     * Returns definitions for the container.
      *
-     * - This method should only set class definitions to the Container and
-     *   not have any side-effects.
-     * - This method should be idempotent
-     * This method may be called multiple times with different container objects,
-     * or multiple times with the same object.
+     * This method:
      *
-     * @param Container $container the container in which to register the services.
+     * - Should only return definitions for the Container preventing any side effects.
+     * - Should be idempotent.
+     * - May be called multiple times with either different container objects or with the same object.
+     *
+     * @return array Definitions for the container. Each array key is the name of the service (usually it is
+     * an interface name), and a corresponding value is a service definition.
      */
-    public function register(Container $container): void;
+    public function getDefinitions(): array;
+
+    /**
+     * Returns an array of service extensions.
+     *
+     * An extension is a callable that returns a modified service object:
+     *
+     * ```php
+     * static function (ContainerInterface $container, $service) {
+     *     return $service->withAnotherOption(42);
+     * }
+     * ```
+     *
+     * @return array Extensions for the container services. Each array key is the name of the service to be modified
+     * and a corresponding value is callable doing the job.
+     */
+    public function getExtensions(): array;
 }
