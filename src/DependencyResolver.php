@@ -8,6 +8,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Factory\DependencyResolverInterface;
+use Yiisoft\Injector\Injector;
 
 /**
  * @internal
@@ -15,6 +16,7 @@ use Yiisoft\Factory\DependencyResolverInterface;
 final class DependencyResolver implements DependencyResolverInterface
 {
     private ContainerInterface $container;
+    private ?Injector $injector = null;
 
     public function __construct(ContainerInterface $container)
     {
@@ -56,8 +58,18 @@ final class DependencyResolver implements DependencyResolverInterface
         return $this->get($id);
     }
 
+    public function invoke(callable $callable)
+    {
+        return $this->getInjector()->invoke($callable);
+    }
+
     public function shouldCloneOnResolve(): bool
     {
         return false;
+    }
+
+    private function getInjector(): Injector
+    {
+        return $this->injector ??= new Injector($this->container);
     }
 }
