@@ -7,7 +7,7 @@ namespace Yiisoft\Di\Tests\Support;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 
-class EngineExtensionProvider implements ServiceProviderInterface
+class CarExtensionProvider implements ServiceProviderInterface
 {
     public function getDefinitions(): array
     {
