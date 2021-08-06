@@ -29,7 +29,7 @@ and configure classes resolving dependencies.
 - Provides autoload fallback for classes without explicit definition.
 - Allows delegated lookup and has composite container.
 - Supports aliasing.
-- Supports service providers and deferred service providers.
+- Supports service providers.
 
 
 ## Using the container
@@ -111,51 +111,7 @@ $container = new Container([
 $object = $container->get('engine_one');
 ```
 
-## Delegated lookups and composite containers
-
-Another feature of the `Container` class are *delegated lookups*. This means
-that *all* dependencies for definitions in the container should be resolved via
-a *root container* - and not by the container itself.
-
-To use delegated lookups a root container can be passed as third argument to
-the constructor:
-
-```php
-class Car
-{
-    private EngineInterface $engine;
-
-    public function __construct(EngineInterface $engine)
-    {
-        $this->engine = $engine;
-    }
-
-    public function getEngine(): EngineInterface
-    {
-        return $this->engine;
-    }
-}
-
-$rootContainer = new Container([
-    EngineInterface::class => EngineMarkTwo::class
-]);
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-], [], $rootContainer);
-
-// returns an instance of `Car`
-$car = $container->get(Car::class);
-// returns an instance of `EngineMarkTwo`
-$engine = $car->getEngine();
-```
-
-Note, that the root container is only used for resolving dependencies. You can
-not directly fetch entries of the root container from the container via `get()`.
-
-Delegated lookups are mainly useful for composite containers.
-
-
-### Composite containers
+## Composite containers
 
 A composite container combines multiple containers in a single container. When
 using this approach, objects should only be fetched from the composite
@@ -212,17 +168,13 @@ $engine = $composite->get(EngineInterface::class);
 
 ## Using service providers
 
-A service provider is a special class that is responsible for binding complex
-services or groups of dependencies into the container. This includes
-registering services with its references, event listeners, middleware etc.
+A service provider is a special class that is responsible for providing complex
+services or groups of dependencies for the container and extensions of existing services. 
 
-Service providers extend from `Yiisoft\Di\Support\ServiceProvider` and must
-contain a `register()` method. It should only bind things into the container
-and therefore only contain code that is related to this task. It should *never*
-implement any business logic or other functionality like environment bootstrap
-or DB changes.
-
-To access the container in a service provider you should use the `$container` argument.
+A provider should extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
+contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
+and therefore should only contain code that is related to this task. It should *never*
+implement any business logic or other functionality such as environment bootstrap or applying changes to database.
 
 A typical service provider could look like:
 
@@ -230,38 +182,47 @@ A typical service provider could look like:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Support\ServiceProvider;
 
-class CarFactoryProvider extends ServiceProvider
+class CarFactoryProvider extends ServiceProviderInterface
 {
-    public function register(Container $container): void
+    public function getDependencies(): array
     {
-        $this->registerDependencies($container);
-        $this->registerService($container);
+        return [
+            CarFactory::class => [
+                'class' => CarFactory::class,
+                '$color' => 'red',
+            ], 
+            EngineInterface::class => SolarEngine::class,
+            WheelInterface::class => [
+                'class' => Wheel::class,
+                '$color' => 'black',
+            ],
+            CarInterface::class => [
+                'class' => BMW::class,
+                '$model' => 'X5',
+            ],
+        ];    
     }
-
-    protected function registerDependencies(Container $container): void
+     
+    public function getExtensions(): array
     {
-        $container->set(EngineInterface::class, SolarEngine::class);
-        $container->set(WheelInterface::class, [
-            'class' => Wheel::class,
-            '$color' => 'black',
-        ]);
-        $container->set(CarInterface::class, [
-            'class' => BMW::class,
-            '$model' => 'X5',
-        ]);
-    }
-
-    protected function registerService(Container $container): void
-    {
-        $container->set(CarFactory::class, [
-              'class' => CarFactory::class,
-              '$color' => 'red',
-        ]);
-    }
+        return [
+            // Note that Garage should already be defined in container 
+            Garage::class => function(ContainerInterface $container, Garage $garage) {
+                $car = $container->get(CarFactory::class)->create();
+                $garage->setCar($car);
+                
+                return $garage;
+            }
+        ];
+    } 
 }
 ```
-Here we created a service provider responsible for bootstrapping of a car
-factory with all its dependencies.
+
+Here we created a service provider responsible for bootstrapping of a car factory with all its dependencies.
+
+An extension is a callable that returns a modified service object. In our case we get existing `Garage` service
+and put a car into the garage by calling the method `setCar()`. Thus, before applying this provider, we had 
+an empty garage and with the help of the extension we fill it.
 
 To add this service provider to a container you can pass either its class or a
 configuration array in the `$providers` constructor parameter:
@@ -274,91 +235,8 @@ $container = new Container($config, [
 ]);
 ```
 
-When a service provider is added, its `register()` method is called
-*immediately* and services get registered into the container.
-
-Thus service providers might *decrease* the performance of your
-application if you perform heavy operations inside the `register()` method.
-
-
-## Using deferred service providers
-
-To prevent the potential performance decrease when using service providers you
-can use so-called *deferred service providers*.
-
-They extend from `Yiisoft\Di\Support\DeferredServiceProvider` and must
-implement an additional `provides()` method (besides `register()`). This method
-returns an array with names and identifiers of services that the service
-provider binds to the container.
-
-Deferred service providers are added to a container just like regular service
-providers. But the `register()` method is only called when one of the services
-listed in `provides()` is requested from the container.
-
-Here's an example:
-
-```php
-use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\DeferredServiceProvider;
-
-class CarFactoryProvider extends DeferredServiceProvider
-{
-    public function provides(): array
-    {
-        return [
-            CarFactory::class,
-            CarInterface::class,
-            EngineInterface::class,
-            WheelInterface::class,
-        ];
-    }
-
-    public function register(Container $container): void
-    {
-        $this->registerDependencies($container);
-        $this->registerService($container);
-    }
-
-    protected function registerDependencies(Container $container): void
-    {
-        $container->set(EngineInterface::class, SolarEngine::class);
-        $container->set(WheelInterface::class, [
-            'class' => Wheel::class,
-            '$color' => 'black',
-        ]);
-        $container->set(CarInterface::class, [
-            'class' => BMW::class,
-            '$model' => 'X5',
-        ]);
-    }
-
-    protected function registerService(Container $container): void
-    {
-        $container->set(CarFactory::class, [
-              'class' => CarFactory::class,
-              '$color' => 'red',
-        ]);
-    }
-}
-
-$container = new Container($config, [CarFactoryProvider::class]);
-
-// returns false as provider wasn't registered
-$container->has(EngineInterface::class); 
-
-// returns SolarEngine, registered in the provider
-$engine = $container->get(EngineInterface::class); 
-
-// returns true as provider was registered when EngineInterface was requested from the container
-$container->has(EngineInterface::class); 
-```
-
-In the code above we add a `CarFactoryProvider` to the container. The
-`register()` method of `CarFactoryProvider` isn't executed until
-`EngineInterface` gets requested from the container. When this happens,
-the container will first check the result of the `provides()` method.
-Because `EngineInterface` is listed there it will then call the `register()`
-method of the `CarFactoryProvider`.
+When a service provider is added, its `getDefinitions()` and `getExtensions()` methods are called
+*immediately* both services and their extensions get registered into the container.
 
 ## Container tags
 

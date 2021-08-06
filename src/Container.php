@@ -6,11 +6,9 @@ namespace Yiisoft\Di;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Di\Contracts\DeferredServiceProviderInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
-use Yiisoft\Factory\DependencyResolverInterface;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
@@ -19,7 +17,6 @@ use Yiisoft\Injector\Injector;
 
 use function array_key_exists;
 use function array_keys;
-use function assert;
 use function class_exists;
 use function get_class;
 use function implode;
@@ -31,7 +28,7 @@ use function is_string;
 /**
  * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
  */
-final class Container extends AbstractContainerConfigurator implements ContainerInterface
+final class Container implements ContainerInterface
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
@@ -60,37 +57,32 @@ final class Container extends AbstractContainerConfigurator implements Container
     private array $tags;
 
     private array $resetters = [];
-
-    private ?CompositeContainer $rootContainer = null;
-    private DependencyResolverInterface $dependencyResolver;
+    /** @psalm-suppress PropertyNotSetInConstructor */
+    private DependencyResolver $dependencyResolver;
 
     /**
      * Container constructor.
      *
      * @param array $definitions Definitions to put into container.
      * @param array $providers Service providers to get definitions from.
-     * @param ContainerInterface|null $rootContainer Root container to delegate
      * lookup to when resolving dependencies. If provided the current container
      * is no longer queried for dependencies.
      *
      * @throws InvalidConfigException
+     *
+     * @psalm-suppress PropertyNotSetInConstructor
      */
     public function __construct(
         array $definitions = [],
         array $providers = [],
         array $tags = [],
-        ContainerInterface $rootContainer = null,
         bool $validate = true
     ) {
         $this->tags = $tags;
         $this->validate = $validate;
-        $this->delegateLookup($rootContainer);
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
-        $this->addProviders($providers, new DependencyResolver($this));
-
-        // Prevent circular reference to ContainerInterface
-        $this->get(ContainerInterface::class);
+        $this->addProviders($providers);
     }
 
     /**
@@ -150,25 +142,6 @@ final class Container extends AbstractContainerConfigurator implements Container
     }
 
     /**
-     * Delegate service lookup to another container.
-     *
-     * @param ContainerInterface $container
-     */
-    protected function delegateLookup(?ContainerInterface $container): void
-    {
-        if ($container !== null) {
-            if ($this->rootContainer === null) {
-                $this->rootContainer = new CompositeContainer();
-                $this->setDefaultDefinitions();
-            }
-
-            $this->rootContainer->attach($container);
-        }
-
-        $this->dependencyResolver = new DependencyResolver($this->rootContainer ?? $this);
-    }
-
-    /**
      * Sets a definition to the container. Definition may be defined multiple ways.
      *
      * @param string $id
@@ -219,11 +192,7 @@ final class Container extends AbstractContainerConfigurator implements Container
 
     private function setDefaultDefinitions(): void
     {
-        $container = $this->rootContainer ?? $this;
-        $this->setMultiple([
-            ContainerInterface::class => $container,
-            Injector::class => new Injector($container),
-        ]);
+        $this->set(ContainerInterface::class, $this);
     }
 
     /**
@@ -241,6 +210,11 @@ final class Container extends AbstractContainerConfigurator implements Container
                 $methodsAndProperties,
             );
         }
+
+        if ($definition instanceof ExtensibleService) {
+            throw new InvalidConfigException('Invalid definition. ExtensibleService is only allowed in provider extensions.');
+        }
+
         DefinitionValidator::validate($definition, $id);
     }
 
@@ -345,16 +319,6 @@ final class Container extends AbstractContainerConfigurator implements Container
     }
 
     /**
-     * @param mixed $definition
-     */
-    private function processDefinition($definition): void
-    {
-        if ($definition instanceof DeferredServiceProviderInterface) {
-            $definition->register($this);
-        }
-    }
-
-    /**
      * @param string $id
      *
      * @throws InvalidConfigException
@@ -367,8 +331,9 @@ final class Container extends AbstractContainerConfigurator implements Container
         if (!isset($this->definitions[$id])) {
             return $this->buildPrimitive($id);
         }
-        $this->processDefinition($this->definitions[$id]);
         $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
         return $definition->resolve($this->dependencyResolver);
     }
@@ -385,6 +350,8 @@ final class Container extends AbstractContainerConfigurator implements Container
     {
         if (class_exists($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
+            /** @psalm-suppress RedundantPropertyInitializationCheck */
+            $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
             return $definition->resolve($this->dependencyResolver);
         }
@@ -392,62 +359,84 @@ final class Container extends AbstractContainerConfigurator implements Container
         throw new NotFoundException($class);
     }
 
-    private function addProviders(array $providers, DependencyResolverInterface $dependencyResolver): void
+    private function addProviders(array $providers): void
     {
+        $extensions = [];
         foreach ($providers as $provider) {
-            $this->addProvider($provider, $dependencyResolver);
+            $providerInstance = $this->buildProvider($provider);
+            $extensions[] = $providerInstance->getExtensions();
+            $this->addProviderDefinitions($providerInstance);
+        }
+
+        foreach ($extensions as $providerExtensions) {
+            foreach ($providerExtensions as $id => $extension) {
+                if (!isset($this->definitions[$id])) {
+                    throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
+                }
+
+                if (!$this->definitions[$id] instanceof ExtensibleService) {
+                    $this->definitions[$id] = new ExtensibleService($this->definitions[$id]);
+                }
+
+                $this->definitions[$id]->addExtension($extension);
+            }
         }
     }
 
     /**
-     * Adds service provider to the container. Unless service provider is deferred
-     * it would be immediately registered.
+     * Adds service provider definitions to the container.
      *
-     * @param mixed $providerDefinition
+     * @param object $provider
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      *
      * @see ServiceProviderInterface
-     * @see DeferredServiceProviderInterface
      */
-    private function addProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): void
+    private function addProviderDefinitions($provider): void
     {
-        $provider = $this->buildProvider($providerDefinition, $dependencyResolver);
-
-        if ($provider instanceof DeferredServiceProviderInterface) {
-            foreach ($provider->provides() as $id) {
-                $this->definitions[$id] = $provider;
-            }
-        } else {
-            $provider->register($this);
-        }
+        $definitions = $provider->getDefinitions();
+        $this->setMultiple($definitions);
     }
 
     /**
      * Builds service provider by definition.
      *
-     * @param mixed $providerDefinition class name or definition of provider.
+     * @param mixed $provider Class name or instance of provider.
      *
-     * @throws InvalidConfigException
+     * @throws InvalidConfigException If provider argument is not valid.
      *
-     * @return ServiceProviderInterface instance of service provider;
+     * @return ServiceProviderInterface Instance of service provider.
+     *
+     * @psalm-suppress MoreSpecificReturnType
      */
-    private function buildProvider($providerDefinition, DependencyResolverInterface $dependencyResolver): ServiceProviderInterface
+    private function buildProvider($provider): ServiceProviderInterface
     {
-        if ($this->validate) {
-            $this->validateDefinition($providerDefinition);
+        if ($this->validate && !(is_string($provider) || is_object($provider) && $provider instanceof ServiceProviderInterface)) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Service provider should be a class name or an instance of %s. %s given.',
+                    ServiceProviderInterface::class,
+                    $this->getVariableType($provider)
+                )
+            );
         }
-        $provider = DefinitionNormalizer::normalize($providerDefinition)->resolve($dependencyResolver);
-        assert($provider instanceof ServiceProviderInterface, new InvalidConfigException(
-            sprintf(
-                'Service provider should be an instance of %s. %s given.',
-                ServiceProviderInterface::class,
-                $this->getVariableType($provider)
-            )
-        ));
 
-        return $provider;
+        $providerInstance = is_object($provider) ? $provider : new $provider();
+        if (!$providerInstance instanceof ServiceProviderInterface) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Service provider should be an instance of %s. %s given.',
+                    ServiceProviderInterface::class,
+                    $this->getVariableType($providerInstance)
+                )
+            );
+        }
+
+        /**
+         * @psalm-suppress LessSpecificReturnStatement
+         */
+        return $providerInstance;
     }
 
     /**

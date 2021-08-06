@@ -7,23 +7,23 @@ namespace Yiisoft\Di\Tests\Support;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 
-class CarProvider implements ServiceProviderInterface
+class CarExtensionProvider implements ServiceProviderInterface
 {
     public function getDefinitions(): array
     {
-        return [
-            'car' => Car::class,
-            EngineInterface::class => EngineMarkOne::class
-        ];
+        return [];
     }
 
     public function getExtensions(): array
     {
         return [
             Car::class => static function (ContainerInterface $container, Car $car) {
-                $car->setColor(new ColorPink());
+                $car->setColor(new ColorRed());
                 return $car;
             },
+            EngineInterface::class => static function(ContainerInterface $container, EngineInterface $engine) {
+                return $container->get(EngineMarkTwo::class);
+            }
         ];
     }
 }
