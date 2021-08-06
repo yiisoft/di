@@ -43,17 +43,7 @@ final class DependencyResolver implements DependencyResolverInterface
         return $this->container->has($id);
     }
 
-    /**
-     * @param string $id
-     *
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     *
-     * @return mixed|object
-     *
-     * @psalm-suppress InvalidThrow
-     */
-    public function resolve(string $id)
+    public function resolveReference(string $id)
     {
         return $this->get($id);
     }
