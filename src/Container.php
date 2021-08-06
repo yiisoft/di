@@ -415,7 +415,7 @@ final class Container implements ContainerInterface
      */
     private function buildProvider($provider): ServiceProviderInterface
     {
-        if ($this->validate && !is_string($provider)) {
+        if ($this->validate && !(is_string($provider) || is_object($provider) && $provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
