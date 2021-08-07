@@ -16,7 +16,6 @@ use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
 use Yiisoft\Factory\Exception\NotInstantiableException;
-
 use function array_key_exists;
 use function array_keys;
 use function class_exists;
@@ -339,7 +338,6 @@ final class Container implements ContainerInterface
         if (!isset($this->definitions[$id])) {
             return $this->buildPrimitive($id);
         }
-        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
         /** @psalm-suppress RedundantPropertyInitializationCheck */
         $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
@@ -357,11 +355,11 @@ final class Container implements ContainerInterface
     private function buildPrimitive(string $class)
     {
         if (class_exists($class)) {
-            $definition = ArrayDefinition::fromPreparedData($class);
+            $this->definitions[$class] = ArrayDefinition::fromPreparedData($class);
             /** @psalm-suppress RedundantPropertyInitializationCheck */
             $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
-            return $definition->resolve($this->dependencyResolver);
+            return $this->definitions[$class]->resolve($this->dependencyResolver);
         }
 
         throw new NotFoundException($class);

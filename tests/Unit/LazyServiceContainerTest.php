@@ -11,6 +11,13 @@ use Yiisoft\Di\Tests\Support\EngineMarkOne;
 
 class LazyServiceContainerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (!class_exists(\ProxyManager\Factory\LazyLoadingValueHolderFactory::class)) {
+            $this->markTestSkipped('You should install `ocramius/proxy-manager` if you want to use lazy services.');
+        }
+    }
+
     public function testIsTheSameObject(): void
     {
         $class = EngineMarkOne::class;
@@ -77,7 +84,7 @@ class LazyServiceContainerTest extends TestCase
             ],
             'dedicated callback definition' => [
                 [EngineMarkOne::class => [
-                    'definition' => fn () => new EngineMarkOne(),
+                    'definition' => fn() => new EngineMarkOne(),
                     'lazy' => true,
                 ]],
                 EngineMarkOne::class,

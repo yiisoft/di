@@ -6,7 +6,6 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Factory\Definition\DefinitionInterface;
-use Yiisoft\Factory\Definition\Normalizer;
 use Yiisoft\Factory\DependencyResolverInterface;
 
 /**
@@ -21,14 +20,13 @@ use Yiisoft\Factory\DependencyResolverInterface;
  */
 final class ExtensibleService implements DefinitionInterface
 {
-    /** @psalm-var  array<string,mixed> */
-    private $definition;
+    private DefinitionInterface $definition;
     private array $extensions = [];
 
     /**
-     * @param mixed $definition Definition to allow registering extensions for.
+     * @param DefinitionInterface $definition Definition to allow registering extensions for.
      */
-    public function __construct($definition)
+    public function __construct(DefinitionInterface $definition)
     {
         $this->definition = $definition;
     }
@@ -53,7 +51,7 @@ final class ExtensibleService implements DefinitionInterface
 
     public function resolve(DependencyResolverInterface $container)
     {
-        $service = (Normalizer::normalize($this->definition))->resolve($container);
+        $service = $this->definition->resolve($container);
         $containerInterface = $container->get(ContainerInterface::class);
         foreach ($this->extensions as $extension) {
             $service = $extension($containerInterface, $service);
