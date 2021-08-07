@@ -84,7 +84,7 @@ class LazyServiceContainerTest extends TestCase
             ],
             'dedicated callback definition' => [
                 [EngineMarkOne::class => [
-                    'definition' => fn() => new EngineMarkOne(),
+                    'definition' => fn () => new EngineMarkOne(),
                     'lazy' => true,
                 ]],
                 EngineMarkOne::class,
