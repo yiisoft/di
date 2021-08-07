@@ -33,6 +33,10 @@ final class DefinitionNormalizer
             return ArrayDefinition::fromPreparedData($class, $constructorArguments, $methodsAndProperties);
         }
 
+        if ($definition instanceof ExtensibleService) {
+            return $definition;
+        }
+
         return Normalizer::normalize($definition, $id);
     }
 }

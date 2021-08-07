@@ -8,11 +8,10 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use TypeError;
-use Yiisoft\Di\AbstractContainerConfigurator;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
@@ -154,101 +153,6 @@ class ContainerTest extends TestCase
 
         $this->expectException(CircularReferenceException::class);
         $container->get(Chicken::class);
-    }
-
-    public function testNestedContainer(): void
-    {
-        $container = new Container(
-            [
-                ContainerInterface::class => function (ContainerInterface $container) {
-                    return new Container(
-                        [
-                            ColorInterface::class => ColorPink::class,
-                            'engine' => fn (EngineInterface $engine) => $engine,
-                        ],
-                        [],
-                        [],
-                        $container
-                    );
-                },
-                EngineInterface::class => EngineMarkOne::class,
-            ]
-        );
-
-        $newContainer = $container->get(ContainerInterface::class);
-        $this->assertNotSame($container, $newContainer);
-        $this->assertFalse($newContainer->has(EngineInterface::class));
-        $engine = $newContainer->get('engine');
-        $this->assertInstanceOf(EngineMarkOne::class, $engine);
-        $this->assertSame($engine, $newContainer->get(Car::class)->getEngine());
-        $this->assertInstanceOf(ColorPink::class, $newContainer->get(ColorInterface::class));
-        $this->expectException(NotFoundException::class);
-        $this->assertInstanceOf(ColorPink::class, $container->get(ColorInterface::class));
-    }
-
-    public function testNestedContainerInProvider(): void
-    {
-        $container = new Container(
-            [],
-            [
-                new class() extends ServiceProvider {
-                    public function register(Container $container): void
-                    {
-                        $container->set(
-                            ContainerInterface::class,
-                            static function (ContainerInterface $container) {
-                                return $container->get('new-container');
-                            }
-                        );
-                    }
-                },
-                new class() extends ServiceProvider {
-                    public function register(Container $container): void
-                    {
-                        $container->set(
-                            'new-container',
-                            fn (ContainerInterface $container) => new Container(
-                                [
-                                    EngineInterface::class => EngineMarkOne::class,
-                                ],
-                                [],
-                                [],
-                                $container
-                            )
-                        );
-                    }
-                },
-                new class() extends ServiceProvider {
-                    public function register(Container $container): void
-                    {
-                        $container->set('container', fn (ContainerInterface $container) => $container);
-                    }
-                },
-                new class() extends ServiceProvider {
-                    public function register(Container $container): void
-                    {
-                        $container->set(
-                            B::class,
-                            function () {
-                                throw new \RuntimeException();
-                            }
-                        );
-                    }
-                },
-            ],
-        );
-
-        //## The order is crucial! Problem can appear when resolving 'new-container' first
-        $newcontainer = $container->get('new-container');
-        $this->assertNotSame($container, $newcontainer);
-        $this->assertSame($newcontainer, $container->get(ContainerInterface::class));
-        $this->assertSame($newcontainer, $container->get('container'));
-        $this->assertInstanceOf(EngineMarkOne::class, $newcontainer->get(EngineInterface::class));
-        $this->assertFalse($container->has(EngineInterface::class));
-        $this->assertTrue($newcontainer->has(EngineInterface::class));
-
-        $this->expectException(\RuntimeException::class);
-        $container->get(B::class);
     }
 
     public function testClassSimple(): void
@@ -658,24 +562,6 @@ class ContainerTest extends TestCase
         }
     }
 
-    public function testChangeInjector(): void
-    {
-        $container = new Container(
-            [
-                Injector::class => new Injector(
-                    new Container(
-                        [
-                            EngineInterface::class => EngineMarkOne::class,
-                        ]
-                    )
-                ),
-                'car' => fn (EngineInterface $engine) => new Car($engine),
-            ]
-        );
-
-        $this->assertInstanceOf(EngineMarkOne::class, $container->get('car')->getEngine());
-    }
-
     public function testCallable(): void
     {
         $container = new Container(
@@ -974,154 +860,6 @@ class ContainerTest extends TestCase
         $this->assertSame($container, $container->get(ContainerInterface::class));
     }
 
-    public function testContainerDelegateLookupContainer(): void
-    {
-        $rootContainer = new Container(
-            [
-                EngineInterface::class => EngineMarkTwo::class,
-            ]
-        );
-
-        $container = new Container(
-            [
-                EngineInterface::class => EngineMarkOne::class,
-                'injected' => static fn (Injector $injector) => $injector->make(Car::class),
-            ],
-            [],
-            [],
-            $rootContainer
-        );
-
-        $car = $container->get(Car::class);
-        $c = $container->get(ContainerInterface::class);
-        $injected = $container->get('injected');
-
-        $this->assertSame(Car::class, get_class($car));
-        $this->assertSame(EngineMarkTwo::class, get_class($car->getEngine()));
-        $this->assertSame(EngineMarkTwo::class, get_class($injected->getEngine()));
-        $this->assertSame(CompositeContainer::class, get_class($c));
-    }
-
-    public function testContainerDelegateLookupToCompositeContainer(): void
-    {
-        $compositeContainer = new CompositeContainer();
-
-        $container1 = new Container(
-            [
-                EngineInterface::class => EngineMarkOne::class,
-            ]
-        );
-
-        $compositeContainer->attach($container1);
-
-        $container = new Container([], [], [], $compositeContainer);
-        $car = $container->get(Car::class);
-
-        $this->assertSame(Car::class, get_class($car));
-        $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
-    }
-
-    public function testContainerDelegateLookupToCompositeContainerViaProxy(): void
-    {
-        $compositeContainer = new CompositeContainer();
-        $container = new Container(
-            [
-                'car' => Car::class,
-            ],
-            [],
-            [],
-            $compositeContainer
-        );
-        $engineContainer = new Container(
-            [
-                EngineInterface::class => EngineMarkOne::class,
-            ]
-        );
-        $proxyContainer = $this->getProxyContainer($container);
-        $compositeContainer->attach($proxyContainer);
-        $compositeContainer->attach($engineContainer);
-        $engine = $compositeContainer->get('car')->getEngine();
-        $this->assertSame(EngineMarkOne::class, get_class($engine));
-        $this->assertSame('car', $proxyContainer->getLastIds()[0]);
-        $this->assertCount(2, $proxyContainer->getLastIds());
-    }
-
-    public function testContainerDelegateLookupContainerViaProxy(): void
-    {
-        $container = new Container(
-            [
-                EngineInterface::class => EngineMarkOne::class,
-                'car' => Car::class,
-                'engine' => static fn (EngineInterface $engine) => $engine,
-            ],
-            []
-        );
-        $proxyContainer = $this->getProxyContainer($container);
-        $container = $container->get(ContainerInterface::class);
-        $engine = $container->get('car')->getEngine();
-        $this->assertSame(EngineMarkTwo::class, get_class($engine));
-        $this->assertSame(EngineMarkTwo::class, get_class($container->get(EngineInterface::class)));
-        $this->assertSame(CompositeContainer::class, get_class($container));
-        $this->assertSame('car', $proxyContainer->getLastIds()[0]);
-        $this->assertCount(4, $proxyContainer->getLastIds());
-    }
-
-    public function testContainerDelegateLookupToNestedCompositeContainer(): void
-    {
-        $compositeContainer = new CompositeContainer();
-        $nestedCompositeContainer = new CompositeContainer();
-
-        $container1 = new Container(
-            [
-                EngineInterface::class => EngineMarkOne::class,
-            ]
-        );
-
-        $compositeContainer->attach($container1);
-        $nestedCompositeContainer->attach($compositeContainer);
-
-        $container = new Container([], [], [], $nestedCompositeContainer);
-        $car = $container->get(Car::class);
-
-        $this->assertSame(Car::class, get_class($car));
-        $this->assertSame(EngineMarkOne::class, get_class($car->getEngine()));
-    }
-
-    public function testContainerComplexDelegateLookup(): void
-    {
-        $compositeContainer = new CompositeContainer();
-        $container1 = new Container(
-            [
-                'first' => static function () {
-                    return 'first';
-                },
-                'third' => static function () {
-                    return 'third';
-                },
-            ]
-        );
-        $container2 = new Container(
-            [
-                'second' => static function () {
-                    return 'second';
-                },
-                'first-second-third' => static function (ContainerInterface $c) {
-                    return $c->get('first') . $c->get('second') . $c->get('third');
-                },
-            ],
-            [],
-            [],
-            $compositeContainer
-        );
-
-        $compositeContainer->attach($container1);
-        $compositeContainer->attach($container2);
-
-        $this->assertSame('first', $compositeContainer->get('first'));
-        $this->assertSame('second', $compositeContainer->get('second'));
-        $this->assertSame('firstsecondthird', $compositeContainer->get('first-second-third'));
-    }
-
     public function testTagsInArrayDefinition(): void
     {
         $container = new Container([
@@ -1399,22 +1137,25 @@ class ContainerTest extends TestCase
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
-        $provider = new class() extends ServiceProvider {
-            public function register(Container $container): void
+        $provider = new class() implements ServiceProviderInterface {
+            public function getDefinitions(): array
             {
-                $container->set(
-                    ContainerInterface::class,
-                    static function (ContainerInterface $container) {
+                return [
+                    ContainerInterface::class => static function (ContainerInterface $container) {
                         // E.g. wrapping container with proxy class
                         return $container;
-                    }
-                );
-                $container->get(B::class);
+                    },
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
             }
         };
 
         $this->expectException(\RuntimeException::class);
-        new Container(
+        $container = new Container(
             [
                 B::class => function () {
                     throw new \RuntimeException();
@@ -1424,40 +1165,7 @@ class ContainerTest extends TestCase
                 $provider,
             ]
         );
-    }
-
-    private function getProxyContainer(ContainerInterface $container): ContainerInterface
-    {
-        return new class($container) extends AbstractContainerConfigurator implements ContainerInterface {
-            private ContainerInterface $container;
-
-            private array $lastId = [];
-
-            public function __construct(ContainerInterface $container)
-            {
-                $this->container = $container;
-                $this->container->delegateLookup($this);
-            }
-
-            public function getLastIds(): array
-            {
-                return $this->lastId;
-            }
-
-            public function get($id)
-            {
-                $this->lastId[] = $id;
-                if ($id === EngineInterface::class) {
-                    return $this->container->get(EngineMarkTwo::class);
-                }
-                return $this->container->get($id);
-            }
-
-            public function has($id): bool
-            {
-                return $this->container->has($id);
-            }
-        };
+        $container->get(B::class);
     }
 
     public function testErrorOnMethodTypo(): void
