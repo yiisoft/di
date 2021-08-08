@@ -142,11 +142,7 @@ final class Container implements ContainerInterface
         foreach ($constructor->getParameters() as $parameter) {
             $type = $parameter->getType();
 
-            if ($parameter->isVariadic()) {
-                break;
-            }
-
-            if ($parameter->isOptional()) {
+            if ($parameter->isVariadic() || $parameter->isOptional()) {
                 break;
             }
 
