@@ -8,9 +8,7 @@ use Closure;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionFunctionAbstract;
 use ReflectionNamedType;
-use ReflectionParameter;
 use ReflectionUnionType;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
@@ -173,7 +171,7 @@ final class Container implements ContainerInterface
                 if (!$isUnionTypeResolvable) {
                     $isResolvable = false;
                     break;
-                };
+                }
             }
 
             /** @var ReflectionNamedType|null $type */
