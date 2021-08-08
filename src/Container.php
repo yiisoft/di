@@ -143,7 +143,7 @@ final class Container implements ContainerInterface
             $type = $parameter->getType();
 
             if ($parameter->isVariadic()) {
-                $isResolvable = false;
+                $isResolvable = true;
                 break;
             }
 
