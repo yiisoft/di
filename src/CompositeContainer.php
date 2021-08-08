@@ -48,14 +48,10 @@ final class CompositeContainer implements ContainerInterface
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
-                try {
-                    return $container->get($id);
-                } catch (\Throwable $e) {
-                    $firstError ??= $e;
-                }
+                return $container->get($id);
             }
         }
-        throw $firstError ?? new NotFoundException($id);
+        throw new NotFoundException($id);
     }
 
     public function has($id): bool
