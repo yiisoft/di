@@ -170,7 +170,7 @@ final class Container implements ContainerInterface
                     }
                 }
 
-                if (!$this->isResolvable($isUnionTypeResolvable)) {
+                if (!$isUnionTypeResolvable) {
                     $isResolvable = false;
                     break;
                 };
