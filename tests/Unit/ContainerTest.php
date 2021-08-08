@@ -355,12 +355,12 @@ class ContainerTest extends TestCase
     public function testKeepClosureDefinition(): void
     {
         $engine = new EngineMarkOne();
-        $closure = fn (EngineInterface $engine) => $engine;
+        $closure = static fn (EngineInterface $engine) => $engine;
 
         $container = new Container(
             [
                 EngineInterface::class => $engine,
-                'closure' => new ValueDefinition($closure),
+                'closure' => DynamicReference::to($closure),
                 'engine' => $closure,
             ]
         );
