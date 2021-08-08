@@ -109,6 +109,9 @@ final class Container implements ContainerInterface
         return $this->isResolvable($id);
     }
 
+    //**
+    * @param string $id class name, interface name or alias name
+    */
     public function isResolvable($id): bool
     {
         if (isset($this->definitions[$id]) || $id === StateResetter::class) {
