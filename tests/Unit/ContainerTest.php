@@ -31,6 +31,7 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
+use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Definition\ValueDefinition;
@@ -105,9 +106,21 @@ class ContainerTest extends TestCase
         );
 
         $this->assertFalse($container->has('non_existing'));
+        $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
+        $this->assertTrue($container->has(TreeItem::class));
         $this->assertFalse($container->has(ColorInterface::class));
+    }
+
+    public function testHasExistedClassButNotResolvable(): void
+    {
+        $container = new Container();
+
+        $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has(Car::class));
+        $this->assertFalse($container->has(NullableConcreteDependency::class));
+        $this->assertFalse($container->has(EngineInterface::class));
     }
 
     public function testWithoutDefinition(): void

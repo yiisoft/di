@@ -6,6 +6,12 @@ namespace Yiisoft\Di;
 
 use Closure;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionFunctionAbstract;
+use ReflectionNamedType;
+use ReflectionParameter;
+use ReflectionUnionType;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
@@ -100,7 +106,96 @@ final class Container implements ContainerInterface
             return isset($this->tags[$tag]);
         }
 
-        return isset($this->definitions[$id]) || class_exists($id);
+        return $this->isResolvable($id);
+    }
+
+    public function isResolvable($id): bool
+    {
+        if (isset($this->definitions[$id]) || $id === StateResetter::class) {
+            return true;
+        }
+
+        if (!class_exists($id) || isset($this->building[$id])) {
+            return false;
+        }
+
+        try {
+            $reflectionClass = new ReflectionClass($id);
+        } catch (ReflectionException $e) {
+            return false;
+        }
+
+        if (!$reflectionClass->isInstantiable()) {
+            return false;
+        }
+
+        $constructor = $reflectionClass->getConstructor();
+
+        if ($constructor === null) {
+            return true;
+        }
+
+        $isResolvable = true;
+        $this->building[$id] = 1;
+
+        foreach ($constructor->getParameters() as $parameter) {
+            $type = $parameter->getType();
+
+            if ($parameter->isVariadic()) {
+                $isResolvable = false;
+                break;
+            }
+
+            if ($parameter->isOptional()) {
+                break;
+            }
+
+            if ($type === null || $type->isBuiltin()) {
+                $isResolvable = false;
+                break;
+            }
+
+            // PHP 8 union type is used as type hint
+            /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
+            if ($type instanceof ReflectionUnionType) {
+                $isUnionTypeResolvable = false;
+                /** @var ReflectionNamedType $unionType */
+                foreach ($type->getTypes() as $unionType) {
+                    if (!$unionType->isBuiltin()) {
+                        $typeName = $unionType->getName();
+                        $isUnionTypeResolvable = $this->isResolvable($typeName);
+                    }
+                }
+
+                if (!$this->isResolvable($isUnionTypeResolvable)) {
+                    $isResolvable = false;
+                    break;
+                };
+            }
+
+            /** @var ReflectionNamedType|null $type */
+            // Our parameter has a class type hint
+            if ($type !== null && !$type->isBuiltin()) {
+                $typeName = $type->getName();
+
+                if ($typeName === 'self') {
+                    $isResolvable = true;
+                    break;
+                }
+
+                if ($typeName === 'self' || !$this->isResolvable($typeName)) {
+                    $isResolvable = false;
+                    break;
+                }
+            }
+        }
+
+        if ($isResolvable) {
+            $this->definitions[$id] = $id;
+        }
+        unset($this->building[$id]);
+
+        return $isResolvable;
     }
 
     /**

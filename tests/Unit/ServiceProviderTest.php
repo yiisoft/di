@@ -52,9 +52,9 @@ class ServiceProviderTest extends TestCase
     {
         $container = new Container();
 
-        $this->assertTrue(
+        $this->assertFalse(
             $container->has(Car::class),
-            'Container should have Car registered before service provider added due to autoload fallback.'
+            'Container should not have Car registered before service provider added due to autoload fallback.'
         );
         $this->assertFalse(
             $container->has('car'),
