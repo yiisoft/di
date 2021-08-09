@@ -212,7 +212,6 @@ final class Container implements ContainerInterface
             // PHP 8 union type is used as type hint
             /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
             if ($type instanceof ReflectionUnionType) {
-                $isUnionTypeResolvable = false;
                 /** @var ReflectionNamedType $unionType */
                 foreach ($type->getTypes() as $unionType) {
                     if (!$unionType->isBuiltin()) {
@@ -220,11 +219,13 @@ final class Container implements ContainerInterface
                         if ($typeName === 'self') {
                             continue;
                         }
-                        $isUnionTypeResolvable = $this->isResolvable($typeName);
+                        if ($this->isResolvable($typeName)) {
+                            break 2;
+                        }
                     }
                 }
 
-                $isResolvable = $isUnionTypeResolvable;
+                $isResolvable = false;
                 break;
             }
 
