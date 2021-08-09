@@ -26,10 +26,14 @@ use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\EngineStorage;
 use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
+use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirst;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecond;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Definition\DynamicReference;
@@ -106,10 +110,22 @@ class ContainerTest extends TestCase
         );
 
         $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has(ColorInterface::class));
         $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
-        $this->assertFalse($container->has(ColorInterface::class));
+        $this->assertTrue($container->has(EngineStorage::class));
+    }
+
+    public function testHasPhp8(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped();
+        }
+
+        $container = new Container();
+
+        $this->assertTrue($container->has(UnionTypeInConstructorFirst::class));
     }
 
     public function testHasExistedClassButNotResolvable(): void
@@ -118,9 +134,21 @@ class ContainerTest extends TestCase
 
         $this->assertFalse($container->has('non_existing'));
         $this->assertFalse($container->has(Car::class));
+        $this->assertFalse($container->has(SportCar::class));
         $this->assertFalse($container->has(NullableConcreteDependency::class));
-        $this->assertFalse($container->has(EngineInterface::class));
+        $this->assertFalse($container->has(ColorInterface::class));
         $this->assertFalse($container->has(TreeItem::class));
+    }
+
+    public function testHasExistedClassButNotResolvablePhp8(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped();
+        }
+
+        $container = new Container();
+
+        $this->assertFalse($container->has(UnionTypeInConstructorSecond::class));
     }
 
     public function testWithoutDefinition(): void

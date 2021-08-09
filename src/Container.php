@@ -113,6 +113,7 @@ final class Container implements ContainerInterface
 
     /**
     * @param string $id class name, interface name or alias name
+    *
     * @throws CircularReferenceException
     */
     private function isResolvable($id): bool
