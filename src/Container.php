@@ -159,6 +159,9 @@ final class Container implements ContainerInterface
                 foreach ($type->getTypes() as $unionType) {
                     if (!$unionType->isBuiltin()) {
                         $typeName = $unionType->getName();
+                        if ($typeName === 'self') {
+                            continue;
+                        }
                         $isUnionTypeResolvable = $this->isResolvable($typeName);
                     }
                 }
