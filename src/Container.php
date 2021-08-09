@@ -163,21 +163,14 @@ final class Container implements ContainerInterface
                     }
                 }
 
-                if (!$isUnionTypeResolvable) {
-                    $isResolvable = false;
-                    break;
-                }
+                $isResolvable = $isUnionTypeResolvable;
+                break;
             }
 
             /** @var ReflectionNamedType|null $type */
             // Our parameter has a class type hint
             if ($type !== null && !$type->isBuiltin()) {
                 $typeName = $type->getName();
-
-                if ($typeName === 'self') {
-                    $isResolvable = true;
-                    break;
-                }
 
                 if ($typeName === 'self' || !$this->isResolvable($typeName)) {
                     $isResolvable = false;

@@ -109,7 +109,6 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
-        $this->assertTrue($container->has(TreeItem::class));
         $this->assertFalse($container->has(ColorInterface::class));
     }
 
@@ -121,6 +120,7 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->has(Car::class));
         $this->assertFalse($container->has(NullableConcreteDependency::class));
         $this->assertFalse($container->has(EngineInterface::class));
+        $this->assertFalse($container->has(TreeItem::class));
     }
 
     public function testWithoutDefinition(): void
