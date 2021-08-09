@@ -11,7 +11,7 @@ class EngineStorage
 {
     private EngineInterface $engines;
 
-    public function __construct(EngineInterface $engines)
+    public function __construct(EngineInterface ...$engines)
     {
         $this->engines = $engines;
     }
