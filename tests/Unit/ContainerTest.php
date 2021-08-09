@@ -33,7 +33,9 @@ use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirst;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFour;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecond;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorThree;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Definition\DynamicReference;
@@ -116,7 +118,18 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->has(EngineStorage::class));
     }
 
-    public function testHasPhp8(): void
+    public function dataHasPhp8(): array
+    {
+        return [
+            [UnionTypeInConstructorFirst::class],
+            [UnionTypeInConstructorThree::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataHasPhp8
+     */
+    public function testHasPhp8(string $class): void
     {
         if (PHP_VERSION_ID < 80000) {
             $this->markTestSkipped();
@@ -124,7 +137,7 @@ class ContainerTest extends TestCase
 
         $container = new Container();
 
-        $this->assertTrue($container->has(UnionTypeInConstructorFirst::class));
+        $this->assertTrue($container->has($class));
     }
 
     public function testHasExistedClassButNotResolvable(): void
@@ -139,7 +152,18 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->has(TreeItem::class));
     }
 
-    public function testHasExistedClassButNotResolvablePhp8(): void
+    public function dataHasExistedClassButNotResolvablePhp8(): array
+    {
+        return [
+            [UnionTypeInConstructorSecond::class],
+            [UnionTypeInConstructorFour::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataHasExistedClassButNotResolvablePhp8
+     */
+    public function testHasExistedClassButNotResolvablePhp8(string $class): void
     {
         if (PHP_VERSION_ID < 80000) {
             $this->markTestSkipped();
@@ -147,7 +171,7 @@ class ContainerTest extends TestCase
 
         $container = new Container();
 
-        $this->assertFalse($container->has(UnionTypeInConstructorSecond::class));
+        $this->assertFalse($container->has($class));
     }
 
     public function testWithoutDefinition(): void
