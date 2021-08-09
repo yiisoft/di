@@ -161,7 +161,8 @@ final class Container implements ContainerInterface
                 break;
             }
 
-            if ($type === null || $type->isBuiltin()) {
+            /** @var ReflectionNamedType|null $type */
+            if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
                 $isResolvable = false;
                 break;
             }
