@@ -104,11 +104,16 @@ final class Container implements ContainerInterface
             return isset($this->tags[$tag]);
         }
 
-        return $this->isResolvable($id);
+        try {
+            return $this->isResolvable($id);
+        } catch (CircularReferenceException $e) {
+            return false;
+        }
     }
 
     /**
     * @param string $id class name, interface name or alias name
+    * @throws CircularReferenceException
     */
     private function isResolvable($id): bool
     {
@@ -116,8 +121,16 @@ final class Container implements ContainerInterface
             return true;
         }
 
-        if (!class_exists($id) || isset($this->building[$id])) {
+        if (!class_exists($id)) {
             return false;
+        }
+
+        if (isset($this->building['class_exists'][$id])) {
+            throw new CircularReferenceException(sprintf(
+                'Circular reference to "%s" detected while building: %s.',
+                $id,
+                implode(',', array_keys($this->building['class_exists']))
+            ));
         }
 
         try {
@@ -137,12 +150,13 @@ final class Container implements ContainerInterface
         }
 
         $isResolvable = true;
-        $this->building[$id] = 1;
+        $this->building['class_exists'][$id] = 1;
 
         foreach ($constructor->getParameters() as $parameter) {
             $type = $parameter->getType();
 
             if ($parameter->isVariadic() || $parameter->isOptional()) {
+
                 break;
             }
 
@@ -185,7 +199,7 @@ final class Container implements ContainerInterface
         if ($isResolvable) {
             $this->definitions[$id] = $id;
         }
-        unset($this->building[$id]);
+        unset($this->building['class_exists'][$id]);
 
         return $isResolvable;
     }
@@ -434,7 +448,7 @@ final class Container implements ContainerInterface
      */
     private function buildPrimitive(string $class)
     {
-        if (class_exists($class)) {
+        if ($this->isResolvable($class)) {
             $definition = ArrayDefinition::fromPreparedData($class);
             /** @psalm-suppress RedundantPropertyInitializationCheck */
             $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
