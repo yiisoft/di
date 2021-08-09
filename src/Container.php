@@ -227,6 +227,9 @@ final class Container implements ContainerInterface
                 }
 
                 $isResolvable = $isUnionTypeResolvable;
+                if (!$isResolvable) {
+                    break;
+                }
                 continue;
             }
 
