@@ -194,7 +194,7 @@ final class Container implements ContainerInterface
             $type = $parameter->getType();
 
             if ($parameter->isVariadic() || $parameter->isOptional()) {
-                continue;
+                break;
             }
 
             /**
