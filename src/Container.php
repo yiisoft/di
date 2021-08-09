@@ -112,10 +112,47 @@ final class Container implements ContainerInterface
     }
 
     /**
-    * @param string $id class name, interface name or alias name
-    *
-    * @throws CircularReferenceException
-    */
+     * Returns an instance by either interface name or alias.
+     *
+     * Same instance of the class will be returned each time this method is called.
+     *
+     * @param string $id The interface or an alias name that was previously registered.
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     *
+     * @return mixed|object An instance of the requested interface.
+     *
+     * @psalm-template T
+     * @psalm-param string|class-string<T> $id
+     * @psalm-return ($id is class-string ? T : mixed)
+     */
+    public function get($id)
+    {
+        if ($id === StateResetter::class && !isset($this->definitions[$id])) {
+            $resetters = [];
+            foreach ($this->resetters as $serviceId => $callback) {
+                if (isset($this->instances[$serviceId])) {
+                    $resetters[] = $callback->bindTo($this->instances[$serviceId], get_class($this->instances[$serviceId]));
+                }
+            }
+            return new StateResetter($resetters, $this);
+        }
+
+        if (!array_key_exists($id, $this->instances)) {
+            $this->instances[$id] = $this->build($id);
+        }
+
+        return $this->instances[$id];
+    }
+
+    /**
+     * @param string $id class name, interface name or alias name
+     *
+     * @throws CircularReferenceException
+     */
     private function isResolvable($id): bool
     {
         if (isset($this->definitions[$id]) || $id === StateResetter::class) {
@@ -212,43 +249,6 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * Returns an instance by either interface name or alias.
-     *
-     * Same instance of the class will be returned each time this method is called.
-     *
-     * @param string $id The interface or an alias name that was previously registered.
-     *
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundException
-     * @throws NotInstantiableException
-     *
-     * @return mixed|object An instance of the requested interface.
-     *
-     * @psalm-template T
-     * @psalm-param string|class-string<T> $id
-     * @psalm-return ($id is class-string ? T : mixed)
-     */
-    public function get($id)
-    {
-        if ($id === StateResetter::class && !isset($this->definitions[$id])) {
-            $resetters = [];
-            foreach ($this->resetters as $serviceId => $callback) {
-                if (isset($this->instances[$serviceId])) {
-                    $resetters[] = $callback->bindTo($this->instances[$serviceId], get_class($this->instances[$serviceId]));
-                }
-            }
-            return new StateResetter($resetters, $this);
-        }
-
-        if (!array_key_exists($id, $this->instances)) {
-            $this->instances[$id] = $this->build($id);
-        }
-
-        return $this->instances[$id];
-    }
-
-    /**
      * Sets a definition to the container. Definition may be defined multiple ways.
      *
      * @param string $id
@@ -258,7 +258,7 @@ final class Container implements ContainerInterface
      *
      * @see `DefinitionNormalizer::normalize()`
      */
-    protected function set(string $id, $definition): void
+    private function set(string $id, $definition): void
     {
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
@@ -287,7 +287,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    protected function setMultiple(array $config): void
+    private function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
@@ -296,6 +296,8 @@ final class Container implements ContainerInterface
             $this->set($id, $definition);
         }
     }
+
+
 
     private function setDefaultDefinitions(): void
     {
