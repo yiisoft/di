@@ -313,7 +313,9 @@ final class Container implements ContainerInterface
     private function validateDefinition($definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            [$class, $constructorArguments, $methodsAndProperties] = $definition;
+            $class = $definition['class'];
+            $constructorArguments = $definition['__construct()'];
+            $methodsAndProperties = $definition['methodsAndProperties'];
             $definition = array_merge(
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],

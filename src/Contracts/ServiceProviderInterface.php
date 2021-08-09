@@ -38,7 +38,6 @@ interface ServiceProviderInterface
      *
      * - Should only return definitions for the Container preventing any side effects.
      * - Should be idempotent.
-     * - May be called multiple times with either different container objects or with the same object.
      *
      * @return array Definitions for the container. Each array key is the name of the service (usually it is
      * an interface name), and a corresponding value is a service definition.
