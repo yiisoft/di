@@ -106,9 +106,9 @@ final class DefinitionParser
         }
         return [
             [
-                $class,
-                $constructorArguments,
-                $methodsAndProperties,
+                'class' => $class,
+                '__construct()' => $constructorArguments,
+                'methodsAndProperties' => $methodsAndProperties,
                 self::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
             ],
             $meta,
