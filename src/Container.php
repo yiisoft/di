@@ -449,6 +449,7 @@ final class Container implements ContainerInterface
     private function buildPrimitive(string $class)
     {
         if ($this->isResolvable($class)) {
+            /** @psalm-suppress ArgumentTypeCoercion */
             $definition = ArrayDefinition::fromPreparedData($class);
             /** @psalm-suppress RedundantPropertyInitializationCheck */
             $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
