@@ -33,7 +33,6 @@ use Yiisoft\Di\Tests\Support\TreeItem;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Definition\Reference;
-use Yiisoft\Factory\Definition\ValueDefinition;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Exception\NotFoundException;
@@ -355,12 +354,12 @@ class ContainerTest extends TestCase
     public function testKeepClosureDefinition(): void
     {
         $engine = new EngineMarkOne();
-        $closure = fn (EngineInterface $engine) => $engine;
+        $closure = static fn (EngineInterface $engine) => $engine;
 
         $container = new Container(
             [
                 EngineInterface::class => $engine,
-                'closure' => new ValueDefinition($closure),
+                'closure' => DynamicReference::to($closure),
                 'engine' => $closure,
             ]
         );

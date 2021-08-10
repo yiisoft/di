@@ -49,9 +49,9 @@ final class DefinitionParserTest extends TestCase
         [$definition, $meta] = DefinitionParser::parse($definition);
 
         $this->assertSame([
-            EngineMarkOne::class,
-            [42],
-            [],
+            'class' => EngineMarkOne::class,
+            '__construct()' => [42],
+            'methodsAndProperties' => [],
             DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA => true,
         ], $definition);
         $this->assertSame(['tags' => ['one', 'two'], 'lazy' => true], $meta);
