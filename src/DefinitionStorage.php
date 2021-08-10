@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Closure;
-use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
 use ReflectionUnionType;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Definition\DefinitionValidator;
 use Yiisoft\Factory\Exception\CircularReferenceException;
-use Yiisoft\Factory\Exception\InvalidConfigException;
-use Yiisoft\Factory\Exception\NotFoundException;
-use Yiisoft\Factory\Exception\NotInstantiableException;
 
 final class DefinitionStorage
 {

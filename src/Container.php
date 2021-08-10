@@ -6,10 +6,6 @@ namespace Yiisoft\Di;
 
 use Closure;
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
-use ReflectionException;
-use ReflectionNamedType;
-use ReflectionUnionType;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Factory\Definition\ArrayDefinition;
 use Yiisoft\Factory\Definition\DefinitionValidator;
@@ -20,7 +16,6 @@ use Yiisoft\Factory\Exception\NotInstantiableException;
 
 use function array_key_exists;
 use function array_keys;
-use function class_exists;
 use function get_class;
 use function implode;
 use function in_array;
