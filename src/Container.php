@@ -100,6 +100,10 @@ final class Container implements ContainerInterface
      */
     public function has($id): bool
     {
+        if (!is_string($id)) {
+            return false;
+        }
+
         if ($this->isTagAlias($id)) {
             $tag = substr($id, 4);
             return isset($this->tags[$tag]);
@@ -132,6 +136,10 @@ final class Container implements ContainerInterface
      */
     public function get($id)
     {
+        if (!is_string($id)) {
+            throw new RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
+        }
+
         if ($id === StateResetter::class && !isset($this->definitions[$id])) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
@@ -154,7 +162,7 @@ final class Container implements ContainerInterface
      *
      * @throws CircularReferenceException
      */
-    private function isResolvable($id): bool
+    private function isResolvable(string $id): bool
     {
         if (isset($this->definitions[$id]) || $id === StateResetter::class) {
             return true;
@@ -202,7 +210,6 @@ final class Container implements ContainerInterface
              * @var ReflectionNamedType|ReflectionUnionType|null $type
              * @psalm-suppress RedundantConditionGivenDocblockType
              * @psalm-suppress UndefinedClass
-             *
              */
             if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
                 $isResolvable = false;
@@ -302,8 +309,6 @@ final class Container implements ContainerInterface
             $this->set($id, $definition);
         }
     }
-
-
 
     private function setDefaultDefinitions(): void
     {

@@ -22,6 +22,10 @@ final class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
+        if (!is_string($id)) {
+            throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
+        }
+
         if ($id === StateResetter::class) {
             $resetters = [];
             foreach ($this->containers as $container) {
@@ -92,5 +96,17 @@ final class CompositeContainer implements ContainerInterface
     private function isTagAlias(string $id): bool
     {
         return strpos($id, 'tag@') === 0;
+    }
+
+    /**
+     * @param mixed $variable
+     */
+    private function getVariableType($variable): string
+    {
+        if (is_object($variable)) {
+            return get_class($variable);
+        }
+
+        return gettype($variable);
     }
 }
