@@ -146,22 +146,25 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testDelegateLookupDependenciesModularContainer(): void
     {
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container([
+        $rootContainer = new Container([
             EngineInterface::class => EngineMarkOne::class,
             SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
             ContainerInterface::class => $compositeContainer,
         ]);
-        $compositeContainer->attach($firstContainer);
+        $compositeContainer->attach($rootContainer);
+        $container = $rootContainer->get(ContainerInterface::class);
 
-        $secondContainer = new Container([
+        $this->assertSame($container, $compositeContainer);
+
+        $moduleContainer = new Container([
             Garage::class => Garage::class,
             EngineInterface::class => EngineMarkTwo::class,
             ContainerInterface::class => $compositeContainer,
         ]);
 
-        $compositeContainer->attach($secondContainer);
+        $compositeContainer->attach($moduleContainer);
 
-        $garage = $secondContainer->get(Garage::class);
+        $garage = $moduleContainer->get(Garage::class);
 
         $this->assertInstanceOf(Garage::class, $garage);
         $this->assertInstanceOf(EngineMarkTwo::class, $garage->getCar()->getEngine());

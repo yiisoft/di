@@ -83,6 +83,8 @@ final class Container implements ContainerInterface
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
+        $this->dependencyResolver = new DependencyResolver($this);
+        $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
     }
 
     /**
@@ -349,8 +351,6 @@ final class Container implements ContainerInterface
     {
         if ($this->definitions->hasDefinition($id)) {
             $definition = DefinitionNormalizer::normalize($this->definitions->getDefinition($id), $id);
-            /** @psalm-suppress RedundantPropertyInitializationCheck */
-            $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
             return $definition->resolve($this->dependencyResolver);
         }
