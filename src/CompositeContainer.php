@@ -22,6 +22,7 @@ final class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
+        /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
             throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
         }

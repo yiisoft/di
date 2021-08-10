@@ -100,6 +100,7 @@ final class Container implements ContainerInterface
      */
     public function has($id): bool
     {
+        /** @psalm-suppress  DocblockTypeContradiction */
         if (!is_string($id)) {
             return false;
         }
@@ -136,8 +137,9 @@ final class Container implements ContainerInterface
      */
     public function get($id)
     {
+        /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
+            throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
         }
 
         if ($id === StateResetter::class && !isset($this->definitions[$id])) {
