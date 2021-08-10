@@ -46,6 +46,7 @@ final class Container implements ContainerInterface
      * to detect circular references
      */
     private array $building = [];
+    private array $resolvableBuilding = [];
 
     /**
      * @var bool $validate Validate definitions when set
@@ -163,11 +164,11 @@ final class Container implements ContainerInterface
             return false;
         }
 
-        if (isset($this->building['class_exists'][$id])) {
+        if (isset($this->resolvableBuilding[$id])) {
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s.',
                 $id,
-                implode(',', array_keys($this->building['class_exists']))
+                implode(', ', array_keys($this->resolvableBuilding))
             ));
         }
 
@@ -188,7 +189,7 @@ final class Container implements ContainerInterface
         }
 
         $isResolvable = true;
-        $this->building['class_exists'][$id] = 1;
+        $this->resolvableBuilding[$id] = 1;
 
         foreach ($constructor->getParameters() as $parameter) {
             $type = $parameter->getType();
@@ -248,7 +249,7 @@ final class Container implements ContainerInterface
         if ($isResolvable) {
             $this->definitions[$id] = $id;
         }
-        unset($this->building['class_exists'][$id]);
+        unset($this->resolvableBuilding[$id]);
 
         return $isResolvable;
     }
