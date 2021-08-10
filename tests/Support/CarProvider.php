@@ -24,6 +24,10 @@ class CarProvider implements ServiceProviderInterface
                 $car->setColor(new ColorPink());
                 return $car;
             },
+            'sport_car' => static function (ContainerInterface $container, SportCar $car) {
+                $car->setColor(new ColorPink());
+                return $car;
+            },
         ];
     }
 }

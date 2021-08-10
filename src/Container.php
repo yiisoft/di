@@ -38,9 +38,9 @@ final class Container implements ContainerInterface
     private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
 
     /**
-     * @var array object definitions indexed by their types
+     * @var DefinitionStorage storage of object definitions
      */
-    private array $definitions = [];
+    private DefinitionStorage $definitions;
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -84,6 +84,7 @@ final class Container implements ContainerInterface
     ) {
         $this->tags = $tags;
         $this->validate = $validate;
+        $this->definitions = new DefinitionStorage();
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
@@ -111,7 +112,7 @@ final class Container implements ContainerInterface
         }
 
         try {
-            return $this->isResolvable($id);
+            return $this->definitions->hasDefinition($id);
         } catch (CircularReferenceException $e) {
             return false;
         }
@@ -142,7 +143,7 @@ final class Container implements ContainerInterface
             throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
         }
 
-        if ($id === StateResetter::class && !isset($this->definitions[$id])) {
+        if ($id === StateResetter::class && $this->definitions->getDefinition($id) === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
@@ -157,110 +158,6 @@ final class Container implements ContainerInterface
         }
 
         return $this->instances[$id];
-    }
-
-    /**
-     * @param string $id class name, interface name or alias name
-     *
-     * @throws CircularReferenceException
-     */
-    private function isResolvable(string $id): bool
-    {
-        if (isset($this->definitions[$id]) || $id === StateResetter::class) {
-            return true;
-        }
-
-        if (!class_exists($id)) {
-            return false;
-        }
-
-        if (isset($this->resolvableBuilding[$id])) {
-            throw new CircularReferenceException(sprintf(
-                'Circular reference to "%s" detected while building: %s.',
-                $id,
-                implode(', ', array_keys($this->resolvableBuilding))
-            ));
-        }
-
-        try {
-            $reflectionClass = new ReflectionClass($id);
-        } catch (ReflectionException $e) {
-            return false;
-        }
-
-        if (!$reflectionClass->isInstantiable()) {
-            return false;
-        }
-
-        $constructor = $reflectionClass->getConstructor();
-
-        if ($constructor === null) {
-            return true;
-        }
-
-        $isResolvable = true;
-        $this->resolvableBuilding[$id] = 1;
-
-        foreach ($constructor->getParameters() as $parameter) {
-            $type = $parameter->getType();
-
-            if ($parameter->isVariadic() || $parameter->isOptional()) {
-                break;
-            }
-
-            /**
-             * @var ReflectionNamedType|ReflectionUnionType|null $type
-             * @psalm-suppress RedundantConditionGivenDocblockType
-             * @psalm-suppress UndefinedClass
-             */
-            if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
-                $isResolvable = false;
-                break;
-            }
-
-            // PHP 8 union type is used as type hint
-            /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
-            if ($type instanceof ReflectionUnionType) {
-                $isUnionTypeResolvable = false;
-                /** @var ReflectionNamedType $unionType */
-                foreach ($type->getTypes() as $unionType) {
-                    if (!$unionType->isBuiltin()) {
-                        $typeName = $unionType->getName();
-                        if ($typeName === 'self') {
-                            continue;
-                        }
-                        if ($this->isResolvable($typeName)) {
-                            $isUnionTypeResolvable = true;
-                            break;
-                        }
-                    }
-                }
-
-                $isResolvable = $isUnionTypeResolvable;
-                if (!$isResolvable) {
-                    break;
-                }
-                continue;
-            }
-
-            /** @var ReflectionNamedType|null $type */
-            // Our parameter has a class type hint
-            if ($type !== null && !$type->isBuiltin()) {
-                $typeName = $type->getName();
-
-                if ($typeName === 'self' || !$this->isResolvable($typeName)) {
-                    $isResolvable = false;
-                    break;
-                }
-            }
-        }
-
-        if ($isResolvable) {
-            $this->definitions[$id] = $id;
-        }
-        unset($this->resolvableBuilding[$id]);
-
-        return $isResolvable;
     }
 
     /**
@@ -292,7 +189,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
-        $this->definitions[$id] = $definition;
+        $this->definitions->setDefinition($id, $definition);
     }
 
     /**
@@ -314,7 +211,10 @@ final class Container implements ContainerInterface
 
     private function setDefaultDefinitions(): void
     {
-        $this->set(ContainerInterface::class, $this);
+        $this->setMultiple([
+            ContainerInterface::class => $this,
+            StateResetter::class => StateResetter::class,
+        ]);
     }
 
     /**
@@ -410,7 +310,7 @@ final class Container implements ContainerInterface
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s.',
                 $id,
-                implode(',', array_keys($this->building))
+                implode(', ', array_keys($this->building))
             ));
         }
 
@@ -452,36 +352,15 @@ final class Container implements ContainerInterface
      */
     private function buildInternal(string $id)
     {
-        if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id);
-        }
-        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
-
-        return $definition->resolve($this->dependencyResolver);
-    }
-
-    /**
-     * @param string $class
-     *
-     * @throws InvalidConfigException
-     * @throws NotFoundException
-     *
-     * @return mixed|object
-     */
-    private function buildPrimitive(string $class)
-    {
-        if ($this->isResolvable($class)) {
-            /** @psalm-suppress ArgumentTypeCoercion */
-            $definition = ArrayDefinition::fromPreparedData($class);
+        if ($this->definitions->hasDefinition($id)) {
+            $definition = DefinitionNormalizer::normalize($this->definitions->getDefinition($id), $id);
             /** @psalm-suppress RedundantPropertyInitializationCheck */
             $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
 
             return $definition->resolve($this->dependencyResolver);
         }
 
-        throw new NotFoundException($class);
+        throw new NotFoundException($id);
     }
 
     private function addProviders(array $providers): void
@@ -495,15 +374,17 @@ final class Container implements ContainerInterface
 
         foreach ($extensions as $providerExtensions) {
             foreach ($providerExtensions as $id => $extension) {
-                if (!isset($this->definitions[$id])) {
+                if (!$this->definitions->hasDefinition($id)) {
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }
 
-                if (!$this->definitions[$id] instanceof ExtensibleService) {
-                    $this->definitions[$id] = new ExtensibleService($this->definitions[$id]);
+                $definition = $this->definitions->getDefinition($id);
+                if (!$definition instanceof ExtensibleService) {
+                    $definition = new ExtensibleService($definition);
+                    $this->definitions->setDefinition($id, $definition);
                 }
 
-                $this->definitions[$id]->addExtension($extension);
+                $definition->addExtension($extension);
             }
         }
     }

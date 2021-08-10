@@ -39,6 +39,7 @@ class ServiceProviderTest extends TestCase
         $container = new Container([
             Car::class => Car::class,
             EngineInterface::class => EngineMarkOne::class,
+            'sport_car' => SportCar::class,
         ], [$provider]);
 
         $this->assertTrue($container->has(Car::class));
@@ -67,6 +68,7 @@ class ServiceProviderTest extends TestCase
 
         $container = new Container([
             Car::class => Car::class,
+            'sport_car' => SportCar::class,
         ], [$provider]);
 
         // ensure addProvider invoked ServiceProviderInterface::register
@@ -90,6 +92,7 @@ class ServiceProviderTest extends TestCase
     {
         $container = new Container([
             Car::class => Car::class,
+            'sport_car' => SportCar::class,
         ], [CarProvider::class, CarExtensionProvider::class]);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
