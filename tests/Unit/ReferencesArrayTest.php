@@ -15,14 +15,14 @@ class ReferencesArrayTest extends TestCase
 {
     public function testReferencesArray()
     {
-        $ids = ['first', 'second'];
+        $ids = ['key1' => 'first', 'key2' => 'second'];
 
         $references = ReferencesArray::from($ids);
 
-        $this->assertInstanceOf(Reference::class, $references[0]);
-        $this->assertSame('first', $references[0]->getId());
-        $this->assertInstanceOf(Reference::class, $references[1]);
-        $this->assertSame('second', $references[1]->getId());
+        $this->assertInstanceOf(Reference::class, $references['key1']);
+        $this->assertSame('first', $references['key1']->getId());
+        $this->assertInstanceOf(Reference::class, $references['key2']);
+        $this->assertSame('second', $references['key2']->getId());
     }
 
     public function testReferencesArrayFail()
@@ -35,12 +35,12 @@ class ReferencesArrayTest extends TestCase
 
     public function testDynamicReferencesArray()
     {
-        $ids = ['first', 'second'];
+        $ids = ['key1' => 'first', 'key2' => 'second'];
 
         $references = DynamicReferencesArray::from($ids);
 
-        $this->assertInstanceOf(DynamicReference::class, $references[0]);
-        $this->assertInstanceOf(DynamicReference::class, $references[1]);
+        $this->assertInstanceOf(DynamicReference::class, $references['key1']);
+        $this->assertInstanceOf(DynamicReference::class, $references['key2']);
     }
 
     public function testDynamicReferencesArrayFail()

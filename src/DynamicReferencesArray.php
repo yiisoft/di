@@ -18,11 +18,11 @@ final class DynamicReferencesArray
     {
         $references = [];
 
-        foreach ($ids as $id) {
+        foreach ($ids as $key => $id) {
             if (!is_string($id)) {
                 throw new InvalidConfigException('Values of an array must be string alias or class name.');
             }
-            $references[] = DynamicReference::to($id);
+            $references[$key] = DynamicReference::to($id);
         }
 
         return $references;
