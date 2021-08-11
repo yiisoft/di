@@ -58,6 +58,7 @@ final class Container implements ContainerInterface
     private array $resetters = [];
     /** @psalm-suppress PropertyNotSetInConstructor */
     private DependencyResolver $dependencyResolver;
+    private ContainerInterface $originalContainer;
 
     /**
      * Container constructor.
@@ -85,6 +86,7 @@ final class Container implements ContainerInterface
         $this->addProviders($providers);
         $this->dependencyResolver = new DependencyResolver($this);
         $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
+        $this->definitions->setDelegateContainer($this->get(ContainerInterface::class));
     }
 
     /**
@@ -111,7 +113,7 @@ final class Container implements ContainerInterface
         try {
             return $this->definitions->hasDefinition($id);
         } catch (CircularReferenceException $e) {
-            return false;
+            return true;
         }
     }
 
@@ -208,6 +210,8 @@ final class Container implements ContainerInterface
 
     private function setDefaultDefinitions(): void
     {
+        $this->originalContainer = new CompositeContainer();
+        $this->originalContainer->attach($this);
         $this->setMultiple([
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,

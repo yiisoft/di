@@ -89,6 +89,14 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b);
     }
 
+    public function testNullableClassDependency()
+    {
+        $container = new Container();
+
+        $this->expectException(NotFoundException::class);
+        $result = $container->get(NullableConcreteDependency::class);
+    }
+
     public function testOptionalCircularClassDependency(): void
     {
         $container = new Container(
@@ -116,6 +124,8 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
         $this->assertTrue($container->has(EngineStorage::class));
+        $this->assertTrue($container->has(Chicken::class));
+        $this->assertTrue($container->has(TreeItem::class));
     }
 
     public function dataHasPhp8(): array
@@ -149,7 +159,6 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->has(SportCar::class));
         $this->assertFalse($container->has(NullableConcreteDependency::class));
         $this->assertFalse($container->has(ColorInterface::class));
-        $this->assertFalse($container->has(TreeItem::class));
     }
 
     public function dataHasExistedClassButNotResolvablePhp8(): array

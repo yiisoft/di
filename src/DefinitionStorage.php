@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
@@ -14,10 +15,16 @@ final class DefinitionStorage
 {
     private array $definitions = [];
     private array $building = [];
+    private ContainerInterface $delegateContainer;
 
     public function __construct(array $definitions = [])
     {
         $this->definitions = $definitions;
+    }
+
+    public function setDelegateContainer(ContainerInterface $delegateContainer)
+    {
+        $this->delegateContainer = $delegateContainer;
     }
 
     /**
@@ -110,7 +117,15 @@ final class DefinitionStorage
             if ($type !== null && !$type->isBuiltin()) {
                 $typeName = $type->getName();
 
-                if ($typeName === 'self' || !$this->hasDefinition($typeName)) {
+                if ($typeName === 'self') {
+                    throw new CircularReferenceException(sprintf(
+                        'Circular reference to "%s" detected while building: %s.',
+                        $id,
+                        implode(', ', array_keys($this->building))
+                    ));
+                }
+
+                if (!($this->hasDefinition($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName): false))) {
                     $isResolvable = false;
                     break;
                 }
@@ -120,6 +135,7 @@ final class DefinitionStorage
         if ($isResolvable) {
             $this->definitions[$id] = $id;
         }
+
         unset($this->building[$id]);
 
         return $isResolvable;
