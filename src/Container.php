@@ -41,7 +41,6 @@ final class Container implements ContainerInterface
      * to detect circular references
      */
     private array $building = [];
-    private array $resolvableBuilding = [];
 
     /**
      * @var bool $validate Validate definitions when set
@@ -58,7 +57,6 @@ final class Container implements ContainerInterface
     private array $resetters = [];
     /** @psalm-suppress PropertyNotSetInConstructor */
     private DependencyResolver $dependencyResolver;
-    private ContainerInterface $originalContainer;
 
     /**
      * Container constructor.
@@ -139,7 +137,7 @@ final class Container implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
+            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
         if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
@@ -210,8 +208,6 @@ final class Container implements ContainerInterface
 
     private function setDefaultDefinitions(): void
     {
-        $this->originalContainer = new CompositeContainer();
-        $this->originalContainer->attach($this);
         $this->setMultiple([
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,
@@ -449,10 +445,6 @@ final class Container implements ContainerInterface
      */
     private function getVariableType($variable): string
     {
-        if (is_object($variable)) {
-            return get_class($variable);
-        }
-
-        return gettype($variable);
+        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }

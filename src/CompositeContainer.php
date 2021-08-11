@@ -24,7 +24,7 @@ final class CompositeContainer implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
+            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
         if ($id === StateResetter::class) {
@@ -104,10 +104,6 @@ final class CompositeContainer implements ContainerInterface
      */
     private function getVariableType($variable): string
     {
-        if (is_object($variable)) {
-            return get_class($variable);
-        }
-
-        return gettype($variable);
+        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }
