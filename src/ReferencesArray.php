@@ -14,7 +14,7 @@ final class ReferencesArray
      * @return array
      * @throws InvalidConfigException
      */
-    static function from(array $ids)
+    public static function from(array $ids)
     {
         $references = [];
 
