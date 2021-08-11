@@ -11,10 +11,15 @@ use ReflectionNamedType;
 use ReflectionUnionType;
 use Yiisoft\Factory\Exception\CircularReferenceException;
 
+/**
+ * Stores service definitions and checks if a definition could be instantiated.
+ * @internal
+ */
 final class DefinitionStorage
 {
-    private array $definitions = [];
+    private array $definitions;
     private array $building = [];
+    /** @psalm-suppress  PropertyNotSetInConstructor */
     private ContainerInterface $delegateContainer;
 
     public function __construct(array $definitions = [])
@@ -22,7 +27,7 @@ final class DefinitionStorage
         $this->definitions = $definitions;
     }
 
-    public function setDelegateContainer(ContainerInterface $delegateContainer)
+    public function setDelegateContainer(ContainerInterface $delegateContainer): void
     {
         $this->delegateContainer = $delegateContainer;
     }
@@ -32,7 +37,7 @@ final class DefinitionStorage
      *
      * @throws CircularReferenceException
      */
-    public function hasDefinition(string $id): bool
+    public function has(string $id): bool
     {
         if (isset($this->definitions[$id])) {
             return true;
@@ -98,7 +103,7 @@ final class DefinitionStorage
                         if ($typeName === 'self') {
                             continue;
                         }
-                        if ($this->hasDefinition($typeName)) {
+                        if ($this->has($typeName)) {
                             $isUnionTypeResolvable = true;
                             break;
                         }
@@ -125,7 +130,8 @@ final class DefinitionStorage
                     ));
                 }
 
-                if (!($this->hasDefinition($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName): false))) {
+                /** @psalm-suppress RedundantPropertyInitializationCheck */
+                if (!($this->has($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName): false))) {
                     $isResolvable = false;
                     break;
                 }
@@ -144,7 +150,7 @@ final class DefinitionStorage
     /**
     * @return mixed|object
     */
-    public function getDefinition(string $id)
+    public function get(string $id)
     {
         return $this->definitions[$id];
     }
@@ -152,7 +158,7 @@ final class DefinitionStorage
     /**
      * @param mixed|object $definition
      */
-    public function setDefinition(string $id, $definition): void
+    public function set(string $id, $definition): void
     {
         $this->definitions[$id] = $definition;
     }

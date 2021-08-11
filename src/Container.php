@@ -111,7 +111,7 @@ final class Container implements ContainerInterface
         }
 
         try {
-            return $this->definitions->hasDefinition($id);
+            return $this->definitions->has($id);
         } catch (CircularReferenceException $e) {
             return true;
         }
@@ -142,7 +142,7 @@ final class Container implements ContainerInterface
             throw new \RuntimeException("Id must be string, {$this->getVariableType($id)} given.");
         }
 
-        if ($id === StateResetter::class && $this->definitions->getDefinition($id) === StateResetter::class) {
+        if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
@@ -188,7 +188,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
-        $this->definitions->setDefinition($id, $definition);
+        $this->definitions->set($id, $definition);
     }
 
     /**
@@ -353,8 +353,8 @@ final class Container implements ContainerInterface
      */
     private function buildInternal(string $id)
     {
-        if ($this->definitions->hasDefinition($id)) {
-            $definition = DefinitionNormalizer::normalize($this->definitions->getDefinition($id), $id);
+        if ($this->definitions->has($id)) {
+            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
 
             return $definition->resolve($this->dependencyResolver);
         }
@@ -373,14 +373,14 @@ final class Container implements ContainerInterface
 
         foreach ($extensions as $providerExtensions) {
             foreach ($providerExtensions as $id => $extension) {
-                if (!$this->definitions->hasDefinition($id)) {
+                if (!$this->definitions->has($id)) {
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }
 
-                $definition = $this->definitions->getDefinition($id);
+                $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition);
-                    $this->definitions->setDefinition($id, $definition);
+                    $this->definitions->set($id, $definition);
                 }
 
                 $definition->addExtension($extension);
