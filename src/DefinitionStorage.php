@@ -13,6 +13,7 @@ use Yiisoft\Factory\Exception\CircularReferenceException;
 
 /**
  * Stores service definitions and checks if a definition could be instantiated.
+ *
  * @internal
  */
 final class DefinitionStorage
@@ -152,6 +153,9 @@ final class DefinitionStorage
     */
     public function get(string $id)
     {
+        if (!isset($this->definitions[$id])) {
+            throw new \RuntimeException("Service $id doesn't exist in DefinitionStorage.");
+        }
         return $this->definitions[$id];
     }
 
