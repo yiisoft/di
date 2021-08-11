@@ -9,14 +9,14 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class EngineStorage
 {
-    private EngineInterface $engines;
+    private array $engines;
 
     public function __construct(EngineInterface ...$engines)
     {
         $this->engines = $engines;
     }
 
-    public function getEngines(): EngineInterface
+    public function getEngines(): array
     {
         return $this->engines;
     }

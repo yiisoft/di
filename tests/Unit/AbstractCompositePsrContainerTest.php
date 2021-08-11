@@ -146,13 +146,13 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testDelegateLookupDependenciesModularContainer(): void
     {
         $compositeContainer = new CompositeContainer();
-        $rootContainer = new Container([
+        $applicationContainer = new Container([
             EngineInterface::class => EngineMarkOne::class,
             SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
             ContainerInterface::class => $compositeContainer,
         ]);
-        $compositeContainer->attach($rootContainer);
-        $container = $rootContainer->get(ContainerInterface::class);
+        $compositeContainer->attach($applicationContainer);
+        $container = $applicationContainer->get(ContainerInterface::class);
 
         $this->assertSame($container, $compositeContainer);
 

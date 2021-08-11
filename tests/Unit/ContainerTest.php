@@ -128,7 +128,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->has(TreeItem::class));
     }
 
-    public function dataHasPhp8(): array
+    public function dataUnionTypes(): array
     {
         return [
             [UnionTypeInConstructorFirst::class],
@@ -137,12 +137,12 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * @dataProvider dataHasPhp8
+     * @dataProvider dataUnionTypes
      */
-    public function testHasPhp8(string $class): void
+    public function testUnionTypes(string $class): void
     {
         if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped();
+            $this->markTestSkipped('Union types are not supported before PHP 8');
         }
 
         $container = new Container();
@@ -150,7 +150,7 @@ class ContainerTest extends TestCase
         $this->assertTrue($container->has($class));
     }
 
-    public function testHasExistedClassButNotResolvable(): void
+    public function testClassExistsButIsNotResolvable(): void
     {
         $container = new Container();
 
@@ -161,7 +161,7 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->has(ColorInterface::class));
     }
 
-    public function dataHasExistedClassButNotResolvablePhp8(): array
+    public function dataClassExistButIsNotResolvableWithUnionTypes(): array
     {
         return [
             [UnionTypeInConstructorSecond::class],
@@ -170,12 +170,12 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * @dataProvider dataHasExistedClassButNotResolvablePhp8
+     * @dataProvider dataClassExistButIsNotResolvableWithUnionTypes
      */
-    public function testHasExistedClassButNotResolvablePhp8(string $class): void
+    public function testClassExistButIsNotResolvableWithUnionTypes(string $class): void
     {
         if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped();
+            $this->markTestSkipped('Union types are not supported before PHP 8');
         }
 
         $container = new Container();
