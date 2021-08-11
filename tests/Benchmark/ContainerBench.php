@@ -12,6 +12,7 @@ use PhpBench\Benchmark\Metadata\Annotations\Revs;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
@@ -39,12 +40,18 @@ class ContainerBench
     {
         return [
             ['serviceClass' => PropertyTestClass::class],
-            ['serviceClass' => NullableConcreteDependency::class, 'otherDefinitions' => [Car::class => Car::class]],
             [
                 'serviceClass' => NullableConcreteDependency::class,
                 'otherDefinitions' => [
+                    EngineInterface::class => EngineMarkOne::class,
+                    Car::class => Car::class,
                     EngineMarkOne::class => EngineMarkOne::class,
-                    EngineMarkTwo::class => EngineMarkTwo::class,
+                ],
+            ],
+            [
+                'serviceClass' => NullableConcreteDependency::class,
+                'otherDefinitions' => [
+                    EngineInterface::class => EngineMarkTwo::class,
                 ],
             ],
         ];
@@ -101,21 +108,17 @@ class ContainerBench
     public function benchSequentialLookups($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
+        }
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
         $container = new Container($definitions);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
-            try {
-                $container->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $container->get("service$index");
         }
     }
 
@@ -126,21 +129,17 @@ class ContainerBench
     public function benchRandomLookups($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
+        }
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
         $container = new Container($definitions);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
-            try {
-                $container->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $container->get("service$index");
         }
     }
 
@@ -151,22 +150,18 @@ class ContainerBench
     public function benchRandomLookupsComposite($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
+        }
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
         $container = new Container($definitions);
         $this->composite->attach($container);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
-            try {
-                $this->composite->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $this->composite->get("service$index");
         }
     }
 }
