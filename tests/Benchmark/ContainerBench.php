@@ -46,7 +46,7 @@ class ContainerBench
                     EngineInterface::class => EngineMarkOne::class,
                     Car::class => Car::class,
                     EngineMarkOne::class => EngineMarkOne::class,
-                ]
+                ],
             ],
             [
                 'serviceClass' => NullableConcreteDependency::class,
