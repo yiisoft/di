@@ -7,6 +7,8 @@ namespace Yiisoft\Di;
 use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
+use function is_string;
+
 final class DynamicReferencesArray
 {
     /**
@@ -53,8 +55,8 @@ final class DynamicReferencesArray
      * ],
      * ```
      *
-     * @param array $ids
-     * @return array
+     * @param string[] $ids
+     * @return DynamicReference[]
      * @throws InvalidConfigException
      */
     public static function from(array $ids)

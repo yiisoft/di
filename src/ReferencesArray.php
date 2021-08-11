@@ -7,6 +7,8 @@ namespace Yiisoft\Di;
 use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
+use function is_string;
+
 final class ReferencesArray
 {
     /**
@@ -53,8 +55,8 @@ final class ReferencesArray
      * ],
      * ```
      *
-     * @param array $ids
-     * @return array
+     * @param string[] $ids
+     * @return Reference[]
      * @throws InvalidConfigException
      */
     public static function from(array $ids)
