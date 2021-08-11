@@ -56,8 +56,10 @@ final class ReferencesArray
      * ```
      *
      * @param string[] $ids
-     * @return Reference[]
+     *
      * @throws InvalidConfigException
+     *
+     * @return Reference[]
      */
     public static function from(array $ids)
     {

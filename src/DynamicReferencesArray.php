@@ -56,8 +56,10 @@ final class DynamicReferencesArray
      * ```
      *
      * @param string[] $ids
-     * @return DynamicReference[]
+     *
      * @throws InvalidConfigException
+     *
+     * @return DynamicReference[]
      */
     public static function from(array $ids)
     {
