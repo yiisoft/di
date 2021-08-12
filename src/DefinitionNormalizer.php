@@ -23,7 +23,9 @@ final class DefinitionNormalizer
     public static function normalize($definition, string $id = null): DefinitionInterface
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            [$class, $constructorArguments, $methodsAndProperties] = $definition;
+            $class = $definition['class'];
+            $constructorArguments = $definition['__construct()'];
+            $methodsAndProperties = $definition['methodsAndProperties'];
 
             $class = $class ?? $id;
             if ($class === null) {
