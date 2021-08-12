@@ -20,9 +20,7 @@ class ReferencesArrayTest extends TestCase
         $references = ReferencesArray::from($ids);
 
         $this->assertInstanceOf(Reference::class, $references['key1']);
-        $this->assertSame('first', $references['key1']->getId());
         $this->assertInstanceOf(Reference::class, $references['key2']);
-        $this->assertSame('second', $references['key2']->getId());
     }
 
     public function testReferencesArrayFail()
