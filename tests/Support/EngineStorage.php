@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-/**
- * EngineMarkOne
- */
-class EngineStorage
+final class EngineStorage
 {
     private array $engines;
 

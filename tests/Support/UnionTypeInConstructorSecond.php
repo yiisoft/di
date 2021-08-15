@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-class UnionTypeInConstructorSecond
+final class UnionTypeInConstructorSecond
 {
     private EngineInterface|ColorInterface $param;
 

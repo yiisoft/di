@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-class UnionTypeInConstructorFirst
+final class UnionTypeInConstructorFirst
 {
     private EngineInterface|EngineMarkOne $engine;
 
