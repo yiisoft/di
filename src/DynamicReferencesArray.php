@@ -69,6 +69,7 @@ final class DynamicReferencesArray
      * @throws InvalidConfigException
      *
      * @return DynamicReference[]
+     * @psalm-suppress DocblockTypeContradiction
      */
     public static function from(array $ids)
     {
