@@ -9,37 +9,18 @@ use Yiisoft\Factory\Exception\InvalidConfigException;
 
 use function is_string;
 
+/**
+ * Allows creating an array of references from key-reference pairs.
+ *
+ * @see Reference
+ */
 final class ReferencesArray
 {
     /**
-     *  A usage example
+     * Create references array from name-reference pairs.
      *
-     * ```php
-     * //params.php
-     * return [
-     *      'yiisoft/data-response' => [
-     *          'contentFormatters' => [
-     *              'text/html' => HtmlDataResponseFormatter::class,
-     *              'application/xml' => XmlDataResponseFormatter::class,
-     *              'application/json' => JsonDataResponseFormatter::class,
-     *          ],
-     *      ],
-     * ];
-     * ```
-     *
-     * This definition
-     *
-     * ```php
-     * //web.php
-     *
-     * ContentNegotiator::class => [
-     *     '__construct()' => [
-     *         'contentFormatters' => ReferencesArray::from($params['yiisoft/data-response']['contentFormatters']),
-     *     ],
-     * ],
-     * ```
-     *
-     * equals to
+     * For example if we want to define a set of named references, usually
+     * it is done as:
      *
      * ```php
      * //web.php
@@ -54,8 +35,35 @@ final class ReferencesArray
      *     ],
      * ],
      * ```
+     * That is not very convenient so we can define formatters in a separate config and without explicitly using
+     * `Reference::to()` for each formatter:
      *
-     * @param string[] $ids
+     * ```php
+     * //params.php
+     * return [
+     *      'yiisoft/data-response' => [
+     *          'contentFormatters' => [
+     *              'text/html' => HtmlDataResponseFormatter::class,
+     *              'application/xml' => XmlDataResponseFormatter::class,
+     *              'application/json' => JsonDataResponseFormatter::class,
+     *          ],
+     *      ],
+     * ];
+     * ```
+     *
+     * Then we can use it like the following:
+     *
+     * ```php
+     * //web.php
+     *
+     * ContentNegotiator::class => [
+     *     '__construct()' => [
+     *         'contentFormatters' => ReferencesArray::from($params['yiisoft/data-response']['contentFormatters']),
+     *     ],
+     * ],
+     * ```
+     *
+     * @param string[] $ids Name-reference pairs.
      *
      * @throws InvalidConfigException
      *
