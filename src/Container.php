@@ -150,7 +150,7 @@ final class Container implements ContainerInterface
      *
      * @see `DefinitionNormalizer::normalize()`
      */
-    protected function set(string $id, $definition): void
+    private function set(string $id, $definition): void
     {
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
@@ -179,7 +179,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    protected function setMultiple(array $config): void
+    private function setMultiple(array $config): void
     {
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
