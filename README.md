@@ -56,16 +56,16 @@ The configuration can be stored in a `.php` file that returns an array:
 ```php
 return [
     EngineInterface::class => EngineMarkOne::class,
-    'full_definition' => [
+    FullDefinitionObject::class => [
         'class' => EngineMarkOne::class,
         '__construct()' => [42], 
         '$propertyName' => 'value',
         'setX()' => [42],
     ],
-    'closure' => fn (SomeFactory $factory) => $factory->create('args'),
-    'static_call_preferred' => fn () => MyFactory::create('args'),
-    'static_call_supported' => [MyFactory::class, 'create'],
-    'object' => new MyClass(),
+    ClosureObject::class => fn (SomeFactory $factory) => $factory->create('args'),
+    StaticCallPrefferedObject::class => fn () => MyFactory::create('args'),
+    StaticCallSupportedObject::class => [MyFactory::class, 'create'],
+    CustomObject::class => new MyClass(),
 ];
 ```
 
