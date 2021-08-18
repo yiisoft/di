@@ -32,10 +32,10 @@ use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirst;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFour;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecond;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorThree;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Definition\DynamicReference;
@@ -131,8 +131,8 @@ class ContainerTest extends TestCase
     public function dataUnionTypes(): array
     {
         return [
-            [UnionTypeInConstructorFirst::class],
-            [UnionTypeInConstructorThree::class],
+            [UnionTypeInConstructorSecondTypeInParamResolvable::class],
+            [UnionTypeInConstructorFirstTypeInParamResolvable::class],
         ];
     }
 
@@ -164,8 +164,8 @@ class ContainerTest extends TestCase
     public function dataClassExistButIsNotResolvableWithUnionTypes(): array
     {
         return [
-            [UnionTypeInConstructorSecond::class],
-            [UnionTypeInConstructorFour::class],
+            [UnionTypeInConstructorParamNotResolvable::class],
+            [UnionTypeInConstructorSecondParamNotResolvable::class],
         ];
     }
 
