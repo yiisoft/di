@@ -9,6 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\EngineInterface;
@@ -118,6 +119,27 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $car = $compositeContainer->get(Car::class);
 
         $this->assertInstanceOf(Car::class, $car);
+    }
+
+    public function testDelegateLookupUnionTypes(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Union types are not supported before PHP 8');
+        }
+
+        $compositeContainer = new CompositeContainer();
+        $firstContainer = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+        ]);
+
+        $secondContainer = new Container([]);
+
+        $compositeContainer->attach($firstContainer);
+        $compositeContainer->attach($secondContainer);
+
+        $car = $compositeContainer->get(UnionTypeInConstructorParamNotResolvable::class);
+
+        $this->assertInstanceOf(UnionTypeInConstructorParamNotResolvable::class, $car);
     }
 
     public function testDelegateLookupDependencies(): void
