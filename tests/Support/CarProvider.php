@@ -7,7 +7,7 @@ namespace Yiisoft\Di\Tests\Support;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
 
-class CarProvider implements ServiceProviderInterface
+final class CarProvider implements ServiceProviderInterface
 {
     public function getDefinitions(): array
     {
@@ -21,6 +21,10 @@ class CarProvider implements ServiceProviderInterface
     {
         return [
             Car::class => static function (ContainerInterface $container, Car $car) {
+                $car->setColor(new ColorPink());
+                return $car;
+            },
+            'sport_car' => static function (ContainerInterface $container, SportCar $car) {
                 $car->setColor(new ColorPink());
                 return $car;
             },

@@ -26,11 +26,18 @@ use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\EngineStorage;
 use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
+use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
+use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Factory\Definition\DynamicReference;
 use Yiisoft\Factory\Definition\Reference;
 use Yiisoft\Factory\Exception\CircularReferenceException;
@@ -82,6 +89,14 @@ class ContainerTest extends TestCase
         $this->assertNull($a->b);
     }
 
+    public function testNullableClassDependency()
+    {
+        $container = new Container();
+
+        $this->expectException(NotFoundException::class);
+        $result = $container->get(NullableConcreteDependency::class);
+    }
+
     public function testOptionalCircularClassDependency(): void
     {
         $container = new Container(
@@ -104,9 +119,68 @@ class ContainerTest extends TestCase
         );
 
         $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has(ColorInterface::class));
+        $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineMarkOne::class));
         $this->assertTrue($container->has(EngineInterface::class));
+        $this->assertTrue($container->has(EngineStorage::class));
+        $this->assertTrue($container->has(Chicken::class));
+        $this->assertTrue($container->has(TreeItem::class));
+    }
+
+    public function dataUnionTypes(): array
+    {
+        return [
+            [UnionTypeInConstructorSecondTypeInParamResolvable::class],
+            [UnionTypeInConstructorFirstTypeInParamResolvable::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataUnionTypes
+     */
+    public function testUnionTypes(string $class): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Union types are not supported before PHP 8');
+        }
+
+        $container = new Container();
+
+        $this->assertTrue($container->has($class));
+    }
+
+    public function testClassExistsButIsNotResolvable(): void
+    {
+        $container = new Container();
+
+        $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has(Car::class));
+        $this->assertFalse($container->has(SportCar::class));
+        $this->assertFalse($container->has(NullableConcreteDependency::class));
         $this->assertFalse($container->has(ColorInterface::class));
+    }
+
+    public function dataClassExistButIsNotResolvableWithUnionTypes(): array
+    {
+        return [
+            [UnionTypeInConstructorParamNotResolvable::class],
+            [UnionTypeInConstructorSecondParamNotResolvable::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataClassExistButIsNotResolvableWithUnionTypes
+     */
+    public function testClassExistButIsNotResolvableWithUnionTypes(string $class): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Union types are not supported before PHP 8');
+        }
+
+        $container = new Container();
+
+        $this->assertFalse($container->has($class));
     }
 
     public function testWithoutDefinition(): void

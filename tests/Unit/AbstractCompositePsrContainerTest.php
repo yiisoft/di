@@ -9,6 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\EngineInterface;
@@ -120,6 +121,27 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $this->assertInstanceOf(Car::class, $car);
     }
 
+    public function testDelegateLookupUnionTypes(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Union types are not supported before PHP 8');
+        }
+
+        $compositeContainer = new CompositeContainer();
+        $firstContainer = new Container([
+            EngineInterface::class => EngineMarkOne::class,
+        ]);
+
+        $secondContainer = new Container([]);
+
+        $compositeContainer->attach($firstContainer);
+        $compositeContainer->attach($secondContainer);
+
+        $car = $compositeContainer->get(UnionTypeInConstructorParamNotResolvable::class);
+
+        $this->assertInstanceOf(UnionTypeInConstructorParamNotResolvable::class, $car);
+    }
+
     public function testDelegateLookupDependencies(): void
     {
         $compositeContainer = new CompositeContainer();
@@ -146,22 +168,25 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testDelegateLookupDependenciesModularContainer(): void
     {
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container([
+        $applicationContainer = new Container([
             EngineInterface::class => EngineMarkOne::class,
             SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
             ContainerInterface::class => $compositeContainer,
         ]);
-        $compositeContainer->attach($firstContainer);
+        $compositeContainer->attach($applicationContainer);
+        $container = $applicationContainer->get(ContainerInterface::class);
 
-        $secondContainer = new Container([
+        $this->assertSame($container, $compositeContainer);
+
+        $moduleContainer = new Container([
             Garage::class => Garage::class,
             EngineInterface::class => EngineMarkTwo::class,
             ContainerInterface::class => $compositeContainer,
         ]);
 
-        $compositeContainer->attach($secondContainer);
+        $compositeContainer->attach($moduleContainer);
 
-        $garage = $secondContainer->get(Garage::class);
+        $garage = $moduleContainer->get(Garage::class);
 
         $this->assertInstanceOf(Garage::class, $garage);
         $this->assertInstanceOf(EngineMarkTwo::class, $garage->getCar()->getEngine());

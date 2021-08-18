@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-class VariadicConstructor
+final class VariadicConstructor
 {
     private $first;
     private EngineInterface $engine;

@@ -22,6 +22,11 @@ final class CompositeContainer implements ContainerInterface
 
     public function get($id)
     {
+        /** @psalm-suppress TypeDoesNotContainType */
+        if (!is_string($id)) {
+            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+        }
+
         if ($id === StateResetter::class) {
             $resetters = [];
             foreach ($this->containers as $container) {
@@ -48,14 +53,11 @@ final class CompositeContainer implements ContainerInterface
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
-                try {
-                    return $container->get($id);
-                } catch (\Throwable $e) {
-                    $firstError ??= $e;
-                }
+                return $container->get($id);
             }
         }
-        throw $firstError ?? new NotFoundException($id);
+
+        throw new NotFoundException($id);
     }
 
     public function has($id): bool
@@ -95,5 +97,13 @@ final class CompositeContainer implements ContainerInterface
     private function isTagAlias(string $id): bool
     {
         return strpos($id, 'tag@') === 0;
+    }
+
+    /**
+     * @param mixed $variable
+     */
+    private function getVariableType($variable): string
+    {
+        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }

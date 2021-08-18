@@ -16,7 +16,6 @@ use Yiisoft\Factory\Exception\NotInstantiableException;
 
 use function array_key_exists;
 use function array_keys;
-use function class_exists;
 use function get_class;
 use function implode;
 use function in_array;
@@ -34,9 +33,9 @@ final class Container implements ContainerInterface
     private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
 
     /**
-     * @var array object definitions indexed by their types
+     * @var DefinitionStorage storage of object definitions
      */
-    private array $definitions = [];
+    private DefinitionStorage $definitions;
     /**
      * @var array used to collect ids instantiated during build
      * to detect circular references
@@ -79,9 +78,13 @@ final class Container implements ContainerInterface
     ) {
         $this->tags = $tags;
         $this->validate = $validate;
+        $this->definitions = new DefinitionStorage();
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
+        $this->dependencyResolver = new DependencyResolver($this);
+        $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
+        $this->definitions->setDelegateContainer($this->get(ContainerInterface::class));
     }
 
     /**
@@ -95,12 +98,21 @@ final class Container implements ContainerInterface
      */
     public function has($id): bool
     {
+        /** @psalm-suppress  DocblockTypeContradiction */
+        if (!is_string($id)) {
+            return false;
+        }
+
         if ($this->isTagAlias($id)) {
             $tag = substr($id, 4);
             return isset($this->tags[$tag]);
         }
 
-        return isset($this->definitions[$id]) || class_exists($id);
+        try {
+            return $this->definitions->has($id);
+        } catch (CircularReferenceException $e) {
+            return true;
+        }
     }
 
     /**
@@ -123,7 +135,12 @@ final class Container implements ContainerInterface
      */
     public function get($id)
     {
-        if ($id === StateResetter::class && !isset($this->definitions[$id])) {
+        /** @psalm-suppress TypeDoesNotContainType */
+        if (!is_string($id)) {
+            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+        }
+
+        if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
@@ -169,7 +186,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
-        $this->definitions[$id] = $definition;
+        $this->definitions->set($id, $definition);
     }
 
     /**
@@ -191,7 +208,10 @@ final class Container implements ContainerInterface
 
     private function setDefaultDefinitions(): void
     {
-        $this->set(ContainerInterface::class, $this);
+        $this->setMultiple([
+            ContainerInterface::class => $this,
+            StateResetter::class => StateResetter::class,
+        ]);
     }
 
     /**
@@ -287,7 +307,7 @@ final class Container implements ContainerInterface
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s.',
                 $id,
-                implode(',', array_keys($this->building))
+                implode(', ', array_keys($this->building))
             ));
         }
 
@@ -329,35 +349,13 @@ final class Container implements ContainerInterface
      */
     private function buildInternal(string $id)
     {
-        if (!isset($this->definitions[$id])) {
-            return $this->buildPrimitive($id);
-        }
-        $definition = DefinitionNormalizer::normalize($this->definitions[$id], $id);
-        /** @psalm-suppress RedundantPropertyInitializationCheck */
-        $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
-
-        return $definition->resolve($this->dependencyResolver);
-    }
-
-    /**
-     * @param string $class
-     *
-     * @throws InvalidConfigException
-     * @throws NotFoundException
-     *
-     * @return mixed|object
-     */
-    private function buildPrimitive(string $class)
-    {
-        if (class_exists($class)) {
-            $definition = ArrayDefinition::fromPreparedData($class);
-            /** @psalm-suppress RedundantPropertyInitializationCheck */
-            $this->dependencyResolver ??= new DependencyResolver($this->get(ContainerInterface::class));
+        if ($this->definitions->has($id)) {
+            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
 
             return $definition->resolve($this->dependencyResolver);
         }
 
-        throw new NotFoundException($class);
+        throw new NotFoundException($id);
     }
 
     private function addProviders(array $providers): void
@@ -371,15 +369,17 @@ final class Container implements ContainerInterface
 
         foreach ($extensions as $providerExtensions) {
             foreach ($providerExtensions as $id => $extension) {
-                if (!isset($this->definitions[$id])) {
+                if (!$this->definitions->has($id)) {
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }
 
-                if (!$this->definitions[$id] instanceof ExtensibleService) {
-                    $this->definitions[$id] = new ExtensibleService($this->definitions[$id]);
+                $definition = $this->definitions->get($id);
+                if (!$definition instanceof ExtensibleService) {
+                    $definition = new ExtensibleService($definition);
+                    $this->definitions->set($id, $definition);
                 }
 
-                $this->definitions[$id]->addExtension($extension);
+                $definition->addExtension($extension);
             }
         }
     }
@@ -445,10 +445,6 @@ final class Container implements ContainerInterface
      */
     private function getVariableType($variable): string
     {
-        if (is_object($variable)) {
-            return get_class($variable);
-        }
-
-        return gettype($variable);
+        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }
