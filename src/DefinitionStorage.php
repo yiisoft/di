@@ -34,6 +34,8 @@ final class DefinitionStorage
     }
 
     /**
+     * Checks if there is a definition with ID specified and that it can be created.
+     *
      * @param string $id class name, interface name or alias name
      *
      * @throws CircularReferenceException
@@ -161,8 +163,10 @@ final class DefinitionStorage
     }
 
     /**
-    * @return mixed|object
-    */
+     * Get a definition with a given ID.
+     *
+     * @return mixed|object Definition with a given ID.
+     */
     public function get(string $id)
     {
         if (!isset($this->definitions[$id])) {
@@ -172,7 +176,10 @@ final class DefinitionStorage
     }
 
     /**
-     * @param mixed|object $definition
+     * Set a definition.
+     *
+     * @param string $id ID to set definition for.
+     * @param mixed|object $definition Definition to set.
      */
     public function set(string $id, $definition): void
     {
