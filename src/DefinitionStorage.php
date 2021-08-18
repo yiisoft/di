@@ -115,8 +115,7 @@ final class DefinitionStorage
 
 
                 if (!$isUnionTypeResolvable) {
-                    foreach ($unionTypes as $typeName)
-                    {
+                    foreach ($unionTypes as $typeName) {
                         if ($this->delegateContainer->has($typeName)) {
                             $isUnionTypeResolvable = true;
                             break;
