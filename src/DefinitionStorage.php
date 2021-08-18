@@ -97,6 +97,7 @@ final class DefinitionStorage
             /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
             if ($type instanceof ReflectionUnionType) {
                 $isUnionTypeResolvable = false;
+                $unionTypes = [];
                 /** @var ReflectionNamedType $unionType */
                 foreach ($type->getTypes() as $unionType) {
                     if (!$unionType->isBuiltin()) {
@@ -104,6 +105,7 @@ final class DefinitionStorage
                         if ($typeName === 'self') {
                             continue;
                         }
+                        $unionTypes[] = $typeName;
                         if ($this->has($typeName)) {
                             $isUnionTypeResolvable = true;
                             break;
@@ -111,9 +113,20 @@ final class DefinitionStorage
                     }
                 }
 
-                $isResolvable = $isUnionTypeResolvable;
-                if (!$isResolvable) {
-                    break;
+
+                if (!$isUnionTypeResolvable) {
+                    foreach ($unionTypes as $typeName)
+                    {
+                        if ($this->delegateContainer->has($typeName)) {
+                            $isUnionTypeResolvable = true;
+                            break;
+                        }
+                    }
+
+                    $isResolvable = $isUnionTypeResolvable;
+                    if (!$isResolvable) {
+                        break;
+                    }
                 }
                 continue;
             }
