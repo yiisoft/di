@@ -78,86 +78,88 @@ final class DefinitionStorage
         $isResolvable = true;
         $this->building[$id] = 1;
 
-        foreach ($constructor->getParameters() as $parameter) {
-            $type = $parameter->getType();
+        try {
+            foreach ($constructor->getParameters() as $parameter) {
+                $type = $parameter->getType();
 
-            if ($parameter->isVariadic() || $parameter->isOptional()) {
-                break;
-            }
-
-            /**
-             * @var ReflectionNamedType|ReflectionUnionType|null $type
-             * @psalm-suppress RedundantConditionGivenDocblockType
-             * @psalm-suppress UndefinedClass
-             */
-            if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
-                $isResolvable = false;
-                break;
-            }
-
-            // PHP 8 union type is used as type hint
-            /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
-            if ($type instanceof ReflectionUnionType) {
-                $isUnionTypeResolvable = false;
-                $unionTypes = [];
-                /** @var ReflectionNamedType $unionType */
-                foreach ($type->getTypes() as $unionType) {
-                    if (!$unionType->isBuiltin()) {
-                        $typeName = $unionType->getName();
-                        if ($typeName === 'self') {
-                            continue;
-                        }
-                        $unionTypes[] = $typeName;
-                        if ($this->has($typeName)) {
-                            $isUnionTypeResolvable = true;
-                            break;
-                        }
-                    }
+                if ($parameter->isVariadic() || $parameter->isOptional()) {
+                    break;
                 }
 
-
-                if (!$isUnionTypeResolvable) {
-                    foreach ($unionTypes as $typeName) {
-                        if ($this->delegateContainer->has($typeName)) {
-                            $isUnionTypeResolvable = true;
-                            break;
-                        }
-                    }
-
-                    $isResolvable = $isUnionTypeResolvable;
-                    if (!$isResolvable) {
-                        break;
-                    }
-                }
-                continue;
-            }
-
-            /** @var ReflectionNamedType|null $type */
-            // Our parameter has a class type hint
-            if ($type !== null && !$type->isBuiltin()) {
-                $typeName = $type->getName();
-
-                if ($typeName === 'self') {
-                    throw new CircularReferenceException(sprintf(
-                        'Circular reference to "%s" detected while building: %s.',
-                        $id,
-                        implode(', ', array_keys($this->building))
-                    ));
-                }
-
-                /** @psalm-suppress RedundantPropertyInitializationCheck */
-                if (!($this->has($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName) : false))) {
+                /**
+                 * @var ReflectionNamedType|ReflectionUnionType|null $type
+                 * @psalm-suppress RedundantConditionGivenDocblockType
+                 * @psalm-suppress UndefinedClass
+                 */
+                if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
                     $isResolvable = false;
                     break;
                 }
+
+                // PHP 8 union type is used as type hint
+                /** @psalm-suppress UndefinedClass, TypeDoesNotContainType */
+                if ($type instanceof ReflectionUnionType) {
+                    $isUnionTypeResolvable = false;
+                    $unionTypes = [];
+                    /** @var ReflectionNamedType $unionType */
+                    foreach ($type->getTypes() as $unionType) {
+                        if (!$unionType->isBuiltin()) {
+                            $typeName = $unionType->getName();
+                            if ($typeName === 'self') {
+                                continue;
+                            }
+                            $unionTypes[] = $typeName;
+                            if ($this->has($typeName)) {
+                                $isUnionTypeResolvable = true;
+                                break;
+                            }
+                        }
+                    }
+
+
+                    if (!$isUnionTypeResolvable) {
+                        foreach ($unionTypes as $typeName) {
+                            if ($this->delegateContainer->has($typeName)) {
+                                $isUnionTypeResolvable = true;
+                                break;
+                            }
+                        }
+
+                        $isResolvable = $isUnionTypeResolvable;
+                        if (!$isResolvable) {
+                            break;
+                        }
+                    }
+                    continue;
+                }
+
+                /** @var ReflectionNamedType|null $type */
+                // Our parameter has a class type hint
+                if ($type !== null && !$type->isBuiltin()) {
+                    $typeName = $type->getName();
+
+                    if ($typeName === 'self') {
+                        throw new CircularReferenceException(sprintf(
+                            'Circular reference to "%s" detected while building: %s.',
+                            $id,
+                            implode(', ', array_keys($this->building))
+                        ));
+                    }
+
+                    /** @psalm-suppress RedundantPropertyInitializationCheck */
+                    if (!($this->has($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName) : false))) {
+                        $isResolvable = false;
+                        break;
+                    }
+                }
             }
+        } finally {
+            unset($this->building[$id]);
         }
 
         if ($isResolvable) {
             $this->definitions[$id] = $id;
         }
-
-        unset($this->building[$id]);
 
         return $isResolvable;
     }
