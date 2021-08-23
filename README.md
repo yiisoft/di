@@ -315,6 +315,24 @@ while ($request = $psr7->acceptRequest()) {
 }
 ```
 
+In case you use Yii DI composite container with a third party container that does not support state reset natively,
+state resetter could be configured separately. The following example is PHP-DI:
+
+```php
+MyServiceInterface::class => function () {
+    // ...
+},
+StateResetter::class => function () {
+    $resetter = new StateResetter();
+    $resetter->setResetters([
+        MyServiceInterface::class => function () {
+            $this->reset(); // a method of MyServiceInterface
+        },
+    ]);
+    return $resetter;
+}
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
