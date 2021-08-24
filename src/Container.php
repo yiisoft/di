@@ -52,6 +52,8 @@ final class Container implements ContainerInterface
      */
     private array $instances = [];
 
+    private CompositeContainer $delegates;
+
     private array $tags;
 
     private array $resetters = [];
@@ -84,7 +86,7 @@ final class Container implements ContainerInterface
         $this->addProviders($providers);
         $this->dependencyResolver = new DependencyResolver($this);
         $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
-        $this->definitions->setDelegateContainer($this->get(ContainerInterface::class));
+        $this->setDelegates();
     }
 
     /**
@@ -140,18 +142,26 @@ final class Container implements ContainerInterface
             throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
+        if (!array_key_exists($id, $this->instances)) {
+            try {
+                $this->instances[$id] = $this->build($id);
+            } catch (NotFoundException $e) {
+                if (!$this->delegates->has($id)) {
+                    throw $e;
+                }
+
+                return $this->delegates->get($id);
+            }
+        }
+
         if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
-                    $resetters[] = $callback->bindTo($this->instances[$serviceId], get_class($this->instances[$serviceId]));
+                    $resetters[$serviceId] = $callback;
                 }
             }
-            return new StateResetter($resetters, $this);
-        }
-
-        if (!array_key_exists($id, $this->instances)) {
-            $this->instances[$id] = $this->build($id);
+            $this->instances[$id]->setResetters($resetters);
         }
 
         return $this->instances[$id];
@@ -211,7 +221,16 @@ final class Container implements ContainerInterface
         $this->setMultiple([
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,
+            'core.di.delegates' => new CompositeContainer(),
         ]);
+    }
+
+    private function setDelegates(): void
+    {
+        $this->delegates = $this->get('core.di.delegates');
+        $this->definitions->set('core.di.delegates', null);
+        unset($this->instances['core.di.delegates']);
+        $this->definitions->setDelegateContainer($this->delegates);
     }
 
     /**
@@ -355,7 +374,7 @@ final class Container implements ContainerInterface
             return $definition->resolve($this->dependencyResolver);
         }
 
-        throw new NotFoundException($id);
+        throw new NotFoundException($id, $this->definitions->getLastBuilding());
     }
 
     private function addProviders(array $providers): void
@@ -380,6 +399,8 @@ final class Container implements ContainerInterface
                 }
 
                 $definition->addExtension($extension);
+
+
             }
         }
     }

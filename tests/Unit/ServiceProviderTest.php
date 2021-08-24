@@ -5,14 +5,19 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
 use Yiisoft\Di\Tests\Support\ColorRed;
+use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\Garage;
+use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Factory\Exception\InvalidConfigException;
 
 /**
@@ -96,5 +101,18 @@ class ServiceProviderTest extends TestCase
         ], [CarProvider::class, CarExtensionProvider::class]);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+    }
+
+    public function testDelegateLookup(): void
+    {
+        $container = new Container([
+            Garage::class => Garage::class,
+            EngineInterface::class => EngineMarkTwo::class,
+        ], [DelegateLookupProvider::class]);
+
+        $garage = $container->get(Garage::class);
+
+        $this->assertInstanceOf(Garage::class, $garage);
+        $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
     }
 }
