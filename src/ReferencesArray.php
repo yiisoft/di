@@ -28,9 +28,9 @@ final class ReferencesArray
      * ContentNegotiator::class => [
      *     '__construct()' => [
      *         'contentFormatters' => [
-     *             'text/html' => Reference::to(HtmlDataResponseFormatter())),
-     *             'application/xml' => Reference::to(XmlDataResponseFormatter()),
-     *             'application/json' => Reference::to(JsonDataResponseFormatter()),
+     *             'text/html' => Reference::to(HtmlDataResponseFormatter::class),
+     *             'application/xml' => Reference::to(XmlDataResponseFormatter::class),
+     *             'application/json' => Reference::to(JsonDataResponseFormatter::class),
      *         ],
      *     ],
      * ],

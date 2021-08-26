@@ -28,9 +28,9 @@ final class DynamicReferencesArray
      * ContentNegotiator::class => [
      *     '__construct()' => [
      *         'contentFormatters' => [
-     *             'text/html' => DynamicReference::to(HtmlDataResponseFormatter())),
-     *             'application/xml' => DynamicReference::to(XmlDataResponseFormatter()),
-     *             'application/json' => DynamicReference::to(JsonDataResponseFormatter()),
+     *             'text/html' => DynamicReference::to(HtmlDataResponseFormatter::class),
+     *             'application/xml' => DynamicReference::to(XmlDataResponseFormatter::class),
+     *             'application/json' => DynamicReference::to(JsonDataResponseFormatter::class),
      *         ],
      *     ],
      * ],
