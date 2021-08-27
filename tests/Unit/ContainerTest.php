@@ -77,20 +77,6 @@ class ContainerTest extends TestCase
         $container->get(Car::class);
     }
 
-    public function testOptionalClassDependency(): void
-    {
-        $this->markTestIncomplete('TODO: implement optional dependencies');
-        $container = new Container(
-            [
-                A::class => A::class,
-            ]
-        );
-
-        $a = $container->get(A::class);
-        // Container can not create instance of B since we have not provided a definition.
-        $this->assertNull($a->b);
-    }
-
     public function testNullableClassDependency()
     {
         $container = new Container();
