@@ -7,7 +7,7 @@ namespace Yiisoft\Di;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Yiisoft\Factory\DependencyResolverInterface;
+use Yiisoft\Definitions\Contract\DependencyResolverInterface;
 use Yiisoft\Injector\Injector;
 
 /**

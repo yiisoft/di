@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Yiisoft\Factory\Definition\DynamicReference;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\DynamicReference;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function is_string;
 

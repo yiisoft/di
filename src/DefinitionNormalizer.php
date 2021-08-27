@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Definition\DefinitionInterface;
-use Yiisoft\Factory\Definition\Normalizer;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Infrastructure\Normalizer;
+
 use function is_array;
 
 /**

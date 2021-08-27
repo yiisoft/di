@@ -7,9 +7,9 @@ namespace Yiisoft\Di\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\ReferencesArray;
 use Yiisoft\Di\DynamicReferencesArray;
-use Yiisoft\Factory\Definition\Reference;
-use Yiisoft\Factory\Definition\DynamicReference;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\DynamicReference;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Reference;
 
 class ReferencesArrayTest extends TestCase
 {

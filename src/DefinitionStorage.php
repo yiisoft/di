@@ -9,7 +9,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
 use ReflectionUnionType;
-use Yiisoft\Factory\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
 
 /**
  * Stores service definitions and checks if a definition could be instantiated.

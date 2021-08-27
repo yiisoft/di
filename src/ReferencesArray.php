@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Yiisoft\Factory\Definition\Reference;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Reference;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function is_string;
 
