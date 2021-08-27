@@ -26,7 +26,6 @@
         "ext-mbstring": "*",
         "psr/container": "^1.0",
         "yiisoft/definitions": "3.0.x-dev",
-        "yiisoft/factory": "^3.0@dev",
         "yiisoft/injector": "^1.0"
     },
     "require-dev": {
