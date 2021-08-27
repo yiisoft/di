@@ -82,6 +82,7 @@ final class DefinitionStorage
         }
 
         if (!class_exists($id)) {
+            $this->lastBuilding += array_merge($building, [$id => 1]);
             return false;
         }
 
@@ -96,10 +97,12 @@ final class DefinitionStorage
         try {
             $reflectionClass = new ReflectionClass($id);
         } catch (ReflectionException $e) {
+            $this->lastBuilding += array_merge($building, [$id => 1]);
             return false;
         }
 
         if (!$reflectionClass->isInstantiable()) {
+            $this->lastBuilding = array_merge($this->lastBuilding, [$id => 1]);
             return false;
         }
 
