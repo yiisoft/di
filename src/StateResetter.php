@@ -36,7 +36,7 @@ class StateResetter
     {
         $this->resetters = [];
         foreach ($resetters as $serviceId => $callback) {
-            if (is_integer($serviceId)) {
+            if (is_int($serviceId)) {
                 $this->resetters[] = $callback;
                 continue;
             }

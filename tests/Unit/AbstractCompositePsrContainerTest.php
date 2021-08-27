@@ -9,10 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
-use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
-use Yiisoft\Di\Tests\Support\SportCar;
-use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -132,7 +129,6 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $firstContainer = new Container([]);
 
         $secondContainer = new Container([
-
             EngineInterface::class => EngineMarkOne::class,
         ]);
 

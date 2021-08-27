@@ -22,7 +22,6 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
-use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
@@ -1277,7 +1276,7 @@ class ContainerTest extends TestCase
 
     public function testDelegateLookup(): void
     {
-        $delegate = fn() => new Container([
+        $delegate = fn () => new Container([
             EngineInterface::class => EngineMarkOne::class,
             SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
         ]);
