@@ -22,11 +22,13 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\ConstructorTestClass;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\Cycle\Egg;
+use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\EngineFactory;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\EngineStorage;
+use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
@@ -1285,5 +1287,25 @@ class ContainerTest extends TestCase
                 'dev' => 42,
             ],
         ]);
+    }
+
+    public function testDelegateLookup(): void
+    {
+        $delegate = fn() => new Container([
+            EngineInterface::class => EngineMarkOne::class,
+            SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
+        ]);
+
+        $container = new Container([
+            Garage::class => Garage::class,
+            EngineInterface::class => EngineMarkTwo::class,
+        ]);
+
+        $container->addDelegates($delegate);
+
+        $garage = $container->get(Garage::class);
+
+        $this->assertInstanceOf(Garage::class, $garage);
+        $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
     }
 }

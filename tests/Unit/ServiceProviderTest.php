@@ -102,17 +102,4 @@ class ServiceProviderTest extends TestCase
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }
-
-    public function testDelegateLookup(): void
-    {
-        $container = new Container([
-            Garage::class => Garage::class,
-            EngineInterface::class => EngineMarkTwo::class,
-        ], [DelegateLookupProvider::class]);
-
-        $garage = $container->get(Garage::class);
-
-        $this->assertInstanceOf(Garage::class, $garage);
-        $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
-    }
 }

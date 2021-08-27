@@ -52,7 +52,7 @@ final class Container implements ContainerInterface
      */
     private array $instances = [];
 
-    private CompositeContainer $delegates;
+    private ?CompositeContainer $delegates = null;
 
     private array $tags;
 
@@ -86,7 +86,9 @@ final class Container implements ContainerInterface
         $this->addProviders($providers);
         $this->dependencyResolver = new DependencyResolver($this);
         $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
-        $this->setDelegates();
+
+        $this->delegates = new CompositeContainer();
+        $this->definitions->setDelegateContainer($this->delegates);
     }
 
     /**
@@ -221,16 +223,20 @@ final class Container implements ContainerInterface
         $this->setMultiple([
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,
-            'core.di.delegates' => new CompositeContainer(),
         ]);
     }
 
-    private function setDelegates(): void
+    /**
+     * Adds one or more delegates.
+     * Delegates are callables returning container instances.
+     *
+     * @param array $delegates
+     */
+    public function addDelegates(callable ...$delegates): void
     {
-        $this->delegates = $this->get('core.di.delegates');
-        $this->definitions->set('core.di.delegates', null);
-        unset($this->instances['core.di.delegates']);
-        $this->definitions->setDelegateContainer($this->delegates);
+        foreach ($delegates as $delegate) {
+            $this->delegates->attach($delegate());
+        }
     }
 
     /**
@@ -399,8 +405,6 @@ final class Container implements ContainerInterface
                 }
 
                 $definition->addExtension($extension);
-
-
             }
         }
     }
