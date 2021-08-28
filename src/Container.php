@@ -76,7 +76,8 @@ final class Container implements ContainerInterface
         array $definitions = [],
         array $providers = [],
         array $tags = [],
-        bool $validate = true
+        bool $validate = true,
+        array $delegates = []
     ) {
         $this->tags = $tags;
         $this->validate = $validate;
@@ -86,7 +87,7 @@ final class Container implements ContainerInterface
         $this->addProviders($providers);
         $this->dependencyResolver = new DependencyResolver($this);
         $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
-        $this->setDelegates();
+        $this->setDelegates($delegates);
     }
 
     /**
@@ -161,6 +162,9 @@ final class Container implements ContainerInterface
                     $resetters[$serviceId] = $callback;
                 }
             }
+            if ($this->delegates->has(StateResetter::class)) {
+                $resetters[] = $this->delegates->get(StateResetter::class);
+            }
             $this->instances[$id]->setResetters($resetters);
         }
 
@@ -221,15 +225,34 @@ final class Container implements ContainerInterface
         $this->setMultiple([
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,
-            'core.di.delegates' => new CompositeContainer(),
         ]);
     }
 
-    private function setDelegates(): void
+    /**
+     * @param array $delegates
+     *
+     * @throws InvalidConfigException
+     */
+    private function setDelegates(array $delegates): void
     {
-        $this->delegates = $this->get('core.di.delegates');
-        $this->definitions->set('core.di.delegates', null);
-        unset($this->instances['core.di.delegates']);
+        $this->delegates = new CompositeContainer();
+        foreach ($delegates as $delegate) {
+            if (!$delegate instanceof \Closure) {
+                throw new InvalidConfigException(
+                    'Delegate must be callable in format "fn (ContainerInterface $conatiner) => MyContainer($container)"'
+                );
+            }
+
+            $delegate = $delegate($this);
+
+            if (!$delegate instanceof ContainerInterface) {
+                throw new InvalidConfigException(
+                    'Delegate callable must return an object that implements ContainerInterface'
+                );
+            }
+
+            $this->delegates->attach($delegate);
+        }
         $this->definitions->setDelegateContainer($this->delegates);
     }
 
