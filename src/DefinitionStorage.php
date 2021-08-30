@@ -19,7 +19,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 final class DefinitionStorage
 {
     private array $definitions;
-    private array $building = [];
+    private array $buildStack = [];
     /** @psalm-suppress  PropertyNotSetInConstructor */
     private ContainerInterface $delegateContainer;
 
@@ -42,29 +42,67 @@ final class DefinitionStorage
      */
     public function has(string $id): bool
     {
+        $this->buildStack = [];
+        return $this->isResolvable($id, []);
+    }
+
+    public function getBuildStack(): array
+    {
+        return $this->buildStack;
+    }
+
+    /**
+     * Get a definition with a given ID.
+     *
+     * @return mixed|object Definition with a given ID.
+     */
+    public function get(string $id)
+    {
+        if (!isset($this->definitions[$id])) {
+            throw new \RuntimeException("Service $id doesn't exist in DefinitionStorage.");
+        }
+        return $this->definitions[$id];
+    }
+
+    /**
+     * Set a definition.
+     *
+     * @param string $id ID to set definition for.
+     * @param mixed|object $definition Definition to set.
+     */
+    public function set(string $id, $definition): void
+    {
+        $this->definitions[$id] = $definition;
+    }
+
+    private function isResolvable(string $id, array $building): bool
+    {
         if (isset($this->definitions[$id])) {
             return true;
         }
 
         if (!class_exists($id)) {
+            $this->buildStack += array_merge($building, [$id => 1]);
             return false;
         }
 
-        if (isset($this->building[$id])) {
+        if (isset($building[$id])) {
             throw new CircularReferenceException(sprintf(
                 'Circular reference to "%s" detected while building: %s.',
                 $id,
-                implode(', ', array_keys($this->building))
+                implode(', ', array_keys($building))
             ));
         }
 
         try {
             $reflectionClass = new ReflectionClass($id);
         } catch (ReflectionException $e) {
+            $this->buildStack += array_merge($building, [$id => 1]);
             return false;
         }
 
         if (!$reflectionClass->isInstantiable()) {
+            $this->buildStack = array_merge($this->buildStack, [$id => 1]);
             return false;
         }
 
@@ -76,7 +114,7 @@ final class DefinitionStorage
         }
 
         $isResolvable = true;
-        $this->building[$id] = 1;
+        $building[$id] = 1;
 
         try {
             foreach ($constructor->getParameters() as $parameter) {
@@ -109,7 +147,7 @@ final class DefinitionStorage
                                 continue;
                             }
                             $unionTypes[] = $typeName;
-                            if ($this->has($typeName)) {
+                            if ($this->isResolvable($typeName, $building)) {
                                 $isUnionTypeResolvable = true;
                                 break;
                             }
@@ -142,19 +180,20 @@ final class DefinitionStorage
                         throw new CircularReferenceException(sprintf(
                             'Circular reference to "%s" detected while building: %s.',
                             $id,
-                            implode(', ', array_keys($this->building))
+                            implode(', ', array_keys($building))
                         ));
                     }
 
                     /** @psalm-suppress RedundantPropertyInitializationCheck */
-                    if (!($this->has($typeName) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName) : false))) {
+                    if (!($this->isResolvable($typeName, $building) || (isset($this->delegateContainer) ? $this->delegateContainer->has($typeName) : false))) {
                         $isResolvable = false;
                         break;
                     }
                 }
             }
         } finally {
-            unset($this->building[$id]);
+            $this->buildStack += $building;
+            unset($building[$id]);
         }
 
         if ($isResolvable) {
@@ -162,29 +201,5 @@ final class DefinitionStorage
         }
 
         return $isResolvable;
-    }
-
-    /**
-     * Get a definition with a given ID.
-     *
-     * @return mixed|object Definition with a given ID.
-     */
-    public function get(string $id)
-    {
-        if (!isset($this->definitions[$id])) {
-            throw new \RuntimeException("Service $id doesn't exist in DefinitionStorage.");
-        }
-        return $this->definitions[$id];
-    }
-
-    /**
-     * Set a definition.
-     *
-     * @param string $id ID to set definition for.
-     * @param mixed|object $definition Definition to set.
-     */
-    public function set(string $id, $definition): void
-    {
-        $this->definitions[$id] = $definition;
     }
 }

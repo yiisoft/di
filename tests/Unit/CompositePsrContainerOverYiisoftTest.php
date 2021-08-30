@@ -25,7 +25,7 @@ class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainer
     {
         $composite = $this->createContainer([
             StateResetter::class => function (ContainerInterface $container) {
-                $resetter = new StateResetter([], $container);
+                $resetter = new StateResetter($container);
                 $resetter->setResetters([
                     'engineMarkOne' => function () {
                         $this->number = 42;
