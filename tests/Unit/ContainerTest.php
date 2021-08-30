@@ -1278,9 +1278,9 @@ class ContainerTest extends TestCase
     {
         $delegate = static function (ContainerInterface $container) {
            return new Container([
-                    EngineInterface::class => EngineMarkOne::class,
-                    SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
-                ]);
+                EngineInterface::class => EngineMarkOne::class,
+                SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
+            ]);
         };
 
         $container = new Container([

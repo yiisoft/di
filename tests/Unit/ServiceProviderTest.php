@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
-use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
@@ -16,7 +14,6 @@ use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
-use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 
