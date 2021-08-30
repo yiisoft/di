@@ -1277,7 +1277,7 @@ class ContainerTest extends TestCase
     public function testDelegateLookup(): void
     {
         $delegate = static function (ContainerInterface $container) {
-           return new Container([
+             return new Container([
                 EngineInterface::class => EngineMarkOne::class,
                 SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
             ]);

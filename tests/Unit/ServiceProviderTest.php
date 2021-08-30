@@ -10,18 +10,12 @@ use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
 use Yiisoft\Di\Tests\Support\ColorRed;
-use Yiisoft\Di\Tests\Support\DelegateLookupProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 
-/**
- * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}
- *
- * @author Dmitry Kolodko <prowwid@gmail.com>
- */
 class ServiceProviderTest extends TestCase
 {
     public function testAddProviderByClassName(): void
