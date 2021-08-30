@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function count;
 use function is_array;

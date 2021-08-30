@@ -98,7 +98,7 @@ better to rely on autowiring as provided by the Injector available from the
 ## Using aliases
 
 The DI container supports aliases via the
-`Yiisoft\Factory\Definition\Reference` class. This way objects can also be
+`Yiisoft\Definitions\Reference` class. This way objects can also be
 retrieved by a more handy name:
 
 ```php

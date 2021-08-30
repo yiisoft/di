@@ -18,7 +18,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\SportCar;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}

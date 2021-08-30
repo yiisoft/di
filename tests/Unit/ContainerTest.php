@@ -39,11 +39,11 @@ use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
-use Yiisoft\Factory\Definition\DynamicReference;
-use Yiisoft\Factory\Definition\Reference;
-use Yiisoft\Factory\Exception\CircularReferenceException;
-use Yiisoft\Factory\Exception\InvalidConfigException;
-use Yiisoft\Factory\Exception\NotFoundException;
+use Yiisoft\Definitions\DynamicReference;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\NotFoundException;
+use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -74,20 +74,6 @@ class ContainerTest extends TestCase
         );
 
         $container->get(Car::class);
-    }
-
-    public function testOptionalClassDependency(): void
-    {
-        $this->markTestIncomplete('TODO: implement optional dependencies');
-        $container = new Container(
-            [
-                A::class => A::class,
-            ]
-        );
-
-        $a = $container->get(A::class);
-        // Container can not create instance of B since we have not provided a definition.
-        $this->assertNull($a->b);
     }
 
     public function testNullableClassDependency()
