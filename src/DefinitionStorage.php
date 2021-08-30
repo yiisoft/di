@@ -19,7 +19,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 final class DefinitionStorage
 {
     private array $definitions;
-    private array $lastBuilding = [];
+    private array $buildStack = [];
     /** @psalm-suppress  PropertyNotSetInConstructor */
     private ContainerInterface $delegateContainer;
 
@@ -42,13 +42,13 @@ final class DefinitionStorage
      */
     public function has(string $id): bool
     {
-        $this->lastBuilding = [];
+        $this->buildStack = [];
         return $this->isResolvable($id, []);
     }
 
-    public function getLastBuilding(): array
+    public function getBuildStack(): array
     {
-        return $this->lastBuilding;
+        return $this->buildStack;
     }
 
     /**
@@ -82,7 +82,7 @@ final class DefinitionStorage
         }
 
         if (!class_exists($id)) {
-            $this->lastBuilding += array_merge($building, [$id => 1]);
+            $this->buildStack += array_merge($building, [$id => 1]);
             return false;
         }
 
@@ -97,12 +97,12 @@ final class DefinitionStorage
         try {
             $reflectionClass = new ReflectionClass($id);
         } catch (ReflectionException $e) {
-            $this->lastBuilding += array_merge($building, [$id => 1]);
+            $this->buildStack += array_merge($building, [$id => 1]);
             return false;
         }
 
         if (!$reflectionClass->isInstantiable()) {
-            $this->lastBuilding = array_merge($this->lastBuilding, [$id => 1]);
+            $this->buildStack = array_merge($this->buildStack, [$id => 1]);
             return false;
         }
 
@@ -192,7 +192,7 @@ final class DefinitionStorage
                 }
             }
         } finally {
-            $this->lastBuilding += $building;
+            $this->buildStack += $building;
             unset($building[$id]);
         }
 

@@ -407,7 +407,7 @@ final class Container implements ContainerInterface
             return $definition->resolve($this->dependencyResolver);
         }
 
-        throw new NotFoundException($id, $this->definitions->getLastBuilding());
+        throw new NotFoundException($id, $this->definitions->getBuildStack());
     }
 
     private function addProviders(array $providers): void
@@ -432,8 +432,6 @@ final class Container implements ContainerInterface
                 }
 
                 $definition->addExtension($extension);
-
-
             }
         }
     }
