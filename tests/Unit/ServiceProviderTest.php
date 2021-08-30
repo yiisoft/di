@@ -13,7 +13,7 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 /**
  * Test for {@link Container} and {@link \Yiisoft\Di\support\ServiceProvider}

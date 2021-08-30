@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Factory\Definition\DefinitionInterface;
-use Yiisoft\Factory\Definition\Normalizer;
-use Yiisoft\Factory\DependencyResolverInterface;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
+use Yiisoft\Definitions\Contract\DependencyResolverInterface;
+use Yiisoft\Definitions\Infrastructure\Normalizer;
 
 /**
  * A wrapper for a service definition that allows registering extensions.

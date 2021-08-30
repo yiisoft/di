@@ -7,12 +7,12 @@ namespace Yiisoft\Di;
 use Closure;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Contracts\ServiceProviderInterface;
-use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Definition\DefinitionValidator;
-use Yiisoft\Factory\Exception\CircularReferenceException;
-use Yiisoft\Factory\Exception\InvalidConfigException;
-use Yiisoft\Factory\Exception\NotFoundException;
-use Yiisoft\Factory\Exception\NotInstantiableException;
+use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\NotFoundException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
+use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
 
 use function array_key_exists;
 use function array_keys;
