@@ -67,6 +67,11 @@ final class Container implements ContainerInterface
      * @param array $providers Service providers to get definitions from.
      * lookup to when resolving dependencies. If provided the current container
      * is no longer queried for dependencies.
+     * @param array $tags
+     * @param bool $validate If definitions should be validated immediately.
+     * @param array $delegates Container delegates. Each delegate must is a callable in format
+     * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
+     * in case a service can not be found in primary container.
      *
      * @throws InvalidConfigException
      *
@@ -229,6 +234,11 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * Set container delegates.
+     *
+     * Each delegate must is a callable in format "function (ContainerInterface $container): ContainerInterface".
+     * The container instance returned is used in case a service can not be found in primary container.
+     *
      * @param array $delegates
      *
      * @throws InvalidConfigException
@@ -237,9 +247,9 @@ final class Container implements ContainerInterface
     {
         $this->delegates = new CompositeContainer();
         foreach ($delegates as $delegate) {
-            if (!$delegate instanceof \Closure) {
+            if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
-                    'Delegate must be callable in format "fn (ContainerInterface $conatiner) => MyContainer($container)"'
+                    'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
                 );
             }
 
@@ -247,7 +257,7 @@ final class Container implements ContainerInterface
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
-                    'Delegate callable must return an object that implements ContainerInterface'
+                    'Delegate callable must return an object that implements ContainerInterface.'
                 );
             }
 
