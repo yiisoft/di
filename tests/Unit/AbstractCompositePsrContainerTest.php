@@ -129,7 +129,6 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $firstContainer = new Container([]);
 
         $secondContainer = new Container([
-
             EngineInterface::class => EngineMarkOne::class,
         ]);
 
