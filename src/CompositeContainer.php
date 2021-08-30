@@ -80,7 +80,7 @@ final class CompositeContainer implements ContainerInterface
      */
     public function attach(ContainerInterface $container): void
     {
-        $this->containers[] = $container;
+        array_unshift($this->containers, $container);
     }
 
     /**
