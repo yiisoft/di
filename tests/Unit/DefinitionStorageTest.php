@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
@@ -9,8 +11,7 @@ use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithInvalidSubDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructor;
 
-
-final class DefinitionStorageBuildStackTest extends TestCase
+final class DefinitionStorageTest extends TestCase
 {
     public function testExplicitDefinitionIsNotChecked(): void
     {
