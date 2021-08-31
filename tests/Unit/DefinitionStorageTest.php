@@ -23,22 +23,35 @@ final class DefinitionStorageTest extends TestCase
     public function testNonExistingService(): void
     {
         $storage = new DefinitionStorage([]);
-        $this->assertFalse($storage->has(NonExisitng::class));
-        $this->assertSame([NonExisitng::class => 1], $storage->getBuildStack());
+        $this->assertFalse($storage->has(\NonExisitng::class));
+        $this->assertSame([\NonExisitng::class => 1], $storage->getBuildStack());
     }
 
     public function testServiceWithNonExistingDependency(): void
     {
         $storage = new DefinitionStorage([]);
         $this->assertFalse($storage->has(ServiceWithNonExistingDependency::class));
-        $this->assertSame([ServiceWithNonExistingDependency::class => 1], $storage->getBuildStack());
+        $this->assertSame(
+            [
+                ServiceWithNonExistingDependency::class => 1,
+                \NonExisting::class => 1,
+            ],
+            $storage->getBuildStack()
+        );
     }
 
     public function testServiceWithInvalidSubDependency(): void
     {
         $storage = new DefinitionStorage([]);
         $this->assertFalse($storage->has(ServiceWithInvalidSubDependency::class));
-        $this->assertSame([ServiceWithInvalidSubDependency::class => 1, ServiceWithNonExistingDependency::class => 1], $storage->getBuildStack());
+        $this->assertSame(
+            [
+                ServiceWithInvalidSubDependency::class => 1,
+                ServiceWithNonExistingDependency::class => 1,
+                \NonExisting::class => 1,
+            ],
+            $storage->getBuildStack()
+        );
     }
 
     public function testServiceWithPrivateConstructor(): void
