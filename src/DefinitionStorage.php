@@ -82,7 +82,7 @@ final class DefinitionStorage
         }
 
         if (!class_exists($id)) {
-            $this->buildStack += array_merge($building, [$id => 1]);
+            $this->buildStack += $building + [$id => 1];
             return false;
         }
 
@@ -97,12 +97,12 @@ final class DefinitionStorage
         try {
             $reflectionClass = new ReflectionClass($id);
         } catch (ReflectionException $e) {
-            $this->buildStack += array_merge($building, [$id => 1]);
+            $this->buildStack += $building + [$id => 1];
             return false;
         }
 
         if (!$reflectionClass->isInstantiable()) {
-            $this->buildStack += array_merge($this->buildStack, [$id => 1]);
+            $this->buildStack += $building + [$id => 1];
             return false;
         }
 
