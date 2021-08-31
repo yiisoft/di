@@ -185,7 +185,7 @@ final class DefinitionStorage
                     }
 
                     /** @psalm-suppress RedundantPropertyInitializationCheck */
-                    if (!($this->isResolvable($typeName, $building) || ($this->delegateContainer !== null && $this->delegateContainer->has($typeName)))) {
+                    if (!$this->isResolvable($typeName, $building) && ($this->delegateContainer === null || !$this->delegateContainer->has($typeName))) {
                         $isResolvable = false;
                         break;
                     }
