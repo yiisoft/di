@@ -7,7 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\DefinitionStorage;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBultinTypeWithoutDefault;
-use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithInvalidSubDependency;
+use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingSubDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructor;
 
@@ -40,13 +40,13 @@ final class DefinitionStorageTest extends TestCase
         );
     }
 
-    public function testServiceWithInvalidSubDependency(): void
+    public function testServiceWithNonExistingSubDependency(): void
     {
         $storage = new DefinitionStorage([]);
-        $this->assertFalse($storage->has(ServiceWithInvalidSubDependency::class));
+        $this->assertFalse($storage->has(ServiceWithNonExistingSubDependency::class));
         $this->assertSame(
             [
-                ServiceWithInvalidSubDependency::class => 1,
+                ServiceWithNonExistingSubDependency::class => 1,
                 ServiceWithNonExistingDependency::class => 1,
                 \NonExisting::class => 1,
             ],
