@@ -10,6 +10,7 @@ use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBuiltinTypeWithoutDefa
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingSubDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructor;
+use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructorSubDependency;
 
 final class DefinitionStorageTest extends TestCase
 {
@@ -59,6 +60,19 @@ final class DefinitionStorageTest extends TestCase
         $storage = new DefinitionStorage([]);
         $this->assertFalse($storage->has(ServiceWithPrivateConstructor::class));
         $this->assertSame([ServiceWithPrivateConstructor::class => 1], $storage->getBuildStack());
+    }
+
+    public function testServiceWithPrivateConstructorSubDependency(): void
+    {
+        $storage = new DefinitionStorage([]);
+        $this->assertFalse($storage->has(ServiceWithPrivateConstructorSubDependency::class));
+        $this->assertSame(
+            [
+                ServiceWithPrivateConstructorSubDependency::class => 1,
+                ServiceWithPrivateConstructor::class => 1,
+            ],
+            $storage->getBuildStack()
+        );
     }
 
     public function testServiceWithBuiltInTypeWithoutDefault(): void
