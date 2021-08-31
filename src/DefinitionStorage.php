@@ -102,7 +102,7 @@ final class DefinitionStorage
         }
 
         if (!$reflectionClass->isInstantiable()) {
-            $this->buildStack = array_merge($this->buildStack, [$id => 1]);
+            $this->buildStack += array_merge($this->buildStack, [$id => 1]);
             return false;
         }
 
