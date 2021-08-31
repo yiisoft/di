@@ -38,7 +38,7 @@ final class DefinitionStorageTest extends TestCase
     {
         $storage = new DefinitionStorage([]);
         $this->assertFalse($storage->has(ServiceWithInvalidSubDependency::class));
-        $this->assertSame([ServiceWithInvalidSubDependency::class => 1], $storage->getBuildStack());
+        $this->assertSame([ServiceWithInvalidSubDependency::class => 1, ServiceWithNonExistingDependency::class => 1], $storage->getBuildStack());
     }
 
     public function testServiceWithPrivateConstructor(): void
