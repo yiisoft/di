@@ -21,7 +21,7 @@ final class DefinitionStorage
     private array $definitions;
     private array $buildStack = [];
     /** @psalm-suppress  PropertyNotSetInConstructor */
-    private ContainerInterface $delegateContainer;
+    private ?ContainerInterface $delegateContainer = null;
 
     public function __construct(array $definitions = [])
     {
@@ -157,7 +157,7 @@ final class DefinitionStorage
 
                     if (!$isUnionTypeResolvable) {
                         foreach ($unionTypes as $typeName) {
-                            if ($this->delegateContainer->has($typeName)) {
+                            if ($this->delegateContainer !== null && $this->delegateContainer->has($typeName)) {
                                 $isUnionTypeResolvable = true;
                                 break;
                             }
@@ -185,7 +185,7 @@ final class DefinitionStorage
                     }
 
                     /** @psalm-suppress RedundantPropertyInitializationCheck */
-                    if (!($this->isResolvable($typeName, $building) || (isset($this->delegateContainer) && $this->delegateContainer->has($typeName)))) {
+                    if (!($this->isResolvable($typeName, $building) || ($this->delegateContainer !== null && $this->delegateContainer->has($typeName)))) {
                         $isResolvable = false;
                         break;
                     }

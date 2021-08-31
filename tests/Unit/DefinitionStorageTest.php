@@ -10,6 +10,7 @@ use Yiisoft\Di\DefinitionStorage;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBuiltinTypeWithoutDefault;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingSubDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingDependency;
+use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonResolvableUnionTypes;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructor;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructorSubDependency;
 
@@ -90,5 +91,24 @@ final class DefinitionStorageTest extends TestCase
         $storage->setDelegateContainer($container);
         $this->assertFalse($storage->has(\NonExisitng::class));
         $this->assertSame([\NonExisitng::class => 1], $storage->getBuildStack());
+    }
+
+    public function testServiceWithNonExistingUnionTypes(): void
+    {
+        if (PHP_VERSION_ID < 80000) {
+            $this->markTestSkipped('Union types are supported by PHP 8+ only.');
+        }
+
+        $storage = new DefinitionStorage([]);
+        $this->assertFalse($storage->has(ServiceWithNonResolvableUnionTypes::class));
+        $this->assertSame(
+            [
+                ServiceWithNonResolvableUnionTypes::class => 1,
+                ServiceWithNonExistingDependency::class => 1,
+                \NonExisting::class => 1,
+                ServiceWithPrivateConstructor::class => 1,
+            ],
+            $storage->getBuildStack()
+        );
     }
 }
