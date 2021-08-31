@@ -6,7 +6,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\DefinitionStorage;
-use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBultinTypeWithoutDefault;
+use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBuiltinTypeWithoutDefault;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingSubDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingDependency;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithPrivateConstructor;
@@ -64,7 +64,7 @@ final class DefinitionStorageTest extends TestCase
     public function testServiceWithBuiltInTypeWithoutDefault(): void
     {
         $storage = new DefinitionStorage([]);
-        $this->assertFalse($storage->has(ServiceWithBultinTypeWithoutDefault::class));
-        $this->assertSame([ServiceWithBultinTypeWithoutDefault::class => 1], $storage->getBuildStack());
+        $this->assertFalse($storage->has(ServiceWithBuiltinTypeWithoutDefault::class));
+        $this->assertSame([ServiceWithBuiltinTypeWithoutDefault::class => 1], $storage->getBuildStack());
     }
 }
