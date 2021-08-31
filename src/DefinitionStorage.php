@@ -9,6 +9,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionNamedType;
 use ReflectionUnionType;
+use RuntimeException;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 
 /**
@@ -59,7 +60,7 @@ final class DefinitionStorage
     public function get(string $id)
     {
         if (!isset($this->definitions[$id])) {
-            throw new \RuntimeException("Service $id doesn't exist in DefinitionStorage.");
+            throw new RuntimeException("Service $id doesn't exist in DefinitionStorage.");
         }
         return $this->definitions[$id];
     }
