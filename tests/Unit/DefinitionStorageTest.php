@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Di\Container;
 use Yiisoft\Di\DefinitionStorage;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithBuiltinTypeWithoutDefault;
 use Yiisoft\Di\Tests\Support\DefinitionStorage\ServiceWithNonExistingSubDependency;
@@ -80,5 +81,14 @@ final class DefinitionStorageTest extends TestCase
         $storage = new DefinitionStorage([]);
         $this->assertFalse($storage->has(ServiceWithBuiltinTypeWithoutDefault::class));
         $this->assertSame([ServiceWithBuiltinTypeWithoutDefault::class => 1], $storage->getBuildStack());
+    }
+
+    public function testEmptyDelegateContainer(): void
+    {
+        $container = new Container([]);
+        $storage = new DefinitionStorage([]);
+        $storage->setDelegateContainer($container);
+        $this->assertFalse($storage->has(\NonExisitng::class));
+        $this->assertSame([\NonExisitng::class => 1], $storage->getBuildStack());
     }
 }
