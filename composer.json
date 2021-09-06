@@ -25,8 +25,7 @@
         "php": "^7.4|^8.0",
         "ext-mbstring": "*",
         "psr/container": "^1.0",
-        "yiisoft/definitions": "3.0.x-dev",
-        "yiisoft/injector": "^1.0"
+        "yiisoft/definitions": "3.0.x-dev"
     },
     "require-dev": {
         "league/container": "^3.3",
