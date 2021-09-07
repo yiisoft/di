@@ -1197,7 +1197,7 @@ class ContainerTest extends TestCase
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
-        $provider = new class() implements ServiceProviderInterface {
+        $provider = new class () implements ServiceProviderInterface {
             public function getDefinitions(): array
             {
                 return [
