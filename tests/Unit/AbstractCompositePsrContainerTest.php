@@ -64,14 +64,14 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
         $compositeContainer = $this->createContainer([EngineInterface::class => EngineMarkOne::class]);
         $container = new Container([EngineInterface::class => EngineMarkTwo::class]);
         $compositeContainer->attach($container);
-        $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
+        $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get(EngineInterface::class));
 
         $containerOne = new Container([EngineInterface::class => EngineMarkOne::class]);
         $containerTwo = new Container([EngineInterface::class => EngineMarkTwo::class]);
         $compositeContainer = new CompositeContainer();
         $compositeContainer->attach($containerOne);
         $compositeContainer->attach($containerTwo);
-        $this->assertInstanceOf(EngineMarkTwo::class, $compositeContainer->get(EngineInterface::class));
+        $this->assertInstanceOf(EngineMarkOne::class, $compositeContainer->get(EngineInterface::class));
     }
 
     public function testTags(): void
@@ -98,8 +98,8 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
     }
 
     public function testDelegateLookup(): void
