@@ -184,7 +184,7 @@ use Yiisoft\Di\Support\ServiceProvider;
 
 class CarFactoryProvider extends ServiceProviderInterface
 {
-    public function getDependencies(): array
+    public function getDefinitions(): array
     {
         return [
             CarFactory::class => [
