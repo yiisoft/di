@@ -57,8 +57,6 @@ final class Container implements ContainerInterface
     private array $tags;
 
     private array $resetters = [];
-    /** @psalm-suppress PropertyNotSetInConstructor */
-    private DependencyResolver $dependencyResolver;
 
     /**
      * Container constructor.
@@ -90,8 +88,6 @@ final class Container implements ContainerInterface
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
         $this->addProviders($providers);
-        $this->dependencyResolver = new DependencyResolver($this);
-        $this->dependencyResolver = new DependencyResolver($this->get(ContainerInterface::class));
         $this->setDelegates($delegates);
     }
 
@@ -404,7 +400,7 @@ final class Container implements ContainerInterface
         if ($this->definitions->has($id)) {
             $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
 
-            return $definition->resolve($this->dependencyResolver);
+            return $definition->resolve($this->get(ContainerInterface::class));
         }
 
         throw new NotFoundException($id, $this->definitions->getBuildStack());
