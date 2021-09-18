@@ -6,7 +6,6 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
-use Yiisoft\Definitions\Contract\DependencyResolverInterface;
 use Yiisoft\Definitions\Infrastructure\Normalizer;
 
 /**
