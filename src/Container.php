@@ -100,13 +100,8 @@ final class Container implements ContainerInterface
      *
      * @see set()
      */
-    public function has($id): bool
+    public function has(string $id): bool
     {
-        /** @psalm-suppress  DocblockTypeContradiction */
-        if (!is_string($id)) {
-            return false;
-        }
-
         if ($this->isTagAlias($id)) {
             $tag = substr($id, 4);
             return isset($this->tags[$tag]);
@@ -137,7 +132,7 @@ final class Container implements ContainerInterface
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
      */
-    public function get($id)
+    public function get(string $id)
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
