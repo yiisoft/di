@@ -134,11 +134,6 @@ final class Container implements ContainerInterface
      */
     public function get(string $id)
     {
-        /** @psalm-suppress TypeDoesNotContainType */
-        if (!is_string($id)) {
-            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
-        }
-
         if (!array_key_exists($id, $this->instances)) {
             try {
                 $this->instances[$id] = $this->build($id);
