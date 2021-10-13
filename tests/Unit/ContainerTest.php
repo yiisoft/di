@@ -8,6 +8,7 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use TypeError;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
@@ -80,7 +81,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container();
 
-        $this->expectException(NotFoundException::class);
+        $this->expectException(NotInstantiableException::class);
         $result = $container->get(NullableConcreteDependency::class);
     }
 
@@ -539,7 +540,7 @@ class ContainerTest extends TestCase
             ]
         );
 
-        $this->expectException(NotFoundException::class);
+        $this->expectException(NotInstantiableException::class);
         $container->get('car');
     }
 

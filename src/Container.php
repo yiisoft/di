@@ -16,6 +16,7 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 
 use function array_key_exists;
 use function array_keys;
+use function class_exists;
 use function get_class;
 use function implode;
 use function in_array;
@@ -147,7 +148,7 @@ final class Container implements ContainerInterface
         if (!array_key_exists($id, $this->instances)) {
             try {
                 $this->instances[$id] = $this->build($id);
-            } catch (NotFoundException $e) {
+            } catch (NotFoundException|NotInstantiableException $e) {
                 if (!$this->delegates->has($id)) {
                     throw $e;
                 }
@@ -392,6 +393,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      * @throws NotFoundException
+     * @throws NotInstantiableException
      *
      * @return mixed|object
      */
@@ -401,6 +403,10 @@ final class Container implements ContainerInterface
             $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
 
             return $definition->resolve($this->get(ContainerInterface::class));
+        }
+
+        if (class_exists($id)) {
+            throw new NotInstantiableException($id);
         }
 
         throw new NotFoundException($id, $this->definitions->getBuildStack());
