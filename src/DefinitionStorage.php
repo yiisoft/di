@@ -176,7 +176,10 @@ final class DefinitionStorage
                 // Our parameter has a class type hint
                 if ($type !== null && !$type->isBuiltin()) {
                     $typeName = $type->getName();
-
+                    /**
+                     * @psalm-suppress TypeDoesNotContainType
+                     * @link https://github.com/vimeo/psalm/issues/6756
+                     */
                     if ($typeName === 'self') {
                         throw new CircularReferenceException(sprintf(
                             'Circular reference to "%s" detected while building: %s.',
