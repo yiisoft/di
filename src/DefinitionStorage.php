@@ -11,6 +11,7 @@ use ReflectionNamedType;
 use ReflectionUnionType;
 use RuntimeException;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Infrastructure\DefinitionExtractor;
 
 /**
  * Stores service definitions and checks if a definition could be instantiated.
@@ -96,20 +97,13 @@ final class DefinitionStorage
         }
 
         try {
-            $reflectionClass = new ReflectionClass($id);
-        } catch (ReflectionException $e) {
+            $dependencies = DefinitionExtractor::getInstance()->fromClassName($id);
+        } catch (\Throwable $e) {
             $this->buildStack += $building + [$id => 1];
             return false;
         }
 
-        if (!$reflectionClass->isInstantiable()) {
-            $this->buildStack += $building + [$id => 1];
-            return false;
-        }
-
-        $constructor = $reflectionClass->getConstructor();
-
-        if ($constructor === null) {
+        if ($dependencies === []) {
             $this->definitions[$id] = $id;
             return true;
         }
@@ -118,7 +112,8 @@ final class DefinitionStorage
         $building[$id] = 1;
 
         try {
-            foreach ($constructor->getParameters() as $parameter) {
+            foreach ($dependencies as $dependency) {
+                $parameter = $dependency->getReflection();
                 $type = $parameter->getType();
 
                 if ($parameter->isVariadic() || $parameter->isOptional()) {
