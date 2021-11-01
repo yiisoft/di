@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use ReflectionClass;
-use ReflectionException;
 use ReflectionNamedType;
 use ReflectionUnionType;
 use RuntimeException;
