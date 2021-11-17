@@ -28,7 +28,7 @@
         "yiisoft/definitions": "3.0.x-dev"
     },
     "require-dev": {
-        "league/container": "^3.3",
+        "league/container": "^4.2",
         "phpbench/phpbench": "^1.0.0",
         "phpunit/phpunit": "^9.4",
         "roave/infection-static-analysis-plugin": "^1.6",
