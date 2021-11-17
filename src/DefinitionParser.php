@@ -52,9 +52,10 @@ final class DefinitionParser
 
     /**
      * @param mixed $definition Definition to parse.
-     * @return array Definition parsed into array of a special structure.
      *
      * @throws InvalidConfigException
+     *
+     * @return array Definition parsed into array of a special structure.
      */
     public static function parse($definition): array
     {
