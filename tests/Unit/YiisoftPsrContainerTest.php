@@ -11,7 +11,7 @@ use Yiisoft\Di\Container;
 /**
  * Test the Yiisoft PSR-11 Container.
  */
-class YiisoftPsrContainerTest extends AbstractPsrContainerTest
+final class YiisoftPsrContainerTest extends AbstractPsrContainerTest
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {

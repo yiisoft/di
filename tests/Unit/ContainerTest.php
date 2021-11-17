@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -45,11 +46,12 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotFoundException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+use function get_class;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
  */
-class ContainerTest extends TestCase
+final class ContainerTest extends TestCase
 {
     public function testSettingScalars(): void
     {
@@ -76,12 +78,12 @@ class ContainerTest extends TestCase
         $container->get(Car::class);
     }
 
-    public function testNullableClassDependency()
+    public function testNullableClassDependency(): void
     {
         $container = new Container();
 
         $this->expectException(NotFoundException::class);
-        $result = $container->get(NullableConcreteDependency::class);
+        $container->get(NullableConcreteDependency::class);
     }
 
     public function testOptionalCircularClassDependency(): void
@@ -378,7 +380,7 @@ class ContainerTest extends TestCase
 
     public function testClosureInConstructor(): void
     {
-        $color = fn () => new ColorPink();
+        $color = static fn () => new ColorPink();
         $container = new Container(
             [
                 EngineInterface::class => EngineMarkOne::class,
@@ -432,7 +434,7 @@ class ContainerTest extends TestCase
 
     public function testClosureInProperty(): void
     {
-        $color = fn () => new ColorPink();
+        $color = static fn () => new ColorPink();
         $container = new Container(
             [
                 PropertyTestClass::class => [
@@ -466,7 +468,7 @@ class ContainerTest extends TestCase
 
     public function testClosureInMethodCall(): void
     {
-        $color = fn () => new ColorPink();
+        $color = static fn () => new ColorPink();
         $container = new Container(
             [
                 EngineInterface::class => EngineMarkOne::class,
@@ -845,7 +847,7 @@ class ContainerTest extends TestCase
         $this->assertSame($color, $car->getColor());
     }
 
-    public function testCallableArrayValueInConstructor()
+    public function testCallableArrayValueInConstructor(): void
     {
         $array = [
             [EngineMarkTwo::class, 'getNumber'],
@@ -1078,7 +1080,7 @@ class ContainerTest extends TestCase
     {
         $container = new Container([
             EngineInterface::class => EngineMarkOne::class,
-            StateResetterInterface::class => StateResetter::class,
+            StateResetter::class => StateResetter::class,
             EngineMarkOne::class => [
                 'class' => EngineMarkOne::class,
                 'setNumber()' => [42],
@@ -1094,7 +1096,7 @@ class ContainerTest extends TestCase
         $engine->setNumber(45);
         $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
 
-        $container->get(StateResetterInterface::class)->reset();
+        $container->get(StateResetter::class)->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1214,11 +1216,11 @@ class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $container = new Container(
             [
                 B::class => function () {
-                    throw new \RuntimeException();
+                    throw new RuntimeException();
                 },
             ],
             [

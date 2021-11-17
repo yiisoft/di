@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
@@ -18,6 +19,7 @@ use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use function array_key_exists;
 use function array_keys;
 use function get_class;
+use function gettype;
 use function implode;
 use function in_array;
 use function is_array;
@@ -142,7 +144,7 @@ final class Container implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
         if (!array_key_exists($id, $this->instances)) {
@@ -372,7 +374,7 @@ final class Container implements ContainerInterface
 
     private function isTagAlias(string $id): bool
     {
-        return strpos($id, 'tag@') === 0;
+        return strncmp($id, 'tag@', 4) === 0;
     }
 
     private function getTaggedServices(string $tagAlias): array
@@ -462,7 +464,7 @@ final class Container implements ContainerInterface
      */
     private function buildProvider($provider): ServiceProviderInterface
     {
-        if ($this->validate && !(is_string($provider) || is_object($provider) && $provider instanceof ServiceProviderInterface)) {
+        if ($this->validate && !(is_string($provider) || $provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',

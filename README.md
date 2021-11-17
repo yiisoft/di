@@ -385,7 +385,7 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 >   * worst: Minimum time of all iterations (minimal of all iterations).
 
 
-## Commands examples
+## Command examples
 
 * Default report for all benchmarks that outputs the result to `CSV-file`
 
