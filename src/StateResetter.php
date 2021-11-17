@@ -18,11 +18,17 @@ class StateResetter
     private array $resetters = [];
     private ContainerInterface $container;
 
+    /**
+     * @param ContainerInterface $container Container to reset.
+     */
     public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
 
+    /**
+     * Reset the container.
+     */
     public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
@@ -34,6 +40,11 @@ class StateResetter
         }
     }
 
+    /**
+     * @param array $resetters Array of reset callbacks. Each callback has access to the private and protected
+     * properties of the service instance, so you can set initial state of the service efficiently without creating
+     * a new instance.
+     */
     public function setResetters(array $resetters): void
     {
         $this->resetters = [];

@@ -13,15 +13,14 @@ use function is_object;
 use function is_string;
 
 /**
- * This class implements a composite container for use with containers that support the delegate lookup feature.
- * The goal of the implementation is simplicity.
+ * A composite container for use with containers that support the delegate lookup feature.
  */
 final class CompositeContainer implements ContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.
      *
-     * @var ContainerInterface[] The list of containers
+     * @var ContainerInterface[] The list of containers.
      */
     private array $containers = [];
 

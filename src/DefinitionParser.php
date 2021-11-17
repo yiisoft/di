@@ -51,7 +51,8 @@ final class DefinitionParser
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
 
     /**
-     * @param mixed $definition
+     * @param mixed $definition Definition to parse.
+     * @return array Definition parsed into array of a special structure.
      *
      * @throws InvalidConfigException
      */
