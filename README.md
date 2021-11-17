@@ -32,6 +32,7 @@ and configure classes resolving dependencies.
 - Supports service providers.
 - Has state resetter for long-running workers serving multiple requests such as [RoadRunner](https://roadrunner.dev/)
   or [Swoole](https://www.swoole.co.uk/).
+- Supports container delegates.
 
 
 ## Using the container
