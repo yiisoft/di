@@ -72,7 +72,7 @@ final class Container implements ContainerInterface
      * is no longer queried for dependencies.
      * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      * @param bool $validate If definitions should be validated immediately.
-     * @param array $delegates Container delegates. Each delegate must is a callable in format
+     * @param array $delegates Container delegates. Each delegate is a callable in format
      * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
      * in case a service can not be found in primary container.
      *
