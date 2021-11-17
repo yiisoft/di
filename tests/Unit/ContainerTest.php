@@ -12,7 +12,7 @@ use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;

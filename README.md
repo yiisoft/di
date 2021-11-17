@@ -171,7 +171,7 @@ $engine = $composite->get(EngineInterface::class);
 A service provider is a special class that is responsible for providing complex
 services or groups of dependencies for the container and extensions of existing services. 
 
-A provider should extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
+A provider should extend from `Yiisoft\Di\ServiceProviderInterface` and must
 contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
 and therefore should only contain code that is related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to database.
@@ -180,7 +180,7 @@ A typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\ServiceProviderInterface;
 
 class CarFactoryProvider extends ServiceProviderInterface
 {

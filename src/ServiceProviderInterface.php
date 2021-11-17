@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di\Contracts;
+namespace Yiisoft\Di;
 
 /**
  * Represents a component responsible for class registration in the Container.

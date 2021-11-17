@@ -14,7 +14,7 @@ use Yiisoft\Definitions\Exception\NotFoundException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
 use Yiisoft\Definitions\Infrastructure\DefinitionStorage;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\ServiceProviderInterface;
 
 use function array_key_exists;
 use function array_keys;

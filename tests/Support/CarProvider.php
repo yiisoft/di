@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Support;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\ServiceProviderInterface;
 
 final class CarProvider implements ServiceProviderInterface
 {
