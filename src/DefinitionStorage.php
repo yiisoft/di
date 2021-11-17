@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use ReflectionNamedType;
 use ReflectionUnionType;
 use RuntimeException;
+use Throwable;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Infrastructure\DefinitionExtractor;
 
@@ -96,7 +97,7 @@ final class DefinitionStorage
 
         try {
             $dependencies = DefinitionExtractor::getInstance()->fromClassName($id);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->buildStack += $building + [$id => 1];
             return false;
         }
@@ -123,7 +124,7 @@ final class DefinitionStorage
                  * @psalm-suppress RedundantConditionGivenDocblockType
                  * @psalm-suppress UndefinedClass
                  */
-                if ($type === null || !$type instanceof ReflectionUnionType && $type->isBuiltin()) {
+                if ($type === null || (!$type instanceof ReflectionUnionType && $type->isBuiltin())) {
                     $isResolvable = false;
                     break;
                 }

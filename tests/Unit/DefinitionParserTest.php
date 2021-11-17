@@ -18,7 +18,7 @@ final class DefinitionParserTest extends TestCase
             'definition' => $fn,
             'tags' => ['one', 'two'],
         ];
-        [$definition, $meta] = (new DefinitionParser(['tags']))->parse($definition);
+        [$definition, $meta] = DefinitionParser::parse($definition);
         $this->assertSame($fn, $definition);
         $this->assertSame(['tags' => ['one', 'two']], $meta);
     }
@@ -29,7 +29,7 @@ final class DefinitionParserTest extends TestCase
             'definition' => [StaticFactory::class, 'create'],
             'tags' => ['one', 'two'],
         ];
-        [$definition, $meta] = (new DefinitionParser(['tags']))->parse($definition);
+        [$definition, $meta] = DefinitionParser::parse($definition);
         $this->assertSame([StaticFactory::class, 'create'], $definition);
         $this->assertSame(['tags' => ['one', 'two']], $meta);
     }
@@ -41,7 +41,7 @@ final class DefinitionParserTest extends TestCase
             '__construct()' => [42],
             'tags' => ['one', 'two'],
         ];
-        [$definition, $meta] = (new DefinitionParser(['tags']))->parse($definition);
+        [$definition, $meta] = DefinitionParser::parse($definition);
         $this->assertSame([
             'class' => EngineMarkOne::class,
             '__construct()' => [42],

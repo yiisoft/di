@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 /**
  * Test the CompositeContainer over League Container.
  */
-class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrContainerTest
+final class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrContainerTest
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
