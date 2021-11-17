@@ -13,6 +13,6 @@ final class ColorPink implements ColorInterface
 
     public function getColor(): string
     {
-        return static::COLOR_PINK;
+        return self::COLOR_PINK;
     }
 }
