@@ -13,6 +13,7 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\NullCarExtensionProvider;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 
@@ -78,18 +79,28 @@ final class ServiceProviderTest extends TestCase
         );
     }
 
-    public function testNotExistedExtention(): void
+    public function testNotExistedExtension(): void
     {
         $this->expectException(InvalidConfigException::class);
         new Container([], [CarProvider::class]);
     }
 
-    public function testExtentionOverride(): void
+    public function testExtensionOverride(): void
     {
         $container = new Container([
             Car::class => Car::class,
             'sport_car' => SportCar::class,
         ], [CarProvider::class, CarExtensionProvider::class]);
+
+        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+    }
+
+    public function testExtensionReturnedNull(): void
+    {
+        $container = new Container([
+            Car::class => Car::class,
+            'sport_car' => SportCar::class,
+        ], [CarProvider::class, NullCarExtensionProvider::class, CarExtensionProvider::class]);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }
