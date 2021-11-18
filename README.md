@@ -144,17 +144,18 @@ $car = $composite->get(CarInterface::class);
 $bike = $composite->get(BikeInterface::class);
 ```
 
-Note, that containers attached later override dependencies of containers attached earlier.
+Note, that containers attached earlier override dependencies of containers attached later.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 
-$composite = new CompositeContainer();
 $carContainer = new Container([
     EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
+
+$composite = new CompositeContainer();
 $composite->attach($carContainer);
 
 // Returns an instance of a `Car` class.
@@ -165,7 +166,11 @@ $engine = $car->getEngine();
 $engineContainer = new Container([
     EngineInterface::class => EngineMarkTwo::class,
 ], []);
+
+$composite = new CompositeContainer();
 $composite->attach($engineContainer);
+$composite->attach($carContainer);
+
 // Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkTwo` class.
