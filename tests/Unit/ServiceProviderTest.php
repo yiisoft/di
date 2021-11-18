@@ -13,10 +13,11 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\NullCarExtensionProvider;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 
-class ServiceProviderTest extends TestCase
+final class ServiceProviderTest extends TestCase
 {
     public function testAddProviderByClassName(): void
     {
@@ -30,7 +31,7 @@ class ServiceProviderTest extends TestCase
         $this->ensureProviderRegisterExtensions(new CarExtensionProvider());
     }
 
-    protected function ensureProviderRegisterExtensions($provider): void
+    private function ensureProviderRegisterExtensions($provider): void
     {
         $container = new Container([
             Car::class => Car::class,
@@ -45,7 +46,7 @@ class ServiceProviderTest extends TestCase
         $this->assertInstanceOf(EngineMarkTwo::class, $container->get(Car::class)->getEngine());
     }
 
-    protected function ensureProviderRegisterDefinitions($provider): void
+    private function ensureProviderRegisterDefinitions($provider): void
     {
         $container = new Container();
 
@@ -78,18 +79,28 @@ class ServiceProviderTest extends TestCase
         );
     }
 
-    public function testNotExistedExtention()
+    public function testNotExistedExtension(): void
     {
         $this->expectException(InvalidConfigException::class);
-        $container = new Container([], [CarProvider::class]);
+        new Container([], [CarProvider::class]);
     }
 
-    public function testExtentionOverride()
+    public function testExtensionOverride(): void
     {
         $container = new Container([
             Car::class => Car::class,
             'sport_car' => SportCar::class,
         ], [CarProvider::class, CarExtensionProvider::class]);
+
+        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+    }
+
+    public function testExtensionReturnedNull(): void
+    {
+        $container = new Container([
+            Car::class => Car::class,
+            'sport_car' => SportCar::class,
+        ], [CarProvider::class, NullCarExtensionProvider::class, CarExtensionProvider::class]);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }

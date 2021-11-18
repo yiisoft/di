@@ -12,12 +12,13 @@ use Yiisoft\Definitions\Infrastructure\Normalizer;
 use function is_array;
 
 /**
- * @internal
+ * @internal Normalizes a definition.
  */
 final class DefinitionNormalizer
 {
     /**
-     * @param mixed $definition
+     * @param mixed $definition Definition to normalize.
+     * @param string|null $id Service ID. If definition has no class name specified, it used as a class name.
      *
      * @throws InvalidConfigException
      */

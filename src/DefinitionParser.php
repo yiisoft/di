@@ -51,9 +51,11 @@ final class DefinitionParser
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
 
     /**
-     * @param mixed $definition
+     * @param mixed $definition Definition to parse.
      *
      * @throws InvalidConfigException
+     *
+     * @return array Definition parsed into array of a special structure.
      */
     public static function parse($definition): array
     {
@@ -93,11 +95,11 @@ final class DefinitionParser
             }
 
             // Methods and properties
-            if (count($methodArray = explode('()', $key)) === 2) {
+            if (count($methodArray = explode('()', $key, 2)) === 2) {
                 $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
                 continue;
             }
-            if (count($propertyArray = explode('$', $key)) === 2) {
+            if (count($propertyArray = explode('$', $key, 2)) === 2) {
                 $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
                 continue;
             }

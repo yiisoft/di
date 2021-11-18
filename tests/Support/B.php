@@ -8,7 +8,7 @@ class B
 {
     public ?A $a;
 
-    public function __construct(?A $a)
+    public function __construct(?A $a = null)
     {
         $this->a = $a;
     }

@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Definitions\Exception\NotFoundException;
+use function get_class;
+use function gettype;
+use function is_object;
+use function is_string;
 
 /**
- * This class implements a composite container for use with containers that support the delegate lookup feature.
- * The goal of the implementation is simplicity.
+ * A composite container for use with containers that support the delegate lookup feature.
  */
 final class CompositeContainer implements ContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.
      *
-     * @var ContainerInterface[] The list of containers
+     * @var ContainerInterface[] The list of containers.
      */
     private array $containers = [];
 
@@ -24,7 +27,7 @@ final class CompositeContainer implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
         if ($id === StateResetter::class) {
@@ -99,7 +102,7 @@ final class CompositeContainer implements ContainerInterface
 
     private function isTagAlias(string $id): bool
     {
-        return strpos($id, 'tag@') === 0;
+        return strncmp($id, 'tag@', 4) === 0;
     }
 
     /**

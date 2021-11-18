@@ -8,12 +8,12 @@ namespace Yiisoft\Di\Tests\Support;
 /**
  * Class ColorRed
  */
-class ColorRed implements ColorInterface
+final class ColorRed implements ColorInterface
 {
     private const COLOR_PINK = 'red';
 
     public function getColor(): string
     {
-        return static::COLOR_PINK;
+        return self::COLOR_PINK;
     }
 }

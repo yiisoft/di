@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
+use function func_get_args;
+
 /**
  * ConstructorTestClass
  */

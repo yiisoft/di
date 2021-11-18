@@ -30,6 +30,9 @@ and configure classes resolving dependencies.
 - Allows delegated lookup and has composite container.
 - Supports aliasing.
 - Supports service providers.
+- Has state resetter for long-running workers serving multiple requests such as [RoadRunner](https://roadrunner.dev/)
+  or [Swoole](https://www.swoole.co.uk/).
+- Supports container delegates.
 
 
 ## Using the container
@@ -77,13 +80,16 @@ As seen above an object can be defined in several ways:
    * `__construct()` holds an array of constructor arguments.
    * The rest of the config are property values (prefixed with `$`) and method calls, postfixed with `()`. They are
      set/called in the order they appear in the array.
- * Closures are useful if instantiation is tricky and can better be described in code.
+ * Closures are useful if instantiation is tricky and can better be described in code. When using these, arguments are
+   auto-wired by type. `ContainerInterface` could be used to get current container instance.
  * If it is even more complicated, it is a good idea to move such code into a
    factory and reference it as a static call.
  * While it is usually not a good idea, you can also set an already
    instantiated object into the container.
 
-After the container is configured, dependencies can be obtained via `get()`:
+See [yiisoft/definitions](https://github.com/yiisoft/definitions) for more information.
+
+After the container is configured, a service can be obtained via `get()`:
 
 ```php
 /** @var \Yiisoft\Di\Container $container */
@@ -138,17 +144,18 @@ $car = $composite->get(CarInterface::class);
 $bike = $composite->get(BikeInterface::class);
 ```
 
-Note, that containers attached later override dependencies of containers attached earlier.
+Note, that containers attached earlier override dependencies of containers attached later.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 
-$composite = new CompositeContainer();
 $carContainer = new Container([
     EngineInterface::class => EngineMarkOne::class,
     CarInterface::class => Car::class
 ], []);
+
+$composite = new CompositeContainer();
 $composite->attach($carContainer);
 
 // Returns an instance of a `Car` class.
@@ -159,7 +166,11 @@ $engine = $car->getEngine();
 $engineContainer = new Container([
     EngineInterface::class => EngineMarkTwo::class,
 ], []);
+
+$composite = new CompositeContainer();
 $composite->attach($engineContainer);
+$composite->attach($carContainer);
+
 // Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkTwo` class.
@@ -171,7 +182,7 @@ $engine = $composite->get(EngineInterface::class);
 A service provider is a special class that is responsible for providing complex
 services or groups of dependencies for the container and extensions of existing services. 
 
-A provider should extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
+A provider should extend from `Yiisoft\Di\ServiceProviderInterface` and must
 contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
 and therefore should only contain code that is related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to database.
@@ -180,7 +191,7 @@ A typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\ServiceProviderInterface;
 
 class CarFactoryProvider extends ServiceProviderInterface
 {
@@ -275,6 +286,7 @@ $container = new Container(
     ],
     [],
     [
+        // "car" tag has references to both blue and red cars
         'car' => [BlueCarService::class, RedCarService::class]
     ]
 );
@@ -333,6 +345,52 @@ StateResetter::class => function () {
 }
 ```
 
+## Delegates
+
+Container delegates define. Each delegate is a callable returning a container instance that is used in case a service
+can not be found in primary container:
+
+```php
+function (ContainerInterface $container): ContainerInterface
+{
+
+}
+```
+
+In order to configure delegates use fifth constructor argument:
+
+```php
+use \Yiisoft\Di\Container;
+
+$container = new Container(
+    $defintions,
+    $providers,
+    $tags,
+    $validate,
+    [
+        function (ContainerInterface $container): ContainerInterface {
+            // ...
+        }
+    ]
+);
+```
+
+## Tuning for production
+
+By default, the container validates definitions right when they are set. In production environment, it makes sense to
+turn it off by passing `false` as a fourth constructor argument:
+
+```php
+use \Yiisoft\Di\Container;
+
+$container = new Container(
+    $defintions,
+    $providers,
+    $tags,
+    false
+);
+```
+
 ## Further reading
 
 - [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
@@ -385,7 +443,7 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 >   * worst: Minimum time of all iterations (minimal of all iterations).
 
 
-## Commands examples
+## Command examples
 
 * Default report for all benchmarks that outputs the result to `CSV-file`
 

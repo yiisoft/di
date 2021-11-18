@@ -5,19 +5,20 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Exception\NotFoundException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
+use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
+use Yiisoft\Definitions\Infrastructure\DefinitionStorage;
 
 use function array_key_exists;
 use function array_keys;
 use function class_exists;
 use function get_class;
+use function gettype;
 use function implode;
 use function in_array;
 use function is_array;
@@ -34,17 +35,17 @@ final class Container implements ContainerInterface
     private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
 
     /**
-     * @var DefinitionStorage storage of object definitions
+     * @var DefinitionStorage Storage of object definitions.
      */
     private DefinitionStorage $definitions;
     /**
-     * @var array used to collect ids instantiated during build
-     * to detect circular references
+     * @var array Used to collect IDs of objects instantiated during build
+     * to detect circular references.
      */
     private array $building = [];
 
     /**
-     * @var bool $validate Validate definitions when set
+     * @var bool $validate If definitions should be validated.
      */
     private bool $validate;
 
@@ -55,6 +56,9 @@ final class Container implements ContainerInterface
 
     private CompositeContainer $delegates;
 
+    /**
+     * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     */
     private array $tags;
 
     private array $resetters = [];
@@ -66,9 +70,9 @@ final class Container implements ContainerInterface
      * @param array $providers Service providers to get definitions from.
      * lookup to when resolving dependencies. If provided the current container
      * is no longer queried for dependencies.
-     * @param array $tags
+     * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      * @param bool $validate If definitions should be validated immediately.
-     * @param array $delegates Container delegates. Each delegate must is a callable in format
+     * @param array $delegates Container delegates. Each delegate is a callable in format
      * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
      * in case a service can not be found in primary container.
      *
@@ -95,9 +99,9 @@ final class Container implements ContainerInterface
     /**
      * Returns a value indicating whether the container has the definition of the specified name.
      *
-     * @param string $id class name, interface name or alias name
+     * @param string $id Class name, interface name or alias name.
      *
-     * @return bool whether the container is able to provide instance of class specified.
+     * @return bool Whether the container is able to provide instance of class specified.
      *
      * @see set()
      */
@@ -142,7 +146,7 @@ final class Container implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
         }
 
         if (!array_key_exists($id, $this->instances)) {
@@ -176,12 +180,12 @@ final class Container implements ContainerInterface
     /**
      * Sets a definition to the container. Definition may be defined multiple ways.
      *
-     * @param string $id
-     * @param mixed $definition
+     * @param string $id ID to set definition for.
+     * @param mixed $definition Definition to set.
      *
      * @throws InvalidConfigException
      *
-     * @see `DefinitionNormalizer::normalize()`
+     * @see DefinitionNormalizer::normalize()
      */
     private function set(string $id, $definition): void
     {
@@ -208,7 +212,7 @@ final class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      *
-     * @param array $config definitions indexed by their ids
+     * @param array $config Definitions indexed by their IDs.
      *
      * @throws InvalidConfigException
      */
@@ -264,7 +268,8 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param mixed $definition
+     * @param mixed $definition Definition to validate.
+     * @param string|null $id ID of the definition to validate.
      *
      * @throws InvalidConfigException
      */
@@ -372,7 +377,7 @@ final class Container implements ContainerInterface
 
     private function isTagAlias(string $id): bool
     {
-        return strpos($id, 'tag@') === 0;
+        return strncmp($id, 'tag@', 4) === 0;
     }
 
     private function getTaggedServices(string $tagAlias): array
@@ -441,14 +446,12 @@ final class Container implements ContainerInterface
     /**
      * Adds service provider definitions to the container.
      *
-     * @param object $provider
+     * @param ServiceProviderInterface $provider Provider to get definitions from.
      *
      * @throws InvalidConfigException
      * @throws NotInstantiableException
-     *
-     * @see ServiceProviderInterface
      */
-    private function addProviderDefinitions($provider): void
+    private function addProviderDefinitions(ServiceProviderInterface $provider): void
     {
         $definitions = $provider->getDefinitions();
         $this->setMultiple($definitions);
@@ -467,7 +470,7 @@ final class Container implements ContainerInterface
      */
     private function buildProvider($provider): ServiceProviderInterface
     {
-        if ($this->validate && !(is_string($provider) || is_object($provider) && $provider instanceof ServiceProviderInterface)) {
+        if ($this->validate && !(is_string($provider) || $provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
