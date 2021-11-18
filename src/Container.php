@@ -10,7 +10,6 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Exception\NotFoundException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
 use Yiisoft\Definitions\Infrastructure\DefinitionStorage;
