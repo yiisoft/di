@@ -7,7 +7,7 @@ namespace Yiisoft\Di;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Infrastructure\Normalizer;
+use Yiisoft\Definitions\Helpers\Normalizer;
 
 use function is_array;
 
