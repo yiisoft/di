@@ -6,7 +6,7 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
-use Yiisoft\Definitions\Infrastructure\Normalizer;
+use Yiisoft\Definitions\Helpers\Normalizer;
 
 /**
  * A wrapper for a service definition that allows registering extensions.

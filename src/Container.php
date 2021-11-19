@@ -11,8 +11,8 @@ use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Definitions\Infrastructure\DefinitionValidator;
-use Yiisoft\Definitions\Infrastructure\DefinitionStorage;
+use Yiisoft\Definitions\Helpers\DefinitionValidator;
+use Yiisoft\Definitions\DefinitionStorage;
 
 use function array_key_exists;
 use function array_keys;
