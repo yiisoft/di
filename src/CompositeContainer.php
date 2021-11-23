@@ -63,6 +63,10 @@ final class CompositeContainer implements ContainerInterface
             }
         }
 
+        if ($this->containers !== []) {
+            $this->containers[0]->get($id);
+        }
+
         throw new NotFoundException($id);
     }
 
