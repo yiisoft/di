@@ -15,7 +15,6 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
 {
     /**
      * @param array $exceptions Exceptions of containers in [throwable, container] format.
-     * @psalm-param array $exceptions
      */
     public function __construct(array $exceptions)
     {
@@ -24,7 +23,7 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
         foreach ($exceptions as $i => [$exception, $container]) {
             $containerClass = get_class($container);
             $containerId = spl_object_id($container);
-            $number = $i + 1;
+            $number = (int)$i + 1;
 
             $message .= "\n    $number. Container $containerClass #$containerId: {$exception->getMessage()}";
         }
