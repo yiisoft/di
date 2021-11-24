@@ -6,6 +6,7 @@ namespace Yiisoft\Di;
 
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Throwable;
 use function get_class;
 use function gettype;
@@ -67,16 +68,16 @@ final class CompositeContainer implements ContainerInterface
 
         // Collect details from containers
         $exceptions = [];
-        foreach ($this->containers as $i => $container) {
+        foreach ($this->containers as $container) {
             $hasException = false;
             try {
                 $hasException = true;
                 $container->get($id);
             } catch (Throwable $t) {
-                $exceptions[] = $t;
+                $exceptions[] = [$t, $container];
             } finally {
                 if (!$hasException) {
-                    $exceptions[] = new \RuntimeException("Container $i has() returned false but no exception was thrown from get().");
+                    $exceptions[] = [new RuntimeException("Container has() returned false but no exception was thrown from get()."), $container];
                 }
             }
         }

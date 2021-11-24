@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Exception;
-use Throwable;
-use InvalidArgumentException;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
@@ -16,23 +14,19 @@ use Psr\Container\NotFoundExceptionInterface;
 final class CompositeNotFoundException extends Exception implements NotFoundExceptionInterface
 {
     /**
-     * @param Throwable[] $exceptions Exceptions of parent containers.
+     * @param array $exceptions Exceptions of containers in [throwable, container] format.
      * @psalm-param array $exceptions
      */
     public function __construct(array $exceptions)
     {
         $message = '';
 
-        $number = 1;
-        foreach ($exceptions as $exception) {
-            if (!$exception instanceof Throwable) {
-                $type = is_object($exception) ? get_class($exception) : gettype($exception);
-                $message = sprintf('An array of \Throwable is expected, "%s" given.', $type);
-                throw new InvalidArgumentException($message);
-            }
+        foreach ($exceptions as $i => [$exception, $container]) {
+            $containerClass = get_class($container);
+            $containerId = spl_object_id($container);
+            $number = $i + 1;
 
-            $message .= "\n    Container #$number: {$exception->getMessage()}";
-            $number++;
+            $message .= "\n    $number. Container $containerClass #$containerId: {$exception->getMessage()}";
         }
 
         parent::__construct(sprintf('No definition or class found or resolvable in composite container:%s', $message));

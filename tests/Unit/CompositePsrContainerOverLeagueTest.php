@@ -41,13 +41,15 @@ final class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrCont
         $compositeContainer = new CompositeContainer();
 
         $container1 = new Container();
+        $container1Id = spl_object_id($container1);
         $container2 = new Container();
+        $container2Id = spl_object_id($container2);
 
         $compositeContainer->attach($container1);
         $compositeContainer->attach($container2);
 
         $this->expectException(CompositeNotFoundException::class);
-        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    Container #1: Alias (test) is not being managed by the container or delegates\n    Container #2: Alias (test) is not being managed by the container or delegates");
+        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    1. Container League\Container\Container #$container1Id: Alias (test) is not being managed by the container or delegates\n    2. Container League\Container\Container #$container2Id: Alias (test) is not being managed by the container or delegates");
         $compositeContainer->get('test');
     }
 }
