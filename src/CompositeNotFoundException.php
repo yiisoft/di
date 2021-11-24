@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di;
 
 use Exception;
@@ -33,6 +35,6 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
             $number++;
         }
 
-        parent::__construct(sprintf("No definition or class found or resolvable in composite container:%s", $message));
+        parent::__construct(sprintf('No definition or class found or resolvable in composite container:%s', $message));
     }
 }
