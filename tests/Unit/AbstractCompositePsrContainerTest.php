@@ -7,7 +7,6 @@ namespace Yiisoft\Di\Tests\Unit;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Yiisoft\Di\CompositeContainer;
-use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
