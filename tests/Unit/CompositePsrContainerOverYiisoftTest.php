@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
+use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
@@ -63,5 +65,22 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
         $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
         $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
         $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+    }
+
+    public function testNotFoundException(): void
+    {
+        $compositeContainer = new CompositeContainer();
+
+        $container1 = new Container();
+        $container2 = new Container();
+
+        $compositeContainer->attach($container1);
+        $compositeContainer->attach($container2);
+
+        $this->expectException(CompositeNotFoundException::class);
+        $this->expectExceptionMessage('No definition or class found or resolvable in composite container:
+    Container #1: No definition or class found or resolvable for "test" while building "test".
+    Container #2: No definition or class found or resolvable for "test" while building "test".');
+        $compositeContainer->get('test');
     }
 }

@@ -6,6 +6,7 @@ namespace Yiisoft\Di;
 
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use Throwable;
 use function get_class;
 use function gettype;
 use function is_object;
@@ -63,11 +64,18 @@ final class CompositeContainer implements ContainerInterface
             }
         }
 
-        if ($this->containers !== []) {
-            $this->containers[0]->get($id);
+
+        // Collect details from containers
+        $exceptions = [];
+        foreach ($this->containers as $container) {
+            try {
+                $container->get($id);
+            } catch (Throwable $t) {
+                $exceptions[] = $t;
+            }
         }
 
-        throw new NotFoundException($id);
+        throw new CompositeNotFoundException($exceptions);
     }
 
     public function has($id): bool
