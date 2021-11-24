@@ -236,14 +236,17 @@ and put a car into the garage by calling the method `setCar()`. Thus, before app
 an empty garage and with the help of the extension we fill it.
 
 To add this service provider to a container you can pass either its class or a
-configuration array in the `$providers` constructor parameter:
+configuration array in the additional config:
 
 ```php
 use Yiisoft\Di\Container;
+use \Yiisoft\Di\ContainerConfig;
 
-$container = new Container($config, [
-    CarFactoryProvider::class,
-]);
+$container = new Container(
+    $config,
+    (new ContainerConfig())
+        ->withProviders([CarFactoryProvider::class])
+);
 ```
 
 When a service provider is added, its `getDefinitions()` and `getExtensions()` methods are called
@@ -277,6 +280,9 @@ The result is an array that contains two instances: `BlueCarService` and `RedCar
 Another way to tag services is setting tags via container constructor:
 
 ```php
+use \Yiisoft\Di\Container;
+use \Yiisoft\Di\ContainerConfig;
+
 $container = new Container(
     [  
         BlueCarService::class => [
@@ -284,11 +290,12 @@ $container = new Container(
         ],
         RedCarService::class => fn () => new RedCarService(),
     ],
-    [],
-    [
-        // "car" tag has references to both blue and red cars
-        'car' => [BlueCarService::class, RedCarService::class]
-    ]
+    (new ContainerConfig())->withTags(
+        [
+            // "car" tag has references to both blue and red cars
+            'car' => [BlueCarService::class, RedCarService::class]
+        ]
+    )
 );
 ```
 
@@ -357,37 +364,36 @@ function (ContainerInterface $container): ContainerInterface
 }
 ```
 
-In order to configure delegates use fifth constructor argument:
+In order to configure delegates use additional config:
 
 ```php
 use \Yiisoft\Di\Container;
+use \Yiisoft\Di\ContainerConfig;
 
 $container = new Container(
     $defintions,
-    $providers,
-    $tags,
-    $validate,
-    [
-        function (ContainerInterface $container): ContainerInterface {
-            // ...
-        }
-    ]
+    (new ContainerConfig)->withDelegates(
+        [
+            function (ContainerInterface $container): ContainerInterface {
+                // ...
+            }
+        ]
+    )
 );
 ```
 
 ## Tuning for production
 
 By default, the container validates definitions right when they are set. In production environment, it makes sense to
-turn it off by passing `false` as a fourth constructor argument:
+turn it off:
 
 ```php
 use \Yiisoft\Di\Container;
+use \Yiisoft\Di\ContainerConfig;
 
 $container = new Container(
     $defintions,
-    $providers,
-    $tags,
-    false
+    (new ContainerConfig())->withValidate(false) 
 );
 ```
 

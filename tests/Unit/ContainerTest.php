@@ -11,6 +11,7 @@ use RuntimeException;
 use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\NotFoundException;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
@@ -1009,35 +1010,44 @@ final class ContainerTest extends TestCase
 
     public function testTagsWithExternalDefinition(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['engine'],
+        $container = new Container(
+            [
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                ],
             ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-            ],
-        ], [], ['engine' => [EngineMarkTwo::class]]);
+            (new ContainerConfig())
+                ->withTags(['engine' => [EngineMarkTwo::class]])
+        );
 
         $engines = $container->get('tag@engine');
 
         $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
         $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
         $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
     }
 
     public function testTagsWithExternalDefinitionMerge(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['engine'],
+        $container = new Container(
+            [
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                    'tags' => ['engine'],
+                ],
             ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-                'tags' => ['engine'],
-            ],
-        ], [], ['mark_two' => [EngineMarkTwo::class]]);
+            (new ContainerConfig())
+                ->withTags(['mark_two' => [EngineMarkTwo::class]])
+        );
 
         $engines = $container->get('tag@engine');
         $markTwoEngines = $container->get('tag@mark_two');
@@ -1223,9 +1233,8 @@ final class ContainerTest extends TestCase
                     throw new RuntimeException();
                 },
             ],
-            [
-                $provider,
-            ]
+            (new ContainerConfig())
+                ->withProviders([$provider])
         );
         $container->get(B::class);
     }
@@ -1285,10 +1294,15 @@ final class ContainerTest extends TestCase
             ]);
         };
 
-        $container = new Container([
-            Garage::class => Garage::class,
-            EngineInterface::class => EngineMarkTwo::class,
-        ], [], [], true, [$delegate]);
+        $container = new Container(
+            [
+                Garage::class => Garage::class,
+                EngineInterface::class => EngineMarkTwo::class,
+            ],
+            (new ContainerConfig())
+                ->withValidate(true)
+                ->withDelegates([$delegate])
+        );
 
         $garage = $container->get(Garage::class);
 

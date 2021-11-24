@@ -46,7 +46,7 @@ final class Container implements ContainerInterface
     /**
      * @var bool $validate If definitions should be validated.
      */
-    private bool $validate;
+    private bool $validate = true;
 
     /**
      * @var object[]
@@ -58,7 +58,7 @@ final class Container implements ContainerInterface
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
-    private array $tags;
+    private array $tags = [];
 
     private array $resetters = [];
 
@@ -66,33 +66,27 @@ final class Container implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions Definitions to put into container.
-     * @param array $providers Service providers to get definitions from.
-     * lookup to when resolving dependencies. If provided the current container
-     * is no longer queried for dependencies.
-     * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     * @param bool $validate If definitions should be validated immediately.
-     * @param array $delegates Container delegates. Each delegate is a callable in format
-     * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
-     * in case a service can not be found in primary container.
+     * @param ContainerConfig|null $config Container configuration.
      *
      * @throws InvalidConfigException
-     *
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct(
-        array $definitions = [],
-        array $providers = [],
-        array $tags = [],
-        bool $validate = true,
-        array $delegates = []
-    ) {
-        $this->tags = $tags;
-        $this->validate = $validate;
+    public function __construct($definitions = [], ?ContainerConfig $config = null) {
         $this->definitions = new DefinitionStorage();
+        $this->delegates = new CompositeContainer();
+
+        if ($config !== null) {
+            $this->tags = $config->getTags();
+            $this->validate = $config->shouldValidate();
+        }
+
         $this->setDefaultDefinitions();
         $this->setMultiple($definitions);
-        $this->addProviders($providers);
-        $this->setDelegates($delegates);
+
+        if ($config !== null) {
+            $this->addProviders($config->getProviders());
+            $this->setDelegates($config->getDelegates());
+        }
     }
 
     /**
@@ -245,7 +239,6 @@ final class Container implements ContainerInterface
      */
     private function setDelegates(array $delegates): void
     {
-        $this->delegates = new CompositeContainer();
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
