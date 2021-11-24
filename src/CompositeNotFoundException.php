@@ -15,6 +15,7 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
 {
     /**
      * @param Throwable[] $exceptions Exceptions of parent containers.
+     * @psalm-param array $exceptions
      */
     public function __construct(array $exceptions)
     {
