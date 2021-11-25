@@ -71,7 +71,8 @@ final class Container implements ContainerInterface
      * @throws InvalidConfigException
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct($definitions = [], ?ContainerConfigInterface $config = null) {
+    public function __construct($definitions = [], ?ContainerConfigInterface $config = null)
+    {
         $this->definitions = new DefinitionStorage();
         $this->delegates = new CompositeContainer();
 
