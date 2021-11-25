@@ -35,12 +35,12 @@ final class ServiceProviderTest extends TestCase
     private function ensureProviderRegisterExtensions($provider): void
     {
         $container = new Container(
-            [
-                Car::class => Car::class,
-                EngineInterface::class => EngineMarkOne::class,
-                'sport_car' => SportCar::class,
-            ],
-            (new ContainerConfig())
+            ContainerConfig::create()
+                ->withDefinitions([
+                    Car::class => Car::class,
+                    EngineInterface::class => EngineMarkOne::class,
+                    'sport_car' => SportCar::class,
+                ])
                 ->withProviders([$provider])
         );
 
@@ -69,11 +69,11 @@ final class ServiceProviderTest extends TestCase
         );
 
         $container = new Container(
-            [
-                Car::class => Car::class,
-                'sport_car' => SportCar::class,
-            ],
-            (new ContainerConfig())
+            ContainerConfig::create()
+                ->withDefinitions([
+                    Car::class => Car::class,
+                    'sport_car' => SportCar::class,
+                ])
                 ->withProviders([$provider])
         );
 
@@ -90,19 +90,24 @@ final class ServiceProviderTest extends TestCase
 
     public function testNotExistedExtension(): void
     {
+        $config = ContainerConfig::create()->withProviders([CarProvider::class]);
+
         $this->expectException(InvalidConfigException::class);
-        new Container([], (new ContainerConfig())->withProviders([CarProvider::class]));
+        new Container($config);
     }
 
     public function testExtensionOverride(): void
     {
         $container = new Container(
-            [
-                Car::class => Car::class,
-                'sport_car' => SportCar::class,
-            ],
-            (new ContainerConfig())
-                ->withProviders([CarProvider::class, CarExtensionProvider::class])
+            ContainerConfig::create()
+                ->withDefinitions([
+                    Car::class => Car::class,
+                    'sport_car' => SportCar::class,
+                ])
+                ->withProviders([
+                    CarProvider::class,
+                    CarExtensionProvider::class
+                ])
         );
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
@@ -111,12 +116,16 @@ final class ServiceProviderTest extends TestCase
     public function testExtensionReturnedNull(): void
     {
         $container = new Container(
-            [
-                Car::class => Car::class,
-                'sport_car' => SportCar::class,
-            ],
-            (new ContainerConfig())
-                ->withProviders([CarProvider::class, NullCarExtensionProvider::class, CarExtensionProvider::class])
+            ContainerConfig::create()
+                ->withDefinitions([
+                    Car::class => Car::class,
+                    'sport_car' => SportCar::class,
+                ])
+                ->withProviders([
+                    CarProvider::class,
+                    NullCarExtensionProvider::class,
+                    CarExtensionProvider::class
+                ])
         );
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());

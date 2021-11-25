@@ -9,11 +9,35 @@ namespace Yiisoft\Di;
  */
 final class ContainerConfig implements ContainerConfigInterface
 {
-    private array $definitions = [];
-    private array $providers = [];
-    private array $tags = [];
-    private bool $validate = true;
-    private array $delegates = [];
+    private array $definitions;
+    private array $providers;
+    private array $tags;
+    private bool $validate;
+    private array $delegates;
+
+    private function __construct(
+        array $definitions,
+        array $providers,
+        array $tags,
+        bool $validate,
+        array $delegates
+    ) {
+        $this->definitions = $definitions;
+        $this->providers = $providers;
+        $this->tags = $tags;
+        $this->validate = $validate;
+        $this->delegates = $delegates;
+    }
+
+    public static function create(
+        array $definitions = [],
+        array $providers = [],
+        array $tags = [],
+        bool $validate = true,
+        array $delegates = []
+    ): self {
+        return new self($definitions, $providers, $tags, $validate, $delegates);
+    }
 
     /**
      * @param array $definitions Definitions to put into container.

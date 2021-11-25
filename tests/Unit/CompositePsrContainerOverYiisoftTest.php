@@ -6,6 +6,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -17,7 +18,9 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
-        $container = new Container($definitions);
+        $container = new Container(
+            ContainerConfig::create($definitions)
+        );
         return $this->createCompositeContainer($container);
     }
 
@@ -39,12 +42,16 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
                 return $engine;
             },
         ]);
-        $secondContainer = new Container([
-            'engineMarkTwo' => ['class' => EngineMarkTwo::class,
-                'setNumber()' => [43],
-                'reset' => function () {
-                    $this->number = 43;
-                },],]);
+        $secondContainer = new Container(
+            ContainerConfig::create([
+                'engineMarkTwo' => [
+                    'class' => EngineMarkTwo::class,
+                    'setNumber()' => [43],
+                    'reset' => function () {
+                        $this->number = 43;
+                    },
+                ],
+            ]));
         $composite->attach($secondContainer);
 
         $engineMarkOne = $composite->get('engineMarkOne');

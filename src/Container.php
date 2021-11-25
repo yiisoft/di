@@ -65,13 +65,15 @@ final class Container implements ContainerInterface
     /**
      * Container constructor.
      *
-     * @param ContainerConfigInterface $config Container configuration.
+     * @param ContainerConfigInterface|null $config Container configuration.
      *
      * @throws InvalidConfigException
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct(ContainerConfigInterface $config)
+    public function __construct(?ContainerConfigInterface $config = null)
     {
+        $config ??= ContainerConfig::create();
+
         $this->definitions = new DefinitionStorage();
         $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
