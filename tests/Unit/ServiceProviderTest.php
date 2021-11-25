@@ -106,7 +106,7 @@ final class ServiceProviderTest extends TestCase
                 ])
                 ->withProviders([
                     CarProvider::class,
-                    CarExtensionProvider::class
+                    CarExtensionProvider::class,
                 ])
         );
 
@@ -124,7 +124,7 @@ final class ServiceProviderTest extends TestCase
                 ->withProviders([
                     CarProvider::class,
                     NullCarExtensionProvider::class,
-                    CarExtensionProvider::class
+                    CarExtensionProvider::class,
                 ])
         );
 

@@ -51,7 +51,8 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
                         $this->number = 43;
                     },
                 ],
-            ]));
+            ])
+        );
         $composite->attach($secondContainer);
 
         $engineMarkOne = $composite->get('engineMarkOne');
