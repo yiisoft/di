@@ -77,7 +77,7 @@ final class CompositeContainer implements ContainerInterface
                 $exceptions[] = [$t, $container];
             } finally {
                 if (!$hasException) {
-                    $exceptions[] = [new RuntimeException("Container has() returned false but no exception was thrown from get()."), $container];
+                    $exceptions[] = [new RuntimeException('Container has() returned false but no exception was thrown from get().'), $container];
                 }
             }
         }
