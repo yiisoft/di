@@ -9,6 +9,7 @@ use PhpBench\Benchmark\Metadata\Annotations\Groups;
 use PhpBench\Benchmark\Metadata\Annotations\Iterations;
 use PhpBench\Benchmark\Metadata\Annotations\Revs;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\GearBox;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Definitions\Reference;
@@ -36,7 +37,7 @@ class ContainerMethodHasBench
         }
         $definitions['service'] = PropertyTestClass::class;
 
-        $this->container = new Container($definitions);
+        $this->container = new Container(ContainerConfig::create($definitions));
     }
 
     public function benchPredefinedExisting(): void
