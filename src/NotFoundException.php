@@ -26,10 +26,10 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
         if ($buildStack !== []) {
             $buildStack = array_keys($buildStack);
             $last = end($buildStack);
-            $message = sprintf('%s while building %s', $last, implode(' -> ', $buildStack));
+            $message = sprintf('%s" while building %s', $last, '"' . implode('" -> "', $buildStack));
         }
 
-        parent::__construct(sprintf('No definition or class found or resolvable for %s.', $message));
+        parent::__construct(sprintf('No definition or class found or resolvable for "%s".', $message));
     }
 
     public function getId(): string

@@ -20,7 +20,7 @@ final class NotFoundExceptionTest extends TestCase
     {
         $exception = new NotFoundException('test');
 
-        $this->assertSame('No definition or class found or resolvable for test.', $exception->getMessage());
+        $this->assertSame('No definition or class found or resolvable for "test".', $exception->getMessage());
     }
 
     public function testBuildStack(): void
@@ -28,7 +28,7 @@ final class NotFoundExceptionTest extends TestCase
         $exception = new NotFoundException('test', ['a' => [], 'b' => [], 'test' => []]);
 
         $this->assertSame(
-            'No definition or class found or resolvable for test while building a -> b -> test.',
+            'No definition or class found or resolvable for "test" while building "a" -> "b" -> "test".',
             $exception->getMessage()
         );
     }
