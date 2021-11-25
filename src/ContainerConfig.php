@@ -7,7 +7,7 @@ namespace Yiisoft\Di;
 /**
  * Container configuration.
  */
-final class ContainerConfig
+final class ContainerConfig implements ContainerConfigInterface
 {
     private array $providers = [];
     private array $tags = [];
@@ -26,9 +26,6 @@ final class ContainerConfig
         return $new;
     }
 
-    /**
-     * @return array Service providers to get definitions from.
-     */
     public function getProviders(): array
     {
         return $this->providers;
@@ -46,9 +43,6 @@ final class ContainerConfig
         return $new;
     }
 
-    /**
-     * @return array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     */
     public function getTags(): array
     {
         return $this->tags;
@@ -66,9 +60,6 @@ final class ContainerConfig
         return $new;
     }
 
-    /**
-     * @return bool Whether definitions should be validated immediately.
-     */
     public function shouldValidate(): bool
     {
         return $this->validate;
@@ -88,11 +79,6 @@ final class ContainerConfig
         return $new;
     }
 
-    /**
-     * @return array Container delegates. Each delegate is a callable in format
-     * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
-     * in case a service can not be found in primary container.
-     */
     public function getDelegates(): array
     {
         return $this->delegates;

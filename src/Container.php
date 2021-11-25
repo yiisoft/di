@@ -66,13 +66,12 @@ final class Container implements ContainerInterface
      * Container constructor.
      *
      * @param array $definitions Definitions to put into container.
-     * @param ContainerConfig|null $config Container configuration.
+     * @param ContainerConfigInterface|null $config Container configuration.
      *
      * @throws InvalidConfigException
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct($definitions = [], ?ContainerConfig $config = null)
-    {
+    public function __construct($definitions = [], ?ContainerConfigInterface $config = null) {
         $this->definitions = new DefinitionStorage();
         $this->delegates = new CompositeContainer();
 
