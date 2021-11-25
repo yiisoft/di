@@ -17,6 +17,7 @@ final class ContainerConfig implements ContainerConfigInterface
 
     /**
      * @param array $definitions Definitions to put into container.
+     *
      * @return self
      */
     public function withDefinitions(array $definitions): self
