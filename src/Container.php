@@ -46,7 +46,7 @@ final class Container implements ContainerInterface
     /**
      * @var bool $validate If definitions should be validated.
      */
-    private bool $validate = true;
+    private bool $validate;
 
     /**
      * @var object[]
@@ -58,36 +58,27 @@ final class Container implements ContainerInterface
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
-    private array $tags = [];
+    private array $tags;
 
     private array $resetters = [];
 
     /**
      * Container constructor.
      *
-     * @param array $definitions Definitions to put into container.
-     * @param ContainerConfigInterface|null $config Container configuration.
+     * @param ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct($definitions = [], ?ContainerConfigInterface $config = null)
+    public function __construct(ContainerConfigInterface $config)
     {
         $this->definitions = new DefinitionStorage();
-        $this->delegates = new CompositeContainer();
-
-        if ($config !== null) {
-            $this->tags = $config->getTags();
-            $this->validate = $config->shouldValidate();
-        }
-
+        $this->tags = $config->getTags();
+        $this->validate = $config->shouldValidate();
         $this->setDefaultDefinitions();
-        $this->setMultiple($definitions);
-
-        if ($config !== null) {
-            $this->addProviders($config->getProviders());
-            $this->setDelegates($config->getDelegates());
-        }
+        $this->setMultiple($config->getDefinitions());
+        $this->addProviders($config->getProviders());
+        $this->setDelegates($config->getDelegates());
     }
 
     /**
@@ -240,6 +231,7 @@ final class Container implements ContainerInterface
      */
     private function setDelegates(array $delegates): void
     {
+        $this->delegates = new CompositeContainer();
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(

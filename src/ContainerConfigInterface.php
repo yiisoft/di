@@ -10,6 +10,11 @@ namespace Yiisoft\Di;
 interface ContainerConfigInterface
 {
     /**
+     * @return array Definitions to put into container.
+     */
+    public function getDefinitions(): array;
+
+    /**
      * @return array Service providers to get definitions from.
      */
     public function getProviders(): array;

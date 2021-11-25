@@ -9,10 +9,27 @@ namespace Yiisoft\Di;
  */
 final class ContainerConfig implements ContainerConfigInterface
 {
+    private array $definitions = [];
     private array $providers = [];
     private array $tags = [];
     private bool $validate = true;
     private array $delegates = [];
+
+    /**
+     * @param array $definitions Definitions to put into container.
+     * @return self
+     */
+    public function withDefinitions(array $definitions): self
+    {
+        $new = clone $this;
+        $new->definitions = $definitions;
+        return $new;
+    }
+
+    public function getDefinitions(): array
+    {
+        return $this->definitions;
+    }
 
     /**
      * @param array $providers Service providers to get definitions from.
