@@ -115,6 +115,7 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param bool $useStrictMode If the automatic addition of definition when class exists and can be resolved
      * is disabled.
+     *
      * @return self
      */
     public function withStrictMode(bool $useStrictMode): self
@@ -128,5 +129,4 @@ final class ContainerConfig implements ContainerConfigInterface
     {
         return $this->useStrictMode;
     }
-
 }
