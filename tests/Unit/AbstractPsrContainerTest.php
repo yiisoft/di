@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\Cycle\Chicken;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;

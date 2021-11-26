@@ -57,11 +57,12 @@ final class ContainerTest extends TestCase
     public function testSettingScalars(): void
     {
         $this->expectException(InvalidConfigException::class);
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'scalar' => 123,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $container->get('scalar');
     }
@@ -69,19 +70,20 @@ final class ContainerTest extends TestCase
     public function testIntegerKeys(): void
     {
         $this->expectException(InvalidConfigException::class);
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineMarkOne::class,
                 EngineMarkTwo::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $container->get(Car::class);
     }
 
     public function testNullableClassDependency(): void
     {
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $this->expectException(NotFoundException::class);
         $container->get(NullableConcreteDependency::class);
@@ -89,12 +91,12 @@ final class ContainerTest extends TestCase
 
     public function testOptionalCircularClassDependency(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 A::class => A::class,
                 B::class => B::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $a = $container->get(A::class);
         $this->assertInstanceOf(B::class, $a->b);
         $this->assertNull($a->b->a);
@@ -102,11 +104,11 @@ final class ContainerTest extends TestCase
 
     public function testHas(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->assertFalse($container->has('non_existing'));
         $this->assertFalse($container->has(ColorInterface::class));
@@ -135,14 +137,14 @@ final class ContainerTest extends TestCase
             $this->markTestSkipped('Union types are not supported before PHP 8');
         }
 
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $this->assertTrue($container->has($class));
     }
 
     public function testClassExistsButIsNotResolvable(): void
     {
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $this->assertFalse($container->has('non_existing'));
         $this->assertFalse($container->has(Car::class));
@@ -168,14 +170,14 @@ final class ContainerTest extends TestCase
             $this->markTestSkipped('Union types are not supported before PHP 8');
         }
 
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $this->assertFalse($container->has($class));
     }
 
     public function testWithoutDefinition(): void
     {
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $hasEngine = $container->has(EngineMarkOne::class);
         $this->assertTrue($hasEngine);
@@ -186,18 +188,18 @@ final class ContainerTest extends TestCase
 
     public function testCircularClassDependencyWithoutDefinition(): void
     {
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
         $this->expectException(CircularReferenceException::class);
         $container->get(Chicken::class);
     }
 
     public function testTrivialDefinition(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineMarkOne::class => EngineMarkOne::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $one = $container->get(EngineMarkOne::class);
         $two = $container->get(EngineMarkOne::class);
@@ -207,12 +209,12 @@ final class ContainerTest extends TestCase
 
     public function testCircularClassDependency(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 Chicken::class => Chicken::class,
                 Egg::class => Egg::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->expectException(CircularReferenceException::class);
         $container->get(Chicken::class);
@@ -220,22 +222,22 @@ final class ContainerTest extends TestCase
 
     public function testClassSimple(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine' => EngineMarkOne::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
     }
 
     public function testSetAll(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine1' => EngineMarkOne::class,
                 'engine2' => EngineMarkTwo::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine1'));
         $this->assertInstanceOf(EngineMarkTwo::class, $container->get('engine2'));
@@ -243,14 +245,14 @@ final class ContainerTest extends TestCase
 
     public function testClassConstructor(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'constructor_test' => [
                     'class' => ConstructorTestClass::class,
                     '__construct()' => [42],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var ConstructorTestClass $object */
         $object = $container->get('constructor_test');
@@ -260,8 +262,8 @@ final class ContainerTest extends TestCase
     // See https://github.com/yiisoft/di/issues/157#issuecomment-701458616
     public function testIntegerIndexedConstructorArguments(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'items' => [
                     'class' => ArrayIterator::class,
                     '__construct()' => [
@@ -269,8 +271,8 @@ final class ContainerTest extends TestCase
                         ArrayIterator::STD_PROP_LIST,
                     ],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $items = $container->get('items');
 
@@ -280,8 +282,8 @@ final class ContainerTest extends TestCase
 
     public function testExcessiveConstructorParametersIgnored(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'constructor_test' => [
                     'class' => ConstructorTestClass::class,
                     '__construct()' => [
@@ -289,8 +291,8 @@ final class ContainerTest extends TestCase
                         'surplus1' => 43,
                     ],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var ConstructorTestClass $object */
         $object = $container->get('constructor_test');
@@ -299,8 +301,8 @@ final class ContainerTest extends TestCase
 
     public function testVariadicConstructorParameters(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 'stringIndexed' => [
                     'class' => VariadicConstructor::class,
@@ -315,8 +317,8 @@ final class ContainerTest extends TestCase
                     'class' => VariadicConstructor::class,
                     '__construct()' => [1, new EngineMarkOne(), 42, 43, 44],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $object = $container->get('stringIndexed');
         $this->assertSame(1, $object->getFirst());
@@ -331,8 +333,8 @@ final class ContainerTest extends TestCase
 
     public function testMixedIndexedConstructorParametersAreNotAllowed(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'test' => [
                     'class' => VariadicConstructor::class,
                     '__construct()' => [
@@ -340,8 +342,8 @@ final class ContainerTest extends TestCase
                         43,
                     ],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->expectException(InvalidConfigException::class);
         $container->get('test');
@@ -349,14 +351,14 @@ final class ContainerTest extends TestCase
 
     public function testClassProperties(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'property_test' => [
                     'class' => PropertyTestClass::class,
                     '$property' => 42,
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var PropertyTestClass $object */
         $object = $container->get('property_test');
@@ -365,14 +367,14 @@ final class ContainerTest extends TestCase
 
     public function testClassMethods(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'method_test' => [
                     'class' => MethodTestClass::class,
                     'setValue()' => [42],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var MethodTestClass $object */
         $object = $container->get('method_test');
@@ -382,15 +384,16 @@ final class ContainerTest extends TestCase
     public function testClosureInConstructor(): void
     {
         $color = static fn () => new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 ConstructorTestClass::class => [
                     'class' => ConstructorTestClass::class,
                     '__construct()' => [$color],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $testClass = $container->get(ConstructorTestClass::class);
         $this->assertSame($color, $testClass->getParameter());
@@ -398,8 +401,8 @@ final class ContainerTest extends TestCase
 
     public function testDynamicClosureInConstruct(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'car' => [
                     'class' => Car::class,
                     '__construct()' => [
@@ -407,8 +410,8 @@ final class ContainerTest extends TestCase
                     ],
                 ],
                 EngineInterface::class => EngineMarkTwo::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $engine = $container->get(EngineInterface::class);
@@ -420,13 +423,13 @@ final class ContainerTest extends TestCase
         $engine = new EngineMarkOne();
         $closure = static fn (EngineInterface $engine) => $engine;
 
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => $engine,
                 'closure' => DynamicReference::to($closure),
                 'engine' => $closure,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $closure = $container->get('closure');
         $this->assertSame($closure, $container->get('closure'));
@@ -436,14 +439,15 @@ final class ContainerTest extends TestCase
     public function testClosureInProperty(): void
     {
         $color = static fn () => new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 PropertyTestClass::class => [
                     'class' => PropertyTestClass::class,
                     '$property' => $color,
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $testClass = $container->get(PropertyTestClass::class);
         $this->assertSame($color, $testClass->property);
@@ -452,16 +456,17 @@ final class ContainerTest extends TestCase
     public function testDynamicClosureInProperty(): void
     {
         $color = new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
                     '$color' => DynamicReference::to(fn () => $color),
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $this->assertSame($color, $car->getColor());
@@ -470,15 +475,16 @@ final class ContainerTest extends TestCase
     public function testClosureInMethodCall(): void
     {
         $color = static fn () => new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 MethodTestClass::class => [
                     'class' => MethodTestClass::class,
                     'setValue()' => [$color],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $testClass = $container->get(MethodTestClass::class);
         $this->assertSame($color, $testClass->getValue());
@@ -487,16 +493,17 @@ final class ContainerTest extends TestCase
     public function testDynamicClosureInMethodCall(): void
     {
         $color = new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
                     'setColor()' => [DynamicReference::to(fn () => $color)],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $this->assertSame($color, $car->getColor());
@@ -504,13 +511,13 @@ final class ContainerTest extends TestCase
 
     public function testAlias(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => Reference::to('engine'),
                 'engine' => Reference::to('engine-mark-one'),
                 'engine-mark-one' => EngineMarkOne::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $engine1 = $container->get('engine-mark-one');
         $engine2 = $container->get('engine');
@@ -522,13 +529,13 @@ final class ContainerTest extends TestCase
 
     public function testCircularAlias(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine-1' => Reference::to('engine-2'),
                 'engine-2' => Reference::to('engine-3'),
                 'engine-3' => Reference::to('engine-1'),
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->expectException(CircularReferenceException::class);
         $container->get('engine-1');
@@ -536,11 +543,11 @@ final class ContainerTest extends TestCase
 
     public function testUndefinedDependencies(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'car' => Car::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->expectException(NotFoundException::class);
         $container->get('car');
@@ -548,12 +555,12 @@ final class ContainerTest extends TestCase
 
     public function testDependencies(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'car' => Car::class,
                 EngineInterface::class => EngineMarkTwo::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var Car $car */
         $car = $container->get('car');
@@ -562,11 +569,11 @@ final class ContainerTest extends TestCase
 
     public function testCircularReference(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 TreeItem::class => TreeItem::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->expectException(CircularReferenceException::class);
         $container->get(TreeItem::class);
@@ -579,7 +586,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $container = new Container([]);
+        $container = new Container(ContainerConfig::create());
 
         // Build an object
         $container->get(ColorPink::class);
@@ -606,7 +613,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
         try {
             // Build an object
             $container->get('test');
@@ -627,12 +634,12 @@ final class ContainerTest extends TestCase
 
     public function testCallable(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 'test' => fn (ContainerInterface $container) => $container->get(EngineInterface::class),
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $object = $container->get('test');
         $this->assertInstanceOf(EngineMarkOne::class, $object);
@@ -640,12 +647,12 @@ final class ContainerTest extends TestCase
 
     public function testCallableWithInjector(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke([$factory, 'create']),
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
         $car = $container->get('car');
@@ -655,12 +662,12 @@ final class ContainerTest extends TestCase
 
     public function testCallableWithArgs(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine1' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkOne::NAME),
                 'engine2' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkTwo::NAME),
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $engine1 = $container->get('engine1');
         $this->assertInstanceOf(EngineMarkOne::class, $engine1);
         $this->assertSame(EngineMarkOne::NUMBER, $engine1->getNumber());
@@ -671,8 +678,8 @@ final class ContainerTest extends TestCase
 
     public function testCallableWithDependencies(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'car1' => fn (CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName(
                     $engineFactory,
                     EngineMarkOne::NAME
@@ -681,8 +688,8 @@ final class ContainerTest extends TestCase
                     $engineFactory,
                     EngineMarkTwo::NAME
                 ),
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $car1 = $container->get('car1');
         $this->assertInstanceOf(Car::class, $car1);
         $this->assertInstanceOf(EngineMarkOne::class, $car1->getEngine());
@@ -694,11 +701,12 @@ final class ContainerTest extends TestCase
     public function testObject(): void
     {
         $engine = new EngineMarkOne();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine' => $engine,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $object = $container->get('engine');
         $this->assertSame($engine, $object);
@@ -706,12 +714,12 @@ final class ContainerTest extends TestCase
 
     public function testArrayStaticCall(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 'car' => [CarFactory::class, 'create'],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
@@ -720,12 +728,12 @@ final class ContainerTest extends TestCase
 
     public function testArrayDynamicCall(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 ColorInterface::class => ColorPink::class,
                 'car' => [CarFactory::class, 'createWithColor'],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
@@ -734,12 +742,12 @@ final class ContainerTest extends TestCase
 
     public function testArrayDynamicCallWithObject(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 ColorInterface::class => ColorPink::class,
                 'car' => [new CarFactory(), 'createWithColor'],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
@@ -748,12 +756,12 @@ final class ContainerTest extends TestCase
 
     public function testInvokeable(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine' => EngineMarkOne::class,
                 'invokeable' => new InvokeableCarFactory(),
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $object = $container->get('invokeable');
         $this->assertInstanceOf(Car::class, $object);
@@ -761,8 +769,8 @@ final class ContainerTest extends TestCase
 
     public function testReference(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine' => EngineMarkOne::class,
                 'color' => ColorPink::class,
                 'car' => [
@@ -772,8 +780,8 @@ final class ContainerTest extends TestCase
                     ],
                     '$color' => Reference::to('color'),
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $object = $container->get('car');
         $this->assertInstanceOf(Car::class, $object);
         $this->assertInstanceOf(ColorPink::class, $object->color);
@@ -781,8 +789,8 @@ final class ContainerTest extends TestCase
 
     public function testReferencesInArrayInDependencies(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine1' => EngineMarkOne::class,
                 'engine2' => EngineMarkTwo::class,
                 'engine3' => EngineMarkTwo::class,
@@ -802,8 +810,8 @@ final class ContainerTest extends TestCase
                         ],
                     ],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
         $moreEngines = $car->getMoreEngines();
@@ -815,16 +823,18 @@ final class ContainerTest extends TestCase
     public function testReferencesInProperties(): void
     {
         $color = new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
                     '$color' => Reference::to(ColorInterface::class),
                 ],
-            ]
-        );
+            ]);
+
+        $container = new Container($config);
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
         $this->assertSame($color, $car->getColor());
@@ -833,16 +843,17 @@ final class ContainerTest extends TestCase
     public function testReferencesInMethodCall(): void
     {
         $color = new ColorPink();
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
                     'setColor()' => [Reference::to(ColorInterface::class)],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
         $car = $container->get('car');
         $this->assertInstanceOf(Car::class, $car);
         $this->assertSame($color, $car->getColor());
@@ -853,8 +864,9 @@ final class ContainerTest extends TestCase
         $array = [
             [EngineMarkTwo::class, 'getNumber'],
         ];
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 Car::class => [
                     'class' => Car::class,
@@ -863,8 +875,8 @@ final class ContainerTest extends TestCase
                         $array,
                     ],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         /** @var Car $object */
         $object = $container->get(Car::class);
@@ -873,11 +885,11 @@ final class ContainerTest extends TestCase
 
     public function testSameInstance(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'engine' => EngineMarkOne::class,
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $one = $container->get('engine');
         $two = $container->get('engine');
@@ -887,14 +899,15 @@ final class ContainerTest extends TestCase
     public function testGetByClassIndirectly(): void
     {
         $number = 42;
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
                 EngineMarkOne::class => [
                     'setNumber()' => [$number],
                 ],
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
         $this->assertInstanceOf(EngineMarkOne::class, $engine);
@@ -905,19 +918,19 @@ final class ContainerTest extends TestCase
     {
         $this->expectException(NotFoundException::class);
 
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
         $container->get('non_existing');
     }
 
     public function testContainerInContainer(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 'container' => static function (ContainerInterface $container) {
                     return $container;
                 },
-            ]
-        );
+            ]);
+        $container = new Container($config);
 
         $this->assertSame($container, $container->get('container'));
         $this->assertSame($container, $container->get(ContainerInterface::class));
@@ -925,16 +938,18 @@ final class ContainerTest extends TestCase
 
     public function testTagsInArrayDefinition(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['engine'],
-            ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-                'tags' => ['engine'],
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                    'tags' => ['engine'],
+                ],
+            ]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
 
@@ -945,20 +960,22 @@ final class ContainerTest extends TestCase
 
     public function testTagsInClosureDefinition(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'definition' => function () {
-                    return new EngineMarkOne();
-                },
-                'tags' => ['engine'],
-            ],
-            EngineMarkTwo::class => [
-                'definition' => function () {
-                    return new EngineMarkTwo();
-                },
-                'tags' => ['engine'],
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'definition' => function () {
+                        return new EngineMarkOne();
+                    },
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'definition' => function () {
+                        return new EngineMarkTwo();
+                    },
+                    'tags' => ['engine'],
+                ],
+            ]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
 
@@ -969,16 +986,18 @@ final class ContainerTest extends TestCase
 
     public function testTagsMultiple(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['engine', 'mark_one'],
-            ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-                'tags' => ['engine'],
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine', 'mark_one'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                    'tags' => ['engine'],
+                ],
+            ]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
         $markOneEngines = $container->get('tag@mark_one');
@@ -993,14 +1012,16 @@ final class ContainerTest extends TestCase
 
     public function testTagsEmpty(): void
     {
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-            ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                ],
+            ]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
 
@@ -1010,8 +1031,8 @@ final class ContainerTest extends TestCase
 
     public function testTagsWithExternalDefinition(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'tags' => ['engine'],
@@ -1019,10 +1040,9 @@ final class ContainerTest extends TestCase
                 EngineMarkTwo::class => [
                     'class' => EngineMarkTwo::class,
                 ],
-            ],
-            (new ContainerConfig())
-                ->withTags(['engine' => [EngineMarkTwo::class]])
-        );
+            ])
+            ->withTags(['engine' => [EngineMarkTwo::class]]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
 
@@ -1034,8 +1054,8 @@ final class ContainerTest extends TestCase
 
     public function testTagsWithExternalDefinitionMerge(): void
     {
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'tags' => ['engine'],
@@ -1044,10 +1064,9 @@ final class ContainerTest extends TestCase
                     'class' => EngineMarkTwo::class,
                     'tags' => ['engine'],
                 ],
-            ],
-            (new ContainerConfig())
-                ->withTags(['mark_two' => [EngineMarkTwo::class]])
-        );
+            ])
+            ->withTags(['mark_two' => [EngineMarkTwo::class]]);
+        $container = new Container($config);
 
         $engines = $container->get('tag@engine');
         $markTwoEngines = $container->get('tag@mark_two');
@@ -1063,20 +1082,22 @@ final class ContainerTest extends TestCase
 
     public function testTagsAsArrayInConstructor(): void
     {
-        $container = new Container([
-            EngineInterface::class => EngineMarkOne::class,
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['engine'],
-            ],
-            EngineMarkTwo::class => [
-                'class' => EngineMarkTwo::class,
-                'tags' => ['engine'],
-            ],
-            Car::class => [
-                '__construct()' => ['moreEngines' => Reference::to('tag@engine')],
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => EngineMarkOne::class,
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                    'tags' => ['engine'],
+                ],
+                Car::class => [
+                    '__construct()' => ['moreEngines' => Reference::to('tag@engine')],
+                ],
+            ]);
+        $container = new Container($config);
 
         $engines = $container->get(Car::class)->getMoreEngines();
 
@@ -1088,17 +1109,19 @@ final class ContainerTest extends TestCase
 
     public function testResetter(): void
     {
-        $container = new Container([
-            EngineInterface::class => EngineMarkOne::class,
-            StateResetter::class => StateResetter::class,
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'setNumber()' => [42],
-                'reset' => function () {
-                    $this->number = 42;
-                },
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => EngineMarkOne::class,
+                StateResetter::class => StateResetter::class,
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => function () {
+                        $this->number = 42;
+                    },
+                ],
+            ]);
+        $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
         $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
@@ -1115,37 +1138,43 @@ final class ContainerTest extends TestCase
     public function testWrongResetter(): void
     {
         $this->expectException(TypeError::class);
-        new Container([
-            EngineInterface::class => EngineMarkOne::class,
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'setNumber()' => [42],
-                'reset' => [34],
-            ],
-        ]);
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => EngineMarkOne::class,
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => [34],
+                ],
+            ]);
+        new Container($config);
     }
 
     public function testNestedResetter(): void
     {
         $color = new ColorPink();
-        $container = new Container([
-            EngineInterface::class => EngineMarkOne::class,
-            EngineMarkOne::class => [
-                'class' => EngineMarkOne::class,
-                'setNumber()' => [42],
-                'reset' => function () {
-                    $this->number = 42;
-                },
-            ],
-            ColorInterface::class => $color,
-            Car::class => [
-                'class' => Car::class,
-                'setColor()' => [DynamicReference::to(fn () => $color)],
-                'reset' => function (ContainerInterface $container) {
-                    $this->color = $container->get(ColorInterface::class);
-                },
-            ],
-        ]);
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => EngineMarkOne::class,
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => function () {
+                        $this->number = 42;
+                    },
+                ],
+                ColorInterface::class => $color,
+                Car::class => [
+                    'class' => Car::class,
+                    'setColor()' => [DynamicReference::to(fn () => $color)],
+                    'reset' => function (ContainerInterface $container) {
+                        $this->color = $container->get(ColorInterface::class);
+                    },
+                ],
+            ]);
+        $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
         $car = $container->get(Car::class);
@@ -1168,24 +1197,30 @@ final class ContainerTest extends TestCase
     public function testResetterInCompositeContainer(): void
     {
         $composite = new CompositeContainer();
-        $firstContainer = new Container([
-            'engineMarkOne' => [
-                'class' => EngineMarkOne::class,
-                'setNumber()' => [42],
-                'reset' => function () {
-                    $this->number = 42;
-                },
-            ],
-        ]);
-        $secondContainer = new Container([
-            'engineMarkTwo' => [
-                'class' => EngineMarkTwo::class,
-                'setNumber()' => [43],
-                'reset' => function () {
-                    $this->number = 43;
-                },
-            ],
-        ]);
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'engineMarkOne' => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => function () {
+                        $this->number = 42;
+                    },
+                ],
+            ]);
+        $firstContainer = new Container($config);
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'engineMarkTwo' => [
+                    'class' => EngineMarkTwo::class,
+                    'setNumber()' => [43],
+                    'reset' => function () {
+                        $this->number = 43;
+                    },
+                ],
+            ]);
+        $secondContainer = new Container($config);
         $composite->attach($firstContainer);
         $composite->attach($secondContainer);
 
@@ -1227,15 +1262,15 @@ final class ContainerTest extends TestCase
         };
 
         $this->expectException(RuntimeException::class);
-        $container = new Container(
-            [
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 B::class => function () {
                     throw new RuntimeException();
                 },
-            ],
-            (new ContainerConfig())
-                ->withProviders([$provider])
-        );
+            ])
+            ->withProviders([$provider]);
+        $container = new Container($config);
         $container->get(B::class);
     }
 
@@ -1246,12 +1281,14 @@ final class ContainerTest extends TestCase
             'Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?'
         );
 
-        new Container([
-            EngineInterface::class => [
-                'class' => EngineMarkOne::class,
-                'setId' => [42],
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => [
+                    'class' => EngineMarkOne::class,
+                    'setId' => [42],
+                ],
+            ]);
+        new Container($config);
     }
 
     public function testErrorOnPropertyTypo(): void
@@ -1261,12 +1298,14 @@ final class ContainerTest extends TestCase
             'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
         );
 
-        new Container([
-            EngineInterface::class => [
-                'class' => EngineMarkOne::class,
-                'dev' => true,
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => [
+                    'class' => EngineMarkOne::class,
+                    'dev' => true,
+                ],
+            ]);
+        new Container($config);
     }
 
     public function testErrorOnDisallowMeta(): void
@@ -1276,33 +1315,36 @@ final class ContainerTest extends TestCase
             'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
         );
 
-        new Container([
-            EngineInterface::class => [
-                'class' => EngineMarkOne::class,
-                'tags' => ['a', 'b'],
-                'dev' => 42,
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['a', 'b'],
+                    'dev' => 42,
+                ],
+            ]);
+        new Container($config);
     }
 
     public function testDelegateLookup(): void
     {
         $delegate = static function (ContainerInterface $container) {
-            return new Container([
-                EngineInterface::class => EngineMarkOne::class,
-                SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
-            ]);
+            $config = ContainerConfig::create()
+                ->withDefinitions([
+                    EngineInterface::class => EngineMarkOne::class,
+                    SportCar::class => ['__construct()' => ['maxSpeed' => 300]],
+                ]);
+            return new Container($config);
         };
 
-        $container = new Container(
-            [
+        $config = ContainerConfig::create()
+            ->withDefinitions([
                 Garage::class => Garage::class,
                 EngineInterface::class => EngineMarkTwo::class,
-            ],
-            (new ContainerConfig())
-                ->withValidate(true)
-                ->withDelegates([$delegate])
-        );
+            ])
+            ->withValidate(true)
+            ->withDelegates([$delegate]);
+        $container = new Container($config);
 
         $garage = $container->get(Garage::class);
 

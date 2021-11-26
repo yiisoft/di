@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use League\Container\Container;
+use Yiisoft\Di\ContainerConfig;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;
@@ -27,13 +28,6 @@ final class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrCont
         }
 
         return $container;
-    }
-
-    protected function getExpectedNotFoundExceptionMessage(): string
-    {
-        return 'No definition or class found or resolvable in composite container:
-#1: No definition or class found or resolvable for "test" while building "test".
-#2: No definition or class found or resolvable for "test" while building "test".';
     }
 
     public function testNotFoundException(): void

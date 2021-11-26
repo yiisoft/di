@@ -6,6 +6,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use League\Container\Container;
 use Psr\Container\ContainerInterface;
+use Yiisoft\Di\ContainerConfig;
 
 /**
  * Test the League PSR-11 Container.
