@@ -35,4 +35,9 @@ interface ContainerConfigInterface
      * in case a service can not be found in primary container.
      */
     public function getDelegates(): array;
+
+    /**
+     * @return bool If the automatic addition of definition when class exists and can be resolved is disabled.
+     */
+    public function useStrictMode(): bool;
 }

@@ -14,6 +14,7 @@ final class ContainerConfig implements ContainerConfigInterface
     private array $tags = [];
     private bool $validate = true;
     private array $delegates = [];
+    private bool $useStrictMode = false;
 
     private function __construct()
     {
@@ -110,4 +111,22 @@ final class ContainerConfig implements ContainerConfigInterface
     {
         return $this->delegates;
     }
+
+    /**
+     * @param bool $useStrictMode If the automatic addition of definition when class exists and can be resolved
+     * is disabled.
+     * @return self
+     */
+    public function withStrictMode(bool $useStrictMode): self
+    {
+        $new = clone $this;
+        $new->useStrictMode = $useStrictMode;
+        return $new;
+    }
+
+    public function useStrictMode(): bool
+    {
+        return $this->useStrictMode;
+    }
+
 }

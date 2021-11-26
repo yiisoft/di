@@ -72,7 +72,7 @@ final class Container implements ContainerInterface
      */
     public function __construct(ContainerConfigInterface $config)
     {
-        $this->definitions = new DefinitionStorage();
+        $this->definitions = new DefinitionStorage([], $config->useStrictMode());
         $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
         $this->setDefaultDefinitions();

@@ -26,7 +26,7 @@ and configure classes resolving dependencies.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
 - Accepts array definitions. Could be used with mergeable configs.
-- Provides autoload fallback for classes without explicit definition.
+- Provides optional autoload fallback for classes without explicit definition.
 - Allows delegated lookup and has composite container.
 - Supports aliasing.
 - Supports service providers.
@@ -424,6 +424,21 @@ use Yiisoft\Di\ContainerConfig;
 
 $config = ContainerConfig::create()
     ->withValidate(false);
+
+$container = new Container($config);
+```
+
+## Strict mode
+
+Container may work in strict mode, i.e. when everything in the container should be defined explicitly. In order to
+turn it on use the following code:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withStrictMode(true);
 
 $container = new Container($config);
 ```
