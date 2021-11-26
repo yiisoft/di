@@ -6,6 +6,7 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
@@ -33,11 +34,14 @@ final class ServiceProviderTest extends TestCase
 
     private function ensureProviderRegisterExtensions($provider): void
     {
-        $container = new Container([
-            Car::class => Car::class,
-            EngineInterface::class => EngineMarkOne::class,
-            'sport_car' => SportCar::class,
-        ], [$provider]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                EngineInterface::class => EngineMarkOne::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([$provider]);
+        $container = new Container($config);
 
         $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineInterface::class));
@@ -48,7 +52,7 @@ final class ServiceProviderTest extends TestCase
 
     private function ensureProviderRegisterDefinitions($provider): void
     {
-        $container = new Container();
+        $container = new Container(ContainerConfig::create());
 
         $this->assertFalse(
             $container->has(Car::class),
@@ -63,10 +67,13 @@ final class ServiceProviderTest extends TestCase
             'Container should not have EngineInterface registered before service provider added.'
         );
 
-        $container = new Container([
-            Car::class => Car::class,
-            'sport_car' => SportCar::class,
-        ], [$provider]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([$provider]);
+        $container = new Container($config);
 
         // ensure addProvider invoked ServiceProviderInterface::register
         $this->assertTrue(
@@ -82,25 +89,42 @@ final class ServiceProviderTest extends TestCase
     public function testNotExistedExtension(): void
     {
         $this->expectException(InvalidConfigException::class);
-        new Container([], [CarProvider::class]);
+        $config = ContainerConfig::create()
+            ->withProviders([
+                CarProvider::class,
+            ]);
+        new Container($config);
     }
 
     public function testExtensionOverride(): void
     {
-        $container = new Container([
-            Car::class => Car::class,
-            'sport_car' => SportCar::class,
-        ], [CarProvider::class, CarExtensionProvider::class]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([
+                CarProvider::class,
+                CarExtensionProvider::class,
+            ]);
+        $container = new Container($config);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }
 
     public function testExtensionReturnedNull(): void
     {
-        $container = new Container([
-            Car::class => Car::class,
-            'sport_car' => SportCar::class,
-        ], [CarProvider::class, NullCarExtensionProvider::class, CarExtensionProvider::class]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([
+                CarProvider::class,
+                NullCarExtensionProvider::class,
+                CarExtensionProvider::class,
+            ]);
+        $container = new Container($config);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }

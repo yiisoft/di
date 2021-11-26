@@ -8,6 +8,7 @@ use Psr\Container\ContainerInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
@@ -19,7 +20,9 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
-        $container = new Container($definitions);
+        $config = ContainerConfig::create()
+            ->withDefinitions($definitions);
+        $container = new Container($config);
         return $this->createCompositeContainer($container);
     }
 
@@ -41,12 +44,16 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
                 return $engine;
             },
         ]);
-        $secondContainer = new Container([
-            'engineMarkTwo' => ['class' => EngineMarkTwo::class,
-                'setNumber()' => [43],
-                'reset' => function () {
-                    $this->number = 43;
-                },],]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'engineMarkTwo' => ['class' => EngineMarkTwo::class,
+                    'setNumber()' => [43],
+                    'reset' => function () {
+                        $this->number = 43;
+                    },
+                ],
+            ]);
+        $secondContainer = new Container($config);
         $composite->attach($secondContainer);
 
         $engineMarkOne = $composite->get('engineMarkOne');
@@ -71,9 +78,9 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
     {
         $compositeContainer = new CompositeContainer();
 
-        $container1 = new Container();
+        $container1 = new Container(ContainerConfig::create());
         $container1Id = spl_object_id($container1);
-        $container2 = new Container();
+        $container2 = new Container(ContainerConfig::create());
         $container2Id = spl_object_id($container2);
 
         $compositeContainer->attach($container1);

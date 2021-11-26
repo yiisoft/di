@@ -50,11 +50,15 @@ file:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions($definitions);
 
 $container = new Container($config);
 ```
 
-The configuration can be stored in a `.php` file that returns an array:
+The definitions could be stored in a `.php` file that returns an array:
 
 ```php
 return [
@@ -109,11 +113,15 @@ retrieved by a more handy name:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    'engine_one' => EngineInterface::class,
-]);
+$config = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        'engine_one' => EngineInterface::class,
+    ]);
+
+$container = new Container($config);
 $object = $container->get('engine_one');
 ```
 
@@ -126,15 +134,23 @@ container.
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
 $composite = new CompositeContainer();
-$carContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    CarInterface::class => Car::class
-], []);
-$bikeContainer = new Container([
-    BikeInterface::class => Bike::class
-], []);
+
+$carConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        CarInterface::class => Car::class
+    ]);
+$carContainer = new Container($carConfig);
+
+$bikeConfig = ContainerConfig::create()
+    ->withDefinitions([
+        BikeInterface::class => Bike::class
+    ]);
+
+$bikeContainer = new Container($bikeConfig);
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
 
@@ -149,11 +165,15 @@ Note, that containers attached earlier override dependencies of containers attac
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$carContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    CarInterface::class => Car::class
-], []);
+$carConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        CarInterface::class => Car::class
+    ]);
+
+$carContainer = new Container($carConfig);
 
 $composite = new CompositeContainer();
 $composite->attach($carContainer);
@@ -163,9 +183,12 @@ $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkOne` class.
 $engine = $car->getEngine();
 
-$engineContainer = new Container([
-    EngineInterface::class => EngineMarkTwo::class,
-], []);
+$engineConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkTwo::class,
+    ]);
+
+$engineContainer = new Container($engineConfig);
 
 $composite = new CompositeContainer();
 $composite->attach($engineContainer);
@@ -236,14 +259,16 @@ and put a car into the garage by calling the method `setCar()`. Thus, before app
 an empty garage and with the help of the extension we fill it.
 
 To add this service provider to a container you can pass either its class or a
-configuration array in the `$providers` constructor parameter:
+configuration array in the additional config:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container($config, [
-    CarFactoryProvider::class,
-]);
+$config = ContainerConfig::create()
+    ->withProviders([CarFactoryProvider::class]);
+
+$container = new Container($config);
 ```
 
 When a service provider is added, its `getDefinitions()` and `getExtensions()` methods are called
@@ -254,16 +279,22 @@ When a service provider is added, its `getDefinitions()` and `getExtensions()` m
 You can tag services in the following way:
 
 ```php
-$container = new Container([  
-    BlueCarService::class => [
-        'class' => BlueCarService::class,
-        'tags' => ['car'], 
-    ],
-    RedCarService::class => [
-        'definition' => fn () => new RedCarService(),
-        'tags' => ['car'],
-    ],
-]);
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([  
+        BlueCarService::class => [
+            'class' => BlueCarService::class,
+            'tags' => ['car'], 
+        ],
+        RedCarService::class => [
+            'definition' => fn () => new RedCarService(),
+            'tags' => ['car'],
+        ],
+    ]);
+
+$container = new Container($config);
 ```
 
 Now we can get tagged services from the container in the following way:
@@ -277,19 +308,22 @@ The result is an array that contains two instances: `BlueCarService` and `RedCar
 Another way to tag services is setting tags via container constructor:
 
 ```php
-$container = new Container(
-    [  
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([  
         BlueCarService::class => [
             'class' => BlueCarService::class,
         ],
         RedCarService::class => fn () => new RedCarService(),
-    ],
-    [],
-    [
+    ])
+    ->withTags([
         // "car" tag has references to both blue and red cars
         'car' => [BlueCarService::class, RedCarService::class]
-    ]
-);
+    ]);
+
+$container = new Container($config);
 ```
 
 ## Resetting services state
@@ -300,16 +334,22 @@ reset the state of such services every request. For this purpose you can use `St
 is defined for each individual service by providing "reset" callback in the following way:
 
 ```php
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    EngineMarkOne::class => [
-        'class' => EngineMarkOne::class,
-        'setNumber()' => [42],
-        'reset' => function () {
-            $this->number = 42;
-        },
-    ],
- ]);
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        EngineMarkOne::class => [
+            'class' => EngineMarkOne::class,
+            'setNumber()' => [42],
+            'reset' => function () {
+                $this->number = 42;
+            },
+        ],
+    ]);
+
+$container = new Container($config);
 ```
 
 The callback has access to the private and protected properties of the service instance, so you can set initial state
@@ -357,38 +397,35 @@ function (ContainerInterface $container): ContainerInterface
 }
 ```
 
-In order to configure delegates use fifth constructor argument:
+In order to configure delegates use additional config:
 
 ```php
-use \Yiisoft\Di\Container;
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container(
-    $defintions,
-    $providers,
-    $tags,
-    $validate,
-    [
-        function (ContainerInterface $container): ContainerInterface {
-            // ...
-        }
-    ]
-);
+$config = ContainerConfig::create()->withDelegates([
+    function (ContainerInterface $container): ContainerInterface {
+        // ...
+    }
+]);
+
+
+$container = new Container($config);
 ```
 
 ## Tuning for production
 
 By default, the container validates definitions right when they are set. In production environment, it makes sense to
-turn it off by passing `false` as a fourth constructor argument:
+turn it off:
 
 ```php
-use \Yiisoft\Di\Container;
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container(
-    $defintions,
-    $providers,
-    $tags,
-    false
-);
+$config = ContainerConfig::create()
+    ->withValidate(false);
+
+$container = new Container($config);
 ```
 
 ## Further reading

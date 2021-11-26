@@ -65,34 +65,20 @@ final class Container implements ContainerInterface
     /**
      * Container constructor.
      *
-     * @param array $definitions Definitions to put into container.
-     * @param array $providers Service providers to get definitions from.
-     * lookup to when resolving dependencies. If provided the current container
-     * is no longer queried for dependencies.
-     * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     * @param bool $validate If definitions should be validated immediately.
-     * @param array $delegates Container delegates. Each delegate is a callable in format
-     * "function (ContainerInterface $container): ContainerInterface". The container instance returned is used
-     * in case a service can not be found in primary container.
+     * @param ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException
-     *
      * @psalm-suppress PropertyNotSetInConstructor
      */
-    public function __construct(
-        array $definitions = [],
-        array $providers = [],
-        array $tags = [],
-        bool $validate = true,
-        array $delegates = []
-    ) {
-        $this->tags = $tags;
-        $this->validate = $validate;
+    public function __construct(ContainerConfigInterface $config)
+    {
         $this->definitions = new DefinitionStorage();
+        $this->tags = $config->getTags();
+        $this->validate = $config->shouldValidate();
         $this->setDefaultDefinitions();
-        $this->setMultiple($definitions);
-        $this->addProviders($providers);
-        $this->setDelegates($delegates);
+        $this->setMultiple($config->getDefinitions());
+        $this->addProviders($config->getProviders());
+        $this->setDelegates($config->getDelegates());
     }
 
     /**

@@ -71,9 +71,9 @@ final class CompositeContainer implements ContainerInterface
         foreach ($this->containers as $container) {
             $hasException = false;
             try {
-                $hasException = true;
                 $container->get($id);
             } catch (Throwable $t) {
+                $hasException = true;
                 $exceptions[] = [$t, $container];
             } finally {
                 if (!$hasException) {

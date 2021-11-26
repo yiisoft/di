@@ -29,13 +29,6 @@ final class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrCont
         return $container;
     }
 
-    protected function getExpectedNotFoundExceptionMessage(): string
-    {
-        return 'No definition or class found or resolvable in composite container:
-#1: No definition or class found or resolvable for "test" while building "test".
-#2: No definition or class found or resolvable for "test" while building "test".';
-    }
-
     public function testNotFoundException(): void
     {
         $compositeContainer = new CompositeContainer();
