@@ -50,8 +50,8 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
                     'setNumber()' => [43],
                     'reset' => function () {
                         $this->number = 43;
-                    }
-                ]
+                    },
+                ],
             ]);
         $secondContainer = new Container($config);
         $composite->attach($secondContainer);

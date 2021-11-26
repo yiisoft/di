@@ -91,7 +91,7 @@ final class ServiceProviderTest extends TestCase
         $this->expectException(InvalidConfigException::class);
         $config = ContainerConfig::create()
             ->withProviders([
-                CarProvider::class
+                CarProvider::class,
             ]);
         new Container($config);
     }
@@ -105,7 +105,7 @@ final class ServiceProviderTest extends TestCase
             ])
             ->withProviders([
                 CarProvider::class,
-                CarExtensionProvider::class
+                CarExtensionProvider::class,
             ]);
         $container = new Container($config);
 
@@ -122,7 +122,7 @@ final class ServiceProviderTest extends TestCase
             ->withProviders([
                 CarProvider::class,
                 NullCarExtensionProvider::class,
-                CarExtensionProvider::class
+                CarExtensionProvider::class,
             ]);
         $container = new Container($config);
 

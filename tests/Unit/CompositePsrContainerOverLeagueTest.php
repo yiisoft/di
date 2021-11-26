@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use League\Container\Container;
-use Yiisoft\Di\ContainerConfig;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;

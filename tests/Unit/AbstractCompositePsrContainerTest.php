@@ -36,7 +36,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'test' => EngineMarkOne::class
+                'test' => EngineMarkOne::class,
             ]);
         $container = new Container($config);
         $compositeContainer->attach($container);
@@ -50,7 +50,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'test' => EngineMarkOne::class
+                'test' => EngineMarkOne::class,
             ]);
         $container = new Container($config);
         $compositeContainer->attach($container);
@@ -68,7 +68,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'test' => EngineMarkTwo::class
+                'test' => EngineMarkTwo::class,
             ]);
         $container = new Container($config);
         $compositeContainer->attach($container);
@@ -81,7 +81,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $config = ContainerConfig::create()
             ->withDefinitions([
-                EngineInterface::class => EngineMarkTwo::class
+                EngineInterface::class => EngineMarkTwo::class,
             ]);
         $container = new Container($config);
         $compositeContainer->attach($container);
