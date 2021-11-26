@@ -15,6 +15,15 @@ final class ContainerConfig implements ContainerConfigInterface
     private bool $validate = true;
     private array $delegates = [];
 
+    private function __construct()
+    {
+    }
+
+    public static function create()
+    {
+        return new self();
+    }
+
     /**
      * @param array $definitions Definitions to put into container.
      *

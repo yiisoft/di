@@ -52,7 +52,7 @@ file:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withDefinitions($definitions);
 
 $container = new Container($config);
@@ -115,7 +115,7 @@ retrieved by a more handy name:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withDefinitions([
         EngineInterface::class => EngineMarkOne::class,
         'engine_one' => EngineInterface::class,
@@ -138,14 +138,14 @@ use Yiisoft\Di\ContainerConfig;
 
 $composite = new CompositeContainer();
 
-$carConfig = (new ContainerConfig())
+$carConfig = ContainerConfig::create()
     ->withDefinitions([
         EngineInterface::class => EngineMarkOne::class,
         CarInterface::class => Car::class
     ]);
 $carContainer = new Container($carConfig);
 
-$bikeConfig = (new ContainerConfig())
+$bikeConfig = ContainerConfig::create()
     ->withDefinitions([
         BikeInterface::class => Bike::class
     ]);
@@ -167,7 +167,7 @@ use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$carConfig = (new ContainerConfig())
+$carConfig = ContainerConfig::create()
     ->withDefinitions([
         EngineInterface::class => EngineMarkOne::class,
         CarInterface::class => Car::class
@@ -183,7 +183,7 @@ $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkOne` class.
 $engine = $car->getEngine();
 
-$engineConfig = (new ContainerConfig())
+$engineConfig = ContainerConfig::create()
     ->withDefinitions([
         EngineInterface::class => EngineMarkTwo::class,
     ]);
@@ -265,7 +265,7 @@ configuration array in the additional config:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withProviders([CarFactoryProvider::class]);
 
 $container = new Container($config);
@@ -282,7 +282,7 @@ You can tag services in the following way:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withDefinitions([  
         BlueCarService::class => [
             'class' => BlueCarService::class,
@@ -311,7 +311,7 @@ Another way to tag services is setting tags via container constructor:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withDefinitions([  
         BlueCarService::class => [
             'class' => BlueCarService::class,
@@ -337,7 +337,7 @@ is defined for each individual service by providing "reset" callback in the foll
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withDefinitions([
         EngineInterface::class => EngineMarkOne::class,
         EngineMarkOne::class => [
@@ -403,7 +403,7 @@ In order to configure delegates use additional config:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig)->withDelegates([
+$config = ContainerConfig::create()->withDelegates([
     function (ContainerInterface $container): ContainerInterface {
         // ...
     }
@@ -422,7 +422,7 @@ turn it off:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = (new ContainerConfig())
+$config = ContainerConfig::create()
     ->withValidate(false);
 
 $container = new Container($config);
