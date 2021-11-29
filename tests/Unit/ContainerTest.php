@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use TypeError;
 use Yiisoft\Di\CompositeContainer;
@@ -1350,5 +1351,25 @@ final class ContainerTest extends TestCase
 
         $this->assertInstanceOf(Garage::class, $garage);
         $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
+    }
+
+    public function testStrictModeDisabled(): void
+    {
+        $config = ContainerConfig::create()->withStrictMode(false);
+        $container = new Container($config);
+        $this->assertTrue($container->has(EngineMarkOne::class));
+
+        $engine = $container->get(EngineMarkOne::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $engine);
+    }
+
+    public function testStrictModeEnabled(): void
+    {
+        $config = ContainerConfig::create()->withStrictMode(true);
+        $container = new Container($config);
+        $this->assertFalse($container->has(EngineMarkOne::class));
+
+        $this->expectException(NotFoundExceptionInterface::class);
+        $container->get(EngineMarkOne::class);
     }
 }
