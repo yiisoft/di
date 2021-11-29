@@ -408,6 +408,10 @@ final class Container implements ContainerInterface
 
         foreach ($extensions as $providerExtensions) {
             foreach ($providerExtensions as $id => $extension) {
+                if ($id === ContainerInterface::class) {
+                    throw new InvalidConfigException("ContainerInterface extensions are not allowed.");
+                }
+
                 if (!$this->definitions->has($id)) {
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }

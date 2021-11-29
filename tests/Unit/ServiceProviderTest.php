@@ -10,6 +10,7 @@ use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
+use Yiisoft\Di\Tests\Support\ContainerInterfaceExtensionProvider;
 use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
@@ -92,6 +93,16 @@ final class ServiceProviderTest extends TestCase
         $config = ContainerConfig::create()
             ->withProviders([
                 CarProvider::class,
+            ]);
+        new Container($config);
+    }
+
+    public function testContainerInterfaceExtension(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $config = ContainerConfig::create()
+            ->withProviders([
+                ContainerInterfaceExtensionProvider::class,
             ]);
         new Container($config);
     }
