@@ -10,10 +10,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use stdClass;
 use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\ExtensibleService;
 use Yiisoft\Di\NotFoundException;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
@@ -1388,6 +1390,62 @@ final class ContainerTest extends TestCase
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
             'Delegate callable must return an object that implements ContainerInterface.'
+        );
+        new Container($config);
+    }
+
+    public function testExtensibleServiceDefinition(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'test' => new ExtensibleService([]),
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+        );
+        new Container($config);
+    }
+
+    public function testWrongTag(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'tags' => ['engine', 42],
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid tag. Expected a string, got 42.'
+        );
+        new Container($config);
+    }
+
+    public function testNumberProvider(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([42]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Service provider should be a class name or an instance of ' . ServiceProviderInterface::class . '.' .
+            ' integer given.'
+        );
+        new Container($config);
+    }
+
+    public function testNonServiceProviderInterfaceProvider(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([stdClass::class]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Service provider should be an instance of ' . ServiceProviderInterface::class . '.' .
+            ' stdClass given.'
         );
         new Container($config);
     }
