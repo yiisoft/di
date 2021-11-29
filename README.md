@@ -385,6 +385,25 @@ StateResetter::class => function () {
 }
 ```
 
+## Specifying metadata for non-array definitions
+
+In order to specify some metadata, such as in cases of "resetting services state" or "container tags" above, for non-array
+definitions, the following syntax could be used:
+
+```php
+LogTarget::class => [
+    'definition' => static function (LoggerInterface $logger) use ($params) {
+        $target = ...
+        return $target;
+    },
+    'reset' => function () use ($params) {
+        ...
+    },
+],
+```
+
+In the above we have explicitly moved definition itself to "definition" key.
+
 ## Delegates
 
 Container delegates define. Each delegate is a callable returning a container instance that is used in case a service
