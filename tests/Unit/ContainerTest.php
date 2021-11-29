@@ -5,14 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use stdClass;
 use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\ExtensibleService;
 use Yiisoft\Di\NotFoundException;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
@@ -48,6 +51,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+
 use function get_class;
 
 /**
@@ -103,7 +107,25 @@ final class ContainerTest extends TestCase
         $this->assertNull($a->b->a);
     }
 
-    public function testHas(): void
+    public function dataHas(): array
+    {
+        return [
+            [false, 42],
+            [false, 'non_existing'],
+            [false, ColorInterface::class],
+            [true, Car::class],
+            [true, EngineMarkOne::class],
+            [true, EngineInterface::class],
+            [true, EngineStorage::class],
+            [true, Chicken::class],
+            [true, TreeItem::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataHas
+     */
+    public function testHas(bool $expected, $id): void
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -111,14 +133,7 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->assertFalse($container->has('non_existing'));
-        $this->assertFalse($container->has(ColorInterface::class));
-        $this->assertTrue($container->has(Car::class));
-        $this->assertTrue($container->has(EngineMarkOne::class));
-        $this->assertTrue($container->has(EngineInterface::class));
-        $this->assertTrue($container->has(EngineStorage::class));
-        $this->assertTrue($container->has(Chicken::class));
-        $this->assertTrue($container->has(TreeItem::class));
+        $this->assertSame($expected, $container->has($id));
     }
 
     public function dataUnionTypes(): array
@@ -1353,6 +1368,88 @@ final class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
     }
 
+    public function testNonClosureDelegate(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([42]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
+        );
+        new Container($config);
+    }
+
+    public function testNonContainerDelegate(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static fn (ContainerInterface $container) => 42,
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Delegate callable must return an object that implements ContainerInterface.'
+        );
+        new Container($config);
+    }
+
+    public function testExtensibleServiceDefinition(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'test' => new ExtensibleService([]),
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+        );
+        new Container($config);
+    }
+
+    public function testWrongTag(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'tags' => ['engine', 42],
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid tag. Expected a string, got 42.'
+        );
+        new Container($config);
+    }
+
+    public function testNumberProvider(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([42]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Service provider should be a class name or an instance of ' . ServiceProviderInterface::class . '.' .
+            ' integer given.'
+        );
+        new Container($config);
+    }
+
+    public function testNonServiceProviderInterfaceProvider(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([stdClass::class]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Service provider should be an instance of ' . ServiceProviderInterface::class . '.' .
+            ' stdClass given.'
+        );
+        new Container($config);
+    }
+
     public function testStrictModeDisabled(): void
     {
         $config = ContainerConfig::create()->withStrictMode(false);
@@ -1371,5 +1468,16 @@ final class ContainerTest extends TestCase
 
         $this->expectException(NotFoundExceptionInterface::class);
         $container->get(EngineMarkOne::class);
+    }
+
+    public function testGetNonString(): void
+    {
+        $container = new Container(ContainerConfig::create());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Id must be a string, integer given.'
+        );
+        $container->get(42);
     }
 }

@@ -18,23 +18,18 @@ final class DefinitionNormalizer
 {
     /**
      * @param mixed $definition Definition to normalize.
-     * @param string|null $id Service ID. If definition has no class name specified, it used as a class name.
+     * @param string $id Service ID.
      *
-     * @throws InvalidConfigException
+     * @throws InvalidConfigException If configuration is not valid.
      */
-    public static function normalize($definition, string $id = null): DefinitionInterface
+    public static function normalize($definition, string $id): DefinitionInterface
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            $class = $definition['class'];
-            $constructorArguments = $definition['__construct()'];
-            $methodsAndProperties = $definition['methodsAndProperties'];
-
-            $class = $class ?? $id;
-            if ($class === null) {
-                throw new InvalidConfigException('Invalid definition: don\'t set class name.');
-            }
-
-            return ArrayDefinition::fromPreparedData($class, $constructorArguments, $methodsAndProperties);
+            return ArrayDefinition::fromPreparedData(
+                $definition['class'] ?? $id,
+                $definition['__construct()'],
+                $definition['methodsAndProperties']
+            );
         }
 
         if ($definition instanceof ExtensibleService) {

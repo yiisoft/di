@@ -29,11 +29,11 @@
     },
     "require-dev": {
         "league/container": "^4.2",
-        "phpbench/phpbench": "^1.0.0",
-        "phpunit/phpunit": "^9.4",
-        "roave/infection-static-analysis-plugin": "^1.6",
+        "phpbench/phpbench": "^1.2.0",
+        "phpunit/phpunit": "^9.5",
+        "roave/infection-static-analysis-plugin": "^1.11",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.11",
+        "vimeo/psalm": "^4.13",
         "yiisoft/injector": "^1.0"
     },
     "suggest": {
