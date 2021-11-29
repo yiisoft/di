@@ -1366,6 +1366,32 @@ final class ContainerTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
     }
 
+    public function testNonClosureDelegate(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([42]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
+        );
+        new Container($config);
+    }
+
+    public function testNonContainerDelegate(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static fn (ContainerInterface $container) => 42,
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Delegate callable must return an object that implements ContainerInterface.'
+        );
+        new Container($config);
+    }
+
     public function testStrictModeDisabled(): void
     {
         $config = ContainerConfig::create()->withStrictMode(false);
