@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -48,6 +49,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+
 use function get_class;
 
 /**
@@ -103,7 +105,25 @@ final class ContainerTest extends TestCase
         $this->assertNull($a->b->a);
     }
 
-    public function testHas(): void
+    public function dataHas(): array
+    {
+        return [
+            [false, 42],
+            [false, 'non_existing'],
+            [false, ColorInterface::class],
+            [true, Car::class],
+            [true, EngineMarkOne::class],
+            [true, EngineInterface::class],
+            [true, EngineStorage::class],
+            [true, Chicken::class],
+            [true, TreeItem::class],
+        ];
+    }
+
+    /**
+     * @dataProvider dataHas
+     */
+    public function testHas(bool $expected, $id): void
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -111,14 +131,7 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->assertFalse($container->has('non_existing'));
-        $this->assertFalse($container->has(ColorInterface::class));
-        $this->assertTrue($container->has(Car::class));
-        $this->assertTrue($container->has(EngineMarkOne::class));
-        $this->assertTrue($container->has(EngineInterface::class));
-        $this->assertTrue($container->has(EngineStorage::class));
-        $this->assertTrue($container->has(Chicken::class));
-        $this->assertTrue($container->has(TreeItem::class));
+        $this->assertSame($expected, $container->has($id));
     }
 
     public function dataUnionTypes(): array
@@ -1371,5 +1384,16 @@ final class ContainerTest extends TestCase
 
         $this->expectException(NotFoundExceptionInterface::class);
         $container->get(EngineMarkOne::class);
+    }
+
+    public function testGetNonString(): void
+    {
+        $container = new Container(ContainerConfig::create());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Id must be a string, integer given.'
+        );
+        $container->get(42);
     }
 }
