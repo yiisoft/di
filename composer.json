@@ -20,7 +20,6 @@
         "irc": "irc://irc.freenode.net/yii",
         "source": "https://github.com/yiisoft/di"
     },
-    "minimum-stability": "dev",
     "require": {
         "php": "^7.4|^8.0",
         "ext-mbstring": "*",
@@ -38,7 +37,7 @@
         "yiisoft/test-support": "^1.3"
     },
     "suggest": {
-        "yiisoft/injector": "^1.0@dev",
+        "yiisoft/injector": "^1.0",
         "phpbench/phpbench": "To run benchmarks."
     },
     "provide": {
