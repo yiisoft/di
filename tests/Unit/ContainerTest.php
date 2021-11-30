@@ -1151,6 +1151,38 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testResetterInDelegates(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static function (ContainerInterface $container) {
+                    $config = ContainerConfig::create()
+                        ->withDefinitions([
+                            EngineInterface::class => [
+                                'class' => EngineMarkOne::class,
+                                'setNumber()' => [42],
+                                'reset' => function () {
+                                    $this->number = 42;
+                                },
+                            ],
+                        ]);
+                    return new Container($config);
+                }
+            ]);
+        $container = new Container($config);
+
+        $engine = $container->get(EngineInterface::class);
+        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+
+        $engine->setNumber(45);
+        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+
+        $container->get(StateResetter::class)->reset();
+
+        $this->assertSame($engine, $container->get(EngineInterface::class));
+        $this->assertSame(42, $engine->getNumber());
+    }
+
     public function testWrongResetter(): void
     {
         $this->expectException(TypeError::class);
