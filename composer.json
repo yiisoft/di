@@ -34,7 +34,8 @@
         "roave/infection-static-analysis-plugin": "^1.11",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.13",
-        "yiisoft/injector": "^1.0"
+        "yiisoft/injector": "^1.0",
+        "yiisoft/test-support": "^1.3"
     },
     "suggest": {
         "yiisoft/injector": "^1.0@dev",

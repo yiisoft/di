@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use Closure;
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+
 use function get_class;
+use function gettype;
 use function is_int;
+use function is_object;
 
 /**
  * State resetter allows resetting state of the services that are currently stored in the container and have "reset"
@@ -15,6 +20,9 @@ use function is_int;
  */
 final class StateResetter
 {
+    /**
+     * @var Closure[]|self[]
+     */
     private array $resetters = [];
     private ContainerInterface $container;
 
@@ -41,20 +49,49 @@ final class StateResetter
     }
 
     /**
-     * @param array $resetters Array of reset callbacks. Each callback has access to the private and protected
-     * properties of the service instance, so you can set initial state of the service efficiently without creating
-     * a new instance.
+     * @param Closure[]|self[] $resetters Array of reset callbacks. Each callback has access to the private and
+     * protected properties of the service instance, so you can set initial state of the service efficiently
+     * without creating a new instance.
      */
     public function setResetters(array $resetters): void
     {
         $this->resetters = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
+                if (!($callback instanceof self)) {
+                    throw new InvalidArgumentException(
+                        'State resetter object should be instance of "' . self::class . '".'
+                    );
+                }
                 $this->resetters[] = $callback;
                 continue;
             }
+
+            if (!($callback instanceof Closure)) {
+                throw new InvalidArgumentException(
+                    'Callback for state resetter should be closure in format ' .
+                    '`function (ContainerInterface $container): void`. ' .
+                    'Got "' . $this->getType($callback) . '".'
+                );
+            }
+
+            /** @var mixed $instance */
             $instance = $this->container->get($serviceId);
+            if (!is_object($instance)) {
+                throw new InvalidArgumentException(
+                    'State resetter support reset only objects. Container returns ' . gettype($instance) . '.'
+                );
+            }
+
             $this->resetters[] = $callback->bindTo($instance, get_class($instance));
         }
+    }
+
+    /**
+     * @param mixed $variable
+     */
+    private function getType($variable): string
+    {
+        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }
