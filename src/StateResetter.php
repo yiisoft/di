@@ -58,7 +58,7 @@ final class StateResetter
         $this->resetters = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
-                if (!($callback instanceof self)) {
+                if (!$callback instanceof self) {
                     throw new InvalidArgumentException(sprintf(
                         'State resetter object should be instance of "%s", "%s" given.',
                         self::class,
@@ -69,7 +69,7 @@ final class StateResetter
                 continue;
             }
 
-            if (!($callback instanceof Closure)) {
+            if (!$callback instanceof Closure) {
                 throw new InvalidArgumentException(
                     'Callback for state resetter should be closure in format ' .
                     '`function (ContainerInterface $container): void`. ' .
