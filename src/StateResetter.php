@@ -13,7 +13,7 @@ use function is_int;
  * callback defined. The reset should be triggered after each request-response cycle in case you build long-running
  * applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/).
  */
-class StateResetter
+final class StateResetter
 {
     private array $resetters = [];
     private ContainerInterface $container;
