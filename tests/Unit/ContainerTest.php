@@ -1167,7 +1167,7 @@ final class ContainerTest extends TestCase
                             ],
                         ]);
                     return new Container($config);
-                }
+                },
             ]);
         $container = new Container($config);
 
