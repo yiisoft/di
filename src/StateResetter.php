@@ -59,9 +59,11 @@ final class StateResetter
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
                 if (!($callback instanceof self)) {
-                    throw new InvalidArgumentException(
-                        'State resetter object should be instance of "' . self::class . '".'
-                    );
+                    throw new InvalidArgumentException(sprintf(
+                        'State resetter object should be instance of "%s", "%s" given.',
+                        self::class,
+                        $this->getType($callback)
+                    ));
                 }
                 $this->resetters[] = $callback;
                 continue;
@@ -79,7 +81,7 @@ final class StateResetter
             $instance = $this->container->get($serviceId);
             if (!is_object($instance)) {
                 throw new InvalidArgumentException(
-                    'State resetter support reset only objects. Container returns ' . gettype($instance) . '.'
+                    'State resetter supports resetting objects only. Container returned ' . gettype($instance) . '.'
                 );
             }
 

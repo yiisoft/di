@@ -19,7 +19,7 @@ final class StateResetterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'State resetter object should be instance of "' . StateResetter::class . '".'
+            'State resetter object should be instance of "' . StateResetter::class . '", "stdClass" given.'
         );
         $resetter->setResetters([
             new stdClass(),
@@ -51,7 +51,7 @@ final class StateResetterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'State resetter support reset only objects. Container returns integer.'
+            'State resetter supports resetting objects only. Container returned integer.'
         );
         $resetter->setResetters([
             'value' => static function () {
