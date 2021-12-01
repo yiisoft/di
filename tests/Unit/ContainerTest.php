@@ -1233,7 +1233,7 @@ final class ContainerTest extends TestCase
                     {
                         return [];
                     }
-                }
+                },
             ])
             ->withStrictMode($strictMode);
         $container = new Container($config);
