@@ -324,9 +324,7 @@ final class ContainerTest extends TestCase
                     'class' => VariadicConstructor::class,
                     '__construct()' => [
                         'first' => 1,
-                        'parameters' => 42,
-                        'second' => 43,
-                        'third' => 44,
+                        'parameters' => [42, 43, 44],
                     ],
                 ],
                 'integerIndexed' => [
