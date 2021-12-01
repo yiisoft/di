@@ -60,6 +60,8 @@ final class Container implements ContainerInterface
      */
     private array $tags;
 
+    private bool $addResetters;
+
     private array $resetters = [];
 
     /**
@@ -72,11 +74,13 @@ final class Container implements ContainerInterface
      */
     public function __construct(ContainerConfigInterface $config)
     {
+        $definitions = $config->getDefinitions();
         $this->definitions = new DefinitionStorage([], $config->useStrictMode());
         $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
+        $this->addResetters = !isset($definitions[StateResetter::class]);
         $this->setDefaultDefinitions();
-        $this->setMultiple($config->getDefinitions());
+        $this->setMultiple($definitions);
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
     }
@@ -146,7 +150,7 @@ final class Container implements ContainerInterface
             }
         }
 
-        if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
+        if ($this->addResetters && $id === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {

@@ -1126,7 +1126,6 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                StateResetter::class => StateResetter::class,
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'setNumber()' => [42],
