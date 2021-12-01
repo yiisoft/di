@@ -76,7 +76,7 @@ final class Container implements ContainerInterface
         $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
         $this->setDefaultDefinitions();
-        $this->setMultiple($config->getDefinitions());
+        $this->setDefinitions($config->getDefinitions());
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
     }
@@ -217,6 +217,18 @@ final class Container implements ContainerInterface
             ContainerInterface::class => $this,
             StateResetter::class => StateResetter::class,
         ]);
+    }
+
+    private function setDefinitions(array $definitions): void
+    {
+        if (isset($definitions[StateResetter::class]) && $definitions[StateResetter::class] === StateResetter::class) {
+            throw new InvalidArgumentException(
+                'Container contain standard state resetter definition ' .
+                '"StateResetter::class => StateResetter::class" by default. ' .
+                'Use array or callable definition for override default state resetter.'
+            );
+        }
+        $this->setMultiple($definitions);
     }
 
     /**

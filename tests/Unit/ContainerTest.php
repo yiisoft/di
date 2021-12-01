@@ -1126,7 +1126,6 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                StateResetter::class => StateResetter::class,
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'setNumber()' => [42],
@@ -1147,6 +1146,22 @@ final class ContainerTest extends TestCase
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
+    }
+
+    public function testDefaultResetter(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                StateResetter::class => StateResetter::class,
+            ]);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Container contain standard state resetter definition ' .
+            '"StateResetter::class => StateResetter::class" by default. ' .
+            'Use array or callable definition for override default state resetter.'
+        );
+        new Container($config);
     }
 
     public function testResetterInDelegates(): void
