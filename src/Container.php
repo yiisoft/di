@@ -49,9 +49,6 @@ final class Container implements ContainerInterface
      */
     private bool $validate;
 
-    /**
-     * @var object[]
-     */
     private array $instances = [];
 
     private CompositeContainer $delegates;
@@ -150,6 +147,7 @@ final class Container implements ContainerInterface
                     throw $e;
                 }
 
+                /** @var mixed */
                 return $this->delegates->get($id);
             }
         }
@@ -182,16 +180,17 @@ final class Container implements ContainerInterface
      */
     private function set(string $id, $definition): void
     {
+        /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
             $this->validateMeta($meta);
         }
+        /**
+         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         */
 
         if (isset($meta[self::META_TAGS])) {
-            if ($this->validate) {
-                $this->validateTags($meta[self::META_TAGS]);
-            }
             $this->setTags($id, $meta[self::META_TAGS]);
         }
         if (isset($meta[self::META_RESET])) {
@@ -303,6 +302,7 @@ final class Container implements ContainerInterface
      */
     private function validateMeta(array $meta): void
     {
+        /** @var mixed $value */
         foreach ($meta as $key => $value) {
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
@@ -315,25 +315,53 @@ final class Container implements ContainerInterface
                 );
             }
 
+            if ($key === self::META_TAGS) {
+                $this->validateDefinitionTags($value);
+            }
+
             if ($key === self::META_RESET) {
-                if (!is_array($value)) {
-                    throw new InvalidConfigException(
-                        sprintf(
-                            'Invalid definition: metadata "reset" should be array of callabe, %s given.',
-                            $this->getVariableType($value)
-                        )
-                    );
-                }
+                $this->validateDefinitionReset($value);
             }
         }
     }
 
-    private function validateTags(array $tags): void
+    /**
+     * @param mixed $tags
+     *
+     * @throws InvalidConfigException
+     */
+    private function validateDefinitionTags($tags): void
     {
+        if (!is_array($tags)) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Invalid definition: tags should be array of strings, %s given.',
+                    $this->getVariableType($tags)
+                )
+            );
+        }
+
         foreach ($tags as $tag) {
             if (!is_string($tag)) {
                 throw new InvalidConfigException('Invalid tag. Expected a string, got ' . var_export($tag, true) . '.');
             }
+        }
+    }
+
+    /**
+     * @param mixed $reset
+     *
+     * @throws InvalidConfigException
+     */
+    public function validateDefinitionReset($reset): void
+    {
+        if (!$reset instanceof Closure) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Invalid definition: "reset" should be closure, %s given.',
+                    $this->getVariableType($reset)
+                )
+            );
         }
     }
 

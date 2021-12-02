@@ -1290,22 +1290,6 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
-    public function testWrongResetter(): void
-    {
-        $this->expectException(TypeError::class);
-
-        $config = ContainerConfig::create()
-            ->withDefinitions([
-                EngineInterface::class => EngineMarkOne::class,
-                EngineMarkOne::class => [
-                    'class' => EngineMarkOne::class,
-                    'setNumber()' => [42],
-                    'reset' => [34],
-                ],
-            ]);
-        new Container($config);
-    }
-
     public function testNestedResetter(): void
     {
         $color = new ColorPink();
@@ -1686,7 +1670,25 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: metadata "reset" should be array of callabe, integer given.'
+            'Invalid definition: "reset" should be closure, integer given.'
+        );
+        new Container($config);
+    }
+
+    public function testNonArrayTags(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'tags' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: tags should be array of strings, integer given.'
         );
         new Container($config);
     }

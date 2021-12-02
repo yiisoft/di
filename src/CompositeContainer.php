@@ -25,6 +25,9 @@ final class CompositeContainer implements ContainerInterface
      */
     private array $containers = [];
 
+    /**
+     * @return mixed
+     */
     public function get($id)
     {
         /** @psalm-suppress TypeDoesNotContainType */
