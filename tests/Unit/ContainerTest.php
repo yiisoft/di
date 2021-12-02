@@ -1672,4 +1672,22 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessage('Extension of service should be callable, array given.');
         new Container($config);
     }
+
+    public function testNonArrayReset(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: metadata "reset" should be array of callabe, integer given.'
+        );
+        new Container($config);
+    }
 }

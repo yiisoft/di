@@ -58,6 +58,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @psalm-var array<string, list<string>>
      */
     private array $tags;
 
@@ -210,10 +211,18 @@ final class Container implements ContainerInterface
      */
     private function setMultiple(array $config): void
     {
+        /** @var mixed $definition */
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
-                throw new InvalidConfigException(sprintf('Key must be a string. %s given.', $this->getVariableType($id)));
+                throw new InvalidConfigException(
+                    sprintf(
+                        'Key must be a string. %s given.',
+                        $this->getVariableType($id)
+                    )
+                );
             }
+            /** @var string $id */
+
             $this->set($id, $definition);
         }
     }
@@ -238,6 +247,7 @@ final class Container implements ContainerInterface
                 );
             }
 
+            /** @var ContainerInterface */
             $delegate = $delegate($this);
 
             if (!$delegate instanceof ContainerInterface) {
@@ -260,9 +270,18 @@ final class Container implements ContainerInterface
     private function validateDefinition($definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /** @var mixed $class */
             $class = $definition['class'];
+
+            /** @var mixed $constructorArguments */
             $constructorArguments = $definition['__construct()'];
+
+            /**
+             * @var array $methodsAndProperties Is always array for prepared array definion data
+             * @see DefinitionParser::parse()
+             */
             $methodsAndProperties = $definition['methodsAndProperties'];
+
             $definition = array_merge(
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
@@ -271,7 +290,9 @@ final class Container implements ContainerInterface
         }
 
         if ($definition instanceof ExtensibleService) {
-            throw new InvalidConfigException('Invalid definition. ExtensibleService is only allowed in provider extensions.');
+            throw new InvalidConfigException(
+                'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+            );
         }
 
         DefinitionValidator::validate($definition, $id);
@@ -282,7 +303,7 @@ final class Container implements ContainerInterface
      */
     private function validateMeta(array $meta): void
     {
-        foreach ($meta as $key => $_value) {
+        foreach ($meta as $key => $value) {
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
                     sprintf(
@@ -292,6 +313,17 @@ final class Container implements ContainerInterface
                         $key,
                     )
                 );
+            }
+
+            if ($key === self::META_RESET) {
+                if (!is_array($value)) {
+                    throw new InvalidConfigException(
+                        sprintf(
+                            'Invalid definition: metadata "reset" should be array of callabe, %s given.',
+                            $this->getVariableType($value)
+                        )
+                    );
+                }
             }
         }
     }
@@ -305,6 +337,9 @@ final class Container implements ContainerInterface
         }
     }
 
+    /**
+     * @psalm-param string[] $tags
+     */
     private function setTags(string $id, array $tags): void
     {
         foreach ($tags as $tag) {
@@ -368,6 +403,7 @@ final class Container implements ContainerInterface
 
         $this->building[$id] = 1;
         try {
+            /** @var mixed $object */
             $object = $this->buildInternal($id);
         } finally {
             unset($this->building[$id]);
@@ -383,10 +419,12 @@ final class Container implements ContainerInterface
 
     private function getTaggedServices(string $tagAlias): array
     {
+        /** @var string $tag */
         $tag = substr($tagAlias, 4);
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {
+                /** @var mixed */
                 $services[] = $this->get($service);
             }
         }
