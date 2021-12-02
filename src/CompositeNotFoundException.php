@@ -17,7 +17,7 @@ use function get_class;
 final class CompositeNotFoundException extends Exception implements NotFoundExceptionInterface
 {
     /**
-     * @param array $exceptions Exceptions of containers in [throwable, container] format.
+     * @param array $exceptions Container exceptions in [throwable, container] format.
      *
      * @psalm-param list<array{\Throwable,ContainerInterface}> $exceptions
      */

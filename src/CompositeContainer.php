@@ -26,10 +26,6 @@ final class CompositeContainer implements ContainerInterface
     private array $containers = [];
 
     /**
-     * @param string $id
-     *
-     * @return mixed
-     *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)

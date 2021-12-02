@@ -281,7 +281,7 @@ final class Container implements ContainerInterface
             $constructorArguments = $definition['__construct()'];
 
             /**
-             * @var array $methodsAndProperties Is always array for prepared array definion data
+             * @var array $methodsAndProperties Is always array for prepared array definition data.
              *
              * @see DefinitionParser::parse()
              */
@@ -359,7 +359,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    public function validateDefinitionReset($reset): void
+    private function validateDefinitionReset($reset): void
     {
         if (!$reset instanceof Closure) {
             throw new InvalidConfigException(
