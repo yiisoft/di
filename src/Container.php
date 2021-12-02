@@ -79,8 +79,8 @@ final class Container implements ContainerInterface
             ],
             $config->useStrictMode()
         );
-        $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
+        $this->setTags($config->getTags());
         $this->setMultiple($config->getDefinitions());
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
@@ -191,10 +191,10 @@ final class Container implements ContainerInterface
          */
 
         if (isset($meta[self::META_TAGS])) {
-            $this->setTags($id, $meta[self::META_TAGS]);
+            $this->setDefinitionTags($id, $meta[self::META_TAGS]);
         }
         if (isset($meta[self::META_RESET])) {
-            $this->setResetter($id, $meta[self::META_RESET]);
+            $this->setDefinitionResetter($id, $meta[self::META_RESET]);
         }
 
         unset($this->instances[$id]);
@@ -366,9 +366,49 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @throws InvalidConfigException
+     */
+    private function setTags(array $tags): void
+    {
+        if ($this->validate) {
+            foreach ($tags as $tag => $services) {
+                if (!is_string($tag)) {
+                    throw new InvalidConfigException(
+                        sprintf(
+                            'Invalid tags configuration: tag should be string, %s given.',
+                            $tag
+                        )
+                    );
+                }
+                if (!is_array($services)) {
+                    throw new InvalidConfigException(
+                        sprintf(
+                            'Invalid tags configuration: tag should contain array of service IDs, %s given.',
+                            $this->getVariableType($services)
+                        )
+                    );
+                }
+                foreach ($services as $service) {
+                    if (!is_string($service)) {
+                        throw new InvalidConfigException(
+                            sprintf(
+                                'Invalid tags configuration: service should be defined as class string, %s given.',
+                                $this->getVariableType($service)
+                            )
+                        );
+                    }
+                }
+            }
+        }
+        /** @psalm-var array<string, list<string>> $tags */
+
+        $this->tags = $tags;
+    }
+
+    /**
      * @psalm-param string[] $tags
      */
-    private function setTags(string $id, array $tags): void
+    private function setDefinitionTags(string $id, array $tags): void
     {
         foreach ($tags as $tag) {
             if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
@@ -377,7 +417,7 @@ final class Container implements ContainerInterface
         }
     }
 
-    private function setResetter(string $id, Closure $resetter): void
+    private function setDefinitionResetter(string $id, Closure $resetter): void
     {
         $this->resetters[$id] = $resetter;
     }

@@ -1692,4 +1692,35 @@ final class ContainerTest extends TestCase
         );
         new Container($config);
     }
+
+    public function dataInvalidTags(): array
+    {
+        return [
+            [
+                'Invalid tags configuration: tag should be string, 42 given.',
+                [42 => [EngineMarkTwo::class]],
+            ],
+            [
+                'Invalid tags configuration: tag should contain array of service IDs, integer given.',
+                ['engine' => 42],
+            ],
+            [
+                'Invalid tags configuration: service should be defined as class string, integer given.',
+                ['engine' => [42]],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataInvalidTags
+     */
+    public function testInvalidTags(string $message, array $tags): void
+    {
+        $config = ContainerConfig::create()
+            ->withTags($tags);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage($message);
+        new Container($config);
+    }
 }
