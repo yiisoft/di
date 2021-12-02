@@ -197,11 +197,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
-        $this->definitions->set($id, $definition);
-
-        if ($id === StateResetter::class) {
-            $this->useResettersFromMeta = false;
-        }
+        $this->addDefinitionToStorage($id, $definition);
     }
 
     /**
@@ -323,6 +319,23 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * Add definition to storage.
+     *
+     * @see $definitions
+     *
+     * @param string $id ID to set definition for.
+     * @param mixed|object $definition Definition to set.
+     */
+    private function addDefinitionToStorage(string $id, $definition): void
+    {
+        $this->definitions->set($id, $definition);
+
+        if ($id === StateResetter::class) {
+            $this->useResettersFromMeta = false;
+        }
+    }
+
+    /**
      * Creates new instance by either interface name or alias.
      *
      * @param string $id The interface or an alias name that was previously registered.
@@ -421,11 +434,7 @@ final class Container implements ContainerInterface
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition);
-                    $this->definitions->set($id, $definition);
-
-                    if ($id === StateResetter::class) {
-                        $this->useResettersFromMeta = false;
-                    }
+                    $this->addDefinitionToStorage($id, $definition);
                 }
 
                 $definition->addExtension($extension);
