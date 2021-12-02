@@ -427,6 +427,10 @@ final class Container implements ContainerInterface
                 }
 
                 $definition->addExtension($extension);
+
+                if ($id === StateResetter::class) {
+                    $this->addResetters = false;
+                }
             }
         }
     }
