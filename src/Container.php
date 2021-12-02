@@ -422,13 +422,13 @@ final class Container implements ContainerInterface
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition);
                     $this->definitions->set($id, $definition);
+
+                    if ($id === StateResetter::class) {
+                        $this->useResettersFromMeta = false;
+                    }
                 }
 
                 $definition->addExtension($extension);
-
-                if ($id === StateResetter::class) {
-                    $this->useResettersFromMeta = false;
-                }
             }
         }
     }
