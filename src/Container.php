@@ -60,6 +60,8 @@ final class Container implements ContainerInterface
      */
     private array $tags;
 
+    private bool $addResetters = true;
+
     private array $resetters = [];
 
     /**
@@ -72,13 +74,19 @@ final class Container implements ContainerInterface
      */
     public function __construct(ContainerConfigInterface $config)
     {
-        $this->definitions = new DefinitionStorage([], $config->useStrictMode());
+        $this->definitions = new DefinitionStorage(
+            [ContainerInterface::class => $this],
+            $config->useStrictMode()
+        );
         $this->tags = $config->getTags();
         $this->validate = $config->shouldValidate();
-        $this->setDefaultDefinitions();
         $this->setMultiple($config->getDefinitions());
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
+
+        if ($this->addResetters) {
+            $this->definitions->set(StateResetter::class, StateResetter::class);
+        }
     }
 
     /**
@@ -146,7 +154,7 @@ final class Container implements ContainerInterface
             }
         }
 
-        if ($id === StateResetter::class && $this->definitions->get($id) === StateResetter::class) {
+        if ($this->addResetters && $id === StateResetter::class) {
             $resetters = [];
             foreach ($this->resetters as $serviceId => $callback) {
                 if (isset($this->instances[$serviceId])) {
@@ -192,6 +200,10 @@ final class Container implements ContainerInterface
 
         unset($this->instances[$id]);
         $this->definitions->set($id, $definition);
+
+        if ($id === StateResetter::class) {
+            $this->addResetters = false;
+        }
     }
 
     /**
@@ -209,14 +221,6 @@ final class Container implements ContainerInterface
             }
             $this->set($id, $definition);
         }
-    }
-
-    private function setDefaultDefinitions(): void
-    {
-        $this->setMultiple([
-            ContainerInterface::class => $this,
-            StateResetter::class => StateResetter::class,
-        ]);
     }
 
     /**
