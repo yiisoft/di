@@ -330,8 +330,35 @@ $container = new Container($config);
 
 Despite stateful services is not a great practice, these are inevitable in many cases. When you build long-running
 applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should
-reset the state of such services every request. For this purpose you can use `StateResetter`. The way state is reset
-is defined for each individual service by providing "reset" callback in the following way:
+reset the state of such services every request. For this purpose you can use `StateResetter` with resetters callbacks:
+
+```php
+$resetter = new StateResetter();
+$resetter->setResetters([
+    MyServiceInterface::class => function () {
+        $this->reset(); // a method of MyServiceInterface
+    },
+]);
+```
+
+The callback has access to the private and protected properties of the service instance, so you can set initial state
+of the service efficiently without creating a new instance. 
+
+The reset itself should be triggered after each request-response cycle. For RoadRunner it would look like the following:
+
+```php
+while ($request = $psr7->acceptRequest()) {
+    $response = $application->handle($request);
+    $psr7->respond($response);
+    $application->afterEmit($response);
+    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+    gc_collect_cycles();
+}
+```
+
+### Set resetters in definitions 
+
+Reset state is defined for each individual service by providing "reset" callback in the following way:
 
 ```php
 use Yiisoft\Di\Container;
@@ -352,23 +379,12 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
-The callback has access to the private and protected properties of the service instance, so you can set initial state
-of the service efficiently without creating a new instance. 
+Note: resetters from definitons work only if you don't set `StateResetter` in definition or service providers.
 
-The reset itself should be triggered after each request-response cycle. For RoadRunner it would look like the following:
+### Manual configure `StateResetters` 
 
-```php
-while ($request = $psr7->acceptRequest()) {
-    $response = $application->handle($request);
-    $psr7->respond($response);
-    $application->afterEmit($response);
-    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
-    gc_collect_cycles();
-}
-```
-
-In case you use Yii DI composite container with a third party container that does not support state reset natively,
-state resetter could be configured separately. The following example is PHP-DI:
+To manually add resetters or in case you use Yii DI composite container with a third party container that does
+not support state reset natively, state resetter could be configured separately. The following example is PHP-DI:
 
 ```php
 MyServiceInterface::class => function () {
