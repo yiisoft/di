@@ -26,7 +26,13 @@ final class CompositeContainer implements ContainerInterface
     private array $containers = [];
 
     /**
+     * @param string $id
+     *
      * @return mixed
+     *
+     * @psalm-template T
+     * @psalm-param string|class-string<T> $id
+     * @psalm-return ($id is class-string ? T : mixed)
      */
     public function get($id)
     {
@@ -55,6 +61,7 @@ final class CompositeContainer implements ContainerInterface
                     continue;
                 }
                 if ($container->has($id)) {
+                    /** @psalm-suppress MixedArgument Container::get() always return array for tag */
                     $tags = array_merge($container->get($id), $tags);
                 }
             }
@@ -64,10 +71,10 @@ final class CompositeContainer implements ContainerInterface
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
+                /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
         }
-
 
         // Collect details from containers
         $exceptions = [];
