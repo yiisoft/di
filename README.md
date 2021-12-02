@@ -356,7 +356,7 @@ while ($request = $psr7->acceptRequest()) {
 }
 ```
 
-### Set resetters in definitions 
+### Setting resetters in definitions 
 
 Reset state is defined for each individual service by providing "reset" callback in the following way:
 
@@ -381,7 +381,7 @@ $container = new Container($config);
 
 Note: resetters from definitons work only if you don't set `StateResetter` in definition or service providers.
 
-### Manual configure `StateResetters` 
+### Configuring `StateResetter` manually
 
 To manually add resetters or in case you use Yii DI composite container with a third party container that does
 not support state reset natively, state resetter could be configured separately. The following example is PHP-DI:
