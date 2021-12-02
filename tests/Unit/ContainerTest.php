@@ -1191,6 +1191,63 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testResetterInDelegatesWithCustomResetter(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static function (ContainerInterface $container) {
+                    $config = ContainerConfig::create()
+                        ->withDefinitions([
+                            EngineInterface::class => [
+                                'class' => EngineMarkOne::class,
+                                'setNumber()' => [42],
+                                'reset' => function () {
+                                    $this->number = 42;
+                                },
+                            ],
+                        ]);
+                    return new Container($config);
+                },
+            ])
+            ->withDefinitions([
+                Car::class => [
+                    'class' => Car::class,
+                    'setColor()' => [new ColorPink()],
+                ],
+                StateResetter::class => [
+                    'class' => StateResetter::class,
+                    'setResetters()' => [
+                        [
+                            Car::class => function () {
+                                $this->color = new ColorPink();
+                            },
+                        ],
+                    ],
+                ],
+            ]);
+        $container = new Container($config);
+
+        $engine = $container->get(EngineInterface::class);
+        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+
+        $car = $container->get(Car::class);
+        $this->assertInstanceOf(ColorPink::class, $container->get(Car::class)->getColor());
+
+        $engine->setNumber(45);
+        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+
+        $car->setColor(new ColorRed());
+        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+
+        $container->get(StateResetter::class)->reset();
+
+        $this->assertSame($engine, $container->get(EngineInterface::class));
+        $this->assertSame(42, $engine->getNumber());
+
+        $this->assertSame($car, $container->get(Car::class));
+        $this->assertInstanceOf(ColorPink::class, $container->get(Car::class)->getColor());
+    }
+
     public function dataResetterInProviderDefinitions(): array
     {
         return [

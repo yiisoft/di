@@ -155,18 +155,31 @@ final class Container implements ContainerInterface
             }
         }
 
-        if ($this->useResettersFromMeta && $id === StateResetter::class) {
-            $resetters = [];
-            foreach ($this->resetters as $serviceId => $callback) {
-                if (isset($this->instances[$serviceId])) {
-                    $resetters[$serviceId] = $callback;
+        if ($id === StateResetter::class) {
+            if ($this->delegates->has(StateResetter::class)) {
+                $delegatesResetter = $this->delegates->get(StateResetter::class);
+            }
+
+            if ($this->useResettersFromMeta) {
+                $resetters = [];
+                foreach ($this->resetters as $serviceId => $callback) {
+                    if (isset($this->instances[$serviceId])) {
+                        $resetters[$serviceId] = $callback;
+                    }
+                }
+                if ($this->delegates->has(StateResetter::class)) {
+                    $resetters[] = $delegatesResetter;
+                }
+                /** @psalm-suppress MixedMethodCall Instance of `StateResetter` */
+                $this->instances[$id]->setResetters($resetters);
+            } else {
+                if ($this->delegates->has(StateResetter::class)) {
+                    $resetter = new StateResetter($this->get(ContainerInterface::class));
+                    $resetter->setResetters([$this->instances[$id], $delegatesResetter]);
+
+                    return $resetter;
                 }
             }
-            if ($this->delegates->has(StateResetter::class)) {
-                $resetters[] = $this->delegates->get(StateResetter::class);
-            }
-            /** @psalm-suppress MixedMethodCall Instance of `StateResetter` */
-            $this->instances[$id]->setResetters($resetters);
         }
 
         /** @psalm-suppress MixedReturnStatement */
