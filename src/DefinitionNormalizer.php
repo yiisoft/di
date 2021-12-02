@@ -25,6 +25,7 @@ final class DefinitionNormalizer
     public static function normalize($definition, string $id): DefinitionInterface
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /** @psalm-suppress MixedArgument Defintion should be valid {@see Container::$validate} */
             return ArrayDefinition::fromPreparedData(
                 $definition['class'] ?? $id,
                 $definition['__construct()'],

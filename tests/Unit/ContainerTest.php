@@ -1619,4 +1619,33 @@ final class ContainerTest extends TestCase
         );
         $container->get(42);
     }
+
+    public function testIntegerKeyInExtensions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            23 => static function (
+                                ContainerInterface $container,
+                                StateResetter $resetter
+                            ) {
+                                return $resetter;
+                            },
+                        ];
+                    }
+                },
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Extension key must be a service ID as string, 23 given.');
+        new Container($config);
+    }
 }

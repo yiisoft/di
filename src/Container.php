@@ -415,6 +415,7 @@ final class Container implements ContainerInterface
     private function addProviders(array $providers): void
     {
         $extensions = [];
+        /** @var mixed $provider */
         foreach ($providers as $provider) {
             $providerInstance = $this->buildProvider($provider);
             $extensions[] = $providerInstance->getExtensions();
@@ -422,7 +423,14 @@ final class Container implements ContainerInterface
         }
 
         foreach ($extensions as $providerExtensions) {
+            /** @var mixed $extension */
             foreach ($providerExtensions as $id => $extension) {
+                if (!is_string($id)) {
+                    throw new InvalidConfigException(
+                        sprintf('Extension key must be a service ID as string, %s given.', $id)
+                    );
+                }
+
                 if ($id === ContainerInterface::class) {
                     throw new InvalidConfigException('ContainerInterface extensions are not allowed.');
                 }
@@ -431,6 +439,7 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
                 }
 
+                /** @var mixed $definition */
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition);
@@ -479,6 +488,12 @@ final class Container implements ContainerInterface
             );
         }
 
+        /** @psalm-var class-string|ServiceProviderInterface $provider */
+
+        /**
+         * @psalm-suppress MixedMethodCall Service provider defined as class string
+         * should container public constructor, otherwise throws error.
+         */
         $providerInstance = is_object($provider) ? $provider : new $provider();
         if (!$providerInstance instanceof ServiceProviderInterface) {
             throw new InvalidConfigException(
