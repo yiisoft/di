@@ -59,6 +59,9 @@ final class Container implements ContainerInterface
      */
     private array $tags;
 
+    /**
+     * @var Closure[]
+     */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
 
@@ -147,7 +150,7 @@ final class Container implements ContainerInterface
                     throw $e;
                 }
 
-                /** @var mixed */
+                /** @psalm-suppress MixedReturnStatement */
                 return $this->delegates->get($id);
             }
         }
@@ -162,9 +165,11 @@ final class Container implements ContainerInterface
             if ($this->delegates->has(StateResetter::class)) {
                 $resetters[] = $this->delegates->get(StateResetter::class);
             }
+            /** @psalm-suppress MixedMethodCall Instance of `StateResetter` */
             $this->instances[$id]->setResetters($resetters);
         }
 
+        /** @psalm-suppress MixedReturnStatement */
         return $this->instances[$id];
     }
 
