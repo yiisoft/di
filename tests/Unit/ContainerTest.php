@@ -1192,7 +1192,7 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
-    public function dataResetterInProviders(): array
+    public function dataResetterInProviderDefinitions(): array
     {
         return [
             'strict-mode' => [true],
@@ -1201,9 +1201,9 @@ final class ContainerTest extends TestCase
     }
 
     /**
-     * @dataProvider dataResetterInProviders
+     * @dataProvider dataResetterInProviderDefinitions
      */
-    public function testResetterInProviders(bool $strictMode): void
+    public function testResetterInProviderDefinitions(bool $strictMode): void
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -1236,6 +1236,50 @@ final class ContainerTest extends TestCase
                 },
             ])
             ->withStrictMode($strictMode);
+        $container = new Container($config);
+
+        $engine = $container->get(EngineInterface::class);
+        $engine->setNumber(45);
+        $container->get(StateResetter::class)->reset();
+
+        $this->assertSame($engine, $container->get(EngineInterface::class));
+        $this->assertSame(42, $engine->getNumber());
+    }
+
+    public function testResetterInProviderExtensions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                ],
+            ])
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            StateResetter::class => static function (
+                                ContainerInterface $container,
+                                StateResetter $resetter
+                            ) {
+                                $resetter->setResetters([
+                                    EngineInterface::class => function () {
+                                        $this->number = 42;
+                                    },
+                                ]);
+                                return $resetter;
+                            },
+                        ];
+                    }
+                },
+            ]);
         $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
