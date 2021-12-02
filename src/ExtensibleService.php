@@ -20,8 +20,14 @@ use Yiisoft\Definitions\Helpers\Normalizer;
  */
 final class ExtensibleService implements DefinitionInterface
 {
-    /** @psalm-var  array<string,mixed> */
+    /**
+     * @var mixed
+     */
     private $definition;
+
+    /**
+     * @var callable[]
+     */
     private array $extensions = [];
 
     /**
@@ -52,13 +58,17 @@ final class ExtensibleService implements DefinitionInterface
 
     public function resolve(ContainerInterface $container)
     {
-        $service = (Normalizer::normalize($this->definition))->resolve($container);
+        /** @var mixed $service */
+        $service = Normalizer::normalize($this->definition)->resolve($container);
 
         foreach ($this->extensions as $extension) {
+            /** @var mixed $result */
             $result = $extension($container->get(ContainerInterface::class), $service);
             if ($result === null) {
                 continue;
             }
+
+            /** @var mixed $service */
             $service = $result;
         }
 
