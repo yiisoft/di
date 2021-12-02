@@ -89,7 +89,7 @@ final class CompositeContainer implements ContainerInterface
                 if (!$hasException) {
                     $exceptions[] = [
                         new RuntimeException('Container has() returned false but no exception was thrown from get().'),
-                        $container
+                        $container,
                     ];
                 }
             }
