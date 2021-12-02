@@ -282,6 +282,7 @@ final class Container implements ContainerInterface
 
             /**
              * @var array $methodsAndProperties Is always array for prepared array definion data
+             *
              * @see DefinitionParser::parse()
              */
             $methodsAndProperties = $definition['methodsAndProperties'];

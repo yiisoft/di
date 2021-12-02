@@ -11,7 +11,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
-use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
