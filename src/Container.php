@@ -21,6 +21,7 @@ use function gettype;
 use function implode;
 use function in_array;
 use function is_array;
+use function is_callable;
 use function is_object;
 use function is_string;
 
@@ -437,6 +438,15 @@ final class Container implements ContainerInterface
 
                 if (!$this->definitions->has($id)) {
                     throw new InvalidConfigException("Extended service \"$id\" doesn't exist.");
+                }
+
+                if (!is_callable($extension)) {
+                    throw new InvalidConfigException(
+                        sprintf(
+                            'Extension of service should be callable, %s given.',
+                            $this->getVariableType($extension)
+                        )
+                    );
                 }
 
                 /** @var mixed $definition */

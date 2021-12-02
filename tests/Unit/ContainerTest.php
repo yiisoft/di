@@ -1648,4 +1648,28 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessage('Extension key must be a service ID as string, 23 given.');
         new Container($config);
     }
+
+    public function testNonCallableExtension(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            ColorPink::class => [],
+                        ];
+                    }
+                },
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Extension of service should be callable, array given.');
+        new Container($config);
+    }
 }
