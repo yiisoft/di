@@ -25,6 +25,11 @@ final class CompositeContainer implements ContainerInterface
      */
     private array $containers = [];
 
+    /**
+     * @psalm-template T
+     * @psalm-param string|class-string<T> $id
+     * @psalm-return ($id is class-string ? T : mixed)
+     */
     public function get($id)
     {
         /** @psalm-suppress TypeDoesNotContainType */
@@ -52,6 +57,7 @@ final class CompositeContainer implements ContainerInterface
                     continue;
                 }
                 if ($container->has($id)) {
+                    /** @psalm-suppress MixedArgument Container::get() always return array for tag */
                     $tags = array_merge($container->get($id), $tags);
                 }
             }
@@ -61,10 +67,10 @@ final class CompositeContainer implements ContainerInterface
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
+                /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
         }
-
 
         // Collect details from containers
         $exceptions = [];
@@ -77,7 +83,10 @@ final class CompositeContainer implements ContainerInterface
                 $exceptions[] = [$t, $container];
             } finally {
                 if (!$hasException) {
-                    $exceptions[] = [new RuntimeException('Container has() returned false but no exception was thrown from get().'), $container];
+                    $exceptions[] = [
+                        new RuntimeException('Container has() returned false but no exception was thrown from get().'),
+                        $container,
+                    ];
                 }
             }
         }

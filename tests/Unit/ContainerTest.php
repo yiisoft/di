@@ -11,7 +11,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
-use TypeError;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -1290,22 +1289,6 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
-    public function testWrongResetter(): void
-    {
-        $this->expectException(TypeError::class);
-
-        $config = ContainerConfig::create()
-            ->withDefinitions([
-                EngineInterface::class => EngineMarkOne::class,
-                EngineMarkOne::class => [
-                    'class' => EngineMarkOne::class,
-                    'setNumber()' => [42],
-                    'reset' => [34],
-                ],
-            ]);
-        new Container($config);
-    }
-
     public function testNestedResetter(): void
     {
         $color = new ColorPink();
@@ -1618,5 +1601,125 @@ final class ContainerTest extends TestCase
             'Id must be a string, integer given.'
         );
         $container->get(42);
+    }
+
+    public function testIntegerKeyInExtensions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            23 => static function (
+                                ContainerInterface $container,
+                                StateResetter $resetter
+                            ) {
+                                return $resetter;
+                            },
+                        ];
+                    }
+                },
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Extension key must be a service ID as string, 23 given.');
+        new Container($config);
+    }
+
+    public function testNonCallableExtension(): void
+    {
+        $config = ContainerConfig::create()
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            ColorPink::class => [],
+                        ];
+                    }
+                },
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Extension of service should be callable, array given.');
+        new Container($config);
+    }
+
+    public function testNonArrayReset(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: "reset" should be closure, integer given.'
+        );
+        new Container($config);
+    }
+
+    public function testNonArrayTags(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'tags' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: tags should be array of strings, integer given.'
+        );
+        new Container($config);
+    }
+
+    public function dataInvalidTags(): array
+    {
+        return [
+            [
+                'Invalid tags configuration: tag should be string, 42 given.',
+                [42 => [EngineMarkTwo::class]],
+            ],
+            [
+                'Invalid tags configuration: tag should contain array of service IDs, integer given.',
+                ['engine' => 42],
+            ],
+            [
+                'Invalid tags configuration: service should be defined as class string, integer given.',
+                ['engine' => [42]],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataInvalidTags
+     */
+    public function testInvalidTags(string $message, array $tags): void
+    {
+        $config = ContainerConfig::create()
+            ->withTags($tags);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage($message);
+        new Container($config);
     }
 }

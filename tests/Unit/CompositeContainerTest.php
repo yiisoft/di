@@ -7,9 +7,11 @@ namespace Yiisoft\Di\Tests\Unit;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\CompositeContainer;
+use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
+use Yiisoft\Di\Tests\Support\NonPsrContainer;
 
 final class CompositeContainerTest extends TestCase
 {
@@ -47,5 +49,17 @@ final class CompositeContainerTest extends TestCase
         $this->assertIsArray($engines);
         $this->assertCount(1, $engines);
         $this->assertInstanceOf(EngineMarkOne::class, $engines[0]);
+    }
+
+    public function testNonPsrContainer(): void
+    {
+        $compositeContainer = new CompositeContainer();
+
+        $compositeContainer->attach(new NonPsrContainer());
+
+        $this->expectException(CompositeNotFoundException::class);
+        $this->expectExceptionMessageMatches('/No definition or class found or resolvable in composite container/');
+        $this->expectExceptionMessageMatches('/Container has\(\) returned false but no exception was thrown from get\(\)\./');
+        $compositeContainer->get('test');
     }
 }

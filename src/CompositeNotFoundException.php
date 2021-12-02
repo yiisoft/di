@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Exception;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+
+use function get_class;
 
 /**
  * CompositeNotFoundException is thrown when no definition or class was found in the composite container for a given ID.
@@ -14,7 +17,9 @@ use Psr\Container\NotFoundExceptionInterface;
 final class CompositeNotFoundException extends Exception implements NotFoundExceptionInterface
 {
     /**
-     * @param array $exceptions Exceptions of containers in [throwable, container] format.
+     * @param array $exceptions Container exceptions in [throwable, container] format.
+     *
+     * @psalm-param list<array{\Throwable,ContainerInterface}> $exceptions
      */
     public function __construct(array $exceptions)
     {
@@ -23,7 +28,7 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
         foreach ($exceptions as $i => [$exception, $container]) {
             $containerClass = get_class($container);
             $containerId = spl_object_id($container);
-            $number = (int)$i + 1;
+            $number = $i + 1;
 
             $message .= "\n    $number. Container $containerClass #$containerId: {$exception->getMessage()}";
         }
