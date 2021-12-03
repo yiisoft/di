@@ -156,25 +156,29 @@ final class Container implements ContainerInterface
         }
 
         if ($id === StateResetter::class) {
+            $delegatesResetter = null;
             if ($this->delegates->has(StateResetter::class)) {
                 $delegatesResetter = $this->delegates->get(StateResetter::class);
             }
 
+            /** @var StateResetter $mainResetter */
+            $mainResetter = $this->instances[$id];
+
             if ($this->useResettersFromMeta) {
+                /** @var StateResetter[] $resetters */
                 $resetters = [];
                 foreach ($this->resetters as $serviceId => $callback) {
                     if (isset($this->instances[$serviceId])) {
                         $resetters[$serviceId] = $callback;
                     }
                 }
-                if ($this->delegates->has(StateResetter::class)) {
+                if ($delegatesResetter !== null) {
                     $resetters[] = $delegatesResetter;
                 }
-                /** @psalm-suppress MixedMethodCall Instance of `StateResetter` */
-                $this->instances[$id]->setResetters($resetters);
-            } elseif ($this->delegates->has(StateResetter::class)) {
+                $mainResetter->setResetters($resetters);
+            } elseif ($delegatesResetter !== null) {
                 $resetter = new StateResetter($this->get(ContainerInterface::class));
-                $resetter->setResetters([$this->instances[$id], $delegatesResetter]);
+                $resetter->setResetters([$mainResetter, $delegatesResetter]);
 
                 return $resetter;
             }
@@ -405,6 +409,7 @@ final class Container implements ContainerInterface
                         )
                     );
                 }
+                /** @var mixed $service */
                 foreach ($services as $service) {
                     if (!is_string($service)) {
                         throw new InvalidConfigException(
