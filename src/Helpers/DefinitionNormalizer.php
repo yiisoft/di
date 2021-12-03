@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di;
+namespace Yiisoft\Di\Helpers;
 
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Helpers\Normalizer;
+use Yiisoft\Di\ExtensibleService;
 
 use function is_array;
 

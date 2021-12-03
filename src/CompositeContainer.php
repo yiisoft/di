@@ -8,6 +8,8 @@ use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Throwable;
+use Yiisoft\Di\Helpers\TagHelper;
+
 use function get_class;
 use function gettype;
 use function is_object;
@@ -34,7 +36,12 @@ final class CompositeContainer implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException(
+                sprintf(
+                    'ID must be a string, %s given.',
+                    $this->getVariableType($id)
+                )
+            );
         }
 
         if ($id === StateResetter::class) {
@@ -50,7 +57,7 @@ final class CompositeContainer implements ContainerInterface
             return $stateResetter;
         }
 
-        if ($this->isTagAlias($id)) {
+        if (TagHelper::isTagAlias($id)) {
             $tags = [];
             foreach ($this->containers as $container) {
                 if (!$container instanceof Container) {
@@ -84,7 +91,9 @@ final class CompositeContainer implements ContainerInterface
             } finally {
                 if (!$hasException) {
                     $exceptions[] = [
-                        new RuntimeException('Container has() returned false but no exception was thrown from get().'),
+                        new RuntimeException(
+                            'Container "has()" returned false, but no exception was thrown from "get()".'
+                        ),
                         $container,
                     ];
                 }
@@ -126,11 +135,6 @@ final class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
-    }
-
-    private function isTagAlias(string $id): bool
-    {
-        return strncmp($id, 'tag@', 4) === 0;
     }
 
     /**

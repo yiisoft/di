@@ -14,6 +14,10 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Definitions\DefinitionStorage;
 
+use Yiisoft\Di\Helpers\DefinitionNormalizer;
+use Yiisoft\Di\Helpers\DefinitionParser;
+use Yiisoft\Di\Helpers\TagHelper;
+
 use function array_key_exists;
 use function array_keys;
 use function get_class;
@@ -38,6 +42,7 @@ final class Container implements ContainerInterface
      * @var DefinitionStorage Storage of object definitions.
      */
     private DefinitionStorage $definitions;
+
     /**
      * @var array Used to collect IDs of objects instantiated during build
      * to detect circular references.
@@ -66,12 +71,9 @@ final class Container implements ContainerInterface
     private bool $useResettersFromMeta = true;
 
     /**
-     * Container constructor.
-     *
      * @param ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException
-     * @psalm-suppress PropertyNotSetInConstructor
      */
     public function __construct(ContainerConfigInterface $config)
     {
@@ -84,7 +86,7 @@ final class Container implements ContainerInterface
         );
         $this->validate = $config->shouldValidate();
         $this->setTags($config->getTags());
-        $this->setMultiple($config->getDefinitions());
+        $this->addDefinitions($config->getDefinitions());
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
     }
@@ -96,7 +98,7 @@ final class Container implements ContainerInterface
      *
      * @return bool Whether the container is able to provide instance of class specified.
      *
-     * @see set()
+     * @see addDefinition()
      */
     public function has($id): bool
     {
@@ -105,8 +107,8 @@ final class Container implements ContainerInterface
             return false;
         }
 
-        if ($this->isTagAlias($id)) {
-            $tag = substr($id, 4);
+        if (TagHelper::isTagAlias($id)) {
+            $tag = TagHelper::extarctTagFromAlias($id);
             return isset($this->tags[$tag]);
         }
 
@@ -198,7 +200,7 @@ final class Container implements ContainerInterface
      *
      * @see DefinitionNormalizer::normalize()
      */
-    private function set(string $id, $definition): void
+    private function addDefinition(string $id, $definition): void
     {
         /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
@@ -228,7 +230,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    private function setMultiple(array $config): void
+    private function addDefinitions(array $config): void
     {
         /** @var mixed $definition */
         foreach ($config as $id => $definition) {
@@ -242,7 +244,7 @@ final class Container implements ContainerInterface
             }
             /** @var string $id */
 
-            $this->set($id, $definition);
+            $this->addDefinition($id, $definition);
         }
     }
 
@@ -476,7 +478,7 @@ final class Container implements ContainerInterface
      */
     private function build(string $id)
     {
-        if ($this->isTagAlias($id)) {
+        if (TagHelper::isTagAlias($id)) {
             return $this->getTaggedServices($id);
         }
 
@@ -502,15 +504,9 @@ final class Container implements ContainerInterface
         return $object;
     }
 
-    private function isTagAlias(string $id): bool
-    {
-        return strncmp($id, 'tag@', 4) === 0;
-    }
-
     private function getTaggedServices(string $tagAlias): array
     {
-        /** @var string $tag */
-        $tag = substr($tagAlias, 4);
+        $tag = TagHelper::extarctTagFromAlias($tagAlias);
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {
@@ -541,6 +537,10 @@ final class Container implements ContainerInterface
         throw new NotFoundException($id, $this->definitions->getBuildStack());
     }
 
+    /**
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     */
     private function addProviders(array $providers): void
     {
         $extensions = [];
@@ -548,7 +548,7 @@ final class Container implements ContainerInterface
         foreach ($providers as $provider) {
             $providerInstance = $this->buildProvider($provider);
             $extensions[] = $providerInstance->getExtensions();
-            $this->addProviderDefinitions($providerInstance);
+            $this->addDefinitions($providerInstance->getDefinitions());
         }
 
         foreach ($extensions as $providerExtensions) {
@@ -587,20 +587,6 @@ final class Container implements ContainerInterface
                 $definition->addExtension($extension);
             }
         }
-    }
-
-    /**
-     * Adds service provider definitions to the container.
-     *
-     * @param ServiceProviderInterface $provider Provider to get definitions from.
-     *
-     * @throws InvalidConfigException
-     * @throws NotInstantiableException
-     */
-    private function addProviderDefinitions(ServiceProviderInterface $provider): void
-    {
-        $definitions = $provider->getDefinitions();
-        $this->setMultiple($definitions);
     }
 
     /**

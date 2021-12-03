@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Di\DefinitionParser;
+use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\StaticFactory;
 
