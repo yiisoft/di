@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di;
+namespace Yiisoft\Di\Helpers;
 
 use Yiisoft\Definitions\ArrayDefinition;
 

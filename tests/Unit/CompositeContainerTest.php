@@ -21,7 +21,7 @@ final class CompositeContainerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Id must be a string, integer given.'
+            'ID must be a string, integer given.'
         );
         $container->get(42);
     }
@@ -58,8 +58,12 @@ final class CompositeContainerTest extends TestCase
         $compositeContainer->attach(new NonPsrContainer());
 
         $this->expectException(CompositeNotFoundException::class);
-        $this->expectExceptionMessageMatches('/No definition or class found or resolvable in composite container/');
-        $this->expectExceptionMessageMatches('/Container has\(\) returned false but no exception was thrown from get\(\)\./');
+        $this->expectExceptionMessageMatches(
+            '/No definition or class found or resolvable in composite container/'
+        );
+        $this->expectExceptionMessageMatches(
+            '/Container "has\(\)" returned false, but no exception was thrown from "get\(\)"\./'
+        );
         $compositeContainer->get('test');
     }
 }
