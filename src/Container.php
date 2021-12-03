@@ -13,7 +13,6 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Definitions\DefinitionStorage;
-
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -73,7 +72,7 @@ final class Container implements ContainerInterface
     /**
      * @param ContainerConfigInterface $config Container configuration.
      *
-     * @throws InvalidConfigException
+     * @throws InvalidConfigException If configuration is not valid.
      */
     public function __construct(ContainerConfigInterface $config)
     {
@@ -141,7 +140,12 @@ final class Container implements ContainerInterface
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException(
+                sprintf(
+                    'ID must be a string, %s given.',
+                    $this->getVariableType($id)
+                )
+            );
         }
 
         if (!array_key_exists($id, $this->instances)) {

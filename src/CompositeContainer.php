@@ -115,8 +115,6 @@ final class CompositeContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
-     *
-     * @param ContainerInterface $container
      */
     public function attach(ContainerInterface $container): void
     {
@@ -125,8 +123,6 @@ final class CompositeContainer implements ContainerInterface
 
     /**
      * Removes a container from the list of containers.
-     *
-     * @param ContainerInterface $container
      */
     public function detach(ContainerInterface $container): void
     {

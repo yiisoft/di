@@ -1659,7 +1659,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Id must be a string, integer given.'
+            'ID must be a string, integer given.'
         );
         $container->get(42);
     }
