@@ -19,19 +19,6 @@
 [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that is able to instantiate
 and configure classes resolving dependencies.
 
-## Requirements
-
-- PHP 7.4 or higher.
-- `Multibyte String` PHP extension.
-
-## Installation
-
-The package could be installed with composer:
-
-```shell
-composer require yiisoft/di --prefer-dist
-```
-
 ## Features
 
 - [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible.
@@ -45,6 +32,19 @@ composer require yiisoft/di --prefer-dist
 - Has state resetter for long-running workers serving multiple requests such as [RoadRunner](https://roadrunner.dev/)
   or [Swoole](https://www.swoole.co.uk/).
 - Supports container delegates.
+
+## Requirements
+
+- PHP 7.4 or higher.
+- `Multibyte String` PHP extension.
+
+## Installation
+
+The package could be installed with composer:
+
+```shell
+composer require yiisoft/di --prefer-dist
+```
 
 ## Using the container
 
