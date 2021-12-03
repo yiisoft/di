@@ -172,13 +172,11 @@ final class Container implements ContainerInterface
                 }
                 /** @psalm-suppress MixedMethodCall Instance of `StateResetter` */
                 $this->instances[$id]->setResetters($resetters);
-            } else {
-                if ($this->delegates->has(StateResetter::class)) {
-                    $resetter = new StateResetter($this->get(ContainerInterface::class));
-                    $resetter->setResetters([$this->instances[$id], $delegatesResetter]);
+            } elseif ($this->delegates->has(StateResetter::class)) {
+                $resetter = new StateResetter($this->get(ContainerInterface::class));
+                $resetter->setResetters([$this->instances[$id], $delegatesResetter]);
 
-                    return $resetter;
-                }
+                return $resetter;
             }
         }
 
