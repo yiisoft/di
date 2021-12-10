@@ -4,29 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
-use Closure;
-use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
-use Yiisoft\Di\Helpers\DefinitionParser;
-use Yiisoft\Di\Helpers\TagHelper;
 
-use function array_key_exists;
 use function array_keys;
-use function get_class;
-use function gettype;
 use function implode;
-use function in_array;
-use function is_array;
-use function is_callable;
-use function is_object;
-use function is_string;
 
 final class Factory
 {
