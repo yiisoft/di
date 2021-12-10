@@ -68,6 +68,7 @@ final class Container implements ContainerInterface
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
+    private Factory $factory;
 
     /**
      * @param ContainerConfigInterface $config Container configuration.
@@ -88,6 +89,7 @@ final class Container implements ContainerInterface
         $this->addDefinitions($config->getDefinitions());
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
+        $this->factory = new Factory($this, $this->definitions);
     }
 
     /**
@@ -486,26 +488,7 @@ final class Container implements ContainerInterface
             return $this->getTaggedServices($id);
         }
 
-        if (isset($this->building[$id])) {
-            if ($id === ContainerInterface::class) {
-                return $this;
-            }
-            throw new CircularReferenceException(sprintf(
-                'Circular reference to "%s" detected while building: %s.',
-                $id,
-                implode(', ', array_keys($this->building))
-            ));
-        }
-
-        $this->building[$id] = 1;
-        try {
-            /** @var mixed $object */
-            $object = $this->buildInternal($id);
-        } finally {
-            unset($this->building[$id]);
-        }
-
-        return $object;
+        return $this->factory->create($id);
     }
 
     private function getTaggedServices(string $tagAlias): array
@@ -520,25 +503,6 @@ final class Container implements ContainerInterface
         }
 
         return $services;
-    }
-
-    /**
-     * @param string $id
-     *
-     * @throws InvalidConfigException
-     * @throws NotFoundException
-     *
-     * @return mixed|object
-     */
-    private function buildInternal(string $id)
-    {
-        if ($this->definitions->has($id)) {
-            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-
-            return $definition->resolve($this->get(ContainerInterface::class));
-        }
-
-        throw new NotFoundException($id, $this->definitions->getBuildStack());
     }
 
     /**
