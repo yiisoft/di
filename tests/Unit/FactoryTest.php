@@ -138,4 +138,110 @@ final class FactoryTest extends TestCase
         $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
 
     }
+
+    public function testIntegerIndexedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            EngineInterface::class => EngineMarkTwo::class,
+            Car::class => [
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, [new EngineMarkOne()]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+
+    }
+
+    public function testNamedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            EngineInterface::class => EngineMarkTwo::class,
+            Car::class => [
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, ['engine' => new EngineMarkOne()]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+
+    }
+
+    public function testMergeIntegerIndexedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            Car::class => [
+                '__construct()' => [Reference::to(EngineMarkTwo::class)],
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, [1 => [new EngineMarkOne()]]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkTwo::class, $car->getEngine());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getMoreEngines()[0]);
+    }
+
+    public function testMergeNamedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            Car::class => [
+                '__construct()' => ['moreEngines' => [Reference::to(EngineMarkTwo::class)]],
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, ['engine' => new EngineMarkOne()]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+        $this->assertInstanceOf(EngineMarkTwo::class, $car->getMoreEngines()[0]);
+    }
+
+    public function testOverrideIntegerIndexedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            Car::class => [
+                '__construct()' => [Reference::to(EngineMarkTwo::class)],
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, [new EngineMarkOne()]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+    }
+
+    public function testOverrideNamedParameters(): void
+    {
+        $container = new Container(ContainerConfig::create());
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            Car::class => [
+                '__construct()' => ['engine' => Reference::to(EngineMarkTwo::class)],
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class, ['engine' => new EngineMarkOne()]);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+    }
 }

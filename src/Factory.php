@@ -47,7 +47,7 @@ final class Factory
      *
      * @internal
      */
-    public function create(string $id)
+    public function create(string $id, array $parameters = [])
     {
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
@@ -63,7 +63,7 @@ final class Factory
         $this->building[$id] = 1;
         try {
             /** @var mixed $object */
-            $object = $this->buildInternal($id);
+            $object = $this->buildInternal($id, $parameters);
         } finally {
             unset($this->building[$id]);
         }
@@ -88,14 +88,30 @@ final class Factory
      *
      * @return mixed|object
      */
-    private function buildInternal(string $id)
+    private function buildInternal(string $id, array $parameters)
     {
         if ($this->definitions->has($id)) {
-            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+            $definition = $this->definitions->get($id);
+            if (is_array($definition) && !is_callable($definition, true)) {
+                $constructorArguments = $definition['__construct()'] ?? [];
+                $definition['__construct()'] = $this->mergeArguments($constructorArguments, $parameters);
+            }
+            $definition = DefinitionNormalizer::normalize($definition, $id);
 
             return $definition->resolve($this->container->get(ContainerInterface::class));
         }
 
         throw new NotFoundException($id, $this->definitions->getBuildStack());
+    }
+
+    private function mergeArguments(array $selfArguments, array $otherArguments): array
+    {
+        /** @var mixed $argument */
+        foreach ($otherArguments as $name => $argument) {
+            /** @var mixed */
+            $selfArguments[$name] = $argument;
+        }
+
+        return $selfArguments;
     }
 }
