@@ -91,4 +91,51 @@ final class FactoryTest extends TestCase
         $this->assertInstanceOf(Car::class, $car);
         $this->assertInstanceOf(ColorRed::class, $car->getColor());
     }
+
+    public function testDoesNotResolveDependenciesFromFactory(): void
+    {
+        $definitions = [
+            EngineInterface::class => EngineMarkOne::class,
+        ];
+        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            EngineInterface::class => EngineMarkTwo::class,
+            Car::class => [
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class);
+        $engine = $factory->create(EngineInterface::class);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkTwo::class, $engine);
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+
+    }
+
+    public function testDoesNotResolveReferenceDependenciesFromFactory(): void
+    {
+        $definitions = [
+            EngineInterface::class => EngineMarkOne::class,
+        ];
+        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $factory = new Factory($container);
+        $factory = $factory->withDefinitions([
+            EngineInterface::class => EngineMarkTwo::class,
+            Car::class => [
+                '__construct()' => [Reference::to(EngineInterface::class)],
+                'setColor()' => [new ColorRed()],
+            ]
+        ]);
+
+        $car = $factory->create(Car::class);
+        $engine = $factory->create(EngineInterface::class);
+        $this->assertInstanceOf(Car::class, $car);
+        $this->assertInstanceOf(ColorRed::class, $car->getColor());
+        $this->assertInstanceOf(EngineMarkTwo::class, $engine);
+        $this->assertInstanceOf(EngineMarkOne::class, $car->getEngine());
+
+    }
 }
