@@ -36,6 +36,8 @@ use Yiisoft\Di\Tests\Support\EngineStorage;
 use Yiisoft\Di\Tests\Support\Garage;
 use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
+use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
+use Yiisoft\Di\Tests\Support\OptionalConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
@@ -44,7 +46,6 @@ use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
-use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -91,6 +92,28 @@ final class ContainerTest extends TestCase
 
         $this->expectException(NotFoundException::class);
         $container->get(NullableConcreteDependency::class);
+    }
+
+    public function testOptionalResolvableClassDependency(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                EngineInterface::class => EngineMarkOne::class,
+            ])
+        );
+
+        $this->assertTrue($container->has(OptionalConcreteDependency::class));
+        $service = $container->get(OptionalConcreteDependency::class);
+        $this->assertInstanceOf(Car::class, $service->getCar());
+    }
+
+    public function testOptionalNotResolvableClassDependency(): void
+    {
+        $container = new Container(ContainerConfig::create());
+
+        $this->assertTrue($container->has(OptionalConcreteDependency::class));
+        $service = $container->get(OptionalConcreteDependency::class);
+        $this->assertNull($service->getCar());
     }
 
     public function testOptionalCircularClassDependency(): void
