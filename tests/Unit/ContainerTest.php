@@ -436,7 +436,7 @@ final class ContainerTest extends TestCase
                 public function getExtensions(): array
                 {
                     return [
-                        'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class
+                        'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class,
                     ];
                 }
             },
