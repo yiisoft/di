@@ -8,11 +8,11 @@ use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -584,7 +584,9 @@ final class Container implements ContainerInterface
                 /** @var mixed $definition */
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
-                    $definition = new ExtensibleService($definition);
+                    $definition = new ExtensibleService(
+                        DefinitionNormalizer::normalize($definition, $id)
+                    );
                     $this->addDefinitionToStorage($id, $definition);
                 }
 

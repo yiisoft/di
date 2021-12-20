@@ -417,6 +417,38 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $object->getValue());
     }
 
+    public function testClassMethodsWithExtensible(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'method_test' => [
+                    'class' => MethodTestClass::class,
+                    'setValue()' => [42],
+                ],
+            ])
+        ->withProviders([
+            new class () implements ServiceProviderInterface {
+                public function getDefinitions(): array
+                {
+                    return [];
+                }
+
+                public function getExtensions(): array
+                {
+                    return [
+                        'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class
+                    ];
+                }
+            },
+        ]);
+
+        $container = new Container($config);
+
+        /** @var MethodTestClass $object */
+        $object = $container->get('method_test');
+        $this->assertSame(42, $object->getValue());
+    }
+
     public function testClosureInConstructor(): void
     {
         $color = static fn () => new ColorPink();
