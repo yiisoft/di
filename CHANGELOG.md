@@ -1,10 +1,10 @@
 # Yii Dependency Injection Change Log
 
-## 1.0.2 under development
+## 1.0.1 December 21, 2021
 
 - no changes in this release.
 
-## 1.0.1 under development
+## 1.0.1 December 21, 2021
 
 - Bug #293: Fix `ExtensibleService` normalization bug (yiiliveext)
 
