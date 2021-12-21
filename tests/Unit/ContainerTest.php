@@ -1604,7 +1604,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'test' => new ExtensibleService([]),
+                'test' => new ExtensibleService([], 'test'),
             ]);
 
         $this->expectException(InvalidConfigException::class);

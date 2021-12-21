@@ -584,7 +584,7 @@ final class Container implements ContainerInterface
                 /** @var mixed $definition */
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
-                    $definition = new ExtensibleService($definition);
+                    $definition = new ExtensibleService($definition, $id);
                     $this->addDefinitionToStorage($id, $definition);
                 }
 
