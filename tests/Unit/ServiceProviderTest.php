@@ -143,8 +143,6 @@ final class ServiceProviderTest extends TestCase
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
     }
 
-
-
     public function testClassMethodsWithExtensible(): void
     {
         $config = ContainerConfig::create()
