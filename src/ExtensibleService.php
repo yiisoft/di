@@ -6,7 +6,7 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
-use Yiisoft\Definitions\Helpers\Normalizer;
+use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
  * A wrapper for a service definition that allows registering extensions.
@@ -25,6 +25,8 @@ final class ExtensibleService implements DefinitionInterface
      */
     private $definition;
 
+    private string $id;
+
     /**
      * @var callable[]
      */
@@ -33,9 +35,10 @@ final class ExtensibleService implements DefinitionInterface
     /**
      * @param mixed $definition Definition to allow registering extensions for.
      */
-    public function __construct($definition)
+    public function __construct($definition, string $id)
     {
         $this->definition = $definition;
+        $this->id = $id;
     }
 
     /**
@@ -59,7 +62,7 @@ final class ExtensibleService implements DefinitionInterface
     public function resolve(ContainerInterface $container)
     {
         /** @var mixed $service */
-        $service = Normalizer::normalize($this->definition)->resolve($container);
+        $service = DefinitionNormalizer::normalize($this->definition, $this->id)->resolve($container);
 
         foreach ($this->extensions as $extension) {
             /** @var mixed $result */

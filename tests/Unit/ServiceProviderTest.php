@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
@@ -15,6 +17,7 @@ use Yiisoft\Di\Tests\Support\ColorRed;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
+use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\NullCarExtensionProvider;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -138,5 +141,37 @@ final class ServiceProviderTest extends TestCase
         $container = new Container($config);
 
         $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+    }
+
+    public function testClassMethodsWithExtensible(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'method_test' => [
+                    'class' => MethodTestClass::class,
+                    'setValue()' => [42],
+                ],
+            ])
+            ->withProviders([
+                new class () implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [
+                            'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class,
+                        ];
+                    }
+                },
+            ]);
+
+        $container = new Container($config);
+
+        /** @var MethodTestClass $object */
+        $object = $container->get('method_test');
+        $this->assertSame(42, $object->getValue());
     }
 }
