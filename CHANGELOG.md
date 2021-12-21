@@ -6,7 +6,7 @@
 
 ## 1.0.1 under development
 
-- Fix ExtensibleService normalization bug.
+- Bug #293: Fix `ExtensibleService` normalization bug (yiiliveext)
 
 ## 1.0.0 December 03, 2021
 
