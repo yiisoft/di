@@ -9,7 +9,7 @@ use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
- * A wrapper for a service definition that allows registering extensions.
+ * @internal A wrapper for a service definition that allows registering extensions.
  * An extension is a callable that returns a modified service object:
  *
  * ```php
