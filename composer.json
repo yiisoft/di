@@ -30,7 +30,7 @@
         "league/container": "^4.2",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^9.5",
-        "roave/infection-static-analysis-plugin": "^1.11",
+        "roave/infection-static-analysis-plugin": "^1.14",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.13",
         "yiisoft/injector": "^1.0",
