@@ -7,7 +7,7 @@
     "logs": {
         "text": "php:\/\/stderr",
         "stryker": {
-            "badge": "master"
+            "report": "master"
         }
     },
     "mutators": {

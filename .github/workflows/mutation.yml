@@ -51,7 +51,6 @@ jobs:
 
       - name: Run infection
         run: |
-          git fetch --depth=1 origin $GITHUB_BASE_REF
-          vendor/bin/roave-infection-static-analysis-plugin -j2 --git-diff-filter=A --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/roave-infection-static-analysis-plugin -j2 --ignore-msi-with-no-mutations --only-covered
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
