@@ -1,36 +1,35 @@
 checks:
-    php: true
+  php: true
 
 filter:
-    paths:
-        - "src/*"
+  paths:
+    - "src/*"
 
 build:
-    nodes:
-        analysis:
-            environment:
-                php: 7.4.12
+  image: default-bionic
 
-            tests:
-                override:
-                    - php-scrutinizer-run
+  environment:
+    php:
+      version: 8.0.11
+      ini:
+        "xdebug.mode": coverage
 
-        tests-and-coverage:
-            environment:
-                php: 7.4.12
+  nodes:
+    analysis:
+      tests:
+        override:
+          - php-scrutinizer-run
 
-            dependencies:
-                override:
-                    - composer self-update
-                    - composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+    phpunit:
+      dependencies:
+        override:
+          - composer self-update
+          - composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
-            tests:
-                override:
-                    -
-                        command: "./vendor/bin/phpunit --coverage-clover ./coverage.xml"
-                        on_node: 1
-                        coverage:
-                            file: coverage.xml
-                            format: php-clover
-
-
+      tests:
+        override:
+          - command: "./vendor/bin/phpunit --coverage-clover ./coverage.xml"
+            on_node: 1
+            coverage:
+              file: coverage.xml
+              format: php-clover
