@@ -39,7 +39,7 @@ jobs:
           - windows-latest
 
         php:
-          - "7.4"
+          - 7.4
 
     steps:
       - name: Checkout
