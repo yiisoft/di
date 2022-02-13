@@ -107,7 +107,7 @@ final class Container implements ContainerInterface
         }
 
         if (TagHelper::isTagAlias($id)) {
-            $tag = TagHelper::extarctTagFromAlias($id);
+            $tag = TagHelper::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
         }
 
@@ -510,7 +510,7 @@ final class Container implements ContainerInterface
 
     private function getTaggedServices(string $tagAlias): array
     {
-        $tag = TagHelper::extarctTagFromAlias($tagAlias);
+        $tag = TagHelper::extractTagFromAlias($tagAlias);
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {

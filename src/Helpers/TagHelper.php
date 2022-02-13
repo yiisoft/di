@@ -9,7 +9,7 @@ namespace Yiisoft\Di\Helpers;
  */
 final class TagHelper
 {
-    public static function extarctTagFromAlias(string $alias): string
+    public static function extractTagFromAlias(string $alias): string
     {
         return substr($alias, 4);
     }
