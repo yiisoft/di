@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.0.3 under development
+
+- no changes in this release.
+
 ## 1.0.2 February 14, 2022
 
 - Bug #297: Fix method name `TagHelper::extractTagFromAlias` (rustamwin)
