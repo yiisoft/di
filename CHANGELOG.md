@@ -2,7 +2,7 @@
 
 ## 1.0.2 under development
 
-- no changes in this release.
+- Bug #297: Fix method name `TagHelper::extractTagFromAlias` (rustamwin)
 
 ## 1.0.1 December 21, 2021
 
