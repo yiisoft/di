@@ -1804,7 +1804,7 @@ final class ContainerTest extends TestCase
     {
         return [
             [
-                'Invalid tags configuration: tag should be string, 42 given.',
+                'Invalid tags configuration: tag should be string, integer given.',
                 [42 => [EngineMarkTwo::class]],
             ],
             [
