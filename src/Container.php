@@ -230,11 +230,11 @@ final class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      *
-     * @param array $config Definitions indexed by their IDs.
+     * @param iterable $config Definitions indexed by their IDs.
      *
      * @throws InvalidConfigException
      */
-    private function addDefinitions(array $config): void
+    private function addDefinitions(iterable $config): void
     {
         /** @var mixed $definition */
         foreach ($config as $id => $definition) {
@@ -258,11 +258,11 @@ final class Container implements ContainerInterface
      * Each delegate must is a callable in format "function (ContainerInterface $container): ContainerInterface".
      * The container instance returned is used in case a service can not be found in primary container.
      *
-     * @param array $delegates
+     * @param iterable $delegates
      *
      * @throws InvalidConfigException
      */
-    private function setDelegates(array $delegates): void
+    private function setDelegates(iterable $delegates): void
     {
         $this->delegates = new CompositeContainer();
         foreach ($delegates as $delegate) {
@@ -327,7 +327,7 @@ final class Container implements ContainerInterface
     /**
      * @throws InvalidConfigException
      */
-    private function validateMeta(array $meta): void
+    private function validateMeta(iterable $meta): void
     {
         /** @var mixed $value */
         foreach ($meta as $key => $value) {
@@ -359,10 +359,10 @@ final class Container implements ContainerInterface
      */
     private function validateDefinitionTags($tags): void
     {
-        if (!is_array($tags)) {
+        if (!is_iterable($tags)) {
             throw new InvalidConfigException(
                 sprintf(
-                    'Invalid definition: tags should be array of strings, %s given.',
+                    'Invalid definition: tags should be iterable object or array of strings, %s given.',
                     $this->getVariableType($tags)
                 )
             );
@@ -395,7 +395,7 @@ final class Container implements ContainerInterface
     /**
      * @throws InvalidConfigException
      */
-    private function setTags(array $tags): void
+    private function setTags(iterable $tags): void
     {
         if ($this->validate) {
             foreach ($tags as $tag => $services) {
@@ -407,10 +407,10 @@ final class Container implements ContainerInterface
                         )
                     );
                 }
-                if (!is_array($services)) {
+                if (!is_iterable($services)) {
                     throw new InvalidConfigException(
                         sprintf(
-                            'Invalid tags configuration: tag should contain array of service IDs, %s given.',
+                            'Invalid tags configuration: tag should be iterable object or array of service IDs, %s given.',
                             $this->getVariableType($services)
                         )
                     );
@@ -436,7 +436,7 @@ final class Container implements ContainerInterface
     /**
      * @psalm-param string[] $tags
      */
-    private function setDefinitionTags(string $id, array $tags): void
+    private function setDefinitionTags(string $id, iterable $tags): void
     {
         foreach ($tags as $tag) {
             if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
@@ -545,7 +545,7 @@ final class Container implements ContainerInterface
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      */
-    private function addProviders(array $providers): void
+    private function addProviders(iterable $providers): void
     {
         $extensions = [];
         /** @var mixed $provider */
