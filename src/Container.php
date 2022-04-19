@@ -7,6 +7,7 @@ namespace Yiisoft\Di;
 use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use Traversable;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -428,9 +429,9 @@ final class Container implements ContainerInterface
                 }
             }
         }
-        /** @psalm-var array<string, list<string>> $tags */
+        /** @psalm-var array<string, list<string>>|Traversable $tags */
 
-        $this->tags = $tags;
+        $this->tags = $tags instanceof Traversable ? iterator_to_array($tags) : $tags ;
     }
 
     /**
@@ -439,7 +440,14 @@ final class Container implements ContainerInterface
     private function setDefinitionTags(string $id, iterable $tags): void
     {
         foreach ($tags as $tag) {
-            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
+            if (!isset($this->tags[$tag])) {
+                $this->tags[$tag] = [$id];
+                continue;
+            }
+
+            $tags = $this->tags[$tag];
+            $tags = $tags instanceof Traversable ? iterator_to_array($tags) : $tags;
+            if (!in_array($id, $tags, true)) {
                 $this->tags[$tag][] = $id;
             }
         }
