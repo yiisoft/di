@@ -60,7 +60,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     * @psalm-var array<string, list<string>>
+     * @psalm-var array<string, iterable<string>>
      */
     private array $tags;
 
@@ -238,6 +238,7 @@ final class Container implements ContainerInterface
     private function addDefinitions(iterable $config): void
     {
         /** @var mixed $definition */
+        /** @psalm-suppress MixedAssignment */
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
                 throw new InvalidConfigException(
@@ -247,8 +248,8 @@ final class Container implements ContainerInterface
                     )
                 );
             }
-            /** @var string $id */
 
+            $id = (string) $id;
             $this->addDefinition($id, $definition);
         }
     }
@@ -331,7 +332,9 @@ final class Container implements ContainerInterface
     private function validateMeta(iterable $meta): void
     {
         /** @var mixed $value */
+        /** @psalm-suppress MixedAssignment */
         foreach ($meta as $key => $value) {
+            $key = (string)$key;
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
                     sprintf(
@@ -404,7 +407,7 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should be string, %s given.',
-                            $tag
+                            $this->getVariableType($tag)
                         )
                     );
                 }
@@ -429,9 +432,9 @@ final class Container implements ContainerInterface
                 }
             }
         }
-        /** @psalm-var array<string, list<string>>|Traversable $tags */
+        /** @psalm-var iterable<string, iterable<string>> $tags */
 
-        $this->tags = $tags instanceof Traversable ? iterator_to_array($tags) : $tags ;
+        $this->tags = $tags instanceof Traversable ? iterator_to_array($tags, true) : $tags ;
     }
 
     /**
@@ -446,8 +449,9 @@ final class Container implements ContainerInterface
             }
 
             $tags = $this->tags[$tag];
-            $tags = $tags instanceof Traversable ? iterator_to_array($tags) : $tags;
+            $tags = $tags instanceof Traversable ? iterator_to_array($tags, true) : $tags;
             if (!in_array($id, $tags, true)) {
+                /** @psalm-suppress PossiblyInvalidArrayAssignment */
                 $this->tags[$tag][] = $id;
             }
         }
