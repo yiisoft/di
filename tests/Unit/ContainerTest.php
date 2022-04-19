@@ -1092,6 +1092,30 @@ final class ContainerTest extends TestCase
         $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
     }
 
+    public function testTagsIterable(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                ],
+            ])
+            ->withTags(['engine' => new ArrayIterator([EngineMarkTwo::class])])
+            ->withValidate(true);
+        $container = new Container($config);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
+    }
+
     public function testTagsWithExternalDefinitionMerge(): void
     {
         $config = ContainerConfig::create()
@@ -1771,7 +1795,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be array of strings, integer given.'
+            'Invalid definition: tags should be iterable object or array of strings, integer given.'
         );
         new Container($config);
     }
@@ -1784,7 +1808,7 @@ final class ContainerTest extends TestCase
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                'Invalid tags configuration: tag should contain array of service IDs, integer given.',
+                'Invalid tags configuration: tag should be iterable object or array of service IDs, integer given.',
                 ['engine' => 42],
             ],
             [
