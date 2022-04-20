@@ -366,7 +366,7 @@ final class Container implements ContainerInterface
         if (!is_iterable($tags)) {
             throw new InvalidConfigException(
                 sprintf(
-                    'Invalid definition: tags should be iterable object or array of strings, %s given.',
+                    'Invalid definition: tags should be either iterable or array of strings, %s given.',
                     $this->getVariableType($tags)
                 )
             );
@@ -414,7 +414,7 @@ final class Container implements ContainerInterface
                 if (!is_iterable($services)) {
                     throw new InvalidConfigException(
                         sprintf(
-                            'Invalid tags configuration: tag should be iterable object or array of service IDs, %s given.',
+                            'Invalid tags configuration: tag should be either iterable or array of service IDs, %s given.',
                             $this->getVariableType($services)
                         )
                     );

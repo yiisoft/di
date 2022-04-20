@@ -1795,7 +1795,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be iterable object or array of strings, integer given.'
+            'Invalid definition: tags should be either iterable or array of strings, integer given.'
         );
         new Container($config);
     }
@@ -1808,7 +1808,7 @@ final class ContainerTest extends TestCase
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                'Invalid tags configuration: tag should be iterable object or array of service IDs, integer given.',
+                'Invalid tags configuration: tag should be either iterable or array of service IDs, integer given.',
                 ['engine' => 42],
             ],
             [
