@@ -19,11 +19,11 @@ on:
       - 'infection.json.dist'
       - 'psalm.xml'
 
-name: build
+name: bechmark
 
 jobs:
   phpunit:
-    uses: yiisoft/actions/.github/workflows/phpunit.yml@master
+    uses: yiisoft/actions/.github/workflows/phpbench.yml@master
     with:
       os: >-
         ['ubuntu-latest', 'windows-latest']
