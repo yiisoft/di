@@ -22,7 +22,7 @@ on:
 name: bechmark
 
 jobs:
-  bechmark:
+  phpbench:
     uses: yiisoft/actions/.github/workflows/phpbench.yml@master
     with:
       os: >-
