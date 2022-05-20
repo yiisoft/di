@@ -97,9 +97,10 @@ final class ContainerTest extends TestCase
     public function testOptionalResolvableClassDependency(): void
     {
         $container = new Container(
-            ContainerConfig::create()->withDefinitions([
-                EngineInterface::class => EngineMarkOne::class,
-            ])
+            ContainerConfig::create()
+                ->withDefinitions([
+                    EngineInterface::class => EngineMarkOne::class,
+                ])
         );
 
         $this->assertTrue($container->has(OptionalConcreteDependency::class));
@@ -1139,7 +1140,9 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $engines = $container->get(Car::class)->getMoreEngines();
+        $engines = $container
+            ->get(Car::class)
+            ->getMoreEngines();
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
@@ -1175,12 +1178,24 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
-        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            42,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
         $engine->setNumber(45);
-        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            45,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1207,12 +1222,24 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
-        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            42,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
         $engine->setNumber(45);
-        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            45,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1255,24 +1282,51 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $engine = $container->get(EngineInterface::class);
-        $this->assertSame(42, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            42,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
         $car = $container->get(Car::class);
-        $this->assertInstanceOf(ColorPink::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(
+            ColorPink::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
 
         $engine->setNumber(45);
-        $this->assertSame(45, $container->get(EngineInterface::class)->getNumber());
+        $this->assertSame(
+            45,
+            $container
+                ->get(EngineInterface::class)
+                ->getNumber(),
+        );
 
         $car->setColor(new ColorRed());
-        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(
+            ColorRed::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
 
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
 
         $this->assertSame($car, $container->get(Car::class));
-        $this->assertInstanceOf(ColorPink::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(
+            ColorPink::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
     }
 
     public function dataResetterInProviderDefinitions(): array
@@ -1323,7 +1377,9 @@ final class ContainerTest extends TestCase
 
         $engine = $container->get(EngineInterface::class);
         $engine->setNumber(45);
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1367,7 +1423,9 @@ final class ContainerTest extends TestCase
 
         $engine = $container->get(EngineInterface::class);
         $engine->setNumber(45);
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame(42, $engine->getNumber());
@@ -1405,14 +1463,33 @@ final class ContainerTest extends TestCase
 
         $engine->setNumber(45);
         $car->setColor(new ColorRed());
-        $this->assertSame(45, $container->get(Car::class)->getEngine()->getNumber());
-        $this->assertSame('red', $container->get(Car::class)->getColor()->getColor());
+        $this->assertSame(
+            45,
+            $container
+                ->get(Car::class)
+                ->getEngine()
+                ->getNumber(),
+        );
+        $this->assertSame(
+            'red',
+            $container
+                ->get(Car::class)
+                ->getColor()
+                ->getColor(),
+        );
 
-        $container->get(StateResetter::class)->reset();
+        $container
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engine, $container->get(EngineInterface::class));
         $this->assertSame($car, $container->get(Car::class));
-        $this->assertSame(42, $car->getEngine()->getNumber());
+        $this->assertSame(
+            42,
+            $car
+                ->getEngine()
+                ->getNumber(),
+        );
         $this->assertSame($color, $car->getColor());
     }
 
@@ -1448,20 +1525,52 @@ final class ContainerTest extends TestCase
 
         $engineMarkOne = $composite->get('engineMarkOne');
         $engineMarkTwo = $composite->get('engineMarkTwo');
-        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            42,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            43,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
 
         $engineMarkOne->setNumber(45);
         $engineMarkTwo->setNumber(46);
-        $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            45,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            46,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
 
-        $composite->get(StateResetter::class)->reset();
+        $composite
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
         $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
-        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            42,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            43,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
     }
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
@@ -1571,7 +1680,12 @@ final class ContainerTest extends TestCase
         $garage = $container->get(Garage::class);
 
         $this->assertInstanceOf(Garage::class, $garage);
-        $this->assertInstanceOf(EngineMarkOne::class, $garage->getCar()->getEngine());
+        $this->assertInstanceOf(
+            EngineMarkOne::class,
+            $garage
+                ->getCar()
+                ->getEngine(),
+        );
     }
 
     public function testNonClosureDelegate(): void
@@ -1658,7 +1772,8 @@ final class ContainerTest extends TestCase
 
     public function testStrictModeDisabled(): void
     {
-        $config = ContainerConfig::create()->withStrictMode(false);
+        $config = ContainerConfig::create()
+            ->withStrictMode(false);
         $container = new Container($config);
         $this->assertTrue($container->has(EngineMarkOne::class));
 
@@ -1668,7 +1783,8 @@ final class ContainerTest extends TestCase
 
     public function testStrictModeEnabled(): void
     {
-        $config = ContainerConfig::create()->withStrictMode(true);
+        $config = ContainerConfig::create()
+            ->withStrictMode(true);
         $container = new Container($config);
         $this->assertFalse($container->has(EngineMarkOne::class));
 
