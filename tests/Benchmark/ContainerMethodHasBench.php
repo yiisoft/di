@@ -37,7 +37,10 @@ class ContainerMethodHasBench
         }
         $definitions['service'] = PropertyTestClass::class;
 
-        $this->container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $this->container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
     }
 
     public function benchPredefinedExisting(): void

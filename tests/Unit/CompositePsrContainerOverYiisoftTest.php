@@ -58,20 +58,52 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
 
         $engineMarkOne = $composite->get('engineMarkOne');
         $engineMarkTwo = $composite->get('engineMarkTwo');
-        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            42,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            43,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
 
         $engineMarkOne->setNumber(45);
         $engineMarkTwo->setNumber(46);
-        $this->assertSame(45, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(46, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            45,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            46,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
 
-        $composite->get(StateResetter::class)->reset();
+        $composite
+            ->get(StateResetter::class)
+            ->reset();
 
         $this->assertSame($engineMarkOne, $composite->get('engineMarkOne'));
         $this->assertSame($engineMarkTwo, $composite->get('engineMarkTwo'));
-        $this->assertSame(42, $composite->get('engineMarkOne')->getNumber());
-        $this->assertSame(43, $composite->get('engineMarkTwo')->getNumber());
+        $this->assertSame(
+            42,
+            $composite
+                ->get('engineMarkOne')
+                ->getNumber(),
+        );
+        $this->assertSame(
+            43,
+            $composite
+                ->get('engineMarkTwo')
+                ->getNumber(),
+        );
     }
 
     public function testNotFoundException(): void

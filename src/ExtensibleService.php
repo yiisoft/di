@@ -62,7 +62,8 @@ final class ExtensibleService implements DefinitionInterface
     public function resolve(ContainerInterface $container)
     {
         /** @var mixed $service */
-        $service = DefinitionNormalizer::normalize($this->definition, $this->id)->resolve($container);
+        $service = DefinitionNormalizer::normalize($this->definition, $this->id)
+            ->resolve($container);
 
         foreach ($this->extensions as $extension) {
             /** @var mixed $result */

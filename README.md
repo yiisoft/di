@@ -253,7 +253,9 @@ class CarFactoryProvider extends ServiceProviderInterface
         return [
             // Note that Garage should already be defined in container 
             Garage::class => function(ContainerInterface $container, Garage $garage) {
-                $car = $container->get(CarFactory::class)->create();
+                $car = $container
+                    ->get(CarFactory::class)
+                    ->create();
                 $garage->setCar($car);
                 
                 return $garage;
@@ -362,7 +364,9 @@ while ($request = $psr7->acceptRequest()) {
     $response = $application->handle($request);
     $psr7->respond($response);
     $application->afterEmit($response);
-    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+    $container
+        ->get(\Yiisoft\Di\StateResetter::class)
+        ->reset();
     gc_collect_cycles();
 }
 ```
@@ -449,11 +453,12 @@ In order to configure delegates use additional config:
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
-$config = ContainerConfig::create()->withDelegates([
-    function (ContainerInterface $container): ContainerInterface {
-        // ...
-    }
-]);
+$config = ContainerConfig::create()
+    ->withDelegates([
+        function (ContainerInterface $container): ContainerInterface {
+            // ...
+        }
+    ]);
 
 
 $container = new Container($config);
