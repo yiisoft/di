@@ -2,7 +2,7 @@
 
 ## 1.0.3 under development
 
-- no changes in this release.
+- Enh #302: Improve performance collecting tags (samdark)
 
 ## 1.0.2 February 14, 2022
 
