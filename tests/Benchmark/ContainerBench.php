@@ -79,51 +79,51 @@ class ContainerBench
         // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions2)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions3)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions2)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions3)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions2)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions3)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions2)
-        )
+            )
         );
         $this->composite->attach(
             new Container(
-            ContainerConfig::create()
+                ContainerConfig::create()
                     ->withDefinitions($definitions3)
-        )
+            )
         );
     }
 

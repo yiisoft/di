@@ -65,11 +65,12 @@ final class CompositeContainer implements ContainerInterface
                 }
                 if ($container->has($id)) {
                     /** @psalm-suppress MixedArgument Container::get() always return array for tag */
-                    $tags = array_merge($container->get($id), $tags);
+                    array_unshift($tags, $container->get($id));
                 }
             }
 
-            return $tags;
+            /** @psalm-suppress MixedArgument Container::get() always return array for tag */
+            return array_merge(...$tags);
         }
 
         foreach ($this->containers as $container) {
