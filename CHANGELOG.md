@@ -3,6 +3,7 @@
 ## 1.0.3 under development
 
 - Enh #302: Improve performance collecting tags (samdark)
+- Enh #303: Add support for `yiisoft/definitions` version `^2.0` (vjik)
 
 ## 1.0.2 February 14, 2022
 
