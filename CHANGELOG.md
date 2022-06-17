@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.0.4 under development
+
+- no changes in this release.
+
 ## 1.0.3 June 17, 2022
 
 - Enh #302: Improve performance collecting tags (samdark)
