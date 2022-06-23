@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
+use Exception;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -27,7 +28,7 @@ class EngineFactory
             return $this->container->get(EngineMarkTwo::class);
         }
 
-        throw new \Exception('unknown engine name: ' . $name);
+        throw new Exception('unknown engine name: ' . $name);
     }
 
     public static function createDefault(): EngineInterface

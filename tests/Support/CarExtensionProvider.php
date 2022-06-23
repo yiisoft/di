@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Support;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Di\Contracts\ServiceProviderInterface;
+use Yiisoft\Di\ServiceProviderInterface;
 
-class CarExtensionProvider implements ServiceProviderInterface
+final class CarExtensionProvider implements ServiceProviderInterface
 {
     public function getDefinitions(): array
     {

@@ -4,27 +4,44 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
-use Yiisoft\Definitions\Exception\NotFoundException;
+use RuntimeException;
+use Throwable;
+use Yiisoft\Di\Helpers\TagHelper;
+
+use function get_class;
+use function gettype;
+use function is_object;
+use function is_string;
 
 /**
- * This class implements a composite container for use with containers that support the delegate lookup feature.
- * The goal of the implementation is simplicity.
+ * A composite container for use with containers that support the delegate lookup feature.
  */
 final class CompositeContainer implements ContainerInterface
 {
     /**
      * Containers to look into starting from the beginning of the array.
      *
-     * @var ContainerInterface[] The list of containers
+     * @var ContainerInterface[] The list of containers.
      */
     private array $containers = [];
 
+    /**
+     * @psalm-template T
+     * @psalm-param string|class-string<T> $id
+     * @psalm-return ($id is class-string ? T : mixed)
+     */
     public function get($id)
     {
         /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
-            throw new \InvalidArgumentException("Id must be a string, {$this->getVariableType($id)} given.");
+            throw new InvalidArgumentException(
+                sprintf(
+                    'ID must be a string, %s given.',
+                    $this->getVariableType($id)
+                )
+            );
         }
 
         if ($id === StateResetter::class) {
@@ -40,27 +57,51 @@ final class CompositeContainer implements ContainerInterface
             return $stateResetter;
         }
 
-        if ($this->isTagAlias($id)) {
+        if (TagHelper::isTagAlias($id)) {
             $tags = [];
             foreach ($this->containers as $container) {
                 if (!$container instanceof Container) {
                     continue;
                 }
                 if ($container->has($id)) {
-                    $tags = array_merge($container->get($id), $tags);
+                    /** @psalm-suppress MixedArgument Container::get() always return array for tag */
+                    array_unshift($tags, $container->get($id));
                 }
             }
 
-            return $tags;
+            /** @psalm-suppress MixedArgument Container::get() always return array for tag */
+            return array_merge(...$tags);
         }
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
+                /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
         }
 
-        throw new NotFoundException($id);
+        // Collect details from containers
+        $exceptions = [];
+        foreach ($this->containers as $container) {
+            $hasException = false;
+            try {
+                $container->get($id);
+            } catch (Throwable $t) {
+                $hasException = true;
+                $exceptions[] = [$t, $container];
+            } finally {
+                if (!$hasException) {
+                    $exceptions[] = [
+                        new RuntimeException(
+                            'Container "has()" returned false, but no exception was thrown from "get()".'
+                        ),
+                        $container,
+                    ];
+                }
+            }
+        }
+
+        throw new CompositeNotFoundException($exceptions);
     }
 
     public function has($id): bool
@@ -75,8 +116,6 @@ final class CompositeContainer implements ContainerInterface
 
     /**
      * Attaches a container to the composite container.
-     *
-     * @param ContainerInterface $container
      */
     public function attach(ContainerInterface $container): void
     {
@@ -85,8 +124,6 @@ final class CompositeContainer implements ContainerInterface
 
     /**
      * Removes a container from the list of containers.
-     *
-     * @param ContainerInterface $container
      */
     public function detach(ContainerInterface $container): void
     {
@@ -95,11 +132,6 @@ final class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
-    }
-
-    private function isTagAlias(string $id): bool
-    {
-        return strpos($id, 'tag@') === 0;
     }
 
     /**

@@ -8,8 +8,8 @@ use stdClass;
 
 final class StaticFactory
 {
-    public static function create(): StdClass
+    public static function create(): stdClass
     {
-        return new StdClass();
+        return new stdClass();
     }
 }

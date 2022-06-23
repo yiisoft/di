@@ -6,10 +6,10 @@ namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
-use Yiisoft\Definitions\Infrastructure\Normalizer;
+use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
- * A wrapper for a service definition that allows registering extensions.
+ * @internal A wrapper for a service definition that allows registering extensions.
  * An extension is a callable that returns a modified service object:
  *
  * ```php
@@ -20,16 +20,25 @@ use Yiisoft\Definitions\Infrastructure\Normalizer;
  */
 final class ExtensibleService implements DefinitionInterface
 {
-    /** @psalm-var  array<string,mixed> */
+    /**
+     * @var mixed
+     */
     private $definition;
+
+    private string $id;
+
+    /**
+     * @var callable[]
+     */
     private array $extensions = [];
 
     /**
      * @param mixed $definition Definition to allow registering extensions for.
      */
-    public function __construct($definition)
+    public function __construct($definition, string $id)
     {
         $this->definition = $definition;
+        $this->id = $id;
     }
 
     /**
@@ -52,10 +61,19 @@ final class ExtensibleService implements DefinitionInterface
 
     public function resolve(ContainerInterface $container)
     {
-        $service = (Normalizer::normalize($this->definition))->resolve($container);
+        /** @var mixed $service */
+        $service = DefinitionNormalizer::normalize($this->definition, $this->id)
+            ->resolve($container);
 
         foreach ($this->extensions as $extension) {
-            $service = $extension($container->get(ContainerInterface::class), $service);
+            /** @var mixed $result */
+            $result = $extension($container->get(ContainerInterface::class), $service);
+            if ($result === null) {
+                continue;
+            }
+
+            /** @var mixed $service */
+            $service = $result;
         }
 
         return $service;

@@ -7,14 +7,17 @@ namespace Yiisoft\Di\Tests\Unit;
 use Psr\Container\ContainerInterface;
 
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
 /**
  * Test the Yiisoft PSR-11 Container.
  */
-class YiisoftPsrContainerTest extends AbstractPsrContainerTest
+final class YiisoftPsrContainerTest extends AbstractPsrContainerTest
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
-        return new Container($definitions);
+        $config = ContainerConfig::create()
+            ->withDefinitions($definitions);
+        return new Container($config);
     }
 }
