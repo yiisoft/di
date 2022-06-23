@@ -2,20 +2,20 @@
 
 ## 1.0.4 under development
 
-- no changes in this release.
+- Enh #263: Add support for `psr/container` version `^2.0` (@xepozz, @vjik)
 
 ## 1.0.3 June 17, 2022
 
 - Enh #302: Improve performance collecting tags (samdark)
-- Enh #303: Add support for `yiisoft/definitions` version `^2.0` (vjik)
+- Enh #303: Add support for `yiisoft/definitions` version `^2.0` (@vjik)
 
 ## 1.0.2 February 14, 2022
 
-- Bug #297: Fix method name `TagHelper::extractTagFromAlias` (rustamwin)
+- Bug #297: Fix method name `TagHelper::extractTagFromAlias` (@rustamwin)
 
 ## 1.0.1 December 21, 2021
 
-- Bug #293: Fix `ExtensibleService` normalization bug (yiiliveext)
+- Bug #293: Fix `ExtensibleService` normalization bug (@yiiliveext)
 
 ## 1.0.0 December 03, 2021
 
