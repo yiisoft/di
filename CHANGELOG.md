@@ -1,6 +1,6 @@
 # Yii Dependency Injection Change Log
 
-## 1.0.4 under development
+## 1.1.0 under development
 
 - Chg #263: Raise minimal required version of `psr/container` to `^1.1|^2.0` (@xepozz, @vjik)
 
