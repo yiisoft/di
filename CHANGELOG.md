@@ -2,7 +2,7 @@
 
 ## 1.0.4 under development
 
-- Enh #263: Raise minimal required version of `psr/container` to `^1.1|^2.0` (@xepozz, @vjik)
+- Chg #263: Raise minimal required version of `psr/container` to `^1.1|^2.0` (@xepozz, @vjik)
 
 ## 1.0.3 June 17, 2022
 
