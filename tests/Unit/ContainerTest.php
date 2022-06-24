@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -133,7 +132,6 @@ final class ContainerTest extends TestCase
     public function dataHas(): array
     {
         return [
-            [false, 42],
             [false, 'non_existing'],
             [false, ColorInterface::class],
             [true, Car::class],
@@ -1790,17 +1788,6 @@ final class ContainerTest extends TestCase
 
         $this->expectException(NotFoundExceptionInterface::class);
         $container->get(EngineMarkOne::class);
-    }
-
-    public function testGetNonString(): void
-    {
-        $container = new Container(ContainerConfig::create());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'ID must be a string, integer given.'
-        );
-        $container->get(42);
     }
 
     public function testIntegerKeyInExtensions(): void

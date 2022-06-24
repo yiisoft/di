@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
-use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
@@ -99,13 +98,8 @@ final class Container implements ContainerInterface
      *
      * @see addDefinition()
      */
-    public function has($id): bool
+    public function has(string $id): bool
     {
-        /** @psalm-suppress  DocblockTypeContradiction */
-        if (!is_string($id)) {
-            return false;
-        }
-
         if (TagHelper::isTagAlias($id)) {
             $tag = TagHelper::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
@@ -136,18 +130,8 @@ final class Container implements ContainerInterface
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
      */
-    public function get($id)
+    public function get(string $id)
     {
-        /** @psalm-suppress TypeDoesNotContainType */
-        if (!is_string($id)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'ID must be a string, %s given.',
-                    $this->getVariableType($id)
-                )
-            );
-        }
-
         if (!array_key_exists($id, $this->instances)) {
             try {
                 $this->instances[$id] = $this->build($id);
