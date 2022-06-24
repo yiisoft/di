@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.1.1 under development
+
+- no changes in this release.
+
 ## 1.1.0 June 24, 2022
 
 - Chg #263: Raise minimal required version of `psr/container` to `^1.1|^2.0` (@xepozz, @vjik)
