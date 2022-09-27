@@ -18,8 +18,6 @@ use Yiisoft\Di\Helpers\TagHelper;
 
 use function array_key_exists;
 use function array_keys;
-use function get_class;
-use function gettype;
 use function implode;
 use function in_array;
 use function is_array;
@@ -503,9 +501,9 @@ final class Container implements ContainerInterface
     }
 
     /**
-     *
      * @throws InvalidConfigException
      * @throws NotFoundException
+     *
      * @return mixed|object
      */
     private function buildInternal(string $id)

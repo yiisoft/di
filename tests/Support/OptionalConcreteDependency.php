@@ -6,7 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 class OptionalConcreteDependency
 {
-    public function __construct(private ?\Yiisoft\Di\Tests\Support\Car $car = null)
+    public function __construct(private ?Car $car = null)
     {
     }
 

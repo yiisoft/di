@@ -18,7 +18,7 @@ final class NullCarExtensionProvider implements ServiceProviderInterface
     public function getExtensions(): array
     {
         return [
-            Car::class => static fn(ContainerInterface $container, Car $car) => null,
+            Car::class => static fn (ContainerInterface $container, Car $car) => null,
         ];
     }
 }

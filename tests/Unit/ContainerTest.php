@@ -51,8 +51,6 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 
-use function get_class;
-
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
  */
@@ -965,7 +963,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'container' => static fn(ContainerInterface $container) => $container,
+                'container' => static fn (ContainerInterface $container) => $container,
             ]);
         $container = new Container($config);
 
@@ -1000,11 +998,11 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineMarkOne::class => [
-                    'definition' => fn() => new EngineMarkOne(),
+                    'definition' => fn () => new EngineMarkOne(),
                     'tags' => ['engine'],
                 ],
                 EngineMarkTwo::class => [
-                    'definition' => fn() => new EngineMarkTwo(),
+                    'definition' => fn () => new EngineMarkTwo(),
                     'tags' => ['engine'],
                 ],
             ]);
@@ -1571,7 +1569,7 @@ final class ContainerTest extends TestCase
             public function getDefinitions(): array
             {
                 return [
-                    ContainerInterface::class => static fn(ContainerInterface $container) => // E.g. wrapping container with proxy class
+                    ContainerInterface::class => static fn (ContainerInterface $container) => // E.g. wrapping container with proxy class
 $container,
                 ];
             }
@@ -1795,7 +1793,7 @@ $container,
                     public function getExtensions(): array
                     {
                         return [
-                            23 => static fn(ContainerInterface $container, StateResetter $resetter) => $resetter,
+                            23 => static fn (ContainerInterface $container, StateResetter $resetter) => $resetter,
                         ];
                     }
                 },

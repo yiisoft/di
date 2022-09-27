@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 
-use function get_class;
 use function gettype;
 use function is_int;
 use function is_object;

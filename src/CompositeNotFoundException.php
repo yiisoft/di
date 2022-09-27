@@ -8,8 +8,6 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-use function get_class;
-
 /**
  * `CompositeNotFoundException` is thrown when no definition or class was found in the composite container
  * for a given ID. It contains all exceptions thrown by containers registered in the composite container.
