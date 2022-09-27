@@ -134,11 +134,8 @@ final class CompositeContainer implements ContainerInterface
         }
     }
 
-    /**
-     * @param mixed $variable
-     */
-    private function getVariableType($variable): string
+    private function getVariableType(mixed $variable): string
     {
-        return is_object($variable) ? get_class($variable) : gettype($variable);
+        return get_debug_type($variable);
     }
 }

@@ -6,10 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 class B
 {
-    public ?A $a;
-
-    public function __construct(?A $a = null)
+    public function __construct(public ?\Yiisoft\Di\Tests\Support\A $a = null)
     {
-        $this->a = $a;
     }
 }

@@ -9,10 +9,7 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class TreeItem
 {
-    private TreeItem $treeItem;
-
-    public function __construct(self $treeItem)
+    public function __construct(private self $treeItem)
     {
-        $this->treeItem = $treeItem;
     }
 }

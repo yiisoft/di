@@ -26,7 +26,7 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
         $message = '';
 
         foreach ($exceptions as $i => [$exception, $container]) {
-            $containerClass = get_class($container);
+            $containerClass = $container::class;
             $containerId = spl_object_id($container);
             $number = $i + 1;
 

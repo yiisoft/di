@@ -21,13 +21,6 @@ use Yiisoft\Di\Helpers\DefinitionNormalizer;
 final class ExtensibleService implements DefinitionInterface
 {
     /**
-     * @var mixed
-     */
-    private $definition;
-
-    private string $id;
-
-    /**
      * @var callable[]
      */
     private array $extensions = [];
@@ -35,10 +28,8 @@ final class ExtensibleService implements DefinitionInterface
     /**
      * @param mixed $definition Definition to allow registering extensions for.
      */
-    public function __construct($definition, string $id)
+    public function __construct(private mixed $definition, private string $id)
     {
-        $this->definition = $definition;
-        $this->id = $id;
     }
 
     /**
