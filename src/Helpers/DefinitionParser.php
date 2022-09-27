@@ -57,7 +57,7 @@ final class DefinitionParser
      *
      * @psalm-return array{mixed,array}
      */
-    public static function parse($definition): array
+    public static function parse(mixed $definition): array
     {
         if (!is_array($definition)) {
             return [$definition, []];

@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 
-use function get_class;
 use function gettype;
 use function is_int;
 use function is_object;
@@ -24,14 +23,12 @@ final class StateResetter
      * @var Closure[]|self[]
      */
     private array $resetters = [];
-    private ContainerInterface $container;
 
     /**
      * @param ContainerInterface $container Container to reset.
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(private ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     /**
@@ -85,15 +82,12 @@ final class StateResetter
                 );
             }
 
-            $this->resetters[] = $callback->bindTo($instance, get_class($instance));
+            $this->resetters[] = $callback->bindTo($instance, $instance::class);
         }
     }
 
-    /**
-     * @param mixed $variable
-     */
-    private function getType($variable): string
+    private function getType(mixed $variable): string
     {
-        return is_object($variable) ? get_class($variable) : gettype($variable);
+        return get_debug_type($variable);
     }
 }

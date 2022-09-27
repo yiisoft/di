@@ -12,11 +12,8 @@ use Psr\Container\ContainerInterface;
  */
 class EngineFactory
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     public function createByName(string $name = null): EngineInterface

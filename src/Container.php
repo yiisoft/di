@@ -18,8 +18,6 @@ use Yiisoft\Di\Helpers\TagHelper;
 
 use function array_key_exists;
 use function array_keys;
-use function get_class;
-use function gettype;
 use function implode;
 use function in_array;
 use function is_array;
@@ -107,7 +105,7 @@ final class Container implements ContainerInterface
 
         try {
             return $this->definitions->has($id);
-        } catch (CircularReferenceException $e) {
+        } catch (CircularReferenceException) {
             return true;
         }
     }
@@ -188,7 +186,7 @@ final class Container implements ContainerInterface
      *
      * @see DefinitionNormalizer::normalize()
      */
-    private function addDefinition(string $id, $definition): void
+    private function addDefinition(string $id, mixed $definition): void
     {
         /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
@@ -276,7 +274,7 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException
      */
-    private function validateDefinition($definition, ?string $id = null): void
+    private function validateDefinition(mixed $definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
             /** @var mixed $class */
@@ -337,11 +335,9 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param mixed $tags
-     *
      * @throws InvalidConfigException
      */
-    private function validateDefinitionTags($tags): void
+    private function validateDefinitionTags(mixed $tags): void
     {
         if (!is_array($tags)) {
             throw new InvalidConfigException(
@@ -360,11 +356,9 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param mixed $reset
-     *
      * @throws InvalidConfigException
      */
-    private function validateDefinitionReset($reset): void
+    private function validateDefinitionReset(mixed $reset): void
     {
         if (!$reset instanceof Closure) {
             throw new InvalidConfigException(
@@ -507,8 +501,6 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param string $id
-     *
      * @throws InvalidConfigException
      * @throws NotFoundException
      *
@@ -588,7 +580,7 @@ final class Container implements ContainerInterface
      *
      * @psalm-suppress MoreSpecificReturnType
      */
-    private function buildProvider($provider): ServiceProviderInterface
+    private function buildProvider(mixed $provider): ServiceProviderInterface
     {
         if ($this->validate && !(is_string($provider) || $provider instanceof ServiceProviderInterface)) {
             throw new InvalidConfigException(
@@ -623,11 +615,8 @@ final class Container implements ContainerInterface
         return $providerInstance;
     }
 
-    /**
-     * @param mixed $variable
-     */
-    private function getVariableType($variable): string
+    private function getVariableType(mixed $variable): string
     {
-        return is_object($variable) ? get_class($variable) : gettype($variable);
+        return get_debug_type($variable);
     }
 }

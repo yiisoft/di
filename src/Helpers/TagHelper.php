@@ -16,6 +16,6 @@ final class TagHelper
 
     public static function isTagAlias(string $id): bool
     {
-        return strncmp($id, 'tag@', 4) === 0;
+        return str_starts_with($id, 'tag@');
     }
 }

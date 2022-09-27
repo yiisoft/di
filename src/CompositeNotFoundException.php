@@ -8,8 +8,6 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-use function get_class;
-
 /**
  * `CompositeNotFoundException` is thrown when no definition or class was found in the composite container
  * for a given ID. It contains all exceptions thrown by containers registered in the composite container.
@@ -26,7 +24,7 @@ final class CompositeNotFoundException extends Exception implements NotFoundExce
         $message = '';
 
         foreach ($exceptions as $i => [$exception, $container]) {
-            $containerClass = get_class($container);
+            $containerClass = $container::class;
             $containerId = spl_object_id($container);
             $number = $i + 1;
 
