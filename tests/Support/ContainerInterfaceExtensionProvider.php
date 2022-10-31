@@ -17,9 +17,7 @@ final class ContainerInterfaceExtensionProvider implements ServiceProviderInterf
     public function getExtensions(): array
     {
         return [
-            ContainerInterface::class => static function (ContainerInterface $container, ContainerInterface $extended) {
-                return $container;
-            },
+            ContainerInterface::class => static fn (ContainerInterface $container, ContainerInterface $extended) => $container,
         ];
     }
 }

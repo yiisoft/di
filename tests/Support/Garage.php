@@ -9,11 +9,8 @@ namespace Yiisoft\Di\Tests\Support;
  */
 final class Garage
 {
-    private SportCar $car;
-
-    public function __construct(SportCar $car)
+    public function __construct(private SportCar $car)
     {
-        $this->car = $car;
     }
 
     public function getCar(): SportCar

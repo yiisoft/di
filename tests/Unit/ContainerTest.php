@@ -51,8 +51,6 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 
-use function get_class;
-
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
  */
@@ -636,7 +634,7 @@ final class ContainerTest extends TestCase
         try {
             // Build an object
             $container->get(ColorPink::class);
-        } catch (CircularReferenceException $e) {
+        } catch (CircularReferenceException) {
             $this->fail('Circular reference detected false positively.');
         }
     }
@@ -652,7 +650,7 @@ final class ContainerTest extends TestCase
         try {
             // Build an object
             $container->get('test');
-        } catch (NotFoundException $e) {
+        } catch (NotFoundException) {
             // It is expected
         }
 
@@ -666,7 +664,7 @@ final class ContainerTest extends TestCase
         try {
             // Build an object
             $container->get('test');
-        } catch (CircularReferenceException $e) {
+        } catch (CircularReferenceException) {
             $this->fail('Circular reference detected false positively.');
         }
     }
@@ -965,9 +963,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'container' => static function (ContainerInterface $container) {
-                    return $container;
-                },
+                'container' => static fn (ContainerInterface $container) => $container,
             ]);
         $container = new Container($config);
 
@@ -993,8 +989,8 @@ final class ContainerTest extends TestCase
         $engines = $container->get('tag@engine');
 
         $this->assertIsArray($engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
     }
 
     public function testTagsInClosureDefinition(): void
@@ -1002,15 +998,11 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineMarkOne::class => [
-                    'definition' => function () {
-                        return new EngineMarkOne();
-                    },
+                    'definition' => fn () => new EngineMarkOne(),
                     'tags' => ['engine'],
                 ],
                 EngineMarkTwo::class => [
-                    'definition' => function () {
-                        return new EngineMarkTwo();
-                    },
+                    'definition' => fn () => new EngineMarkTwo(),
                     'tags' => ['engine'],
                 ],
             ]);
@@ -1019,8 +1011,8 @@ final class ContainerTest extends TestCase
         $engines = $container->get('tag@engine');
 
         $this->assertIsArray($engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
     }
 
     public function testTagsMultiple(): void
@@ -1042,10 +1034,10 @@ final class ContainerTest extends TestCase
         $markOneEngines = $container->get('tag@mark_one');
 
         $this->assertIsArray($engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
         $this->assertIsArray($markOneEngines);
-        $this->assertSame(EngineMarkOne::class, get_class($markOneEngines[0]));
+        $this->assertSame(EngineMarkOne::class, $markOneEngines[0]::class);
         $this->assertCount(1, $markOneEngines);
     }
 
@@ -1087,8 +1079,8 @@ final class ContainerTest extends TestCase
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkOne::class, $engines[1]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[0]::class);
     }
 
     public function testTagsWithExternalDefinitionMerge(): void
@@ -1112,11 +1104,11 @@ final class ContainerTest extends TestCase
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
         $this->assertIsArray($markTwoEngines);
         $this->assertCount(1, $markTwoEngines);
-        $this->assertSame(EngineMarkTwo::class, get_class($markTwoEngines[0]));
+        $this->assertSame(EngineMarkTwo::class, $markTwoEngines[0]::class);
     }
 
     public function testTagsAsArrayInConstructor(): void
@@ -1144,8 +1136,8 @@ final class ContainerTest extends TestCase
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[0]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[1]));
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
     }
 
     public function dataResetter(): array
@@ -1577,10 +1569,8 @@ final class ContainerTest extends TestCase
             public function getDefinitions(): array
             {
                 return [
-                    ContainerInterface::class => static function (ContainerInterface $container) {
-                        // E.g. wrapping container with proxy class
-                        return $container;
-                    },
+                    // E.g. wrapping container with proxy class
+                    ContainerInterface::class => static fn (ContainerInterface $container) => $container,
                 ];
             }
 
@@ -1748,9 +1738,10 @@ final class ContainerTest extends TestCase
             ->withProviders([42]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Service provider should be a class name or an instance of ' . ServiceProviderInterface::class . '.' .
-            ' integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^Service provider should be a class name or an instance of '
+            . preg_quote(ServiceProviderInterface::class, '/')
+            . '\. (integer|int) given\.$/'
         );
         new Container($config);
     }
@@ -1803,12 +1794,7 @@ final class ContainerTest extends TestCase
                     public function getExtensions(): array
                     {
                         return [
-                            23 => static function (
-                                ContainerInterface $container,
-                                StateResetter $resetter
-                            ) {
-                                return $resetter;
-                            },
+                            23 => static fn (ContainerInterface $container, StateResetter $resetter) => $resetter,
                         ];
                     }
                 },
@@ -1855,8 +1841,8 @@ final class ContainerTest extends TestCase
             ]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid definition: "reset" should be closure, integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^Invalid definition: "reset" should be closure, (integer|int) given\.$/'
         );
         new Container($config);
     }
@@ -1868,13 +1854,13 @@ final class ContainerTest extends TestCase
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'setNumber()' => [42],
-                    'tags' => 42,
+                    'tags' => 'hello',
                 ],
             ]);
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be array of strings, integer given.'
+            'Invalid definition: tags should be array of strings, string given.'
         );
         new Container($config);
     }
@@ -1883,15 +1869,15 @@ final class ContainerTest extends TestCase
     {
         return [
             [
-                'Invalid tags configuration: tag should be string, 42 given.',
+                '/^Invalid tags configuration: tag should be string, 42 given\.$/',
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                'Invalid tags configuration: tag should contain array of service IDs, integer given.',
+                '/^Invalid tags configuration: tag should contain array of service IDs, (integer|int) given\.$/',
                 ['engine' => 42],
             ],
             [
-                'Invalid tags configuration: service should be defined as class string, integer given.',
+                '/^Invalid tags configuration: service should be defined as class string, (integer|int) given\.$/',
                 ['engine' => [42]],
             ],
         ];
@@ -1906,7 +1892,7 @@ final class ContainerTest extends TestCase
             ->withTags($tags);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage($message);
+        $this->expectExceptionMessageMatches($message);
         new Container($config);
     }
 }
