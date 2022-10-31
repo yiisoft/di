@@ -54,7 +54,8 @@ final class StateResetterTest extends TestCase
             '/^State resetter supports resetting objects only\. Container returned (integer|int)\.$/'
         );
         $resetter->setResetters([
-            'value' => static function () { },
+            'value' => static function () {
+            },
         ]);
     }
 }
