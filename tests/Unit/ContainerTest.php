@@ -1738,9 +1738,10 @@ final class ContainerTest extends TestCase
             ->withProviders([42]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Service provider should be a class name or an instance of ' . ServiceProviderInterface::class . '.' .
-            ' integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^Service provider should be a class name or an instance of '
+            . preg_quote(ServiceProviderInterface::class, '/')
+            . '\. (integer|int) given\.$/'
         );
         new Container($config);
     }
@@ -1840,8 +1841,8 @@ final class ContainerTest extends TestCase
             ]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid definition: "reset" should be closure, integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^Invalid definition: "reset" should be closure, (integer|int) given\.$/'
         );
         new Container($config);
     }
@@ -1853,13 +1854,13 @@ final class ContainerTest extends TestCase
                 EngineMarkOne::class => [
                     'class' => EngineMarkOne::class,
                     'setNumber()' => [42],
-                    'tags' => 42,
+                    'tags' => 'hello',
                 ],
             ]);
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be array of strings, integer given.'
+            'Invalid definition: tags should be array of strings, string given.'
         );
         new Container($config);
     }
@@ -1868,15 +1869,15 @@ final class ContainerTest extends TestCase
     {
         return [
             [
-                'Invalid tags configuration: tag should be string, 42 given.',
+                '/^Invalid tags configuration: tag should be string, 42 given\.$/',
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                'Invalid tags configuration: tag should contain array of service IDs, integer given.',
+                '/^Invalid tags configuration: tag should contain array of service IDs, (integer|int) given\.$/',
                 ['engine' => 42],
             ],
             [
-                'Invalid tags configuration: service should be defined as class string, integer given.',
+                '/^Invalid tags configuration: service should be defined as class string, (integer|int) given\.$/',
                 ['engine' => [42]],
             ],
         ];
@@ -1891,7 +1892,7 @@ final class ContainerTest extends TestCase
             ->withTags($tags);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage($message);
+        $this->expectExceptionMessageMatches($message);
         new Container($config);
     }
 }
