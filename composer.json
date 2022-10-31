@@ -22,7 +22,7 @@
         "source": "https://github.com/yiisoft/di"
     },
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0",
         "ext-mbstring": "*",
         "psr/container": "^1.1|^2.0",
         "yiisoft/definitions": "^1.0|^2.0"

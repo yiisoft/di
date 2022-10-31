@@ -35,7 +35,7 @@ and configure classes resolving dependencies.
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 8.0 or higher.
 - `Multibyte String` PHP extension.
 
 ## Installation
@@ -43,7 +43,7 @@ and configure classes resolving dependencies.
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/di --prefer-dist
+composer require yiisoft/di
 ```
 
 ## Using the container
@@ -505,8 +505,6 @@ To run benchmarks execute the next command
 
 `composer require phpbench/phpbench` 
 `$ ./vendor/bin/phpbench run`
-
-Note: Only works for php 7.4.
 
 Result example
 
