@@ -577,8 +577,6 @@ final class Container implements ContainerInterface
      * @throws InvalidConfigException If provider argument is not valid.
      *
      * @return ServiceProviderInterface Instance of service provider.
-     *
-     * @psalm-suppress MoreSpecificReturnType
      */
     private function buildProvider(mixed $provider): ServiceProviderInterface
     {
@@ -591,8 +589,6 @@ final class Container implements ContainerInterface
                 )
             );
         }
-
-        /** @psalm-var class-string|ServiceProviderInterface $provider */
 
         /**
          * @psalm-suppress MixedMethodCall Service provider defined as class string
@@ -609,9 +605,6 @@ final class Container implements ContainerInterface
             );
         }
 
-        /**
-         * @psalm-suppress LessSpecificReturnStatement
-         */
         return $providerInstance;
     }
 }
