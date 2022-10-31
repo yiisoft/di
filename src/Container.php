@@ -224,7 +224,7 @@ final class Container implements ContainerInterface
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
-                        $this->getVariableType($id)
+                        get_debug_type($id)
                     )
                 );
             }
@@ -343,7 +343,7 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: tags should be array of strings, %s given.',
-                    $this->getVariableType($tags)
+                    get_debug_type($tags)
                 )
             );
         }
@@ -364,7 +364,7 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: "reset" should be closure, %s given.',
-                    $this->getVariableType($reset)
+                    get_debug_type($reset)
                 )
             );
         }
@@ -389,7 +389,7 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should contain array of service IDs, %s given.',
-                            $this->getVariableType($services)
+                            get_debug_type($services)
                         )
                     );
                 }
@@ -399,7 +399,7 @@ final class Container implements ContainerInterface
                         throw new InvalidConfigException(
                             sprintf(
                                 'Invalid tags configuration: service should be defined as class string, %s given.',
-                                $this->getVariableType($service)
+                                get_debug_type($service)
                             )
                         );
                     }
@@ -552,7 +552,7 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Extension of service should be callable, %s given.',
-                            $this->getVariableType($extension)
+                            get_debug_type($extension)
                         )
                     );
                 }
@@ -587,7 +587,7 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    $this->getVariableType($provider)
+                    get_debug_type($provider)
                 )
             );
         }
@@ -604,7 +604,7 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    $this->getVariableType($providerInstance)
+                    get_debug_type($providerInstance)
                 )
             );
         }
@@ -613,10 +613,5 @@ final class Container implements ContainerInterface
          * @psalm-suppress LessSpecificReturnStatement
          */
         return $providerInstance;
-    }
-
-    private function getVariableType(mixed $variable): string
-    {
-        return get_debug_type($variable);
     }
 }

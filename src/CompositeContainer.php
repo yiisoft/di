@@ -36,7 +36,7 @@ final class CompositeContainer implements ContainerInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'ID must be a string, %s given.',
-                    $this->getVariableType($id)
+                    get_debug_type($id)
                 )
             );
         }
@@ -129,10 +129,5 @@ final class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
-    }
-
-    private function getVariableType(mixed $variable): string
-    {
-        return get_debug_type($variable);
     }
 }

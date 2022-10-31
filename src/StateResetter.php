@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 
-use function gettype;
 use function is_int;
 use function is_object;
 
@@ -27,8 +26,9 @@ final class StateResetter
     /**
      * @param ContainerInterface $container Container to reset.
      */
-    public function __construct(private ContainerInterface $container)
-    {
+    public function __construct(
+        private ContainerInterface $container
+    ) {
     }
 
     /**
@@ -59,7 +59,7 @@ final class StateResetter
                     throw new InvalidArgumentException(sprintf(
                         'State resetter object should be instance of "%s", "%s" given.',
                         self::class,
-                        $this->getType($callback)
+                        get_debug_type($callback)
                     ));
                 }
                 $this->resetters[] = $callback;
@@ -70,7 +70,7 @@ final class StateResetter
                 throw new InvalidArgumentException(
                     'Callback for state resetter should be closure in format ' .
                     '`function (ContainerInterface $container): void`. ' .
-                    'Got "' . $this->getType($callback) . '".'
+                    'Got "' . get_debug_type($callback) . '".'
                 );
             }
 
@@ -78,16 +78,13 @@ final class StateResetter
             $instance = $this->container->get($serviceId);
             if (!is_object($instance)) {
                 throw new InvalidArgumentException(
-                    'State resetter supports resetting objects only. Container returned ' . gettype($instance) . '.'
+                    'State resetter supports resetting objects only. Container returned '
+                    . get_debug_type($instance)
+                    . '.'
                 );
             }
 
             $this->resetters[] = $callback->bindTo($instance, $instance::class);
         }
-    }
-
-    private function getType(mixed $variable): string
-    {
-        return get_debug_type($variable);
     }
 }

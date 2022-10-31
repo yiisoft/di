@@ -1569,8 +1569,8 @@ final class ContainerTest extends TestCase
             public function getDefinitions(): array
             {
                 return [
-                    ContainerInterface::class => static fn (ContainerInterface $container) => // E.g. wrapping container with proxy class
-$container,
+                    // E.g. wrapping container with proxy class
+                    ContainerInterface::class => static fn (ContainerInterface $container) => $container,
                 ];
             }
 

@@ -8,7 +8,7 @@ use Exception;
 use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * NotFoundException is thrown when no definition or class was found in the container for a given ID.
+ * `NotFoundException` is thrown when no definition or class was found in the container for a given ID.
  */
 final class NotFoundException extends Exception implements NotFoundExceptionInterface
 {
@@ -16,8 +16,10 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
      * @param string $id ID of the definition or name of the class that was not found.
      * @param array $buildStack Stack of IDs of services requested definition or class that was not found.
      */
-    public function __construct(private string $id, array $buildStack = [])
-    {
+    public function __construct(
+        private string $id,
+        array $buildStack = []
+    ) {
         $message = $id;
         if ($buildStack !== []) {
             $buildStack = array_keys($buildStack);
