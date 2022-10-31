@@ -50,8 +50,8 @@ final class StateResetterTest extends TestCase
         );
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'State resetter supports resetting objects only. Container returned integer.'
+        $this->expectExceptionMessageMatches(
+            '/^State resetter supports resetting objects only\. Container returned (integer|int)\.$/'
         );
         $resetter->setResetters([
             'value' => static function () {

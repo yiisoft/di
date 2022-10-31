@@ -28,4 +28,4 @@ jobs:
       os: >-
         ['ubuntu-latest', 'windows-latest']
       php: >-
-        ['7.4', '8.0', '8.1']
+        ['8.0', '8.1']

@@ -20,8 +20,8 @@ final class CompositeContainerTest extends TestCase
         $container = new CompositeContainer();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'ID must be a string, integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^ID must be a string, (integer|int) given\.$/'
         );
         $container->get(42);
     }

@@ -10,9 +10,6 @@ use RuntimeException;
 use Throwable;
 use Yiisoft\Di\Helpers\TagHelper;
 
-use function get_class;
-use function gettype;
-use function is_object;
 use function is_string;
 
 /**
@@ -39,7 +36,7 @@ final class CompositeContainer implements ContainerInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'ID must be a string, %s given.',
-                    $this->getVariableType($id)
+                    get_debug_type($id)
                 )
             );
         }
@@ -132,13 +129,5 @@ final class CompositeContainer implements ContainerInterface
                 unset($this->containers[$i]);
             }
         }
-    }
-
-    /**
-     * @param mixed $variable
-     */
-    private function getVariableType($variable): string
-    {
-        return is_object($variable) ? get_class($variable) : gettype($variable);
     }
 }

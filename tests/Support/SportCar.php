@@ -10,13 +10,9 @@ namespace Yiisoft\Di\Tests\Support;
 class SportCar
 {
     public ColorInterface $color;
-    private EngineInterface $engine;
-    private int $maxSpeed;
 
-    public function __construct(EngineInterface $engine, int $maxSpeed)
+    public function __construct(private EngineInterface $engine, private int $maxSpeed)
     {
-        $this->engine = $engine;
-        $this->maxSpeed = $maxSpeed;
     }
 
     public function setColor(ColorInterface $color): self
