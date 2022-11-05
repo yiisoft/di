@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.2.1 under development
+
+- no changes in this release.
+
 ## 1.2.0 November 05, 2022
 
 - Enh #308: Raise minimum PHP version to 8.0 and refactor code (@xepozz, @vjik)
