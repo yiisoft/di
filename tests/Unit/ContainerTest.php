@@ -50,6 +50,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -153,6 +154,31 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $this->assertSame($expected, $container->has($id));
+    }
+
+    public function dataHasTags(): array
+    {
+        return [
+            [false, 'non-exist'],
+            [false, 'sources'],
+            [true, 'colors'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataHasTags
+     */
+    public function testHasTags(bool $expected, string $tag): void
+    {
+        $config = ContainerConfig::create()
+            ->withTags([
+                'sources' => [],
+                'colors' => [ColorPink::class, ColorRed::class],
+            ]);
+
+        $container = new Container($config);
+
+        $this->assertSame($expected, $container->has('tag@' . $tag));
     }
 
     public function dataUnionTypes(): array
@@ -1893,18 +1919,6 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessageMatches($message);
-        new Container($config);
-    }
-
-    public function testEmptyTag(): void
-    {
-        $config = ContainerConfig::create()
-            ->withTags(['sources' => []]);
-
-        $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessage(
-            'Invalid tags configuration: tag should contain non-empty array of service IDs, empty tag "sources" given.'
-        );
         new Container($config);
     }
 }

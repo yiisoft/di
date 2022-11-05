@@ -100,7 +100,7 @@ final class Container implements ContainerInterface
     {
         if (TagHelper::isTagAlias($id)) {
             $tag = TagHelper::extractTagFromAlias($id);
-            return isset($this->tags[$tag]);
+            return !empty($this->tags[$tag]);
         }
 
         try {
@@ -390,15 +390,6 @@ final class Container implements ContainerInterface
                         sprintf(
                             'Invalid tags configuration: tag should contain array of service IDs, %s given.',
                             get_debug_type($services)
-                        )
-                    );
-                }
-                if (empty($services)) {
-                    throw new InvalidConfigException(
-                        sprintf(
-                            'Invalid tags configuration: tag should contain non-empty array of service IDs, ' .
-                            'empty tag "%s" given.',
-                            $tag
                         )
                     );
                 }

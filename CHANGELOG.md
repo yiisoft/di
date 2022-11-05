@@ -2,7 +2,7 @@
 
 ## 1.2.1 under development
 
-- Bug #312: Add check of tag services array on empty (@vjik)
+- Bug #312: Fix incorrect result of `Container::has()` on check empty tag (@vjik)
 
 ## 1.2.0 November 05, 2022
 
