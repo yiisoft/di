@@ -393,6 +393,15 @@ final class Container implements ContainerInterface
                         )
                     );
                 }
+                if (empty($services)) {
+                    throw new InvalidConfigException(
+                        sprintf(
+                            'Invalid tags configuration: tag should contain non-empty array of service IDs, ' .
+                            'empty tag "%s" given.',
+                            $tag
+                        )
+                    );
+                }
                 /** @var mixed $service */
                 foreach ($services as $service) {
                     if (!is_string($service)) {

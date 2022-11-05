@@ -8,6 +8,7 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RectorPrefix202211\Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use RuntimeException;
 use stdClass;
 use Yiisoft\Di\CompositeContainer;
@@ -1893,6 +1894,18 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessageMatches($message);
+        new Container($config);
+    }
+
+    public function testEmptyTag(): void
+    {
+        $config = ContainerConfig::create()
+            ->withTags(['sources' => []]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid tags configuration: tag should contain non-empty array of service IDs, empty tag "sources" given.'
+        );
         new Container($config);
     }
 }

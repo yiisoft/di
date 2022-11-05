@@ -2,7 +2,7 @@
 
 ## 1.2.1 under development
 
-- no changes in this release.
+- Bug #312: Add check of tag services array on empty (@vjik)
 
 ## 1.2.0 November 05, 2022
 
