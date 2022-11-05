@@ -50,7 +50,6 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
-use Yiisoft\Test\Support\Container\SimpleContainer;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
