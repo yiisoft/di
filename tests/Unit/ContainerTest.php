@@ -8,7 +8,6 @@ use ArrayIterator;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use RectorPrefix202211\Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use RuntimeException;
 use stdClass;
 use Yiisoft\Di\CompositeContainer;
