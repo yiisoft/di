@@ -9,7 +9,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Throwable;
 
 /**
- * `NotFoundException` is thrown when no definition or class was found in the container for a given ID.
+ * It wraps all exceptions which do not implement ContainerExceptionInterface while building process.
+ * Also adds building context for more understanding.
  */
 final class BuildingException extends Exception implements ContainerExceptionInterface
 {
