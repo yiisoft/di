@@ -381,7 +381,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'An error "Arguments indexed both by name and by position are not allowed in the same array." occurred while building "test".'
+            'Caught unhandled error "Arguments indexed both by name and by position are not allowed in the same array." while building "test".'
         );
         $container->get('test');
     }
@@ -1586,7 +1586,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'An error "" occurred while building "Yiisoft\Di\Tests\Support\B".'
+            'Caught unhandled error "" while building "Yiisoft\Di\Tests\Support\B".'
         );
 
         $config = ContainerConfig::create()
@@ -1885,7 +1885,7 @@ final class ContainerTest extends TestCase
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
             sprintf(
-                'An error "Invalid definition: method\'s arguments should be array, int given." occurred while building "%s".',
+                'Caught unhandled error "Invalid definition: method\'s arguments should be array, int given." while building "%s".',
                 EngineMarkOne::class,
             )
         );

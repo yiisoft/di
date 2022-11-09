@@ -23,7 +23,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
         array $buildStack = [],
         Throwable $previous = null,
     ) {
-        $message = sprintf('An error "%s" occurred while building "%s"', $error, $id);
+        $message = sprintf('Caught unhandled error "%s" while building "%s"', $error, $id);
 
         if ($buildStack !== []) {
             $message .= '"' . implode('" -> "', $buildStack) . '"';
