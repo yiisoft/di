@@ -6,7 +6,6 @@ namespace Yiisoft\Di;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 
 /**
