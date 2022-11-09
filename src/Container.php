@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -117,9 +120,10 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
+     * @throws BuildingException
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws NotInstantiableException
      *
      * @return mixed|object An instance of the requested interface.
@@ -132,14 +136,20 @@ final class Container implements ContainerInterface
     {
         if (!array_key_exists($id, $this->instances)) {
             try {
-                $this->instances[$id] = $this->build($id);
-            } catch (NotFoundException $e) {
-                if (!$this->delegates->has($id)) {
-                    throw $e;
-                }
+                try {
+                    $this->instances[$id] = $this->build($id);
+                } catch (NotFoundExceptionInterface $e) {
+                    if (!$this->delegates->has($id)) {
+                        throw $e;
+                    }
 
-                /** @psalm-suppress MixedReturnStatement */
-                return $this->delegates->get($id);
+                    /** @psalm-suppress MixedReturnStatement */
+                    return $this->delegates->get($id);
+                }
+            } catch (ContainerExceptionInterface $e) {
+                throw $e;
+            } catch (Throwable $e) {
+                throw new BuildingException($id, $e->getMessage(), $this->definitions->getBuildStack(), $e);
             }
         }
 
@@ -452,7 +462,7 @@ final class Container implements ContainerInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      *
      * @return mixed|object New built instance of the specified class.
      *
@@ -502,7 +512,7 @@ final class Container implements ContainerInterface
 
     /**
      * @throws InvalidConfigException
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      *
      * @return mixed|object
      */

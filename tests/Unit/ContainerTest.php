@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -378,7 +379,10 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'An error "Arguments indexed both by name and by position are not allowed in the same array." occurred while building "test".'
+        );
         $container->get('test');
     }
 
@@ -1580,7 +1584,10 @@ final class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'An error "" occurred while building "Yiisoft\Di\Tests\Support\B".'
+        );
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -1875,9 +1882,12 @@ final class ContainerTest extends TestCase
                 ],
             ]);
 
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: method\'s arguments should be array, int given.'
+            sprintf(
+                'An error "Invalid definition: method\'s arguments should be array, int given." occurred while building "%s".',
+                EngineMarkOne::class,
+            )
         );
         $container = new Container($config);
 
