@@ -1865,6 +1865,25 @@ final class ContainerTest extends TestCase
         new Container($config);
     }
 
+    public function testNonArrayArguments(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: method\'s arguments should be array, int given.'
+        );
+        $container = new Container($config);
+
+        $container->get(EngineMarkOne::class);
+    }
+
     public function dataInvalidTags(): array
     {
         return [
