@@ -9,11 +9,12 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
+use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -119,17 +120,17 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
-     * @throws BuildingException
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundExceptionInterface
-     * @throws NotInstantiableException
-     *
      * @return mixed|object An instance of the requested interface.
      *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundExceptionInterface
+     * @throws NotInstantiableException
+     *
+     * @throws BuildingException
      */
     public function get(string $id)
     {
@@ -287,23 +288,22 @@ final class Container implements ContainerInterface
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            /** @var mixed $class */
-            $class = $definition['class'];
-
-            /** @var mixed $constructorArguments */
-            $constructorArguments = $definition['__construct()'];
-
             /**
-             * @var array $methodsAndProperties Is always array for prepared array definition data.
+             * @var mixed $class
+             * @var mixed $constructorArguments
+             * @var array $methodsAndProperties Is always array for prepared array definition data. It contains [$type, $methodName, $value].
              *
              * @see DefinitionParser::parse()
              */
+            $class = $definition['class'];
+            $constructorArguments = $definition['__construct()'];
             $methodsAndProperties = $definition['methodsAndProperties'];
 
             $definition = array_merge(
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
-                $methodsAndProperties,
+                // extract only value from parsed definition method
+                array_map(fn (array $data) => $data[2], $methodsAndProperties),
             );
         }
 
@@ -441,10 +441,10 @@ final class Container implements ContainerInterface
     /**
      * Add definition to storage.
      *
-     * @see $definitions
-     *
      * @param string $id ID to set definition for.
      * @param mixed|object $definition Definition to set.
+     * @see $definitions
+     *
      */
     private function addDefinitionToStorage(string $id, $definition): void
     {
@@ -460,12 +460,12 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
-     * @throws CircularReferenceException
+     * @return mixed|object New built instance of the specified class.
+     *
      * @throws InvalidConfigException
      * @throws NotFoundExceptionInterface
      *
-     * @return mixed|object New built instance of the specified class.
-     *
+     * @throws CircularReferenceException
      * @internal
      */
     private function build(string $id)
@@ -478,11 +478,13 @@ final class Container implements ContainerInterface
             if ($id === ContainerInterface::class) {
                 return $this;
             }
-            throw new CircularReferenceException(sprintf(
-                'Circular reference to "%s" detected while building: %s.',
-                $id,
-                implode(', ', array_keys($this->building))
-            ));
+            throw new CircularReferenceException(
+                sprintf(
+                    'Circular reference to "%s" detected while building: %s.',
+                    $id,
+                    implode(', ', array_keys($this->building))
+                )
+            );
         }
 
         $this->building[$id] = 1;
@@ -511,10 +513,10 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @return mixed|object
      * @throws NotFoundExceptionInterface
      *
-     * @return mixed|object
+     * @throws InvalidConfigException
      */
     private function buildInternal(string $id)
     {
@@ -584,9 +586,9 @@ final class Container implements ContainerInterface
      *
      * @param mixed $provider Class name or instance of provider.
      *
+     * @return ServiceProviderInterface Instance of service provider.
      * @throws InvalidConfigException If provider argument is not valid.
      *
-     * @return ServiceProviderInterface Instance of service provider.
      */
     private function buildProvider(mixed $provider): ServiceProviderInterface
     {
