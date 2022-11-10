@@ -120,17 +120,17 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundExceptionInterface
+     * @throws NotInstantiableException
+     * @throws BuildingException
+     *
      * @return mixed|object An instance of the requested interface.
      *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotFoundExceptionInterface
-     * @throws NotInstantiableException
-     *
-     * @throws BuildingException
      */
     public function get(string $id)
     {
@@ -443,8 +443,8 @@ final class Container implements ContainerInterface
      *
      * @param string $id ID to set definition for.
      * @param mixed|object $definition Definition to set.
-     * @see $definitions
      *
+     * @see $definitions
      */
     private function addDefinitionToStorage(string $id, $definition): void
     {
@@ -460,12 +460,12 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
-     * @return mixed|object New built instance of the specified class.
-     *
      * @throws InvalidConfigException
      * @throws NotFoundExceptionInterface
-     *
      * @throws CircularReferenceException
+     *
+     * @return mixed|object New built instance of the specified class.
+     *
      * @internal
      */
     private function build(string $id)
@@ -513,10 +513,10 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @return mixed|object
      * @throws NotFoundExceptionInterface
-     *
      * @throws InvalidConfigException
+     *
+     * @return mixed|object
      */
     private function buildInternal(string $id)
     {
@@ -586,9 +586,9 @@ final class Container implements ContainerInterface
      *
      * @param mixed $provider Class name or instance of provider.
      *
-     * @return ServiceProviderInterface Instance of service provider.
      * @throws InvalidConfigException If provider argument is not valid.
      *
+     * @return ServiceProviderInterface Instance of service provider.
      */
     private function buildProvider(mixed $provider): ServiceProviderInterface
     {
