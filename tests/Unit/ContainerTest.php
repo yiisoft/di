@@ -1668,7 +1668,7 @@ final class ContainerTest extends TestCase
                 Garage::class => Garage::class,
                 EngineInterface::class => EngineMarkTwo::class,
             ])
-            ->withValidate(true)
+//            ->withValidate(true)
             ->withDelegates([$delegate]);
         $container = new Container($config);
 
@@ -1880,18 +1880,14 @@ final class ContainerTest extends TestCase
                     'class' => EngineMarkOne::class,
                     'setNumber()' => 42,
                 ],
-            ]);
+            ])
+            ->withValidate(true);
 
-        $this->expectException(BuildingException::class);
+        $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            sprintf(
-                'Caught unhandled error "Invalid definition: method\'s arguments should be array, int given." while building "%s".',
-                EngineMarkOne::class,
-            )
+                'Invalid definition: incorrect method "setNumber()" arguments. Expected array, got "int". Probably you should wrap them into square brackets.',
         );
         $container = new Container($config);
-
-        $container->get(EngineMarkOne::class);
     }
 
     public function dataInvalidTags(): array
