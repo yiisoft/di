@@ -288,22 +288,24 @@ final class Container implements ContainerInterface
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /** @var mixed $class */
+            $class = $definition['class'];
+
+            /** @var mixed $constructorArguments */
+            $constructorArguments = $definition['__construct()'];
+
             /**
-             * @var mixed $class
-             * @var mixed $constructorArguments
-             * @var array $methodsAndProperties Is always array for prepared array definition data. It contains [$type, $methodName, $value].
+             * @var array $methodsAndProperties Is always array for prepared array definition data.
              *
              * @see DefinitionParser::parse()
              */
-            $class = $definition['class'];
-            $constructorArguments = $definition['__construct()'];
             $methodsAndProperties = $definition['methodsAndProperties'];
 
             $definition = array_merge(
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
                 // extract only value from parsed definition method
-                array_map(fn (array $data) => $data[2], $methodsAndProperties),
+                array_map(fn (array $data): mixed => $data[2], $methodsAndProperties),
             );
         }
 
