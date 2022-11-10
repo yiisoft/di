@@ -1848,8 +1848,8 @@ final class ContainerTest extends TestCase
             ]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessageMatches(
-            '/^Invalid definition: "reset" should be closure, (integer|int) given\.$/'
+        $this->expectExceptionMessage(
+            'Invalid definition: "reset" should be closure, int given.'
         );
         new Container($config);
     }
