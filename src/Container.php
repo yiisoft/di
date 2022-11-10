@@ -146,9 +146,10 @@ final class Container implements ContainerInterface
                     /** @psalm-suppress MixedReturnStatement */
                     return $this->delegates->get($id);
                 }
-            } catch (ContainerExceptionInterface $e) {
-                throw $e;
             } catch (Throwable $e) {
+                if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
+                    throw $e;
+                }
                 throw new BuildingException($id, $e->getMessage(), $this->definitions->getBuildStack(), $e);
             }
         }
