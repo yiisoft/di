@@ -199,7 +199,7 @@ final class Container implements ContainerInterface
     private function addDefinition(string $id, mixed $definition): void
     {
         /** @var mixed $definition */
-        [$parsedDefinition, $meta] = DefinitionParser::parse($definition);
+        [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
             $this->validateMeta($meta);
@@ -216,7 +216,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
-        $this->addDefinitionToStorage($id, $parsedDefinition);
+        $this->addDefinitionToStorage($id, $definition);
     }
 
     /**
@@ -286,6 +286,27 @@ final class Container implements ContainerInterface
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
+        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /** @var mixed $class */
+            $class = $definition['class'];
+
+            /** @var mixed $constructorArguments */
+            $constructorArguments = $definition['__construct()'];
+
+            /**
+             * @var array $methodsAndProperties Is always array for prepared array definition data.
+             *
+             * @see DefinitionParser::parse()
+             */
+            $methodsAndProperties = $definition['methodsAndProperties'];
+
+            $definition = array_merge(
+                $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
+                [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
+                $methodsAndProperties,
+            );
+        }
+
         if ($definition instanceof ExtensibleService) {
             throw new InvalidConfigException(
                 'Invalid definition. ExtensibleService is only allowed in provider extensions.'

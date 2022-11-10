@@ -1668,7 +1668,7 @@ final class ContainerTest extends TestCase
                 Garage::class => Garage::class,
                 EngineInterface::class => EngineMarkTwo::class,
             ])
-//            ->withValidate(true)
+            ->withValidate(true)
             ->withDelegates([$delegate]);
         $container = new Container($config);
 
@@ -1880,8 +1880,7 @@ final class ContainerTest extends TestCase
                     'class' => EngineMarkOne::class,
                     'setNumber()' => 42,
                 ],
-            ])
-            ->withValidate(true);
+            ]);
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
