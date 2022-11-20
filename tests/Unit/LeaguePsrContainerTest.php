@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 /**
  * Test the League PSR-11 Container.
  */
-class LeaguePsrContainerTest extends AbstractPsrContainerTest
+final class LeaguePsrContainerTest extends AbstractPsrContainerTest
 {
     public function createContainer(array $definitions = []): ContainerInterface
     {

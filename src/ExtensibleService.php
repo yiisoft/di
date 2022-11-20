@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Psr\Container\ContainerInterface;
-use Yiisoft\Factory\Definition\DefinitionInterface;
-use Yiisoft\Factory\DependencyResolverInterface;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
+use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
- * A wrapper for a service definition that allows registering extensions.
+ * @internal A wrapper for a service definition that allows registering extensions.
  * An extension is a callable that returns a modified service object:
  *
  * ```php
@@ -20,15 +20,18 @@ use Yiisoft\Factory\DependencyResolverInterface;
  */
 final class ExtensibleService implements DefinitionInterface
 {
-    private DefinitionInterface $definition;
+    /**
+     * @var callable[]
+     */
     private array $extensions = [];
 
     /**
-     * @param DefinitionInterface $definition Definition to allow registering extensions for.
+     * @param mixed $definition Definition to allow registering extensions for.
      */
-    public function __construct(DefinitionInterface $definition)
-    {
-        $this->definition = $definition;
+    public function __construct(
+        private mixed $definition,
+        private string $id
+    ) {
     }
 
     /**
@@ -49,12 +52,21 @@ final class ExtensibleService implements DefinitionInterface
         $this->extensions[] = $closure;
     }
 
-    public function resolve(DependencyResolverInterface $container)
+    public function resolve(ContainerInterface $container): mixed
     {
-        $service = $this->definition->resolve($container);
-        $containerInterface = $container->get(ContainerInterface::class);
+        /** @var mixed $service */
+        $service = DefinitionNormalizer::normalize($this->definition, $this->id)
+            ->resolve($container);
+
         foreach ($this->extensions as $extension) {
-            $service = $extension($containerInterface, $service);
+            /** @var mixed $result */
+            $result = $extension($container->get(ContainerInterface::class), $service);
+            if ($result === null) {
+                continue;
+            }
+
+            /** @var mixed $service */
+            $service = $result;
         }
 
         return $service;

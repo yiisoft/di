@@ -11,12 +11,14 @@ use PhpBench\Benchmark\Metadata\Annotations\ParamProviders;
 use PhpBench\Benchmark\Metadata\Annotations\Revs;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
-use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Definitions\Reference;
 
 /**
  * @Iterations(5)
@@ -39,12 +41,18 @@ class ContainerBench
     {
         return [
             ['serviceClass' => PropertyTestClass::class],
-            ['serviceClass' => NullableConcreteDependency::class, 'otherDefinitions' => [Car::class => Car::class]],
             [
                 'serviceClass' => NullableConcreteDependency::class,
                 'otherDefinitions' => [
+                    EngineInterface::class => EngineMarkOne::class,
+                    Car::class => Car::class,
                     EngineMarkOne::class => EngineMarkOne::class,
-                    EngineMarkTwo::class => EngineMarkTwo::class,
+                ],
+            ],
+            [
+                'serviceClass' => NullableConcreteDependency::class,
+                'otherDefinitions' => [
+                    EngineInterface::class => EngineMarkTwo::class,
                 ],
             ],
         ];
@@ -69,21 +77,61 @@ class ContainerBench
 
         $this->composite = new CompositeContainer();
         // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
-        $this->composite->attach(new Container($definitions2));
-        $this->composite->attach(new Container($definitions3));
-        $this->composite->attach(new Container($definitions2));
-        $this->composite->attach(new Container($definitions3));
-        $this->composite->attach(new Container($definitions2));
-        $this->composite->attach(new Container($definitions3));
-        $this->composite->attach(new Container($definitions2));
-        $this->composite->attach(new Container($definitions3));
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
     }
 
     /**
      * @Groups({"construct"})
      *
-     * @throws \Yiisoft\Factory\Exception\InvalidConfigException
-     * @throws \Yiisoft\Factory\Exception\NotInstantiableException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws \Yiisoft\Definitions\Exception\NotInstantiableException
      */
     public function benchConstruct(): void
     {
@@ -91,7 +139,10 @@ class ContainerBench
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = PropertyTestClass::class;
         }
-        $container = new Container($definitions);
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
     }
 
     /**
@@ -101,21 +152,20 @@ class ContainerBench
     public function benchSequentialLookups($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
         }
-        $container = new Container($definitions);
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
-            try {
-                $container->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $container->get("service$index");
         }
     }
 
@@ -126,21 +176,20 @@ class ContainerBench
     public function benchRandomLookups($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
         }
-        $container = new Container($definitions);
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
-            try {
-                $container->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $container->get("service$index");
         }
     }
 
@@ -151,22 +200,21 @@ class ContainerBench
     public function benchRandomLookupsComposite($params): void
     {
         $definitions = [];
-        if (isset($params['otherDefinitions'])) {
-            array_merge($definitions, $params['otherDefinitions']);
-        }
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = $params['serviceClass'];
         }
-        $container = new Container($definitions);
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         $this->composite->attach($container);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
-            try {
-                $this->composite->get("service$index");
-            } catch (\Exception $e) {
-                // Skip exceptions
-            }
+            $this->composite->get("service$index");
         }
     }
 }

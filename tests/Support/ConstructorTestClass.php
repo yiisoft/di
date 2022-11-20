@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
+use function func_get_args;
+
 /**
  * ConstructorTestClass
  */
 class ConstructorTestClass
 {
-    private $parameter;
-
     private array $allParameters;
 
     /**
@@ -18,9 +18,8 @@ class ConstructorTestClass
      *
      * @param $parameter
      */
-    public function __construct($parameter)
+    public function __construct(private $parameter)
     {
-        $this->parameter = $parameter;
         $this->allParameters = func_get_args();
     }
 

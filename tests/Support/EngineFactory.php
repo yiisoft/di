@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
+use Exception;
 use Psr\Container\ContainerInterface;
 
 /**
@@ -11,11 +12,8 @@ use Psr\Container\ContainerInterface;
  */
 class EngineFactory
 {
-    private ContainerInterface $container;
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(private ContainerInterface $container)
     {
-        $this->container = $container;
     }
 
     public function createByName(string $name = null): EngineInterface
@@ -27,7 +25,7 @@ class EngineFactory
             return $this->container->get(EngineMarkTwo::class);
         }
 
-        throw new \Exception('unknown engine name: ' . $name);
+        throw new Exception('unknown engine name: ' . $name);
     }
 
     public static function createDefault(): EngineInterface

@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Support;
 
-class VariadicConstructor
+final class VariadicConstructor
 {
-    private $first;
-    private EngineInterface $engine;
     private array $parameters;
 
-    public function __construct($first, EngineInterface $engine, ...$parameters)
+    public function __construct(private $first, private EngineInterface $engine, ...$parameters)
     {
-        $this->first = $first;
-        $this->engine = $engine;
         $this->parameters = $parameters;
     }
 

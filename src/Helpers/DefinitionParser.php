@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di;
+namespace Yiisoft\Di\Helpers;
 
-use Yiisoft\Factory\Definition\ArrayDefinition;
-use Yiisoft\Factory\Exception\InvalidConfigException;
+use Yiisoft\Definitions\ArrayDefinition;
 
 use function count;
 use function is_array;
 use function is_callable;
+use function is_string;
 
 /**
  * @internal Splits metadata and definition.
@@ -51,11 +51,13 @@ final class DefinitionParser
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
 
     /**
-     * @param mixed $definition
+     * @param mixed $definition Definition to parse.
      *
-     * @throws InvalidConfigException
+     * @return array Definition parsed into array of a special structure.
+     *
+     * @psalm-return array{mixed,array}
      */
-    public static function parse($definition): array
+    public static function parse(mixed $definition): array
     {
         if (!is_array($definition)) {
             return [$definition, []];
@@ -63,6 +65,7 @@ final class DefinitionParser
 
         // Dedicated definition
         if (isset($definition[self::DEFINITION_META])) {
+            /** @var mixed $newDefinition */
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
 
@@ -79,29 +82,35 @@ final class DefinitionParser
         $class = null;
         $constructorArguments = [];
         $methodsAndProperties = [];
+        /** @var mixed $value */
         foreach ($definition as $key => $value) {
-            // Class
-            if ($key === ArrayDefinition::CLASS_NAME) {
-                $class = $value;
-                continue;
+            if (is_string($key)) {
+                // Class
+                if ($key === ArrayDefinition::CLASS_NAME) {
+                    /** @var mixed $class */
+                    $class = $value;
+                    continue;
+                }
+
+                // Constructor arguments
+                if ($key === ArrayDefinition::CONSTRUCTOR) {
+                    /** @var mixed $constructorArguments */
+                    $constructorArguments = $value;
+                    continue;
+                }
+
+                // Methods and properties
+                if (count($methodArray = explode('()', $key, 2)) === 2) {
+                    $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
+                    continue;
+                }
+                if (count($propertyArray = explode('$', $key, 2)) === 2) {
+                    $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
+                    continue;
+                }
             }
 
-            // Constructor arguments
-            if ($key === ArrayDefinition::CONSTRUCTOR) {
-                $constructorArguments = $value;
-                continue;
-            }
-
-            // Methods and properties
-            if (count($methodArray = explode('()', $key)) === 2) {
-                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
-                continue;
-            }
-            if (count($propertyArray = explode('$', $key)) === 2) {
-                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
-                continue;
-            }
-
+            /** @var mixed */
             $meta[$key] = $value;
         }
         return [

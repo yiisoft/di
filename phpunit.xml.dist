@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" verbose="true" bootstrap="vendor/autoload.php" failOnRisky="true" failOnWarning="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
-  <coverage>
-    <include>
-      <directory>./</directory>
-    </include>
-    <exclude>
-      <directory>./tests</directory>
-      <directory>./vendor</directory>
-    </exclude>
-  </coverage>
-  <php>
-    <ini name="error_reporting" value="-1"/>
-  </php>
-  <testsuites>
-    <testsuite name="Yii DI Container tests">
-      <directory>./tests/Unit</directory>
-    </testsuite>
-  </testsuites>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         verbose="true"
+         failOnRisky="true"
+         failOnWarning="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false"
+         executionOrder="random"
+         resolveDependencies="true">
+    <php>
+        <ini name="error_reporting" value="-1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="Yii DI Container tests">
+            <directory>./tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage>
+        <include>
+            <directory>./src</directory>
+        </include>
+    </coverage>
 </phpunit>

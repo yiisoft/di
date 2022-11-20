@@ -11,34 +11,37 @@
         "autowiring",
         "psr-11"
     ],
-    "homepage": "http://www.yiiframework.com/",
+    "homepage": "https://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
         "issues": "https://github.com/yiisoft/di/issues?state=open",
-        "forum": "http://www.yiiframework.com/forum/",
-        "wiki": "http://www.yiiframework.com/wiki/",
+        "forum": "https://www.yiiframework.com/forum/",
+        "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
+        "chat": "https://t.me/yii3en",
         "source": "https://github.com/yiisoft/di"
     },
-    "minimum-stability": "dev",
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0",
         "ext-mbstring": "*",
-        "psr/container": "^1.0",
-        "yiisoft/factory": "^3.0@dev",
-        "yiisoft/injector": "^1.0"
+        "psr/container": "^1.1|^2.0",
+        "yiisoft/definitions": "^3.0"
     },
     "require-dev": {
-        "league/container": "^3.3",
+        "league/container": "^4.2",
+        "maglnet/composer-require-checker": "^4.2",
         "ocramius/proxy-manager": "^2.13",
-        "phpbench/phpbench": "^1.0.0",
-        "phpunit/phpunit": "^9.4",
-        "roave/infection-static-analysis-plugin": "^1.6",
+        "phpbench/phpbench": "^1.2.0",
+        "phpunit/phpunit": "^9.5",
+        "rector/rector": "^0.14.3",
+        "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.2"
+        "vimeo/psalm": "^4.29",
+        "yiisoft/injector": "^1.0",
+        "yiisoft/test-support": "^3.0"
     },
     "suggest": {
-        "yiisoft/injector": "^1.0@dev",
+        "yiisoft/injector": "^1.0",
         "phpbench/phpbench": "To run benchmarks.",
         "ocramius/proxy-manager": "Install this package if you want to use lazy loading."
     },
@@ -55,11 +58,6 @@
             "Yiisoft\\Di\\Tests\\": "tests"
         }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "3.0.x-dev"
-        }
-    },
     "scripts": {
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
@@ -68,7 +66,10 @@
         "test": "Run all tests"
     },
     "config": {
-        "sort-packages": true
-    },
-    "prefer-stable": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "infection/extension-installer": true,
+            "composer/package-versions-deprecated": true
+        }
+    }
 }

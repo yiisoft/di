@@ -1,14 +1,10 @@
 <p align="center">
     <a href="https://github.com/yiisoft" target="_blank">
-        <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
+        <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
     </a>
     <h1 align="center">Yii Dependency Injection</h1>
     <br>
 </p>
-
-[PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
-[dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that is able to instantiate
-and configure classes resolving dependencies.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
 [![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
@@ -19,6 +15,9 @@ and configure classes resolving dependencies.
 [![static analysis](https://github.com/yiisoft/di/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/di/coverage.svg)](https://shepherd.dev/github/yiisoft/di)
 
+[PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
+[dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that is able to instantiate
+and configure classes resolving dependencies.
 
 ## Features
 
@@ -26,11 +25,26 @@ and configure classes resolving dependencies.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
 - Accepts array definitions. Could be used with mergeable configs.
-- Provides autoload fallback for classes without explicit definition.
+- Provides optional autoload fallback for classes without explicit definition.
 - Allows delegated lookup and has composite container.
 - Supports aliasing.
 - Supports service providers.
+- Has state resetter for long-running workers serving multiple requests such as [RoadRunner](https://roadrunner.dev/)
+  or [Swoole](https://www.swoole.co.uk/).
+- Supports container delegates.
 
+## Requirements
+
+- PHP 8.0 or higher.
+- `Multibyte String` PHP extension.
+
+## Installation
+
+The package could be installed with composer:
+
+```shell
+composer require yiisoft/di
+```
 
 ## Using the container
 
@@ -47,11 +61,15 @@ file:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions($definitions);
 
 $container = new Container($config);
 ```
 
-The configuration can be stored in a `.php` file that returns an array:
+The definitions could be stored in a `.php` file that returns an array:
 
 ```php
 return [
@@ -77,13 +95,16 @@ As seen above an object can be defined in several ways:
    * `__construct()` holds an array of constructor arguments.
    * The rest of the config are property values (prefixed with `$`) and method calls, postfixed with `()`. They are
      set/called in the order they appear in the array.
- * Closures are useful if instantiation is tricky and can better be described in code.
+ * Closures are useful if instantiation is tricky and can better be described in code. When using these, arguments are
+   auto-wired by type. `ContainerInterface` could be used to get current container instance.
  * If it is even more complicated, it is a good idea to move such code into a
    factory and reference it as a static call.
  * While it is usually not a good idea, you can also set an already
    instantiated object into the container.
 
-After the container is configured, dependencies can be obtained via `get()`:
+See [yiisoft/definitions](https://github.com/yiisoft/definitions) for more information.
+
+After the container is configured, a service can be obtained via `get()`:
 
 ```php
 /** @var \Yiisoft\Di\Container $container */
@@ -98,16 +119,20 @@ better to rely on autowiring as provided by the Injector available from the
 ## Using aliases
 
 The DI container supports aliases via the
-`Yiisoft\Factory\Definition\Reference` class. This way objects can also be
+`Yiisoft\Definitions\Reference` class. This way objects can also be
 retrieved by a more handy name:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    'engine_one' => EngineInterface::class,
-]);
+$config = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        'engine_one' => EngineInterface::class,
+    ]);
+
+$container = new Container($config);
 $object = $container->get('engine_one');
 ```
 
@@ -120,15 +145,23 @@ container.
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
 $composite = new CompositeContainer();
-$carContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    CarInterface::class => Car::class
-], []);
-$bikeContainer = new Container([
-    BikeInterface::class => Bike::class
-], []);
+
+$carConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        CarInterface::class => Car::class
+    ]);
+$carContainer = new Container($carConfig);
+
+$bikeConfig = ContainerConfig::create()
+    ->withDefinitions([
+        BikeInterface::class => Bike::class
+    ]);
+
+$bikeContainer = new Container($bikeConfig);
 $composite->attach($carContainer);
 $composite->attach($bikeContainer);
 
@@ -138,17 +171,22 @@ $car = $composite->get(CarInterface::class);
 $bike = $composite->get(BikeInterface::class);
 ```
 
-Note, that containers attached later override dependencies of containers attached earlier.
+Note, that containers attached earlier override dependencies of containers attached later.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$carConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        CarInterface::class => Car::class
+    ]);
+
+$carContainer = new Container($carConfig);
 
 $composite = new CompositeContainer();
-$carContainer = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    CarInterface::class => Car::class
-], []);
 $composite->attach($carContainer);
 
 // Returns an instance of a `Car` class.
@@ -156,10 +194,17 @@ $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkOne` class.
 $engine = $car->getEngine();
 
-$engineContainer = new Container([
-    EngineInterface::class => EngineMarkTwo::class,
-], []);
+$engineConfig = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkTwo::class,
+    ]);
+
+$engineContainer = new Container($engineConfig);
+
+$composite = new CompositeContainer();
 $composite->attach($engineContainer);
+$composite->attach($carContainer);
+
 // Returns an instance of a `Car` class.
 $car = $composite->get(CarInterface::class);
 // Returns an instance of a `EngineMarkTwo` class.
@@ -171,7 +216,7 @@ $engine = $composite->get(EngineInterface::class);
 A service provider is a special class that is responsible for providing complex
 services or groups of dependencies for the container and extensions of existing services. 
 
-A provider should extend from `Yiisoft\Di\Contracts\ServiceProviderInterface` and must
+A provider should extend from `Yiisoft\Di\ServiceProviderInterface` and must
 contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
 and therefore should only contain code that is related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to database.
@@ -180,11 +225,11 @@ A typical service provider could look like:
 
 ```php
 use Yiisoft\Di\Container;
-use Yiisoft\Di\Support\ServiceProvider;
+use Yiisoft\Di\ServiceProviderInterface;
 
 class CarFactoryProvider extends ServiceProviderInterface
 {
-    public function getDependencies(): array
+    public function getDefinitions(): array
     {
         return [
             CarFactory::class => [
@@ -208,7 +253,9 @@ class CarFactoryProvider extends ServiceProviderInterface
         return [
             // Note that Garage should already be defined in container 
             Garage::class => function(ContainerInterface $container, Garage $garage) {
-                $car = $container->get(CarFactory::class)->create();
+                $car = $container
+                    ->get(CarFactory::class)
+                    ->create();
                 $garage->setCar($car);
                 
                 return $garage;
@@ -225,14 +272,16 @@ and put a car into the garage by calling the method `setCar()`. Thus, before app
 an empty garage and with the help of the extension we fill it.
 
 To add this service provider to a container you can pass either its class or a
-configuration array in the `$providers` constructor parameter:
+configuration array in the additional config:
 
 ```php
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 
-$container = new Container($config, [
-    CarFactoryProvider::class,
-]);
+$config = ContainerConfig::create()
+    ->withProviders([CarFactoryProvider::class]);
+
+$container = new Container($config);
 ```
 
 When a service provider is added, its `getDefinitions()` and `getExtensions()` methods are called
@@ -243,16 +292,22 @@ When a service provider is added, its `getDefinitions()` and `getExtensions()` m
 You can tag services in the following way:
 
 ```php
-$container = new Container([  
-    BlueCarService::class => [
-        'class' => BlueCarService::class,
-        'tags' => ['car'], 
-    ],
-    RedCarService::class => [
-        'definition' => fn () => new RedCarService(),
-        'tags' => ['car'],
-    ],
-]);
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([  
+        BlueCarService::class => [
+            'class' => BlueCarService::class,
+            'tags' => ['car'], 
+        ],
+        RedCarService::class => [
+            'definition' => fn () => new RedCarService(),
+            'tags' => ['car'],
+        ],
+    ]);
+
+$container = new Container($config);
 ```
 
 Now we can get tagged services from the container in the following way:
@@ -266,38 +321,37 @@ The result is an array that contains two instances: `BlueCarService` and `RedCar
 Another way to tag services is setting tags via container constructor:
 
 ```php
-$container = new Container(
-    [  
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([  
         BlueCarService::class => [
             'class' => BlueCarService::class,
         ],
         RedCarService::class => fn () => new RedCarService(),
-    ],
-    [],
-    [
+    ])
+    ->withTags([
+        // "car" tag has references to both blue and red cars
         'car' => [BlueCarService::class, RedCarService::class]
-    ]
-);
+    ]);
+
+$container = new Container($config);
 ```
 
 ## Resetting services state
 
 Despite stateful services is not a great practice, these are inevitable in many cases. When you build long-running
 applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner](https://roadrunner.dev/) you should
-reset the state of such services every request. For this purpose you can use `StateResetter`. The way state is reset
-is defined for each individual service by providing "reset" callback in the following way:
+reset the state of such services every request. For this purpose you can use `StateResetter` with resetters callbacks:
 
 ```php
-$container = new Container([
-    EngineInterface::class => EngineMarkOne::class,
-    EngineMarkOne::class => [
-        'class' => EngineMarkOne::class,
-        'setNumber()' => [42],
-        'reset' => function () {
-            $this->number = 42;
-        },
-    ],
- ]);
+$resetter = new StateResetter();
+$resetter->setResetters([
+    MyServiceInterface::class => function () {
+        $this->reset(); // a method of MyServiceInterface
+    },
+]);
 ```
 
 The callback has access to the private and protected properties of the service instance, so you can set initial state
@@ -310,9 +364,134 @@ while ($request = $psr7->acceptRequest()) {
     $response = $application->handle($request);
     $psr7->respond($response);
     $application->afterEmit($response);
-    $container->get(\Yiisoft\Di\StateResetter::class)->reset();
+    $container
+        ->get(\Yiisoft\Di\StateResetter::class)
+        ->reset();
     gc_collect_cycles();
 }
+```
+
+### Setting resetters in definitions 
+
+Reset state is defined for each individual service by providing "reset" callback in the following way:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([
+        EngineInterface::class => EngineMarkOne::class,
+        EngineMarkOne::class => [
+            'class' => EngineMarkOne::class,
+            'setNumber()' => [42],
+            'reset' => function () {
+                $this->number = 42;
+            },
+        ],
+    ]);
+
+$container = new Container($config);
+```
+
+Note: resetters from definitons work only if you don't set `StateResetter` in definition or service providers.
+
+### Configuring `StateResetter` manually
+
+To manually add resetters or in case you use Yii DI composite container with a third party container that does
+not support state reset natively, state resetter could be configured separately. The following example is PHP-DI:
+
+```php
+MyServiceInterface::class => function () {
+    // ...
+},
+StateResetter::class => function () {
+    $resetter = new StateResetter();
+    $resetter->setResetters([
+        MyServiceInterface::class => function () {
+            $this->reset(); // a method of MyServiceInterface
+        },
+    ]);
+    return $resetter;
+}
+```
+
+## Specifying metadata for non-array definitions
+
+In order to specify some metadata, such as in cases of "resetting services state" or "container tags" above, for non-array
+definitions, the following syntax could be used:
+
+```php
+LogTarget::class => [
+    'definition' => static function (LoggerInterface $logger) use ($params) {
+        $target = ...
+        return $target;
+    },
+    'reset' => function () use ($params) {
+        ...
+    },
+],
+```
+
+In the above we have explicitly moved definition itself to "definition" key.
+
+## Delegates
+
+Container delegates define. Each delegate is a callable returning a container instance that is used in case a service
+can not be found in primary container:
+
+```php
+function (ContainerInterface $container): ContainerInterface
+{
+
+}
+```
+
+In order to configure delegates use additional config:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withDelegates([
+        function (ContainerInterface $container): ContainerInterface {
+            // ...
+        }
+    ]);
+
+
+$container = new Container($config);
+```
+
+## Tuning for production
+
+By default, the container validates definitions right when they are set. In production environment, it makes sense to
+turn it off:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withValidate(false);
+
+$container = new Container($config);
+```
+
+## Strict mode
+
+Container may work in strict mode, i.e. when everything in the container should be defined explicitly. In order to
+turn it on use the following code:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withStrictMode(true);
+
+$container = new Container($config);
 ```
 
 ## Further reading
@@ -326,8 +505,6 @@ To run benchmarks execute the next command
 
 `composer require phpbench/phpbench` 
 `$ ./vendor/bin/phpbench run`
-
-Note: Only works for php 7.4.
 
 Result example
 
@@ -367,7 +544,7 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 >   * worst: Minimum time of all iterations (minimal of all iterations).
 
 
-## Commands examples
+## Command examples
 
 * Default report for all benchmarks that outputs the result to `CSV-file`
 
@@ -456,17 +633,32 @@ Generated MD-file example
 >   * rstdev: The relative standard deviation.
 >   * diff: Difference between variants in a single group.
 
-### Support the project
+## Testing
 
-[![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
+### Unit testing
 
-### Follow updates
+The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
-[![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
-[![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
-[![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
-[![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
-[![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
+```shell
+./vendor/bin/phpunit
+```
+
+### Mutation testing
+
+The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
+[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
+
+```shell
+./vendor/bin/roave-infection-static-analysis-plugin
+```
+
+### Static analysis
+
+The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
+
+```shell
+./vendor/bin/psalm
+```
 
 ## License
 
@@ -474,3 +666,15 @@ The Yii Dependency Injection is free software. It is released under the terms of
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
+
+## Support the project
+
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
+
+## Follow updates
+
+[![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
+[![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
+[![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
+[![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
+[![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
