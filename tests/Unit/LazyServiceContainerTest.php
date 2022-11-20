@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\Proxy\LazyLoadingInterface;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 
 class LazyServiceContainerTest extends TestCase
 {
     protected function setUp(): void
     {
-        if (!class_exists(\ProxyManager\Factory\LazyLoadingValueHolderFactory::class)) {
+        if (!class_exists(LazyLoadingValueHolderFactory::class)) {
             $this->markTestSkipped('You should install `ocramius/proxy-manager` if you want to use lazy services.');
         }
     }
@@ -23,15 +25,17 @@ class LazyServiceContainerTest extends TestCase
         $class = EngineMarkOne::class;
         $number = 55;
 
-        $container = new Container([
-            EngineMarkOne::class => [
-                'class' => $class,
-                'setNumber()' => [$number],
-                'lazy' => true,
-            ],
-        ]);
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => $class,
+                    'setNumber()' => [$number],
+                    'lazy' => true,
+                ],
+            ]);
+        $container = new Container($config);
 
-        /* @var \Yiisoft\Di\Tests\Support\EngineMarkOne $object */
+        /* @var EngineMarkOne $object */
         $object = $container->get($class);
 
         self::assertInstanceOf(LazyLoadingInterface::class, $object);
@@ -39,7 +43,7 @@ class LazyServiceContainerTest extends TestCase
         self::assertEquals($number, $object->getNumber());
         self::assertTrue($object->isProxyInitialized());
 
-        /* @var \Yiisoft\Di\Tests\Support\EngineMarkOne $object */
+        /* @var EngineMarkOne $object */
         $object = $container->get($class);
 
         self::assertInstanceOf(LazyLoadingInterface::class, $object);
@@ -51,7 +55,9 @@ class LazyServiceContainerTest extends TestCase
      */
     public function testLazy(array $definitions, string $id): void
     {
-        $container = new Container($definitions);
+        $config = ContainerConfig::create()
+            ->withDefinitions($definitions);
+        $container = new Container($config);
 
         $object = $container->get($id);
 

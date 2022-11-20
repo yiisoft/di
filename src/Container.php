@@ -7,12 +7,15 @@ namespace Yiisoft\Di;
 use Closure;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Definitions\DefinitionStorage;
+use Yiisoft\Definitions\LazyDefinitionDecorator;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -614,27 +617,21 @@ final class Container implements ContainerInterface
         return $providerInstance;
     }
 
-    /**
-     * @param mixed $variable
-     */
-    private function getVariableType($variable): string
-    {
-        if (is_object($variable)) {
-            return get_class($variable);
-        }
-
-        return gettype($variable);
-    }
-
-    private function decorateLazy(string $id, DefinitionInterface $definition): DefinitionInterface
+    private function decorateLazy(string $id, $definition): DefinitionInterface
     {
         $factory = $this->getLazyLoadingValueHolderFactory();
         if (class_exists($id) || interface_exists($id)) {
             $class = $id;
-        } elseif ($definition instanceof ArrayDefinition) {
-            $class = $definition->getClass();
+        } elseif (is_array($definition)) {
+            $class = $definition['class'];
         } else {
-            throw new \RuntimeException('Could not determinate object class');
+            throw new RuntimeException(
+                sprintf(
+                    'Could not handle definition type "%s" with definition class "%s"',
+                    get_debug_type($definition),
+                    $id,
+                )
+            );
         }
 
         return new LazyDefinitionDecorator($factory, $definition, $class);
@@ -643,7 +640,7 @@ final class Container implements ContainerInterface
     private function getLazyLoadingValueHolderFactory(): LazyLoadingValueHolderFactory
     {
         if (!class_exists(LazyLoadingValueHolderFactory::class)) {
-            throw new \RuntimeException('You should install `ocramius/proxy-manager` if you want to use lazy services.');
+            throw new RuntimeException('You should install `ocramius/proxy-manager` if you want to use lazy services.');
         }
         return $this->lazyFactory ??= new LazyLoadingValueHolderFactory();
     }

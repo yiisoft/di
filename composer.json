@@ -25,12 +25,12 @@
         "php": "^8.0",
         "ext-mbstring": "*",
         "psr/container": "^1.1|^2.0",
-        "yiisoft/definitions": "^3.0"
+        "yiisoft/definitions": "dev-lazy-definition"
     },
     "require-dev": {
         "league/container": "^4.2",
         "maglnet/composer-require-checker": "^4.2",
-        "ocramius/proxy-manager": "^2.13",
+        "ocramius/proxy-manager": "^2.14.1",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^9.5",
         "rector/rector": "^0.14.3",
