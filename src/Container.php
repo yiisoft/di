@@ -614,13 +614,10 @@ final class Container implements ContainerInterface
         return $providerInstance;
     }
 
-    /**
-     * @param mixed $variable
-     */
-    private function getVariableType($variable): string
+    private function getVariableType(mixed $variable): string
     {
         if (is_object($variable)) {
-            return get_class($variable);
+            return $variable::class;
         }
 
         return gettype($variable);
