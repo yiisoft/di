@@ -255,7 +255,7 @@ final class Container implements ContainerInterface
             }
 
             /** @var ContainerInterface */
-            $delegate = $delegate($this);
+            $delegate = $delegate($this->get(ContainerInterface::class));
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
