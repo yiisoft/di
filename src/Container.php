@@ -247,6 +247,8 @@ final class Container implements ContainerInterface
     private function setDelegates(array $delegates): void
     {
         $this->delegates = new CompositeContainer();
+        $container = $this->get(ContainerInterface::class);
+
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
@@ -255,7 +257,7 @@ final class Container implements ContainerInterface
             }
 
             /** @var ContainerInterface */
-            $delegate = $delegate($this->get(ContainerInterface::class));
+            $delegate = $delegate($container);
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
