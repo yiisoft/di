@@ -30,4 +30,11 @@ final class BuildingExceptionTest extends TestCase
 
         $this->assertSame('Caught unhandled error "i am angry" while building "a" -> "b" -> "test".', $exception->getMessage());
     }
+
+    public function testCode(): void
+    {
+        $exception = new BuildingException('test', new RuntimeException());
+
+        $this->assertSame(0, $exception->getCode());
+    }
 }
