@@ -1970,15 +1970,15 @@ final class ContainerTest extends TestCase
     {
         return [
             [
-                '/^Invalid tags configuration: tag should be string, 42 given\.$/',
+                'Invalid tags configuration: tag should be string, array given.',
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                'Invalid tags configuration: tag should be either iterable or array of service IDs, integer given.',
+                'Invalid tags configuration: tag should be either iterable or array of service IDs, int given.',
                 ['engine' => 42],
             ],
             [
-                '/^Invalid tags configuration: service should be defined as class string, (integer|int) given\.$/',
+                'Invalid tags configuration: service should be defined as class string, int given.',
                 ['engine' => [42]],
             ],
         ];
@@ -1993,7 +1993,7 @@ final class ContainerTest extends TestCase
             ->withTags($tags);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessageMatches($message);
+        $this->expectExceptionMessage($message);
         new Container($config);
     }
 }

@@ -361,7 +361,7 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: tags should be either iterable or array of strings, %s given.',
-                    $this->getVariableType($tags)
+                    get_debug_type($tags)
                 )
             );
         }
