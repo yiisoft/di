@@ -2,7 +2,7 @@
 
 ## 1.2.1 under development
 
-- no changes in this release.
+- Bug #317: Fix delegated container (@xepozz)
 
 ## 1.2.0 November 05, 2022
 
