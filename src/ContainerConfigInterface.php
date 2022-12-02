@@ -12,17 +12,17 @@ interface ContainerConfigInterface
     /**
      * @return array Definitions to put into container.
      */
-    public function getDefinitions(): array;
+    public function getDefinitions(): iterable;
 
     /**
-     * @return array Service providers to get definitions from.
+     * @return iterable Service providers to get definitions from.
      */
-    public function getProviders(): array;
+    public function getProviders(): iterable;
 
     /**
-     * @return array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @return iterable Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
-    public function getTags(): array;
+    public function getTags(): iterable;
 
     /**
      * @return bool Whether definitions should be validated immediately.
@@ -30,11 +30,11 @@ interface ContainerConfigInterface
     public function shouldValidate(): bool;
 
     /**
-     * @return array Container delegates. Each delegate is a callable in format
+     * @return iterable Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can not be found in primary container.
      */
-    public function getDelegates(): array;
+    public function getDelegates(): iterable;
 
     /**
      * @return bool If the automatic addition of definition when class exists and can be resolved is disabled.
