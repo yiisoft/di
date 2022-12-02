@@ -1235,6 +1235,34 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testNewContainerDefinitionInDelegates(): void
+    {
+        $firstContainer = null;
+        $secondContainer = null;
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                ContainerInterface::class => new Container(ContainerConfig::create()),
+            ])
+            ->withDelegates([
+                function (ContainerInterface $container) use (&$firstContainer): ContainerInterface {
+                    $firstContainer = $container;
+                    return new Container(ContainerConfig::create());
+                },
+                function (ContainerInterface $container) use (&$secondContainer): ContainerInterface {
+                    $secondContainer = $container;
+                    return new Container(ContainerConfig::create());
+                },
+            ]);
+        $originalContainer = new Container($config);
+
+        $container = $originalContainer->get(ContainerInterface::class);
+
+        $this->assertNotSame($container, $originalContainer);
+        $this->assertSame($container, $firstContainer);
+        $this->assertSame($container, $secondContainer);
+    }
+
     public function testResetterInDelegatesWithCustomResetter(): void
     {
         $config = ContainerConfig::create()
@@ -1591,6 +1619,31 @@ final class ContainerTest extends TestCase
             ->withProviders([$provider]);
         $container = new Container($config);
         $container->get(B::class);
+    }
+
+    public function testDifferentContainerWithProviders(): void
+    {
+        $provider = new class () implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    ContainerInterface::class => static fn (ContainerInterface $container) => new Container(ContainerConfig::create()),
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        $config = ContainerConfig::create()
+            ->withProviders([$provider]);
+        $originalContainer = new Container($config);
+
+        $container = $originalContainer->get(ContainerInterface::class);
+
+        $this->assertNotSame($originalContainer, $container);
     }
 
     public function testErrorOnMethodTypo(): void
