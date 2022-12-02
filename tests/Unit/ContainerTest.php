@@ -1107,8 +1107,8 @@ final class ContainerTest extends TestCase
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkOne::class, $engines[1]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[0]::class);
     }
 
     public function testTagsWithExternalDefinitionMerge(): void
