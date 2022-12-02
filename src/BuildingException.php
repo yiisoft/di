@@ -20,17 +20,15 @@ final class BuildingException extends Exception implements ContainerExceptionInt
      */
     public function __construct(
         string $id,
-        string $error,
+        Throwable $error,
         array $buildStack = [],
         Throwable $previous = null,
     ) {
-        $message = sprintf('Caught unhandled error "%s" while building "%s"', $error, $id);
-
-        if ($buildStack !== []) {
-            $message .= '"' . implode('" -> "', $buildStack) . '"';
-        }
-
-        $message .= '.';
+        $message = sprintf(
+            'Caught unhandled error "%s" while building "%s".',
+            $error->getMessage() === '' ? $error::class : $error->getMessage(),
+            implode('" -> "', $buildStack === [] ? [$id] : $buildStack)
+        );
 
         parent::__construct($message, 0, $previous);
     }

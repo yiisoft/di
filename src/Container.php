@@ -150,7 +150,7 @@ final class Container implements ContainerInterface
                 if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
                     throw $e;
                 }
-                throw new BuildingException($id, $e->getMessage(), $this->definitions->getBuildStack(), $e);
+                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
             }
         }
 

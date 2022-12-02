@@ -1586,7 +1586,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'Caught unhandled error "" while building "Yiisoft\Di\Tests\Support\B".'
+            'Caught unhandled error "RuntimeException" while building "Yiisoft\Di\Tests\Support\B".'
         );
 
         $config = ContainerConfig::create()
