@@ -1963,7 +1963,7 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessage(
             'Invalid definition: incorrect method "setNumber()" arguments. Expected array, got "int". Probably you should wrap them into square brackets.',
         );
-        $container = new Container($config);
+        new Container($config);
     }
 
     public function dataInvalidTags(): array
