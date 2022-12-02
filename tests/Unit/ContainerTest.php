@@ -1996,4 +1996,25 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessage($message);
         new Container($config);
     }
+
+    public function testSupportIterableDefinitions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions(
+                (function () {
+                    yield from [
+                        EngineMarkOne::class => [
+                            'class' => EngineMarkOne::class,
+                            'setNumber()' => [42],
+                        ],
+                    ];
+                })()
+            );
+
+        $container = new Container($config);
+
+        $this->assertTrue($container->has(EngineMarkOne::class));
+        $engine = $container->get(EngineMarkOne::class);
+        $this->assertEquals(42, $engine->getNumber());
+    }
 }
