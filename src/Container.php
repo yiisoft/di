@@ -5,13 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -119,8 +122,9 @@ final class Container implements ContainerInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
      * @throws NotInstantiableException
+     * @throws BuildingException
      *
      * @return mixed|object An instance of the requested interface.
      *
@@ -132,14 +136,21 @@ final class Container implements ContainerInterface
     {
         if (!array_key_exists($id, $this->instances)) {
             try {
-                $this->instances[$id] = $this->build($id);
-            } catch (NotFoundException $e) {
-                if (!$this->delegates->has($id)) {
+                try {
+                    $this->instances[$id] = $this->build($id);
+                } catch (NotFoundExceptionInterface $e) {
+                    if (!$this->delegates->has($id)) {
+                        throw $e;
+                    }
+
+                    /** @psalm-suppress MixedReturnStatement */
+                    return $this->delegates->get($id);
+                }
+            } catch (Throwable $e) {
+                if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
                     throw $e;
                 }
-
-                /** @psalm-suppress MixedReturnStatement */
-                return $this->delegates->get($id);
+                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
             }
         }
 
@@ -247,6 +258,8 @@ final class Container implements ContainerInterface
     private function setDelegates(array $delegates): void
     {
         $this->delegates = new CompositeContainer();
+        $container = $this->get(ContainerInterface::class);
+
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
@@ -255,7 +268,7 @@ final class Container implements ContainerInterface
             }
 
             /** @var ContainerInterface */
-            $delegate = $delegate($this);
+            $delegate = $delegate($container);
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
@@ -293,7 +306,8 @@ final class Container implements ContainerInterface
             $definition = array_merge(
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
-                $methodsAndProperties,
+                // extract only value from parsed definition method
+                array_map(fn (array $data): mixed => $data[2], $methodsAndProperties),
             );
         }
 
@@ -431,10 +445,10 @@ final class Container implements ContainerInterface
     /**
      * Add definition to storage.
      *
-     * @see $definitions
-     *
      * @param string $id ID to set definition for.
      * @param mixed|object $definition Definition to set.
+     *
+     * @see $definitions
      */
     private function addDefinitionToStorage(string $id, $definition): void
     {
@@ -450,9 +464,9 @@ final class Container implements ContainerInterface
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
-     * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
+     * @throws NotFoundExceptionInterface
+     * @throws CircularReferenceException
      *
      * @return mixed|object New built instance of the specified class.
      *
@@ -468,11 +482,13 @@ final class Container implements ContainerInterface
             if ($id === ContainerInterface::class) {
                 return $this;
             }
-            throw new CircularReferenceException(sprintf(
-                'Circular reference to "%s" detected while building: %s.',
-                $id,
-                implode(', ', array_keys($this->building))
-            ));
+            throw new CircularReferenceException(
+                sprintf(
+                    'Circular reference to "%s" detected while building: %s.',
+                    $id,
+                    implode(', ', array_keys($this->building))
+                )
+            );
         }
 
         $this->building[$id] = 1;
@@ -501,8 +517,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @throws NotFoundExceptionInterface
      * @throws InvalidConfigException
-     * @throws NotFoundException
      *
      * @return mixed|object
      */

@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -378,7 +379,10 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'Caught unhandled error "Arguments indexed both by name and by position are not allowed in the same array." while building "test".'
+        );
         $container->get('test');
     }
 
@@ -1235,6 +1239,34 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testNewContainerDefinitionInDelegates(): void
+    {
+        $firstContainer = null;
+        $secondContainer = null;
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                ContainerInterface::class => new Container(ContainerConfig::create()),
+            ])
+            ->withDelegates([
+                function (ContainerInterface $container) use (&$firstContainer): ContainerInterface {
+                    $firstContainer = $container;
+                    return new Container(ContainerConfig::create());
+                },
+                function (ContainerInterface $container) use (&$secondContainer): ContainerInterface {
+                    $secondContainer = $container;
+                    return new Container(ContainerConfig::create());
+                },
+            ]);
+        $originalContainer = new Container($config);
+
+        $container = $originalContainer->get(ContainerInterface::class);
+
+        $this->assertNotSame($container, $originalContainer);
+        $this->assertSame($container, $firstContainer);
+        $this->assertSame($container, $secondContainer);
+    }
+
     public function testResetterInDelegatesWithCustomResetter(): void
     {
         $config = ContainerConfig::create()
@@ -1580,7 +1612,10 @@ final class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'Caught unhandled error "RuntimeException" while building "Yiisoft\Di\Tests\Support\B".'
+        );
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -1591,6 +1626,31 @@ final class ContainerTest extends TestCase
             ->withProviders([$provider]);
         $container = new Container($config);
         $container->get(B::class);
+    }
+
+    public function testDifferentContainerWithProviders(): void
+    {
+        $provider = new class () implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    ContainerInterface::class => static fn (ContainerInterface $container) => new Container(ContainerConfig::create()),
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        $config = ContainerConfig::create()
+            ->withProviders([$provider]);
+        $originalContainer = new Container($config);
+
+        $container = $originalContainer->get(ContainerInterface::class);
+
+        $this->assertNotSame($originalContainer, $container);
     }
 
     public function testErrorOnMethodTypo(): void
@@ -1841,8 +1901,8 @@ final class ContainerTest extends TestCase
             ]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessageMatches(
-            '/^Invalid definition: "reset" should be closure, (integer|int) given\.$/'
+        $this->expectExceptionMessage(
+            'Invalid definition: "reset" should be closure, int given.'
         );
         new Container($config);
     }
@@ -1877,11 +1937,9 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: method\'s arguments should be array, int given.'
+            'Invalid definition: incorrect method "setNumber()" arguments. Expected array, got "int". Probably you should wrap them into square brackets.',
         );
-        $container = new Container($config);
-
-        $container->get(EngineMarkOne::class);
+        new Container($config);
     }
 
     public function dataInvalidTags(): array
