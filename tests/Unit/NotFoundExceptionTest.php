@@ -25,11 +25,18 @@ final class NotFoundExceptionTest extends TestCase
 
     public function testBuildStack(): void
     {
-        $exception = new NotFoundException('test', ['a' => [], 'b' => [], 'test' => []]);
+        $exception = new NotFoundException('test', ['a', 'b', 'test']);
 
         $this->assertSame(
             'No definition or class found or resolvable for "test" while building "a" -> "b" -> "test".',
             $exception->getMessage()
         );
+    }
+
+    public function testCode(): void
+    {
+        $exception = new NotFoundException('test');
+
+        $this->assertSame(0, $exception->getCode());
     }
 }

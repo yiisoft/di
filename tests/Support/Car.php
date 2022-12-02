@@ -10,13 +10,9 @@ namespace Yiisoft\Di\Tests\Support;
 class Car
 {
     public ColorInterface $color;
-    private EngineInterface $engine;
-    private array $moreEngines;
 
-    public function __construct(EngineInterface $engine, array $moreEngines = [])
+    public function __construct(private EngineInterface $engine, private array $moreEngines = [])
     {
-        $this->engine = $engine;
-        $this->moreEngines = $moreEngines;
     }
 
     public function setColor(ColorInterface $color): self

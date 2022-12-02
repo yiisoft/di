@@ -77,14 +77,54 @@ class ContainerBench
 
         $this->composite = new CompositeContainer();
         // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions2)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions3)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions2)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions3)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions2)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions3)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions2)));
-        $this->composite->attach(new Container(ContainerConfig::create()->withDefinitions($definitions3)));
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions2)
+            )
+        );
+        $this->composite->attach(
+            new Container(
+                ContainerConfig::create()
+                    ->withDefinitions($definitions3)
+            )
+        );
     }
 
     /**
@@ -99,7 +139,10 @@ class ContainerBench
         for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
             $definitions["service$i"] = PropertyTestClass::class;
         }
-        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
     }
 
     /**
@@ -115,7 +158,10 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
-        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->indexes[$i];
@@ -136,7 +182,10 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
-        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
             $index = $this->randomIndexes[$i];
@@ -157,7 +206,10 @@ class ContainerBench
         if (isset($params['otherDefinitions'])) {
             $definitions = array_merge($definitions, $params['otherDefinitions']);
         }
-        $container = new Container(ContainerConfig::create()->withDefinitions($definitions));
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions)
+        );
         $this->composite->attach($container);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.

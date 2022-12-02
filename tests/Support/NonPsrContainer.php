@@ -14,7 +14,7 @@ final class NonPsrContainer implements ContainerInterface
         return new stdClass();
     }
 
-    public function has(string $id)
+    public function has(string $id): bool
     {
         return false;
     }

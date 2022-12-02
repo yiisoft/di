@@ -11,6 +11,7 @@ use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
+use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NonPsrContainer;
 
 final class CompositeContainerTest extends TestCase
@@ -20,8 +21,8 @@ final class CompositeContainerTest extends TestCase
         $container = new CompositeContainer();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'ID must be a string, integer given.'
+        $this->expectExceptionMessageMatches(
+            '/^ID must be a string, (integer|int) given\.$/'
         );
         $container->get(42);
     }
@@ -36,6 +37,10 @@ final class CompositeContainerTest extends TestCase
                     'class' => EngineMarkOne::class,
                     'tags' => ['engine'],
                 ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                    'tags' => ['engine'],
+                ],
             ]);
         $firstContainer = new Container($config);
 
@@ -47,8 +52,9 @@ final class CompositeContainerTest extends TestCase
         $engines = $compositeContainer->get('tag@engine');
 
         $this->assertIsArray($engines);
-        $this->assertCount(1, $engines);
+        $this->assertCount(2, $engines);
         $this->assertInstanceOf(EngineMarkOne::class, $engines[0]);
+        $this->assertInstanceOf(EngineMarkTwo::class, $engines[1]);
     }
 
     public function testNonPsrContainer(): void

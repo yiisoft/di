@@ -14,7 +14,6 @@ use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
-use function get_class;
 
 /**
  * General tests for PSR-11 composite container.
@@ -130,8 +129,8 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
         $this->assertIsArray($engines);
         $this->assertCount(2, $engines);
-        $this->assertSame(EngineMarkOne::class, get_class($engines[1]));
-        $this->assertSame(EngineMarkTwo::class, get_class($engines[0]));
+        $this->assertSame(EngineMarkOne::class, $engines[1]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[0]::class);
     }
 
     public function testDelegateLookup(): void

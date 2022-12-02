@@ -27,8 +27,6 @@ final class ContainerConfig implements ContainerConfigInterface
 
     /**
      * @param array $definitions Definitions to put into container.
-     *
-     * @return self
      */
     public function withDefinitions(array $definitions): self
     {
@@ -44,8 +42,6 @@ final class ContainerConfig implements ContainerConfigInterface
 
     /**
      * @param array $providers Service providers to get definitions from.
-     *
-     * @return self
      */
     public function withProviders(array $providers): self
     {
@@ -61,8 +57,6 @@ final class ContainerConfig implements ContainerConfigInterface
 
     /**
      * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     *
-     * @return self
      */
     public function withTags(array $tags): self
     {
@@ -78,8 +72,6 @@ final class ContainerConfig implements ContainerConfigInterface
 
     /**
      * @param bool $validate Whether definitions should be validated immediately.
-     *
-     * @return self
      */
     public function withValidate(bool $validate): self
     {
@@ -97,8 +89,6 @@ final class ContainerConfig implements ContainerConfigInterface
      * @param array $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can not be found in primary container.
-     *
-     * @return self
      */
     public function withDelegates(array $delegates): self
     {
@@ -115,8 +105,6 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param bool $useStrictMode If the automatic addition of definition when class exists and can be resolved
      * is disabled.
-     *
-     * @return self
      */
     public function withStrictMode(bool $useStrictMode): self
     {

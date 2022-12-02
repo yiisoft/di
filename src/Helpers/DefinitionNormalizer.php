@@ -23,7 +23,7 @@ final class DefinitionNormalizer
      *
      * @throws InvalidConfigException If configuration is not valid.
      */
-    public static function normalize($definition, string $id): DefinitionInterface
+    public static function normalize(mixed $definition, string $id): DefinitionInterface
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
             /** @psalm-suppress MixedArgument Definition should be valid {@see Container::$validate} */

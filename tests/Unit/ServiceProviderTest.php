@@ -50,8 +50,18 @@ final class ServiceProviderTest extends TestCase
         $this->assertTrue($container->has(Car::class));
         $this->assertTrue($container->has(EngineInterface::class));
         $this->assertInstanceOf(Car::class, $container->get(Car::class));
-        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
-        $this->assertInstanceOf(EngineMarkTwo::class, $container->get(Car::class)->getEngine());
+        $this->assertInstanceOf(
+            ColorRed::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
+        $this->assertInstanceOf(
+            EngineMarkTwo::class,
+            $container
+                ->get(Car::class)
+                ->getEngine(),
+        );
     }
 
     private function ensureProviderRegisterDefinitions($provider): void
@@ -123,7 +133,12 @@ final class ServiceProviderTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(
+            ColorRed::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
     }
 
     public function testExtensionReturnedNull(): void
@@ -140,7 +155,12 @@ final class ServiceProviderTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->assertInstanceOf(ColorRed::class, $container->get(Car::class)->getColor());
+        $this->assertInstanceOf(
+            ColorRed::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
     }
 
     public function testClassMethodsWithExtensible(): void
