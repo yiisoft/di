@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -378,7 +379,10 @@ final class ContainerTest extends TestCase
             ]);
         $container = new Container($config);
 
-        $this->expectException(InvalidConfigException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'Caught unhandled error "Arguments indexed both by name and by position are not allowed in the same array." while building "test".'
+        );
         $container->get('test');
     }
 
@@ -1608,7 +1612,10 @@ final class ContainerTest extends TestCase
             }
         };
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'Caught unhandled error "RuntimeException" while building "Yiisoft\Di\Tests\Support\B".'
+        );
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -1894,8 +1901,8 @@ final class ContainerTest extends TestCase
             ]);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessageMatches(
-            '/^Invalid definition: "reset" should be closure, (integer|int) given\.$/'
+        $this->expectExceptionMessage(
+            'Invalid definition: "reset" should be closure, int given.'
         );
         new Container($config);
     }
@@ -1916,6 +1923,23 @@ final class ContainerTest extends TestCase
             'Invalid definition: tags should be array of strings, string given.'
         );
         new Container($config);
+    }
+
+    public function testNonArrayArguments(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => 42,
+                ],
+            ]);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Invalid definition: incorrect method "setNumber()" arguments. Expected array, got "int". Probably you should wrap them into square brackets.',
+        );
+        $container = new Container($config);
     }
 
     public function dataInvalidTags(): array
