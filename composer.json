@@ -30,7 +30,7 @@
     "require-dev": {
         "league/container": "^4.2",
         "maglnet/composer-require-checker": "^4.2",
-        "ocramius/proxy-manager": "^2.14.1",
+        "friendsofphp/proxy-manager-lts": "^1.0",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^9.5",
         "rector/rector": "^0.14.3",
@@ -43,7 +43,7 @@
     "suggest": {
         "yiisoft/injector": "^1.0",
         "phpbench/phpbench": "To run benchmarks.",
-        "ocramius/proxy-manager": "Install this package if you want to use lazy loading."
+        "friendsofphp/proxy-manager-lts": "Install this package if you want to use lazy loading."
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
