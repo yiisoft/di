@@ -6,11 +6,9 @@ namespace Yiisoft\Di;
 
 use Closure;
 use Psr\Container\ContainerExceptionInterface;
-use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
-use RuntimeException;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
@@ -18,7 +16,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
-use Yiisoft\Definitions\LazyDefinitionDecorator;
+use Yiisoft\Definitions\LazyDefinition;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Helpers\TagHelper;
@@ -73,7 +71,6 @@ final class Container implements ContainerInterface
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
-    private ?LazyLoadingValueHolderFactory $lazyFactory = null;
 
     /**
      * @param ContainerConfigInterface $config Container configuration.
@@ -635,7 +632,6 @@ final class Container implements ContainerInterface
 
     private function decorateLazy(string $id, mixed $definition): DefinitionInterface
     {
-        $factory = $this->getLazyLoadingValueHolderFactory();
         if (class_exists($id) || interface_exists($id)) {
             $class = $id;
         } elseif (is_array($definition) && array_key_exists(ArrayDefinition::CLASS_NAME, $definition)) {
@@ -650,20 +646,6 @@ final class Container implements ContainerInterface
             );
         }
 
-        return new LazyDefinitionDecorator($factory, $definition, $class);
-    }
-
-    private function getLazyLoadingValueHolderFactory(): LazyLoadingValueHolderFactory
-    {
-        if (!class_exists(LazyLoadingValueHolderFactory::class)) {
-            throw new RuntimeException(
-                'You should install `friendsofphp/proxy-manager-lts` if you want to use lazy services.'
-            );
-        }
-        if ($this->lazyFactory === null) {
-            $this->lazyFactory = new LazyLoadingValueHolderFactory();
-        }
-
-        return $this->lazyFactory;
+        return new LazyDefinition($definition, $class);
     }
 }
