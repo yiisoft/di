@@ -32,4 +32,11 @@ final class NotFoundExceptionTest extends TestCase
             $exception->getMessage()
         );
     }
+
+    public function testCode(): void
+    {
+        $exception = new NotFoundException('test');
+
+        $this->assertSame(0, $exception->getCode());
+    }
 }
