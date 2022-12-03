@@ -16,7 +16,7 @@ class LazyServiceContainerTest extends TestCase
     protected function setUp(): void
     {
         if (!class_exists(LazyLoadingValueHolderFactory::class)) {
-            $this->markTestSkipped('You should install `ocramius/proxy-manager` if you want to use lazy services.');
+            $this->markTestSkipped('You should install `friendsofphp/proxy-manager-lts` if you want to use lazy services.');
         }
     }
 
@@ -39,6 +39,7 @@ class LazyServiceContainerTest extends TestCase
         $object = $container->get($class);
 
         self::assertInstanceOf(LazyLoadingInterface::class, $object);
+        self::assertInstanceOf(EngineMarkOne::class, $object);
         self::assertFalse($object->isProxyInitialized());
         self::assertEquals($number, $object->getNumber());
         self::assertTrue($object->isProxyInitialized());
@@ -47,6 +48,7 @@ class LazyServiceContainerTest extends TestCase
         $object = $container->get($class);
 
         self::assertInstanceOf(LazyLoadingInterface::class, $object);
+        self::assertInstanceOf(EngineMarkOne::class, $object);
         self::assertTrue($object->isProxyInitialized());
     }
 

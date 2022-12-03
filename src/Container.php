@@ -73,7 +73,7 @@ final class Container implements ContainerInterface
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
-    private LazyLoadingValueHolderFactory $lazyFactory;
+    private ?LazyLoadingValueHolderFactory $lazyFactory = null;
 
     /**
      * @param ContainerConfigInterface $config Container configuration.
@@ -633,17 +633,17 @@ final class Container implements ContainerInterface
         return $providerInstance;
     }
 
-    private function decorateLazy(string $id, $definition): DefinitionInterface
+    private function decorateLazy(string $id, mixed $definition): DefinitionInterface
     {
         $factory = $this->getLazyLoadingValueHolderFactory();
         if (class_exists($id) || interface_exists($id)) {
             $class = $id;
-        } elseif (is_array($definition)) {
-            $class = $definition['class'];
+        } elseif (is_array($definition) && array_key_exists(ArrayDefinition::CLASS_NAME, $definition)) {
+            $class = (string) $definition[ArrayDefinition::CLASS_NAME];
         } else {
-            throw new RuntimeException(
+            throw new InvalidConfigException(
                 sprintf(
-                    'Could not handle definition type "%s" with definition class "%s"',
+                    'Invalid definition: lazy services are only available with array definitions or references. Got type "%s" for definition ID: "%s"',
                     get_debug_type($definition),
                     $id,
                 )
@@ -656,8 +656,14 @@ final class Container implements ContainerInterface
     private function getLazyLoadingValueHolderFactory(): LazyLoadingValueHolderFactory
     {
         if (!class_exists(LazyLoadingValueHolderFactory::class)) {
-            throw new RuntimeException('You should install `ocramius/proxy-manager` if you want to use lazy services.');
+            throw new RuntimeException(
+                'You should install `friendsofphp/proxy-manager-lts` if you want to use lazy services.'
+            );
         }
-        return $this->lazyFactory ??= new LazyLoadingValueHolderFactory();
+        if ($this->lazyFactory === null) {
+            $this->lazyFactory = new LazyLoadingValueHolderFactory();
+        }
+
+        return $this->lazyFactory;
     }
 }
