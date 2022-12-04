@@ -10,7 +10,7 @@ namespace Yiisoft\Di;
 interface ContainerConfigInterface
 {
     /**
-     * @return array Definitions to put into container.
+     * @return iterable Definitions to put into container.
      */
     public function getDefinitions(): iterable;
 
