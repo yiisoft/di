@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.2.2 under development
+
+- no changes in this release.
+
 ## 1.2.1 December 23, 2022
 
 - Chg #316: Fix exception messages (@xepozz)
