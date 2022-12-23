@@ -1,6 +1,6 @@
 # Yii Dependency Injection Change Log
 
-## 1.2.1 under development
+## 1.2.1 December 23, 2022
 
 - Chg #316: Fix exception messages (@xepozz)
 - Bug #317: Fix delegated container (@xepozz)
