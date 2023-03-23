@@ -16,11 +16,8 @@ use Yiisoft\Definitions\Reference;
 
 /**
  * @Iterations(5)
- *
  * @Revs(1000)
- *
  * @Groups({"has"})
- *
  * @BeforeMethods({"before"})
  */
 class ContainerMethodHasBench
