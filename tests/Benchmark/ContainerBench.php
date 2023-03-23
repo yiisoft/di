@@ -22,7 +22,9 @@ use Yiisoft\Definitions\Reference;
 
 /**
  * @Iterations(5)
+ *
  * @Revs(1000)
+ *
  * @BeforeMethods({"before"})
  */
 class ContainerBench
@@ -147,6 +149,7 @@ class ContainerBench
 
     /**
      * @Groups({"lookup"})
+     *
      * @ParamProviders({"provideDefinitions"})
      */
     public function benchSequentialLookups($params): void
@@ -171,6 +174,7 @@ class ContainerBench
 
     /**
      * @Groups({"lookup"})
+     *
      * @ParamProviders({"provideDefinitions"})
      */
     public function benchRandomLookups($params): void
@@ -195,6 +199,7 @@ class ContainerBench
 
     /**
      * @Groups({"lookup"})
+     *
      * @ParamProviders({"provideDefinitions"})
      */
     public function benchRandomLookupsComposite($params): void

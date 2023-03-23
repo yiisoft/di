@@ -59,6 +59,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     *
      * @psalm-var array<string, list<string>>
      */
     private array $tags;
@@ -129,7 +130,9 @@ final class Container implements ContainerInterface
      * @return mixed|object An instance of the requested interface.
      *
      * @psalm-template T
+     *
      * @psalm-param string|class-string<T> $id
+     *
      * @psalm-return ($id is class-string ? T : mixed)
      */
     public function get(string $id)
