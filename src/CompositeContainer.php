@@ -26,9 +26,7 @@ final class CompositeContainer implements ContainerInterface
 
     /**
      * @psalm-template T
-     *
      * @psalm-param string|class-string<T> $id
-     *
      * @psalm-return ($id is class-string ? T : mixed)
      */
     public function get($id)
