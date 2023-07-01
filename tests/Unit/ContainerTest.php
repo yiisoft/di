@@ -10,14 +10,18 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Definitions\DynamicReference;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\ExtensibleService;
 use Yiisoft\Di\NotFoundException;
-use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
+use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
@@ -41,15 +45,11 @@ use Yiisoft\Di\Tests\Support\OptionalConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
-use Yiisoft\Definitions\DynamicReference;
-use Yiisoft\Definitions\Exception\CircularReferenceException;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -1397,7 +1397,7 @@ final class ContainerTest extends TestCase
             ])
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [
                             StateResetter::class => static function (ContainerInterface $container) {
@@ -1412,7 +1412,7 @@ final class ContainerTest extends TestCase
                         ];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [];
                     }
@@ -1442,12 +1442,12 @@ final class ContainerTest extends TestCase
             ])
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             StateResetter::class => static function (
@@ -1622,7 +1622,7 @@ final class ContainerTest extends TestCase
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
         $provider = new class () implements ServiceProviderInterface {
-            public function getDefinitions(): array
+            public function getDefinitions(): iterable
             {
                 return [
                     // E.g. wrapping container with proxy class
@@ -1630,7 +1630,7 @@ final class ContainerTest extends TestCase
                 ];
             }
 
-            public function getExtensions(): array
+            public function getExtensions(): iterable
             {
                 return [];
             }
@@ -1655,14 +1655,14 @@ final class ContainerTest extends TestCase
     public function testDifferentContainerWithProviders(): void
     {
         $provider = new class () implements ServiceProviderInterface {
-            public function getDefinitions(): array
+            public function getDefinitions(): iterable
             {
                 return [
                     ContainerInterface::class => static fn (ContainerInterface $container) => new Container(ContainerConfig::create()),
                 ];
             }
 
-            public function getExtensions(): array
+            public function getExtensions(): iterable
             {
                 return [];
             }
@@ -1870,12 +1870,12 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             23 => static fn (ContainerInterface $container, StateResetter $resetter) => $resetter,
@@ -1894,12 +1894,12 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             ColorPink::class => [],

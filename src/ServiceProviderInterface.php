@@ -42,7 +42,7 @@ interface ServiceProviderInterface
      * @return array Definitions for the container. Each array key is the name of the service (usually it is
      * an interface name), and a corresponding value is a service definition.
      */
-    public function getDefinitions(): array;
+    public function getDefinitions(): iterable;
 
     /**
      * Returns an array of service extensions.
@@ -58,5 +58,5 @@ interface ServiceProviderInterface
      * @return array Extensions for the container services. Each array key is the name of the service to be modified
      * and a corresponding value is callable doing the job.
      */
-    public function getExtensions(): array;
+    public function getExtensions(): iterable;
 }
