@@ -84,6 +84,7 @@ final class StateResetter
                 );
             }
 
+            /** @var Closure */
             $this->resetters[] = $callback->bindTo($instance, $instance::class);
         }
     }
