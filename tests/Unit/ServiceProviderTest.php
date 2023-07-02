@@ -6,21 +6,21 @@ namespace Yiisoft\Di\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\Car;
-use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\CarExtensionProvider;
-use Yiisoft\Di\Tests\Support\ContainerInterfaceExtensionProvider;
+use Yiisoft\Di\Tests\Support\CarProvider;
 use Yiisoft\Di\Tests\Support\ColorRed;
+use Yiisoft\Di\Tests\Support\ContainerInterfaceExtensionProvider;
 use Yiisoft\Di\Tests\Support\EngineInterface;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\NullCarExtensionProvider;
 use Yiisoft\Di\Tests\Support\SportCar;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 final class ServiceProviderTest extends TestCase
 {
@@ -174,12 +174,12 @@ final class ServiceProviderTest extends TestCase
             ])
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class,

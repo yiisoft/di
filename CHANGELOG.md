@@ -1,8 +1,8 @@
 # Yii Dependency Injection Change Log
 
-## 1.2.2 under development
+## 2.0.0 under development
 
-- no changes in this release.
+- Chg #299: Improve types to use iterable objects (@xepozz)
 
 ## 1.2.1 December 23, 2022
 

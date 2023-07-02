@@ -9,13 +9,13 @@ use Yiisoft\Di\ServiceProviderInterface;
 
 final class NullCarExtensionProvider implements ServiceProviderInterface
 {
-    public function getDefinitions(): array
+    public function getDefinitions(): iterable
     {
         return [
         ];
     }
 
-    public function getExtensions(): array
+    public function getExtensions(): iterable
     {
         return [
             Car::class => static fn (ContainerInterface $container, Car $car) => null,

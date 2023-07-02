@@ -9,6 +9,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
+use Traversable;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
@@ -59,7 +60,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     * @psalm-var array<string, list<string>>
+     * @psalm-var array<string, iterable<string>>
      */
     private array $tags;
 
@@ -223,13 +224,14 @@ final class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      *
-     * @param array $config Definitions indexed by their IDs.
+     * @param iterable $config Definitions indexed by their IDs.
      *
      * @throws InvalidConfigException
      */
-    private function addDefinitions(array $config): void
+    private function addDefinitions(iterable $config): void
     {
         /** @var mixed $definition */
+        /** @psalm-suppress MixedAssignment */
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
                 throw new InvalidConfigException(
@@ -239,8 +241,8 @@ final class Container implements ContainerInterface
                     )
                 );
             }
-            /** @var string $id */
 
+            $id = (string) $id;
             $this->addDefinition($id, $definition);
         }
     }
@@ -251,11 +253,11 @@ final class Container implements ContainerInterface
      * Each delegate must is a callable in format "function (ContainerInterface $container): ContainerInterface".
      * The container instance returned is used in case a service can not be found in primary container.
      *
-     * @param array $delegates
+     * @param iterable $delegates
      *
      * @throws InvalidConfigException
      */
-    private function setDelegates(array $delegates): void
+    private function setDelegates(iterable $delegates): void
     {
         $this->delegates = new CompositeContainer();
         $container = $this->get(ContainerInterface::class);
@@ -323,10 +325,12 @@ final class Container implements ContainerInterface
     /**
      * @throws InvalidConfigException
      */
-    private function validateMeta(array $meta): void
+    private function validateMeta(iterable $meta): void
     {
         /** @var mixed $value */
+        /** @psalm-suppress MixedAssignment */
         foreach ($meta as $key => $value) {
+            $key = (string)$key;
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
                     sprintf(
@@ -353,10 +357,10 @@ final class Container implements ContainerInterface
      */
     private function validateDefinitionTags(mixed $tags): void
     {
-        if (!is_array($tags)) {
+        if (!is_iterable($tags)) {
             throw new InvalidConfigException(
                 sprintf(
-                    'Invalid definition: tags should be array of strings, %s given.',
+                    'Invalid definition: tags should be either iterable or array of strings, %s given.',
                     get_debug_type($tags)
                 )
             );
@@ -387,7 +391,7 @@ final class Container implements ContainerInterface
     /**
      * @throws InvalidConfigException
      */
-    private function setTags(array $tags): void
+    private function setTags(iterable $tags): void
     {
         if ($this->validate) {
             foreach ($tags as $tag => $services) {
@@ -395,14 +399,14 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should be string, %s given.',
-                            $tag
+                            get_debug_type($services)
                         )
                     );
                 }
-                if (!is_array($services)) {
+                if (!is_iterable($services)) {
                     throw new InvalidConfigException(
                         sprintf(
-                            'Invalid tags configuration: tag should contain array of service IDs, %s given.',
+                            'Invalid tags configuration: tag should be either iterable or array of service IDs, %s given.',
                             get_debug_type($services)
                         )
                     );
@@ -420,18 +424,26 @@ final class Container implements ContainerInterface
                 }
             }
         }
-        /** @psalm-var array<string, list<string>> $tags */
+        /** @psalm-var iterable<string, iterable<string>> $tags */
 
-        $this->tags = $tags;
+        $this->tags = $tags instanceof Traversable ? iterator_to_array($tags, true) : $tags ;
     }
 
     /**
      * @psalm-param string[] $tags
      */
-    private function setDefinitionTags(string $id, array $tags): void
+    private function setDefinitionTags(string $id, iterable $tags): void
     {
         foreach ($tags as $tag) {
-            if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
+            if (!isset($this->tags[$tag])) {
+                $this->tags[$tag] = [$id];
+                continue;
+            }
+
+            $tags = $this->tags[$tag];
+            $tags = $tags instanceof Traversable ? iterator_to_array($tags, true) : $tags;
+            if (!in_array($id, $tags, true)) {
+                /** @psalm-suppress PossiblyInvalidArrayAssignment */
                 $this->tags[$tag][] = $id;
             }
         }
@@ -537,7 +549,7 @@ final class Container implements ContainerInterface
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      */
-    private function addProviders(array $providers): void
+    private function addProviders(iterable $providers): void
     {
         $extensions = [];
         /** @var mixed $provider */

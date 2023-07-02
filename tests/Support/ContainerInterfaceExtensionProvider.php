@@ -9,12 +9,12 @@ use Yiisoft\Di\ServiceProviderInterface;
 
 final class ContainerInterfaceExtensionProvider implements ServiceProviderInterface
 {
-    public function getDefinitions(): array
+    public function getDefinitions(): iterable
     {
         return [];
     }
 
-    public function getExtensions(): array
+    public function getExtensions(): iterable
     {
         return [
             ContainerInterface::class => static fn (ContainerInterface $container, ContainerInterface $extended) => $container,

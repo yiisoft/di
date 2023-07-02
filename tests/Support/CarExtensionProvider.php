@@ -9,12 +9,12 @@ use Yiisoft\Di\ServiceProviderInterface;
 
 final class CarExtensionProvider implements ServiceProviderInterface
 {
-    public function getDefinitions(): array
+    public function getDefinitions(): iterable
     {
         return [];
     }
 
-    public function getExtensions(): array
+    public function getExtensions(): iterable
     {
         return [
             Car::class => static function (ContainerInterface $container, Car $car) {

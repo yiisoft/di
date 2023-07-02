@@ -9,11 +9,11 @@ namespace Yiisoft\Di;
  */
 final class ContainerConfig implements ContainerConfigInterface
 {
-    private array $definitions = [];
-    private array $providers = [];
-    private array $tags = [];
+    private iterable $definitions = [];
+    private iterable $providers = [];
+    private iterable $tags = [];
     private bool $validate = true;
-    private array $delegates = [];
+    private iterable $delegates = [];
     private bool $useStrictMode = false;
 
     private function __construct()
@@ -26,46 +26,46 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array $definitions Definitions to put into container.
+     * @param iterable $definitions Definitions to put into container.
      */
-    public function withDefinitions(array $definitions): self
+    public function withDefinitions(iterable $definitions): self
     {
         $new = clone $this;
         $new->definitions = $definitions;
         return $new;
     }
 
-    public function getDefinitions(): array
+    public function getDefinitions(): iterable
     {
         return $this->definitions;
     }
 
     /**
-     * @param array $providers Service providers to get definitions from.
+     * @param iterable $providers Service providers to get definitions from.
      */
-    public function withProviders(array $providers): self
+    public function withProviders(iterable $providers): self
     {
         $new = clone $this;
         $new->providers = $providers;
         return $new;
     }
 
-    public function getProviders(): array
+    public function getProviders(): iterable
     {
         return $this->providers;
     }
 
     /**
-     * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @param iterable $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
-    public function withTags(array $tags): self
+    public function withTags(iterable $tags): self
     {
         $new = clone $this;
         $new->tags = $tags;
         return $new;
     }
 
-    public function getTags(): array
+    public function getTags(): iterable
     {
         return $this->tags;
     }
@@ -86,18 +86,18 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array $delegates Container delegates. Each delegate is a callable in format
+     * @param iterable $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can not be found in primary container.
      */
-    public function withDelegates(array $delegates): self
+    public function withDelegates(iterable $delegates): self
     {
         $new = clone $this;
         $new->delegates = $delegates;
         return $new;
     }
 
-    public function getDelegates(): array
+    public function getDelegates(): iterable
     {
         return $this->delegates;
     }

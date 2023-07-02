@@ -10,14 +10,18 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Definitions\DynamicReference;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\ExtensibleService;
 use Yiisoft\Di\NotFoundException;
-use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
+use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\A;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
@@ -41,15 +45,11 @@ use Yiisoft\Di\Tests\Support\OptionalConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Di\Tests\Support\SportCar;
 use Yiisoft\Di\Tests\Support\TreeItem;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
-use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
 use Yiisoft\Di\Tests\Support\UnionTypeInConstructorFirstTypeInParamResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondParamNotResolvable;
+use Yiisoft\Di\Tests\Support\UnionTypeInConstructorSecondTypeInParamResolvable;
 use Yiisoft\Di\Tests\Support\VariadicConstructor;
-use Yiisoft\Definitions\DynamicReference;
-use Yiisoft\Definitions\Exception\CircularReferenceException;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -1087,6 +1087,30 @@ final class ContainerTest extends TestCase
         $this->assertSame(EngineMarkTwo::class, $engines[0]::class);
     }
 
+    public function testTagsIterable(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'tags' => ['engine'],
+                ],
+                EngineMarkTwo::class => [
+                    'class' => EngineMarkTwo::class,
+                ],
+            ])
+            ->withTags(['engine' => new ArrayIterator([EngineMarkTwo::class])])
+            ->withValidate(true);
+        $container = new Container($config);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, $engines[1]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[0]::class);
+    }
+
     public function testTagsWithExternalDefinitionMerge(): void
     {
         $config = ContainerConfig::create()
@@ -1373,7 +1397,7 @@ final class ContainerTest extends TestCase
             ])
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [
                             StateResetter::class => static function (ContainerInterface $container) {
@@ -1388,7 +1412,7 @@ final class ContainerTest extends TestCase
                         ];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [];
                     }
@@ -1418,12 +1442,12 @@ final class ContainerTest extends TestCase
             ])
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             StateResetter::class => static function (
@@ -1598,7 +1622,7 @@ final class ContainerTest extends TestCase
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
         $provider = new class () implements ServiceProviderInterface {
-            public function getDefinitions(): array
+            public function getDefinitions(): iterable
             {
                 return [
                     // E.g. wrapping container with proxy class
@@ -1606,7 +1630,7 @@ final class ContainerTest extends TestCase
                 ];
             }
 
-            public function getExtensions(): array
+            public function getExtensions(): iterable
             {
                 return [];
             }
@@ -1631,14 +1655,14 @@ final class ContainerTest extends TestCase
     public function testDifferentContainerWithProviders(): void
     {
         $provider = new class () implements ServiceProviderInterface {
-            public function getDefinitions(): array
+            public function getDefinitions(): iterable
             {
                 return [
                     ContainerInterface::class => static fn (ContainerInterface $container) => new Container(ContainerConfig::create()),
                 ];
             }
 
-            public function getExtensions(): array
+            public function getExtensions(): iterable
             {
                 return [];
             }
@@ -1846,12 +1870,12 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             23 => static fn (ContainerInterface $container, StateResetter $resetter) => $resetter,
@@ -1870,12 +1894,12 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withProviders([
                 new class () implements ServiceProviderInterface {
-                    public function getDefinitions(): array
+                    public function getDefinitions(): iterable
                     {
                         return [];
                     }
 
-                    public function getExtensions(): array
+                    public function getExtensions(): iterable
                     {
                         return [
                             ColorPink::class => [],
@@ -1920,7 +1944,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be array of strings, string given.'
+            'Invalid definition: tags should be either iterable or array of strings, string given.'
         );
         new Container($config);
     }
@@ -1939,22 +1963,22 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessage(
             'Invalid definition: incorrect method "setNumber()" arguments. Expected array, got "int". Probably you should wrap them into square brackets.',
         );
-        $container = new Container($config);
+        new Container($config);
     }
 
     public function dataInvalidTags(): array
     {
         return [
             [
-                '/^Invalid tags configuration: tag should be string, 42 given\.$/',
+                'Invalid tags configuration: tag should be string, array given.',
                 [42 => [EngineMarkTwo::class]],
             ],
             [
-                '/^Invalid tags configuration: tag should contain array of service IDs, (integer|int) given\.$/',
+                'Invalid tags configuration: tag should be either iterable or array of service IDs, int given.',
                 ['engine' => 42],
             ],
             [
-                '/^Invalid tags configuration: service should be defined as class string, (integer|int) given\.$/',
+                'Invalid tags configuration: service should be defined as class string, int given.',
                 ['engine' => [42]],
             ],
         ];
@@ -1969,7 +1993,28 @@ final class ContainerTest extends TestCase
             ->withTags($tags);
 
         $this->expectException(InvalidConfigException::class);
-        $this->expectExceptionMessageMatches($message);
+        $this->expectExceptionMessage($message);
         new Container($config);
+    }
+
+    public function testSupportIterableDefinitions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions(
+                (function () {
+                    yield from [
+                        EngineMarkOne::class => [
+                            'class' => EngineMarkOne::class,
+                            'setNumber()' => [42],
+                        ],
+                    ];
+                })()
+            );
+
+        $container = new Container($config);
+
+        $this->assertTrue($container->has(EngineMarkOne::class));
+        $engine = $container->get(EngineMarkOne::class);
+        $this->assertEquals(42, $engine->getNumber());
     }
 }
