@@ -2,7 +2,7 @@
 
 ## 2.0.0 under development
 
-- Chg #299: Improve containers types to use iterable objects (@xepozz)
+- Chg #299: Improve types to use iterable objects (@xepozz)
 
 ## 1.2.1 December 23, 2022
 
