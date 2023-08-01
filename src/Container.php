@@ -209,7 +209,7 @@ final class Container implements ContainerInterface
             $this->validateMeta($meta);
         }
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @psalm-var array{reset?:Closure,lazy?:bool,tags?:string[]} $meta
          */
 
         if (isset($meta[self::META_TAGS])) {
