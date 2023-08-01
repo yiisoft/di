@@ -16,7 +16,9 @@ class LazyServiceContainerTest extends TestCase
     protected function setUp(): void
     {
         if (!class_exists(LazyLoadingValueHolderFactory::class)) {
-            $this->markTestSkipped('You should install `friendsofphp/proxy-manager-lts` if you want to use lazy services.');
+            $this->markTestSkipped(
+                'You should install `friendsofphp/proxy-manager-lts` if you want to use lazy services.'
+            );
         }
     }
 
@@ -69,32 +71,48 @@ class LazyServiceContainerTest extends TestCase
     public function lazyDefinitionDataProvider(): array
     {
         return [
+            'class as definition name' => [
+                [
+                    EngineMarkOne::class => [
+                        'lazy' => true,
+                    ],
+                ],
+                EngineMarkOne::class,
+            ],
             'class as key' => [
-                [EngineMarkOne::class => [
-                    'class' => EngineMarkOne::class,
-                    'lazy' => true,
-                ]],
+                [
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'lazy' => true,
+                    ],
+                ],
                 EngineMarkOne::class,
             ],
             'alias as key' => [
-                ['mark_one' => [
-                    'class' => EngineMarkOne::class,
-                    'lazy' => true,
-                ]],
+                [
+                    'mark_one' => [
+                        'class' => EngineMarkOne::class,
+                        'lazy' => true,
+                    ],
+                ],
                 'mark_one',
             ],
             'dedicated array definition' => [
-                [EngineMarkOne::class => [
-                    'definition' => ['class' => EngineMarkOne::class],
-                    'lazy' => true,
-                ]],
+                [
+                    EngineMarkOne::class => [
+                        'definition' => ['class' => EngineMarkOne::class],
+                        'lazy' => true,
+                    ],
+                ],
                 EngineMarkOne::class,
             ],
             'dedicated callback definition' => [
-                [EngineMarkOne::class => [
-                    'definition' => fn () => new EngineMarkOne(),
-                    'lazy' => true,
-                ]],
+                [
+                    EngineMarkOne::class => [
+                        'definition' => fn () => new EngineMarkOne(),
+                        'lazy' => true,
+                    ],
+                ],
                 EngineMarkOne::class,
             ],
         ];
