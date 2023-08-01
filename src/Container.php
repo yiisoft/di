@@ -10,8 +10,8 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
-use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Contract\DefinitionInterface;
+use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -643,6 +643,10 @@ final class Container implements ContainerInterface
                 )
             );
         }
+
+        /**
+         * @var class-string $class
+         */
 
         return new LazyDefinition($definition, $class);
     }
