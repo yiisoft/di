@@ -29,7 +29,7 @@ use function is_object;
 use function is_string;
 
 /**
- * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
+ * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
  */
 final class Container implements ContainerInterface
 {
