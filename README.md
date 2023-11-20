@@ -348,7 +348,7 @@ applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner]
 reset the state of such services every request. For this purpose you can use `StateResetter` with resetters callbacks:
 
 ```php
-$resetter = new StateResetter();
+$resetter = new StateResetter($container);
 $resetter->setResetters([
     MyServiceInterface::class => function () {
         $this->reset(); // a method of MyServiceInterface
@@ -406,8 +406,8 @@ To manually add resetters or in case you use Yii DI composite container with a t
 MyServiceInterface::class => function () {
     // ...
 },
-StateResetter::class => function () {
-    $resetter = new StateResetter();
+StateResetter::class => function (ContainerInterface $container) {
+    $resetter = new StateResetter($container);
     $resetter->setResetters([
         MyServiceInterface::class => function () {
             $this->reset(); // a method of MyServiceInterface
