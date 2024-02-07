@@ -32,7 +32,7 @@
         "maglnet/composer-require-checker": "^4.2",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^0.19.0",
+        "rector/rector": "^1.0.0",
         "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.30|^5.7",
