@@ -35,7 +35,7 @@ final class TagReferenceTest extends TestCase
     public function testReference(): void
     {
         $reference = TagReference::to('test');
-        $spyContainer = new class implements ContainerInterface {
+        $spyContainer = new class () implements ContainerInterface {
             public function get($id)
             {
                 return $id;
