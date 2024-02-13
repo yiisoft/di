@@ -19,7 +19,7 @@ final class AfterBuiltHookTest extends TestCase
             ->withDefinitions([
                 EngineInterface::class => [
                     'class' => EngineMarkOne::class,
-                    'afterBuilt' => AfterBuiltHook::unsetInstance()
+                    'afterBuilt' => AfterBuiltHook::unsetInstance(),
                 ],
             ]);
         $container = new Container($config);
