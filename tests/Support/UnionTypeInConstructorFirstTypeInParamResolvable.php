@@ -9,4 +9,9 @@ final class UnionTypeInConstructorFirstTypeInParamResolvable
     public function __construct(private EngineMarkOne|EngineInterface $engine)
     {
     }
+
+    public function getEngine(): EngineMarkOne|EngineInterface
+    {
+        return $this->engine;
+    }
 }

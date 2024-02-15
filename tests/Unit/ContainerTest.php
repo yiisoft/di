@@ -1974,17 +1974,43 @@ final class ContainerTest extends TestCase
         new Container($config);
     }
 
-    public function testArgumentNameBinding()
+    public function testArgumentNameBindingTyped(): void
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                EngineInterface::class . '$markOne' => EngineMarkOne::class,
-                EngineInterface::class . '$markTwo' => EngineMarkTwo::class,
+                EngineInterface::class . ' $markOne' => EngineMarkOne::class,
+                EngineInterface::class . ' $markTwo' => EngineMarkTwo::class,
             ]);
         $container = new Container($config);
 
         $class = $container->get(ArgumentNameBinding::class);
         $this->assertInstanceOf(EngineMarkOne::class, $class->markOne);
         $this->assertInstanceOf(EngineMarkTwo::class, $class->markTwo);
+    }
+
+    public function testArgumentNameBindingUntyped(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                '$markOne' => EngineMarkOne::class,
+                '$markTwo' => EngineMarkTwo::class,
+            ]);
+        $container = new Container($config);
+
+        $class = $container->get(ArgumentNameBinding::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $class->markOne);
+        $this->assertInstanceOf(EngineMarkTwo::class, $class->markTwo);
+    }
+
+    public function testArgumentNameBindingUnionTypes(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                '$engine' => EngineMarkOne::class,
+            ]);
+        $container = new Container($config);
+
+        $class = $container->get(UnionTypeInConstructorFirstTypeInParamResolvable::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $class->getEngine());
     }
 }
