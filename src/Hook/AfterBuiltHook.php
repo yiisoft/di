@@ -15,6 +15,7 @@ final class AfterBuiltHook
             /**
              * @var $this Container
              */
+            /** @psalm-scope-this Container */
             unset($this->instances[$id]);
         };
     }

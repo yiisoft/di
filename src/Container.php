@@ -145,6 +145,7 @@ final class Container implements ContainerInterface
         if (!array_key_exists($id, $this->instances)) {
             try {
                 try {
+                    /** @psalm-suppress MixedAssignment */
                     $result = $this->instances[$id] = $this->build($id);
                 } catch (NotFoundExceptionInterface $e) {
                     if (!$this->delegates->has($id)) {
@@ -215,7 +216,7 @@ final class Container implements ContainerInterface
             $this->validateMeta($meta);
         }
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @psalm-var array{reset?:Closure,tags?:string[],afterBuilt?:Closure} $meta
          */
 
         if (isset($meta[self::META_TAGS])) {

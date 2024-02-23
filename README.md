@@ -371,6 +371,7 @@ function (Container $container, string $id) {
     /**
      * @var $this Container
      */
+    /** @psalm-scope-this Container */
     unset($this->instances[$id]); // remove the instance from the container
 };
 ```
