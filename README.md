@@ -341,6 +341,41 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
+## Name binding
+
+Name binding is a way to bind a name to a definition. It is used to resolve a definition not by its class name but by a name.
+
+Set a definitions with a specific name. It may be typed or untyped reference like:
+1. `'$serviceName' => $definition`
+2. `Service::class . ' $serviceName' => $definition`
+
+```php
+return [
+   '$fileCache' => FileCache::class, // implements CacheInterface
+   '$redisCache' => RedisCache::class, // implements CacheInterface
+   CacheInterface::class . ' $memCache' => MemCache::class, // also implements CacheInterface
+]
+```
+
+So now you can resolve a definition by its name:
+
+```php
+class MyService
+{
+    public function __construct(
+        CacheInterface $memCache, // typed reference
+        $fileCache, // untyped reference
+        CacheInterface $redisCache, // typed reference to untyped definition
+    ) {
+        // ...
+    }
+}
+```
+
+```php
+$container->get(MyService::class); // returns an instance of MyService
+```
+
 ## Resetting services state
 
 Despite stateful services isn't a great practice, these are often inevitable. When you build long-running

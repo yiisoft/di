@@ -19,6 +19,7 @@ use Yiisoft\Di\NotFoundException;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\ServiceProviderInterface;
 use Yiisoft\Di\Tests\Support\A;
+use Yiisoft\Di\Tests\Support\ArgumentNameBinding;
 use Yiisoft\Di\Tests\Support\B;
 use Yiisoft\Di\Tests\Support\Car;
 use Yiisoft\Di\Tests\Support\CarFactory;
@@ -145,7 +146,7 @@ final class ContainerTest extends TestCase
     /**
      * @dataProvider dataHas
      */
-    public function testHas(bool $expected, $id): void
+    public function testHas(bool $expected, string $id): void
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -1971,5 +1972,45 @@ final class ContainerTest extends TestCase
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessageMatches($message);
         new Container($config);
+    }
+
+    public function testArgumentNameBindingTyped(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                EngineInterface::class . ' $markOne' => EngineMarkOne::class,
+                EngineInterface::class . ' $markTwo' => EngineMarkTwo::class,
+            ]);
+        $container = new Container($config);
+
+        $class = $container->get(ArgumentNameBinding::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $class->markOne);
+        $this->assertInstanceOf(EngineMarkTwo::class, $class->markTwo);
+    }
+
+    public function testArgumentNameBindingUntyped(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                '$markOne' => EngineMarkOne::class,
+                '$markTwo' => EngineMarkTwo::class,
+            ]);
+        $container = new Container($config);
+
+        $class = $container->get(ArgumentNameBinding::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $class->markOne);
+        $this->assertInstanceOf(EngineMarkTwo::class, $class->markTwo);
+    }
+
+    public function testArgumentNameBindingUnionTypes(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                '$engine' => EngineMarkOne::class,
+            ]);
+        $container = new Container($config);
+
+        $class = $container->get(UnionTypeInConstructorFirstTypeInParamResolvable::class);
+        $this->assertInstanceOf(EngineMarkOne::class, $class->getEngine());
     }
 }
