@@ -2,7 +2,7 @@
 
 ## 1.2.2 under development
 
-- no changes in this release.
+- Enh #353: Add shortcut for tag reference #333 (@xepozz)
 
 ## 1.2.1 December 23, 2022
 

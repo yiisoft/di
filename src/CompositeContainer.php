@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 use Throwable;
-use Yiisoft\Di\Helpers\TagHelper;
+use Yiisoft\Di\Reference\TagReference;
 
 use function is_string;
 
@@ -54,7 +54,7 @@ final class CompositeContainer implements ContainerInterface
             return $stateResetter;
         }
 
-        if (TagHelper::isTagAlias($id)) {
+        if (TagReference::isTagAlias($id)) {
             $tags = [];
             foreach ($this->containers as $container) {
                 if (!$container instanceof Container) {
