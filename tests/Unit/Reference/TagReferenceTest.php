@@ -12,10 +12,19 @@ use Yiisoft\Di\Reference\TagReference;
 
 final class TagReferenceTest extends TestCase
 {
-    public function testClosedConstructor(): void
+    public function testConstructorIsPrivate(): void
     {
         $this->expectException(Error::class);
         new TagReference();
+    }
+
+    public function testConstructor(): void
+    {
+        $reflection = new \ReflectionClass(TagReference::class);
+        $reflectionMethod = $reflection->getConstructor();
+        $this->assertTrue($reflectionMethod->isPrivate());
+
+        $reflectionMethod->invoke($reflection->newInstanceWithoutConstructor());
     }
 
     public function testAliases(): void
