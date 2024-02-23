@@ -3,6 +3,7 @@
 ## 1.2.2 under development
 
 - Enh #352: Support parameters name binding (@xepozz)
+- Enh #353: Add shortcut for tag reference #333 (@xepozz)
 
 ## 1.2.1 December 23, 2022
 
