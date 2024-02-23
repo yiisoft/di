@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Tests\Unit\Reference;
 
+use Error;
+use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -11,6 +13,12 @@ use Yiisoft\Di\Reference\TagReference;
 
 final class TagReferenceTest extends TestCase
 {
+    public function testClosedConstructor(): void
+    {
+        $this->expectException(Error::class);
+        new TagReference();
+    }
+
     public function testAliases(): void
     {
         $this->assertFalse(TagReference::isTagAlias('test'));
