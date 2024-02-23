@@ -2,7 +2,7 @@
 
 ## 1.2.2 under development
 
-- no changes in this release.
+- Enh #352: Support parameters name binding (@xepozz)
 
 ## 1.2.1 December 23, 2022
 
