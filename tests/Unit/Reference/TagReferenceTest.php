@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit\Reference;
 
 use Error;
-use Exception;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
