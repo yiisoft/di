@@ -341,6 +341,40 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
+## Using the container as a factory
+
+You can use the container as a factory to create objects. 
+This is useful when you need to create an object every time from the bottom.
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\Hook\AfterBuiltHook;
+
+$config = ContainerConfig::create()
+    ->withDefinitions([  
+        BlueCarService::class => [
+            'class' => BlueCarService::class,
+            'afterBuilt' => AfterBuiltHook::unsetInstance(), // it will be called after the object is created
+        ],
+    ]);
+
+$container = new Container($config);
+
+$container->get(BlueCarService::class) !== $container->get(BlueCarService::class); // true
+```
+
+You may use `afterBuilt` as you want. The value of the key must be a callable with the following signature:
+
+```php
+function (Container $container, string $id) {
+    /**
+     * @var $this Container
+     */
+    unset($this->instances[$id]); // remove the instance from the container
+};
+```
+
 ## Resetting services state
 
 Despite stateful services isn't a great practice, these are often inevitable. When you build long-running

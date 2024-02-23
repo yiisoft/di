@@ -2,7 +2,7 @@
 
 ## 1.2.2 under development
 
-- no changes in this release.
+- Enh #354: Add ability to use container as a factory (@xepozz)
 
 ## 1.2.1 December 23, 2022
 
