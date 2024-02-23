@@ -315,7 +315,7 @@ $container = new Container($config);
 Now you can get tagged services from the container in the following way:
 
 ```php
-$container->get('tag@car');
+$container->get(\Yiisoft\Di\Reference\TagReference::to('car'));
 ```
 
 The result is an array that has two instances: `BlueCarService` and `RedCarService`.
@@ -504,8 +504,9 @@ $container = new Container($config);
 
 To run benchmarks execute the next command
 
-`composer require phpbench/phpbench` 
-`$ ./vendor/bin/phpbench run`
+```shell
+./vendor/bin/phpbench run
+```
 
 Result example
 
