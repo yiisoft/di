@@ -23,13 +23,16 @@ final class TagReferenceTest extends TestCase
         $this->assertEquals('test', TagReference::extractTagFromAlias('tag@test'));
     }
 
-    public function testExtractWrongTag(): void
+    public function testExtractWrongTagDelimiter(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        TagReference::extractTagFromAlias('tag#test');
+    }
+
+    public function testExtractWrongTagFormat(): void
     {
         $this->expectException(InvalidArgumentException::class);
         TagReference::extractTagFromAlias('test');
-
-        $this->expectException(InvalidArgumentException::class);
-        TagReference::extractTagFromAlias('tag#test');
     }
 
     public function testReference(): void
