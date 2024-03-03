@@ -10,11 +10,13 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
+use Yiisoft\Definitions\LazyDefinition;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Reference\TagReference;
@@ -35,7 +37,8 @@ final class Container implements ContainerInterface
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+    private const META_LAZY = 'lazy';
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET, self::META_LAZY];
 
     /**
      * @var DefinitionStorage Storage of object definitions.
@@ -206,7 +209,7 @@ final class Container implements ContainerInterface
             $this->validateMeta($meta);
         }
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @psalm-var array{reset?:Closure,lazy?:bool,tags?:string[]} $meta
          */
 
         if (isset($meta[self::META_TAGS])) {
@@ -214,6 +217,9 @@ final class Container implements ContainerInterface
         }
         if (isset($meta[self::META_RESET])) {
             $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+        }
+        if (isset($meta[self::META_LAZY]) && $meta[self::META_LAZY] === true) {
+            $definition = $this->decorateLazy($id, $definition);
         }
 
         unset($this->instances[$id]);
@@ -620,5 +626,28 @@ final class Container implements ContainerInterface
         }
 
         return $providerInstance;
+    }
+
+    private function decorateLazy(string $id, mixed $definition): DefinitionInterface
+    {
+        if (class_exists($id) || interface_exists($id)) {
+            $class = $id;
+        } elseif (is_array($definition) && array_key_exists(ArrayDefinition::CLASS_NAME, $definition)) {
+            $class = (string) $definition[ArrayDefinition::CLASS_NAME];
+        } else {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Invalid definition: lazy services are only available with array definitions or references. Got type "%s" for definition ID: "%s"',
+                    get_debug_type($definition),
+                    $id,
+                )
+            );
+        }
+
+        /**
+         * @var class-string $class
+         */
+
+        return new LazyDefinition($definition, $class);
     }
 }
