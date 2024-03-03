@@ -32,6 +32,8 @@ use function is_string;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
+ *
+ * @psalm-import-type MethodOrPropertyItem from ArrayDefinition
  */
 final class Container implements ContainerInterface
 {
@@ -202,7 +204,6 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
@@ -630,11 +631,42 @@ final class Container implements ContainerInterface
 
     private function decorateLazy(string $id, mixed $definition): DefinitionInterface
     {
-        if (class_exists($id) || interface_exists($id)) {
-            $class = $id;
-        } elseif (is_array($definition) && array_key_exists(ArrayDefinition::CLASS_NAME, $definition)) {
-            $class = (string) $definition[ArrayDefinition::CLASS_NAME];
+        $class = class_exists($id) || interface_exists($id) ? $id : null;
+
+        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /**
+             * @psalm-var array{
+             *     class: class-string|null,
+             *     '__construct()': array,
+             *     methodsAndProperties: array<string, MethodOrPropertyItem>
+             * } $definition
+            */
+            if (empty($class)) {
+                $class = $definition[ArrayDefinition::CLASS_NAME];
+            }
+            $this->checkClassOnNullForLazyService($class, $id, $definition);
+            $preparedDefinition = ArrayDefinition::fromPreparedData(
+                $definition[ArrayDefinition::CLASS_NAME] ?? $class,
+                $definition[ArrayDefinition::CONSTRUCTOR],
+                $definition['methodsAndProperties'],
+            );
         } else {
+            $this->checkClassOnNullForLazyService($class, $id, $definition);
+            $preparedDefinition = $definition;
+        }
+
+
+
+        return new LazyDefinition($preparedDefinition, $class);
+    }
+
+    /**
+     * @psalm-param class-string|null $class
+     * @psalm-assert class-string $class
+     */
+    private function checkClassOnNullForLazyService(?string $class, string $id, mixed $definition): void
+    {
+        if (empty($class)) {
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: lazy services are only available with array definitions or references. Got type "%s" for definition ID: "%s"',
@@ -643,11 +675,5 @@ final class Container implements ContainerInterface
                 )
             );
         }
-
-        /**
-         * @var class-string $class
-         */
-
-        return new LazyDefinition($definition, $class);
     }
 }
