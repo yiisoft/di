@@ -15,13 +15,13 @@
 [![static analysis](https://github.com/yiisoft/di/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/di/coverage.svg)](https://shepherd.dev/github/yiisoft/di)
 
-[PSR-11](http://www.php-fig.org/psr/psr-11/) compatible
-[dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container that's able to instantiate
+[PSR-11](https://www.php-fig.org/psr/psr-11/) compatible
+[dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container that's able to instantiate
 and configure classes resolving dependencies.
 
 ## Features
 
-- [PSR-11](http://www.php-fig.org/psr/psr-11/) compatible.
+- [PSR-11](https://www.php-fig.org/psr/psr-11/) compatible.
 - Supports property injection, constructor injection and method injection.
 - Detects circular references.
 - Accepts array definitions. You can use it with mergeable configs.
@@ -315,7 +315,7 @@ $container = new Container($config);
 Now you can get tagged services from the container in the following way:
 
 ```php
-$container->get('tag@car');
+$container->get(\Yiisoft\Di\Reference\TagReference::to('car'));
 ```
 
 The result is an array that has two instances: `BlueCarService` and `RedCarService`.
@@ -348,7 +348,7 @@ applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner]
 reset the state of such services every request. For this purpose you can use `StateResetter` with resetters callbacks:
 
 ```php
-$resetter = new StateResetter();
+$resetter = new StateResetter($container);
 $resetter->setResetters([
     MyServiceInterface::class => function () {
         $this->reset(); // a method of MyServiceInterface
@@ -406,8 +406,8 @@ To manually add resetters or in case you use Yii DI composite container with a t
 MyServiceInterface::class => function () {
     // ...
 },
-StateResetter::class => function () {
-    $resetter = new StateResetter();
+StateResetter::class => function (ContainerInterface $container) {
+    $resetter = new StateResetter($container);
     $resetter->setResetters([
         MyServiceInterface::class => function () {
             $this->reset(); // a method of MyServiceInterface
@@ -497,15 +497,16 @@ $container = new Container($config);
 
 ## Further reading
 
-- [Martin Fowler's article](http://martinfowler.com/articles/injection.html).
+- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
 
 
 # Benchmarks
 
 To run benchmarks execute the next command
 
-`composer require phpbench/phpbench` 
-`$ ./vendor/bin/phpbench run`
+```shell
+./vendor/bin/phpbench run
+```
 
 Result example
 

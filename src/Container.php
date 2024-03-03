@@ -19,7 +19,7 @@ use Yiisoft\Definitions\Helpers\DefinitionValidator;
 use Yiisoft\Definitions\LazyDefinition;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
-use Yiisoft\Di\Helpers\TagHelper;
+use Yiisoft\Di\Reference\TagReference;
 
 use function array_key_exists;
 use function array_keys;
@@ -31,7 +31,7 @@ use function is_object;
 use function is_string;
 
 /**
- * Container implements a [dependency injection](http://en.wikipedia.org/wiki/Dependency_injection) container.
+ * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
  */
 final class Container implements ContainerInterface
 {
@@ -104,8 +104,8 @@ final class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
-        if (TagHelper::isTagAlias($id)) {
-            $tag = TagHelper::extractTagFromAlias($id);
+        if (TagReference::isTagAlias($id)) {
+            $tag = TagReference::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
         }
 
@@ -478,7 +478,7 @@ final class Container implements ContainerInterface
      */
     private function build(string $id)
     {
-        if (TagHelper::isTagAlias($id)) {
+        if (TagReference::isTagAlias($id)) {
             return $this->getTaggedServices($id);
         }
 
@@ -508,7 +508,7 @@ final class Container implements ContainerInterface
 
     private function getTaggedServices(string $tagAlias): array
     {
-        $tag = TagHelper::extractTagFromAlias($tagAlias);
+        $tag = TagReference::extractTagFromAlias($tagAlias);
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {

@@ -17,7 +17,7 @@
         "issues": "https://github.com/yiisoft/di/issues?state=open",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
-        "irc": "irc://irc.freenode.net/yii",
+        "irc": "ircs://irc.libera.chat:6697/yii",
         "chat": "https://t.me/yii3en",
         "source": "https://github.com/yiisoft/di"
     },
@@ -33,7 +33,7 @@
         "friendsofphp/proxy-manager-lts": "^1.0",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^9.5",
-        "rector/rector": "^0.17.0",
+        "rector/rector": "^1.0.0",
         "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.30|^5.7",
