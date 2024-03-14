@@ -1973,12 +1973,20 @@ final class ContainerTest extends TestCase
         new Container($config);
     }
 
-    public function testNotFoundExceptionMessageWithDefinitions(): void
+    public static function dataNotFoundExceptionMessageWithDefinitions(): array
     {
-        $config = ContainerConfig::create()
-            ->withDefinitions([
-                SportCar::class => SportCar::class,
-            ]);
+        return [
+            'without-definition' => [[]],
+            'with-definition' => [[SportCar::class => SportCar::class]],
+        ];
+    }
+
+    /**
+     * @dataProvider dataNotFoundExceptionMessageWithDefinitions
+     */
+    public function testNotFoundExceptionMessageWithDefinitions(array $definitions): void
+    {
+        $config = ContainerConfig::create()->withDefinitions($definitions);
         $container = new Container($config);
 
         $this->expectException(NotFoundException::class);

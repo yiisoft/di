@@ -24,12 +24,12 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
     ) {
         if (empty($this->buildStack)) {
             $message = sprintf('No definition or class found or resolvable for "%s".', $id);
-        } elseif (count($this->buildStack) === 1) {
+        } elseif ($this->buildStack === [$id]) {
             $message = sprintf('No definition or class found or resolvable for "%s" while building it.', $id);
         } else {
             $message = sprintf(
                 'No definition or class found or resolvable for "%s" while building "%s".',
-                $id,
+                end($this->buildStack),
                 implode('" -> "', $buildStack),
             );
         }
