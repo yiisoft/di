@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Throwable;
 use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -51,6 +52,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -2000,5 +2002,32 @@ final class ContainerTest extends TestCase
             . '".'
         );
         $container->get(SportCar::class);
+    }
+
+    public function testNotFoundExceptionWithNotYiiContainer(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                ContainerInterface::class => new SimpleContainer(),
+                SportCar::class => SportCar::class,
+            ]);
+        $container = new Container($config);
+
+        $exception = null;
+        try {
+            $container->get(SportCar::class);
+        } catch (Throwable $e) {
+            $exception = $e;
+        }
+
+        $this->assertInstanceOf(NotFoundException::class, $exception);
+        $this->assertSame(
+            'No definition or class found or resolvable for "' . SportCar::class . '" while building it.',
+            $exception->getMessage()
+        );
+        $this->assertInstanceOf(
+            \Yiisoft\Test\Support\Container\Exception\NotFoundException::class,
+            $exception->getPrevious()
+        );
     }
 }
