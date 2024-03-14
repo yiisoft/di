@@ -144,7 +144,7 @@ final class Container implements ContainerInterface
                             if ($id !== $exception->getId()) {
                                 $buildStack = $exception->getBuildStack();
                                 array_unshift($buildStack, $id);
-                                throw new NotFoundException($id, $buildStack);
+                                throw new NotFoundException($exception->getId(), $buildStack);
                             }
                             throw $exception;
                         }

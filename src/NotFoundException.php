@@ -22,16 +22,19 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
         private array $buildStack = [],
         ?Throwable $previous = null,
     ) {
-        $message = $id;
-        if ($buildStack !== []) {
-            $last = end($buildStack);
-            $message = sprintf('%s" while building %s', $last, '"' . implode('" -> "', $buildStack));
+        if (empty($this->buildStack)) {
+            $message = sprintf('No definition or class found or resolvable for "%s".', $id);
+        } elseif (count($this->buildStack) === 1) {
+            $message = sprintf('No definition or class found or resolvable for "%s" while building it.', $id);
+        } else {
+            $message = sprintf(
+                'No definition or class found or resolvable for "%s" while building "%s".',
+                $id,
+                implode('" -> "', $buildStack),
+            );
         }
 
-        parent::__construct(
-            sprintf('No definition or class found or resolvable for "%s".', $message),
-            previous: $previous,
-        );
+        parent::__construct($message, previous: $previous);
     }
 
     public function getId(): string
