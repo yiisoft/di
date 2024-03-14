@@ -1972,4 +1972,25 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessageMatches($message);
         new Container($config);
     }
+
+    public function testNotFoundExceptionMessageWithDefinitions(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                SportCar::class => SportCar::class,
+            ]);
+        $container = new Container($config);
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage(
+            'No definition or class found or resolvable for "'
+            . EngineInterface::class
+            . '" while building "'
+            . SportCar::class
+            . '" -> "'
+            . EngineInterface::class
+            . '".'
+        );
+        $container->get(SportCar::class);
+    }
 }

@@ -138,9 +138,17 @@ final class Container implements ContainerInterface
             try {
                 try {
                     $this->instances[$id] = $this->build($id);
-                } catch (NotFoundExceptionInterface $e) {
+                } catch (NotFoundExceptionInterface $exception) {
                     if (!$this->delegates->has($id)) {
-                        throw $e;
+                        if ($exception instanceof NotFoundException) {
+                            if ($id !== $exception->getId()) {
+                                $buildStack = $exception->getBuildStack();
+                                array_unshift($buildStack, $id);
+                                throw new NotFoundException($id, $buildStack);
+                            }
+                            throw $exception;
+                        }
+                        throw new NotFoundException($id, [$id], previous: $exception);
                     }
 
                     /** @psalm-suppress MixedReturnStatement */

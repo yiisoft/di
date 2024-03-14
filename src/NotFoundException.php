@@ -6,6 +6,7 @@ namespace Yiisoft\Di;
 
 use Exception;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 /**
  * `NotFoundException` is thrown when no definition or class was found in the container for a given ID.
@@ -18,7 +19,8 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
      */
     public function __construct(
         private string $id,
-        array $buildStack = []
+        private array $buildStack = [],
+        ?Throwable $previous = null,
     ) {
         $message = $id;
         if ($buildStack !== []) {
@@ -26,11 +28,22 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
             $message = sprintf('%s" while building %s', $last, '"' . implode('" -> "', $buildStack));
         }
 
-        parent::__construct(sprintf('No definition or class found or resolvable for "%s".', $message));
+        parent::__construct(
+            sprintf('No definition or class found or resolvable for "%s".', $message),
+            previous: $previous,
+        );
     }
 
     public function getId(): string
     {
         return $this->id;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getBuildStack(): array
+    {
+        return $this->buildStack;
     }
 }
