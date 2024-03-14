@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use stdClass;
+use Throwable;
 use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
@@ -51,6 +52,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
+use Yiisoft\Test\Support\Container\SimpleContainer;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -1971,5 +1973,61 @@ final class ContainerTest extends TestCase
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessageMatches($message);
         new Container($config);
+    }
+
+    public static function dataNotFoundExceptionMessageWithDefinitions(): array
+    {
+        return [
+            'without-definition' => [[]],
+            'with-definition' => [[SportCar::class => SportCar::class]],
+        ];
+    }
+
+    /**
+     * @dataProvider dataNotFoundExceptionMessageWithDefinitions
+     */
+    public function testNotFoundExceptionMessageWithDefinitions(array $definitions): void
+    {
+        $config = ContainerConfig::create()->withDefinitions($definitions);
+        $container = new Container($config);
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage(
+            'No definition or class found or resolvable for "'
+            . EngineInterface::class
+            . '" while building "'
+            . SportCar::class
+            . '" -> "'
+            . EngineInterface::class
+            . '".'
+        );
+        $container->get(SportCar::class);
+    }
+
+    public function testNotFoundExceptionWithNotYiiContainer(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                ContainerInterface::class => new SimpleContainer(),
+                SportCar::class => SportCar::class,
+            ]);
+        $container = new Container($config);
+
+        $exception = null;
+        try {
+            $container->get(SportCar::class);
+        } catch (Throwable $e) {
+            $exception = $e;
+        }
+
+        $this->assertInstanceOf(NotFoundException::class, $exception);
+        $this->assertSame(
+            'No definition or class found or resolvable for "' . SportCar::class . '" while building it.',
+            $exception->getMessage()
+        );
+        $this->assertInstanceOf(
+            \Yiisoft\Test\Support\Container\Exception\NotFoundException::class,
+            $exception->getPrevious()
+        );
     }
 }
