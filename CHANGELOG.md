@@ -3,6 +3,7 @@
 ## 1.2.2 under development
 
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
+- Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
 
 ## 1.2.1 December 23, 2022
 
