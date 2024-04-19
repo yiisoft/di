@@ -89,17 +89,17 @@ return [
 
 You can define an object in several ways:
 
- * In the simple case, an interface definition maps an id to a particular class.
- * A full definition describes how to instantiate a class in more detail:
-   * `class` has the name of the class to instantiate.
-   * `__construct()` holds an array of constructor arguments.
-   * The rest of the config are property values (prefixed with `$`) and method calls, postfixed with `()`. They're
+- In the simple case, an interface definition maps an id to a particular class.
+- A full definition describes how to instantiate a class in more detail:
+  - `class` has the name of the class to instantiate.
+  - `__construct()` holds an array of constructor arguments.
+  - The rest of the config are property values (prefixed with `$`) and method calls, postfixed with `()`. They're
      set/called in the order they appear in the array.
- * Closures are useful if instantiation is tricky and can better done in code. When using these, arguments are
+- Closures are useful if instantiation is tricky and can better done in code. When using these, arguments are
    auto-wired by type. `ContainerInterface` could be used to get current container instance.
- * If it's even more complicated, it's a good idea to move such a code into a
+- If it's even more complicated, it's a good idea to move such a code into a
    factory and reference it as a static call.
- * While it's usually not a good idea, you can also set an already
+- While it's usually not a good idea, you can also set an already
    instantiated object into the container.
 
 See [yiisoft/definitions](https://github.com/yiisoft/definitions) for more information.
@@ -115,11 +115,9 @@ Note, however, that it's bad practice using a container directly. It's much
 better to rely on auto-wiring as provided by the Injector available from the
 [yiisoft/injector](https://github.com/yiisoft/injector) package.
 
-
 ## Using aliases
 
-The DI container supports aliases via the
-`Yiisoft\Definitions\Reference` class.
+The DI container supports aliases via the `Yiisoft\Definitions\Reference` class.
 This way you can retrieve objects by a more handy name:
 
 ```php
@@ -214,7 +212,7 @@ $engine = $composite->get(EngineInterface::class);
 ## Using service providers
 
 A service provider is a special class that's responsible for providing complex
-services or groups of dependencies for the container and extensions of existing services. 
+services or groups of dependencies for the container and extensions of existing services.
 
 A provider should extend from `Yiisoft\Di\ServiceProviderInterface` and must
 contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
@@ -270,7 +268,7 @@ Here you created a service provider responsible for bootstrapping of a car facto
 An extension is callable that returns a modified service object.
 In this case you get existing `Garage` service
 and put a car into the garage by calling the method `setCar()`.
-Thus, before applying this provider, you had 
+Thus, before applying this provider, you had
 an empty garage and with the help of the extension you fill it.
 
 To add this service provider to a container, you can pass either its class or a
@@ -357,7 +355,7 @@ $resetter->setResetters([
 ```
 
 The callback has access to the private and protected properties of the service instance, so you can set initial state
-of the service efficiently without creating a new instance. 
+of the service efficiently without creating a new instance.
 
 You should trigger the reset itself after each request-response cycle. For RoadRunner, it would look like the following:
 
@@ -373,7 +371,7 @@ while ($request = $psr7->acceptRequest()) {
 }
 ```
 
-### Setting resetters in definitions 
+### Setting resetters in definitions
 
 You define the reset state for each service by providing "reset" callback in the following way:
 
@@ -495,11 +493,6 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
-## Further reading
-
-- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
-
-
 # Benchmarks
 
 To run benchmarks execute the next command
@@ -510,7 +503,7 @@ To run benchmarks execute the next command
 
 Result example
 
-```
+```text
 \Yiisoft\Di\Tests\Benchmark\ContainerBench
 
 benchConstructStupid....................I4 [μ Mo]/r: 438.566 435.190 (μs) [μSD μRSD]/r: 9.080μs 2.07%
@@ -530,37 +523,40 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 (best [mean mode] worst) = 0.113 [4,483.856 4,486.051] 0.117 (μs) 
 ⅀T: 246,612.096μs μSD/r 43.563μs μRSD/r: 1.336%
 ```
-> **Warning!**
-> These summary statistics can be misleading. 
-> You should always verify the individual subject statistics before drawing any conclusions.
 
+> **Warning!**
+> These summary statistics can be misleading.
+> You should always verify the individual subject statistics before drawing any conclusions.
+>
 > **Legend**
 >
->   * μ:  Mean time taken by all iterations in variant.
->   * Mo: Mode of all iterations in variant.
->   * μSD: μ standard deviation.
->   * μRSD: μ relative standard deviation.
->   * best: Maximum time of all iterations (minimal of all iterations).
->   * mean: Mean time taken by all iterations.
->   * mode: Mode of all iterations.
->   * worst: Minimum time of all iterations (minimal of all iterations).
-
+> - μ:  Mean time taken by all iterations in variant.
+> - Mo: Mode of all iterations in variant.
+> - μSD: μ standard deviation.
+> - μRSD: μ relative standard deviation.
+> - best: Maximum time of all iterations (minimal of all iterations).
+> - mean: Mean time taken by all iterations.
+> - mode: Mode of all iterations.
+> - worst: Minimum time of all iterations (minimal of all iterations).
 
 ## Command examples
 
-* Default report for all benchmarks that outputs the result to `CSV-file`
+- Default report for all benchmarks that outputs the result to `CSV-file`
 
-`$ ./vendor/bin/phpbench run --report=default --progress=dots  --output=csv_file`
+```shell
+./vendor/bin/phpbench run --report=default --progress=dots  --output=csv_file
+```
 
 Generated MD-file example
 
+```text
 >DI benchmark report
 >===================
 >
 >### suite: 1343b1dc0589cb4e985036d14b3e12cb430a975b, date: 2020-02-21, stime: 16:02:45
 >
 >benchmark | subject | set | revs | iter | mem_peak | time_rev | comp_z_value | comp_deviation
-> --- | --- | --- | --- | --- | --- | --- | --- | --- 
+> --- | --- | --- | --- | --- | --- | --- | --- | ---
 >ContainerBench | benchConstructStupid | 0 | 1000 | 0 | 1,416,784b | 210.938μs | -1.48σ | -1.1%
 >ContainerBench | benchConstructStupid | 0 | 1000 | 1 | 1,416,784b | 213.867μs | +0.37σ | +0.27%
 >ContainerBench | benchConstructStupid | 0 | 1000 | 2 | 1,416,784b | 212.890μs | -0.25σ | -0.18%
@@ -581,34 +577,37 @@ Generated MD-file example
 
 > **Legend**
 >
->   * benchmark: Benchmark class.
->   * subject: Benchmark class method.
->   * set: Set of data (provided by ParamProvider).
->   * revs: Number of revolutions (represent the number of times that the code is executed).
->   * iter: Number of iteration.
->   * mem_peak: (mean) Peak memory used by iteration as retrieved by memory_get_peak_usage.
->   * time_rev:  Mean time taken by all iterations in variant.
->   * comp_z_value: Z-score.
->   * comp_deviation: Relative deviation (margin of error).
+> - benchmark: Benchmark class.
+> - subject: Benchmark class method.
+> - set: Set of data (provided by ParamProvider).
+> - revs: Number of revolutions (represent the number of times that the code is executed).
+> - iter: Number of iteration.
+> - mem_peak: (mean) Peak memory used by iteration as retrieved by memory_get_peak_usage.
+> - time_rev:  Mean time taken by all iterations in variant.
+> - comp_z_value: Z-score.
+> - comp_deviation: Relative deviation (margin of error).
+```
 
-* Aggregate report for the `lookup` group that outputs the result to `console` and `CSV-file` 
+- Aggregate report for the `lookup` group that outputs the result to `console` and `CSV-file`
 
-`$ ./vendor/bin/phpbench run --report=aggregate --progress=dots  --output=csv_file --output=console --group=lookup
-`
+```shell
+./vendor/bin/phpbench run --report=aggregate --progress=dots  --output=csv_file --output=console --group=lookup
+```
 
 >**Notice**
->  
-> Available groups: `construct` `lookup` `has` 
+>
+> Available groups: `construct` `lookup` `has`
 
 Generated MD-file example
 
+```text
 > DI benchmark report
 > ===================
 >
 >### suite: 1343b1d2654a3819c72a96d236302b70a504dac7, date: 2020-02-21, stime: 13:27:32
 >
 >benchmark | subject | set | revs | its | mem_peak | best | mean | mode | worst | stdev | rstdev | diff
-> --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- 
+> --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---
 >ContainerBench | benchSequentialLookups | 0 | 1000 | 5 | 1,454,024b | 168.945μs | 170.117μs | 169.782μs | 171.875μs | 0.957μs | 0.56% | 1.00x
 >ContainerBench | benchSequentialLookups | 1 | 1000 | 5 | 1,445,296b | 3,347.656μs | 3,384.961μs | 3,390.411μs | 3,414.062μs | 21.823μs | 0.64% | 19.90x
 >ContainerBench | benchSequentialLookups | 2 | 1000 | 5 | 1,445,568b | 3,420.898μs | 3,488.477μs | 3,447.260μs | 3,657.227μs | 85.705μs | 2.46% | 20.51x
@@ -621,53 +620,31 @@ Generated MD-file example
 
 > **Legend**
 >
->   * benchmark: Benchmark class.
->   * subject: Benchmark class method.
->   * set: Set of data (provided by ParamProvider).
->   * revs: Number of revolutions (represent the number of times that the code is executed).
->   * its: Number of iterations (one measurement for each iteration).   
->   * mem_peak: (mean) Peak memory used by each iteration as retrieved by memory_get_peak_usage.
->   * best: Maximum time of all iterations in variant.
->   * mean: Mean time taken by all iterations in variant.
->   * mode: Mode of all iterations in variant.
->   * worst: Minimum time of all iterations in variant.
->   * stdev: Standard deviation.
->   * rstdev: The relative standard deviation.
->   * diff: Difference between variants in a single group.
-
-## Testing
-
-### Unit testing
-
-The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
-
-```shell
-./vendor/bin/phpunit
+> - benchmark: Benchmark class.
+> - subject: Benchmark class method.
+> - set: Set of data (provided by ParamProvider).
+> - revs: Number of revolutions (represent the number of times that the code is executed).
+> - its: Number of iterations (one measurement for each iteration).
+> - mem_peak: (mean) Peak memory used by each iteration as retrieved by memory_get_peak_usage.
+> - best: Maximum time of all iterations in variant.
+> - mean: Mean time taken by all iterations in variant.
+> - mode: Mode of all iterations in variant.
+> - worst: Minimum time of all iterations in variant.
+> - stdev: Standard deviation.
+> - rstdev: The relative standard deviation.
+> - diff: Difference between variants in a single group.
 ```
 
-### Mutation testing
+## Documentation
 
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
-[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
+- Further reading: [Martin Fowler's article "Inversion of Control Containers and the Dependency Injection pattern"](https://martinfowler.com/articles/injection.html).
 
-```shell
-./vendor/bin/roave-infection-static-analysis-plugin
-```
+- More information can be found in the [Internals.](docs/internals.md)
 
-### Static analysis
+## Support
 
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
-
-```shell
-./vendor/bin/psalm
-```
-
-## License
-
-The Yii Dependency Injection is free software. It's released under the terms of the BSD License.
-Please see [`LICENSE`](./LICENSE.md) for more information.
-
-Maintained by [Yii Software](https://www.yiiframework.com/).
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## Support the project
 
@@ -680,3 +657,10 @@ Maintained by [Yii Software](https://www.yiiframework.com/).
 [![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
 [![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
 [![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
+
+## License
+
+The Yii Access is free software. It is released under the terms of the BSD License.
+Please see [`LICENSE`](./LICENSE.md) for more information.
+
+Maintained by [Yii Software](https://www.yiiframework.com/).
