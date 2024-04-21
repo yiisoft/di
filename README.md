@@ -639,7 +639,7 @@ Generated MD-file example
 
 - Further reading: [Martin Fowler's article "Inversion of Control Containers and the Dependency Injection pattern"](https://martinfowler.com/articles/injection.html).
 
-- More information can be found in the [Internals.](docs/internals.md)
+- [Internals](docs/internals.md)
 
 ## Support
 
