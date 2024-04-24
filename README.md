@@ -2,7 +2,7 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
     </a>
-    <h1 align="center">Yii Dependency Injection</h1>
+    <h1 align="center">Yii DI</h1>
     <br>
 </p>
 
@@ -620,19 +620,19 @@ Generated MD-file example
 
 > **Legend**
 >
-> - benchmark: Benchmark class.
-> - subject: Benchmark class method.
-> - set: Set of data (provided by ParamProvider).
-> - revs: Number of revolutions (represent the number of times that the code is executed).
-> - its: Number of iterations (one measurement for each iteration).
-> - mem_peak: (mean) Peak memory used by each iteration as retrieved by memory_get_peak_usage.
-> - best: Maximum time of all iterations in variant.
-> - mean: Mean time taken by all iterations in variant.
-> - mode: Mode of all iterations in variant.
-> - worst: Minimum time of all iterations in variant.
-> - stdev: Standard deviation.
-> - rstdev: The relative standard deviation.
-> - diff: Difference between variants in a single group.
+>   * benchmark: Benchmark class.
+>   * subject: Benchmark class method.
+>   * set: Set of data (provided by ParamProvider).
+>   * revs: Number of revolutions (represent the number of times that the code is executed).
+>   * its: Number of iterations (one measurement for each iteration).   
+>   * mem_peak: (mean) Peak memory used by each iteration as retrieved by memory_get_peak_usage.
+>   * best: Maximum time of all iterations in variant.
+>   * mean: Mean time taken by all iterations in variant.
+>   * mode: Mode of all iterations in variant.
+>   * worst: Minimum time of all iterations in variant.
+>   * stdev: Standard deviation.
+>   * rstdev: The relative standard deviation.
+>   * diff: Difference between variants in a single group.
 ```
 
 ## Documentation
@@ -660,7 +660,7 @@ You may also check out other [Yii Community Resources](https://www.yiiframework.
 
 ## License
 
-The Yii Access is free software. It is released under the terms of the BSD License.
+The Yii DI is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
