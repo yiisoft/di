@@ -1,5 +1,7 @@
 # Internals
 
+- Further reading: [Martin Fowler's article "Inversion of Control Containers and the Dependency Injection pattern"](https://martinfowler.com/articles/injection.html).
+
 ## Unit testing
 
 The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
@@ -34,7 +36,7 @@ use either newest or any specific version of PHP:
 ./vendor/bin/rector
 ```
 
-## Composer require checker
+## Dependencies
 
 This package uses [composer-require-checker](https://github.com/maglnet/ComposerRequireChecker) to check if all dependencies are correctly defined in `composer.json`.
 
