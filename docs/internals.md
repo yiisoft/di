@@ -1,6 +1,6 @@
 # Internals
 
-- Further reading: [Martin Fowler's article "Inversion of Control Containers and the Dependency Injection pattern"](https://martinfowler.com/articles/injection.html).
+Further reading: [Martin Fowler's article "Inversion of Control Containers and the Dependency Injection pattern"](https://martinfowler.com/articles/injection.html).
 
 ## Unit testing
 
