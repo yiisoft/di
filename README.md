@@ -2,7 +2,7 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
     </a>
-    <h1 align="center">Yii DI</h1>
+    <h1 align="center">Yii Dependency Injection</h1>
     <br>
 </p>
 
