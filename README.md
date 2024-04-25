@@ -532,7 +532,6 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 > **Warning!**
 > These summary statistics can be misleading.
 > You should always verify the individual subject statistics before drawing any conclusions.
->
 > **Legend**
 >
 > - μ:  Mean time taken by all iterations in variant.
