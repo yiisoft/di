@@ -35,7 +35,8 @@ final class Container implements ContainerInterface
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+    private const META_AFTER_BUILT = 'afterBuilt';
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET, self::META_AFTER_BUILT];
 
     /**
      * @var DefinitionStorage Storage of object definitions.
@@ -67,6 +68,12 @@ final class Container implements ContainerInterface
      * @var Closure[]
      */
     private array $resetters = [];
+
+    /**
+     * @var Closure[]
+     */
+    public array $afterBuiltHooks = [];
+
     private bool $useResettersFromMeta = true;
 
     /**
@@ -134,10 +141,12 @@ final class Container implements ContainerInterface
      */
     public function get(string $id)
     {
+        $result = null;
         if (!array_key_exists($id, $this->instances)) {
             try {
                 try {
-                    $this->instances[$id] = $this->build($id);
+                    /** @psalm-suppress MixedAssignment */
+                    $result = $this->instances[$id] = $this->build($id);
                 } catch (NotFoundExceptionInterface $e) {
                     if (!$this->delegates->has($id)) {
                         throw $e;
@@ -153,6 +162,7 @@ final class Container implements ContainerInterface
                 throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
             }
         }
+        $this->callHookAfterBuilt($id);
 
         if ($id === StateResetter::class) {
             $delegatesResetter = null;
@@ -184,7 +194,7 @@ final class Container implements ContainerInterface
         }
 
         /** @psalm-suppress MixedReturnStatement */
-        return $this->instances[$id];
+        return $result ?? $this->instances[$id];
     }
 
     /**
@@ -206,7 +216,7 @@ final class Container implements ContainerInterface
             $this->validateMeta($meta);
         }
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @psalm-var array{reset?:Closure,tags?:string[],afterBuilt?:Closure} $meta
          */
 
         if (isset($meta[self::META_TAGS])) {
@@ -214,6 +224,9 @@ final class Container implements ContainerInterface
         }
         if (isset($meta[self::META_RESET])) {
             $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+        }
+        if (isset($meta[self::META_AFTER_BUILT])) {
+            $this->setAfterBuiltHook($id, $meta[self::META_AFTER_BUILT]);
         }
 
         unset($this->instances[$id]);
@@ -620,5 +633,17 @@ final class Container implements ContainerInterface
         }
 
         return $providerInstance;
+    }
+
+    private function callHookAfterBuilt(string $id): void
+    {
+        if (isset($this->afterBuiltHooks[$id])) {
+            $this->afterBuiltHooks[$id]->call($this, $this, $id);
+        }
+    }
+
+    private function setAfterBuiltHook(string $id, Closure $callback): void
+    {
+        $this->afterBuiltHooks[$id] = $callback;
     }
 }
