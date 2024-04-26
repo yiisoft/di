@@ -1,6 +1,10 @@
 # Internals
 
-# Benchmarks
+## Further reading
+
+- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
+
+## Benchmarks
 
 To run benchmarks execute the next command
 
@@ -32,8 +36,10 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 ```
 
 > **Warning!**
+> 
 > These summary statistics can be misleading.
 > You should always verify the individual subject statistics before drawing any conclusions.
+
 > **Legend**
 >
 > - μ:  Mean time taken by all iterations in variant.
@@ -45,7 +51,7 @@ benchUndefinedNonexistent...............R5 I4 [μ Mo]/r: 0.946 0.942 (μs) [μSD
 > - mode: Mode of all iterations.
 > - worst: Minimum time of all iterations (minimal of all iterations).
 
-## Command examples
+### Command examples
 
 - Default report for all benchmarks that outputs the result to `CSV-file`
 
@@ -80,6 +86,7 @@ Generated MD-file example
 >ContainerMethodHasBench | benchPredefinedExisting | 0 | 1000 | 3 | 1,216,144b | 82.031μs | 0.00σ | 0.00%
 >ContainerMethodHasBench | benchPredefinedExisting | 0 | 1000 | 4 | 1,216,144b | 81.055μs | -0.91σ | -1.19%
 >`... skipped` | `...` | `...` | `...` | `...` | `...` | `...` | `...` | `...`
+```
 
 > **Legend**
 >
@@ -92,7 +99,6 @@ Generated MD-file example
 > - time_rev:  Mean time taken by all iterations in variant.
 > - comp_z_value: Z-score.
 > - comp_deviation: Relative deviation (margin of error).
-```
 
 - Aggregate report for the `lookup` group that outputs the result to `console` and `CSV-file`
 
@@ -100,7 +106,7 @@ Generated MD-file example
 ./vendor/bin/phpbench run --report=aggregate --progress=dots  --output=csv_file --output=console --group=lookup
 ```
 
->**Notice**
+> **Notice**
 >
 > Available groups: `construct` `lookup` `has`
 
@@ -123,6 +129,7 @@ Generated MD-file example
 >ContainerBench | benchRandomLookupsComposite | 0 | 1000 | 5 | 1,454,032b | 297.852μs | 299.610μs | 298.855μs | 302.734μs | 1.680μs | 0.56% | 1.76x
 >ContainerBench | benchRandomLookupsComposite | 1 | 1000 | 5 | 1,445,880b | 3,684.570μs | 3,708.984μs | 3,695.731μs | 3,762.695μs | 28.297μs | 0.76% | 21.80x
 >ContainerBench | benchRandomLookupsComposite | 2 | 1000 | 5 | 1,446,152b | 3,668.946μs | 3,721.680μs | 3,727.407μs | 3,765.625μs | 30.881μs | 0.83% | 21.88x
+```
 
 > **Legend**
 >
@@ -139,11 +146,6 @@ Generated MD-file example
 >   * stdev: Standard deviation.
 >   * rstdev: The relative standard deviation.
 >   * diff: Difference between variants in a single group.
-```
-
-## Further reading
-
-- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
 
 ## Unit testing
 
@@ -170,7 +172,7 @@ The code is statically analyzed with [Psalm](https://psalm.dev/). To run static 
 ./vendor/bin/psalm
 ```
 
-## Rector
+## Code style
 
 Use [Rector](https://github.com/rectorphp/rector) to make codebase follow some specific rules or
 use either newest or any specific version of PHP:
@@ -182,9 +184,7 @@ use either newest or any specific version of PHP:
 ## Dependencies
 
 Use [ComposerRequireChecker](https://github.com/maglnet/ComposerRequireChecker) to detect transitive
-[Composer](https://getcomposer.org/) dependencies.
-
-To run the checker, execute the following command:
+[Composer](https://getcomposer.org/) dependencies. To run the checker, execute the following command:
 
 ```shell
 ./vendor/bin/composer-require-checker
