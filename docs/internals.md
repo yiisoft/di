@@ -1,5 +1,9 @@
 # Internals
 
+## Further reading
+
+- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
+
 ## Unit testing
 
 The package is tested with [PHPUnit](https://phpunit.de/). To run tests:

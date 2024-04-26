@@ -493,11 +493,6 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
-## Further reading
-
-- [Martin Fowler's article](https://martinfowler.com/articles/injection.html).
-
-
 # Benchmarks
 
 To run benchmarks execute the next command
