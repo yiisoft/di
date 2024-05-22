@@ -119,7 +119,7 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
         $compositeContainer->attach($container2);
 
         $this->expectException(CompositeNotFoundException::class);
-        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    1. Container Yiisoft\Di\Container #$container1Id: No definition or class found or resolvable for \"test\" while building \"test\".\n    2. Container Yiisoft\Di\Container #$container2Id: No definition or class found or resolvable for \"test\" while building \"test\".");
+        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    1. Container Yiisoft\Di\Container #$container1Id: No definition or class found or resolvable for \"test\" while building it.\n    2. Container Yiisoft\Di\Container #$container2Id: No definition or class found or resolvable for \"test\" while building it.");
         $compositeContainer->get('test');
     }
 }
