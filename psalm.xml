@@ -14,6 +14,7 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
+        <MixedAssignment errorLevel="suppress" />
         <InvalidCatch>
             <errorLevel type="suppress">
                 <referencedClass name="Psr\Container\NotFoundExceptionInterface" />
