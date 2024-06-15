@@ -51,7 +51,6 @@ final class DefinitionParser
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
 
     /**
-     *
      * @return array Definition parsed into array of a special structure.
      * @psalm-return array{mixed,array}
      */

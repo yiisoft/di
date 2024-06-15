@@ -579,7 +579,6 @@ final class Container implements ContainerInterface
     /**
      * Builds service provider by definition.
      *
-     *
      * @throws InvalidConfigException If provider argument is not valid.
      * @return ServiceProviderInterface Instance of service provider.
      */
