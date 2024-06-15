@@ -501,7 +501,6 @@ final class Container implements ContainerInterface
         try {
             if (!$this->definitions->has($id)) {
                 throw new NotFoundException($id, $this->definitions->getBuildStack());
-
             }
 
             $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
