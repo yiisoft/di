@@ -199,8 +199,10 @@ final class Container implements ContainerInterface
      * Sets a definition to the container. Definition may be defined multiple ways.
      *
      * @param string $id ID to set definition for.
+     * @param mixed $definition Definition to set.
      *
      * @throws InvalidConfigException
+     *
      * @see DefinitionNormalizer::normalize()
      */
     private function addDefinition(string $id, mixed $definition): void
@@ -286,7 +288,9 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @param mixed $definition Definition to validate.
      * @param string|null $id ID of the definition to validate.
+     *
      * @throws InvalidConfigException
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
@@ -579,7 +583,10 @@ final class Container implements ContainerInterface
     /**
      * Builds service provider by definition.
      *
+     * @param mixed $provider Class name or instance of provider.
+     *
      * @throws InvalidConfigException If provider argument is not valid.
+     *
      * @return ServiceProviderInterface Instance of service provider.
      */
     private function buildProvider(mixed $provider): ServiceProviderInterface
