@@ -313,7 +313,7 @@ final class Container implements ContainerInterface
                 $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                 [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
                 // extract only value from parsed definition method
-                array_map(fn (array $data): mixed => $data[2], $methodsAndProperties),
+                array_map(static fn (array $data): mixed => $data[2], $methodsAndProperties),
             );
         }
 
@@ -499,8 +499,14 @@ final class Container implements ContainerInterface
 
         $this->building[$id] = 1;
         try {
+            if (!$this->definitions->has($id)) {
+                throw new NotFoundException($id, $this->definitions->getBuildStack());
+            }
+
+            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+
             /** @var mixed $object */
-            $object = $this->buildInternal($id);
+            $object = $definition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
         }
@@ -520,23 +526,6 @@ final class Container implements ContainerInterface
         }
 
         return $services;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws InvalidConfigException
-     *
-     * @return mixed|object
-     */
-    private function buildInternal(string $id)
-    {
-        if ($this->definitions->has($id)) {
-            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-
-            return $definition->resolve($this->get(ContainerInterface::class));
-        }
-
-        throw new NotFoundException($id, $this->definitions->getBuildStack());
     }
 
     /**
