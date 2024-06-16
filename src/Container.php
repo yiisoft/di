@@ -288,7 +288,9 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @param mixed $definition Definition to validate.
      * @param string|null $id ID of the definition to validate.
+     *
      * @throws InvalidConfigException
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
