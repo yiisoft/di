@@ -18,7 +18,9 @@ use function is_array;
 final class DefinitionNormalizer
 {
     /**
+     * @param mixed $definition Definition to normalize.
      * @param string $id Service ID.
+     *
      * @throws InvalidConfigException If configuration is not valid.
      */
     public static function normalize(mixed $definition, string $id): DefinitionInterface
