@@ -4,6 +4,7 @@
 
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
 - Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
+- Enh #364: Minor refactoring to improve performance of container (@samdark)
 
 ## 1.2.1 December 23, 2022
 
