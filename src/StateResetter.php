@@ -47,7 +47,7 @@ final class StateResetter
 
     /**
      * @param Closure[]|self[] $resetters Array of reset callbacks. Each callback has access to the private and
-     * protected properties of the service instance, so you can set initial state of the service efficiently
+     * protected properties of the service instance, so you can set the initial state of the service efficiently
      * without creating a new instance.
      */
     public function setResetters(array $resetters): void

@@ -10,8 +10,8 @@ namespace Yiisoft\Di;
  * The goal of service providers is to centralize and organize in one place
  * registration of classes bound by any logic or classes with complex dependencies.
  *
- * You can simply organize registration of a service and its dependencies in a single
- * provider class except of creating bootstrap file or configuration array for the Container.
+ * You can organize registration of a service and its dependencies in a single
+ * provider class except for creating a bootstrap file or configuration array for the Container.
  *
  * Example:
  *
@@ -21,7 +21,7 @@ namespace Yiisoft\Di;
  *    public function getDefinitions(): array
  *    {
  *        return [
- *            'car' =>  ['class' => Car::class],
+ *            'car' => ['class' => Car::class],
  *            'car-factory' => CarFactory::class,
  *            EngineInterface::class => EngineMarkOne::class,
  *        ];
@@ -47,7 +47,7 @@ interface ServiceProviderInterface
     /**
      * Returns an array of service extensions.
      *
-     * An extension is a callable that returns a modified service object:
+     * An extension is callable that returns a modified service object:
      *
      * ```php
      * static function (ContainerInterface $container, $service) {

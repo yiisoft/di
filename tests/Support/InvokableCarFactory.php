@@ -6,7 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 use Psr\Container\ContainerInterface;
 
-class InvokeableCarFactory
+class InvokableCarFactory
 {
     public function __invoke(ContainerInterface $container): Car
     {

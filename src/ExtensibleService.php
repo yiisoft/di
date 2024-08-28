@@ -10,7 +10,7 @@ use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
  * @internal A wrapper for a service definition that allows registering extensions.
- * An extension is a callable that returns a modified service object:
+ * An extension is callable that returns a modified service object:
  *
  * ```php
  * static function (ContainerInterface $container, $service) {
@@ -37,7 +37,7 @@ final class ExtensibleService implements DefinitionInterface
     /**
      * Add an extension.
      *
-     * An extension is a callable that returns a modified service object:
+     * An extension is callable that returns a modified service object:
      *
      * ```php
      * static function (ContainerInterface $container, $service) {

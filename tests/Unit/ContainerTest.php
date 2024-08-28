@@ -35,7 +35,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\EngineStorage;
 use Yiisoft\Di\Tests\Support\Garage;
-use Yiisoft\Di\Tests\Support\InvokeableCarFactory;
+use Yiisoft\Di\Tests\Support\InvokableCarFactory;
 use Yiisoft\Di\Tests\Support\MethodTestClass;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Di\Tests\Support\OptionalConcreteDependency;
@@ -802,7 +802,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 'engine' => EngineMarkOne::class,
-                'invokeable' => new InvokeableCarFactory(),
+                'invokeable' => new InvokableCarFactory(),
             ]);
         $container = new Container($config);
 
@@ -1603,7 +1603,7 @@ final class ContainerTest extends TestCase
             public function getDefinitions(): array
             {
                 return [
-                    // E.g. wrapping container with proxy class
+                    // wrapping container with proxy class
                     ContainerInterface::class => static fn (ContainerInterface $container) => $container,
                 ];
             }
