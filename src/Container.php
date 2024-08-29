@@ -116,7 +116,7 @@ final class Container implements ContainerInterface
     /**
      * Returns an instance by either interface name or alias.
      *
-     * The Same instance of the class will be returned each time this method is called.
+     * The same instance of the class will be returned each time this method is called.
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
