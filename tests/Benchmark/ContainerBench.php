@@ -60,7 +60,7 @@ class ContainerBench
 
     /**
      * Load the bulk of the definitions.
-     * These all refer to a service that is not yet defined but must be defined in the bench.
+     * These all refer to a service that is not yet defined but must be defined in the benchmark.
      */
     public function before(): void
     {
@@ -76,7 +76,7 @@ class ContainerBench
         shuffle($this->randomIndexes);
 
         $this->composite = new CompositeContainer();
-        // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
+        // Attach the dummy containers multiple times, to see what would happen if there are lots of them.
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()

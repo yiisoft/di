@@ -22,7 +22,7 @@ and configure classes resolving dependencies.
 ## Features
 
 - [PSR-11](https://www.php-fig.org/psr/psr-11/) compatible.
-- Supports property injection, constructor injection and method injection.
+- Supports property injection, constructor injection, and method injection.
 - Detects circular references.
 - Accepts array definitions. You can use it with mergeable configs.
 - Provides optional autoload fallback for classes without explicit definition.
@@ -53,7 +53,7 @@ array of *definitions*. The array keys are usually interface names. It will
 then use these definitions to create an object whenever the application requests that type.
 This happens, for example, when fetching a type directly from the container
 somewhere in the application. But objects are also created implicitly if a
-definition has a dependency to another definition.
+definition has a dependency on another definition.
 
 Usually one uses a single container for the whole application. It's often
 configured either in the entry script such as `index.php` or a configuration
@@ -93,9 +93,9 @@ You can define an object in several ways:
 - A full definition describes how to instantiate a class in more detail:
   - `class` has the name of the class to instantiate.
   - `__construct()` holds an array of constructor arguments.
-  - The rest of the config are property values (prefixed with `$`) and method calls, postfixed with `()`. They're
+  - The rest of the config is property values (prefixed with `$`) and method calls, postfixed with `()`. They're
      set/called in the order they appear in the array.
-- Closures are useful if instantiation is tricky and can better done in code. When using these, arguments are
+- Closures are useful if instantiation is tricky and can be better done in code. When using these, arguments are
    auto-wired by type. `ContainerInterface` could be used to get current container instance.
 - If it's even more complicated, it's a good idea to move such a code into a
    factory and reference it as a static call.
@@ -169,7 +169,7 @@ $car = $composite->get(CarInterface::class);
 $bike = $composite->get(BikeInterface::class);
 ```
 
-Note, that containers attached earlier override dependencies of containers attached later.
+Note that containers attached earlier override dependencies of containers attached later.
 
 ```php
 use Yiisoft\Di\CompositeContainer;
@@ -216,7 +216,7 @@ services or groups of dependencies for the container and extensions of existing 
 
 A provider should extend from `Yiisoft\Di\ServiceProviderInterface` and must
 contain a `getDefinitions()` and `getExtensions()` methods. It should only provide services for the container
-and therefore should only contain code that's related to this task. It should *never*
+and therefore should only contain code related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to a database.
 
 A typical service provider could look like:
@@ -354,8 +354,8 @@ $resetter->setResetters([
 ]);
 ```
 
-The callback has access to the private and protected properties of the service instance, so you can set initial state
-of the service efficiently without creating a new instance.
+The callback has access to the private and protected properties of the service instance,
+so you can set the initial state of the service efficiently without creating a new instance.
 
 You should trigger the reset itself after each request-response cycle. For RoadRunner, it would look like the following:
 

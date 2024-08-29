@@ -88,7 +88,7 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param array $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
-     * in case a service can not be found in primary container.
+     * in case a service can't be found in primary container.
      */
     public function withDelegates(array $delegates): self
     {

@@ -116,7 +116,7 @@ final class Container implements ContainerInterface
     /**
      * Returns an instance by either interface name or alias.
      *
-     * Same instance of the class will be returned each time this method is called.
+     * The same instance of the class will be returned each time this method is called.
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
@@ -256,8 +256,8 @@ final class Container implements ContainerInterface
     /**
      * Set container delegates.
      *
-     * Each delegate must is a callable in format "function (ContainerInterface $container): ContainerInterface".
-     * The container instance returned is used in case a service can not be found in primary container.
+     * Each delegate must be a callable in format `function (ContainerInterface $container): ContainerInterface`.
+     * The container instance returned is used in case a service can't be found in primary container.
      *
      * @throws InvalidConfigException
      */
@@ -474,7 +474,7 @@ final class Container implements ContainerInterface
      * @throws NotFoundExceptionInterface
      * @throws CircularReferenceException
      *
-     * @return mixed|object New built instance of the specified class.
+     * @return mixed|object New-built instance of the specified class.
      *
      * @internal
      */
