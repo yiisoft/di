@@ -104,7 +104,7 @@ You can define an object in several ways:
 
 See [yiisoft/definitions](https://github.com/yiisoft/definitions) for more information.
 
-After you configure the container, you can obtain a service can via `get()`:
+After you configure the container, you can obtain a service via `get()`:
 
 ```php
 /** @var \Yiisoft\Di\Container $container */
