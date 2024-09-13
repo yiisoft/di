@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Di\Tests\Unit\Command;
 
 use PHPUnit\Framework\TestCase;
@@ -46,4 +48,3 @@ final class DebugContainerCommandTest extends TestCase
         return new Container($config);
     }
 }
-

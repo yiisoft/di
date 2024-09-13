@@ -188,4 +188,3 @@ final class DebugContainerCommand extends Command
         return VarDumper::create($value)->asString();
     }
 }
-
