@@ -1,6 +1,25 @@
 on:
-  - pull_request
-  - push
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'phpunit.xml.dist'
+      - 'psalm.xml'
+  push:
+    branches: ['master']
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'phpunit.xml.dist'
+      - 'psalm.xml'
 
 name: backwards compatibility
 
@@ -11,4 +30,4 @@ jobs:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['8.0']
+        ['8.1']

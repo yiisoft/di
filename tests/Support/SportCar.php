@@ -11,8 +11,10 @@ class SportCar
 {
     public ColorInterface $color;
 
-    public function __construct(private EngineInterface $engine, private int $maxSpeed)
-    {
+    public function __construct(
+        private readonly EngineInterface $engine,
+        private readonly int $maxSpeed,
+    ) {
     }
 
     public function setColor(ColorInterface $color): self

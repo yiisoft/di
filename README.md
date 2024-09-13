@@ -6,11 +6,10 @@
     <br>
 </p>
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v/stable.png)](https://packagist.org/packages/yiisoft/di)
-[![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads.png)](https://packagist.org/packages/yiisoft/di)
-[![Build status](https://github.com/yiisoft/di/workflows/build/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3Abuild)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/di/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/di/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/di/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/di/v)](https://packagist.org/packages/yiisoft/di)
+[![Total Downloads](https://poser.pugx.org/yiisoft/di/downloads)](https://packagist.org/packages/yiisoft/di)
+[![Build status](https://github.com/yiisoft/di/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/di/actions/workflows/build.yml)
+[![Code coverage](https://codecov.io/gh/yiisoft/di/graph/badge.svg?token=P8W1UTwgQt)](https://codecov.io/gh/yiisoft/di)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdi%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/di/master)
 [![static analysis](https://github.com/yiisoft/di/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/di/coverage.svg)](https://shepherd.dev/github/yiisoft/di)
@@ -35,7 +34,7 @@ and configure classes resolving dependencies.
 
 ## Requirements
 
-- PHP 8.0 or higher.
+- PHP 8.1 or higher.
 - `Multibyte String` PHP extension.
 
 ## Installation
