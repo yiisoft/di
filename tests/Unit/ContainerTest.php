@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -130,7 +131,7 @@ final class ContainerTest extends TestCase
         $this->assertNull($a->b->a);
     }
 
-    public function dataHas(): array
+    public static function dataHas(): array
     {
         return [
             [false, 'non_existing'],
@@ -144,9 +145,7 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataHas
-     */
+    #[DataProvider('dataHas')]
     public function testHas(bool $expected, $id): void
     {
         $config = ContainerConfig::create()
@@ -158,7 +157,7 @@ final class ContainerTest extends TestCase
         $this->assertSame($expected, $container->has($id));
     }
 
-    public function dataUnionTypes(): array
+    public static function dataUnionTypes(): array
     {
         return [
             [UnionTypeInConstructorSecondTypeInParamResolvable::class],
@@ -166,15 +165,9 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataUnionTypes
-     */
+    #[DataProvider('dataUnionTypes')]
     public function testUnionTypes(string $class): void
     {
-        if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped('Union types are not supported before PHP 8');
-        }
-
         $container = new Container(ContainerConfig::create());
 
         $this->assertTrue($container->has($class));
@@ -191,7 +184,7 @@ final class ContainerTest extends TestCase
         $this->assertFalse($container->has(ColorInterface::class));
     }
 
-    public function dataClassExistButIsNotResolvableWithUnionTypes(): array
+    public static function dataClassExistButIsNotResolvableWithUnionTypes(): array
     {
         return [
             [UnionTypeInConstructorParamNotResolvable::class],
@@ -199,15 +192,9 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataClassExistButIsNotResolvableWithUnionTypes
-     */
+    #[DataProvider('dataClassExistButIsNotResolvableWithUnionTypes')]
     public function testClassExistButIsNotResolvableWithUnionTypes(string $class): void
     {
-        if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped('Union types are not supported before PHP 8');
-        }
-
         $container = new Container(ContainerConfig::create());
 
         $this->assertFalse($container->has($class));
@@ -693,7 +680,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke([$factory, 'create']),
+                'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke($factory->create(...)),
             ]);
         $container = new Container($config);
 
@@ -760,7 +747,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'car' => [CarFactory::class, 'create'],
+                'car' => CarFactory::create(...),
             ]);
         $container = new Container($config);
 
@@ -1146,7 +1133,7 @@ final class ContainerTest extends TestCase
         $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
     }
 
-    public function dataResetter(): array
+    public static function dataResetter(): array
     {
         return [
             'strict-mode' => [true],
@@ -1154,9 +1141,7 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataResetter
-     */
+    #[DataProvider('dataResetter')]
     public function testResetter(bool $strictMode): void
     {
         $config = ContainerConfig::create()
@@ -1353,7 +1338,7 @@ final class ContainerTest extends TestCase
         );
     }
 
-    public function dataResetterInProviderDefinitions(): array
+    public static function dataResetterInProviderDefinitions(): array
     {
         return [
             'strict-mode' => [true],
@@ -1361,9 +1346,7 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataResetterInProviderDefinitions
-     */
+    #[DataProvider('dataResetterInProviderDefinitions')]
     public function testResetterInProviderDefinitions(bool $strictMode): void
     {
         $config = ContainerConfig::create()
@@ -1944,7 +1927,7 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
     }
 
-    public function dataInvalidTags(): array
+    public static function dataInvalidTags(): array
     {
         return [
             [
@@ -1962,9 +1945,7 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataInvalidTags
-     */
+    #[DataProvider('dataInvalidTags')]
     public function testInvalidTags(string $message, array $tags): void
     {
         $config = ContainerConfig::create()
@@ -1983,9 +1964,7 @@ final class ContainerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataNotFoundExceptionMessageWithDefinitions
-     */
+    #[DataProvider('dataNotFoundExceptionMessageWithDefinitions')]
     public function testNotFoundExceptionMessageWithDefinitions(array $definitions): void
     {
         $config = ContainerConfig::create()->withDefinitions($definitions);

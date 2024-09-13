@@ -6,7 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 final class EngineStorage
 {
-    private array $engines;
+    private readonly array $engines;
 
     public function __construct(EngineInterface ...$engines)
     {

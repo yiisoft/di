@@ -9,7 +9,7 @@ namespace Yiisoft\Di\Tests\Support;
  */
 final class Garage
 {
-    public function __construct(private SportCar $car)
+    public function __construct(private readonly SportCar $car)
     {
     }
 

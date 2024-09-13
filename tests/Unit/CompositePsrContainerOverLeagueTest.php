@@ -12,7 +12,7 @@ use Yiisoft\Di\CompositeNotFoundException;
 /**
  * Test the CompositeContainer over League Container.
  */
-final class CompositePsrContainerOverLeagueTest extends AbstractCompositePsrContainerTest
+final class CompositePsrContainerOverLeagueTest extends CompositePsrContainerTestAbstract
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {

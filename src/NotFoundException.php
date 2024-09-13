@@ -18,7 +18,7 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
      * @param string[] $buildStack Stack of IDs of services requested definition or class that was not found.
      */
     public function __construct(
-        private string $id,
+        private readonly string $id,
         private array $buildStack = [],
         ?Throwable $previous = null,
     ) {

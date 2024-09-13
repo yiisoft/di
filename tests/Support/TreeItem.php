@@ -9,7 +9,7 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class TreeItem
 {
-    public function __construct(private self $treeItem)
+    public function __construct(private readonly self $treeItem)
     {
     }
 }

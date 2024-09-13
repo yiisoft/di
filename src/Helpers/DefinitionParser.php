@@ -64,7 +64,6 @@ final class DefinitionParser
 
         // Dedicated definition
         if (isset($definition[self::DEFINITION_META])) {
-            /** @var mixed $newDefinition */
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
 
@@ -81,19 +80,16 @@ final class DefinitionParser
         $class = null;
         $constructorArguments = [];
         $methodsAndProperties = [];
-        /** @var mixed $value */
         foreach ($definition as $key => $value) {
             if (is_string($key)) {
                 // Class
                 if ($key === ArrayDefinition::CLASS_NAME) {
-                    /** @var mixed $class */
                     $class = $value;
                     continue;
                 }
 
                 // Constructor arguments
                 if ($key === ArrayDefinition::CONSTRUCTOR) {
-                    /** @var mixed $constructorArguments */
                     $constructorArguments = $value;
                     continue;
                 }
@@ -109,7 +105,6 @@ final class DefinitionParser
                 }
             }
 
-            /** @var mixed */
             $meta[$key] = $value;
         }
         return [

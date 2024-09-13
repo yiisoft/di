@@ -27,7 +27,7 @@ final class StateResetter
      * @param ContainerInterface $container Container to reset.
      */
     public function __construct(
-        private ContainerInterface $container
+        private readonly ContainerInterface $container
     ) {
     }
 
@@ -74,7 +74,6 @@ final class StateResetter
                 );
             }
 
-            /** @var mixed $instance */
             $instance = $this->container->get($serviceId);
             if (!is_object($instance)) {
                 throw new InvalidArgumentException(

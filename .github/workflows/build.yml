@@ -10,6 +10,7 @@ on:
       - 'psalm.xml'
 
   push:
+    branches: ['master']
     paths-ignore:
       - 'docs/**'
       - 'README.md'
@@ -24,8 +25,10 @@ name: build
 jobs:
   phpunit:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master
+    secrets:
+      codecovToken: ${{ secrets.CODECOV_TOKEN }}
     with:
       os: >-
         ['ubuntu-latest', 'windows-latest']
       php: >-
-        ['8.0', '8.1']
+        ['8.1', '8.2', '8.3']
