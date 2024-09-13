@@ -35,9 +35,7 @@
         "php": "^8.1",
         "ext-mbstring": "*",
         "psr/container": "^1.1|^2.0",
-        "yiisoft/definitions": "^3.0",
-        "yiisoft/var-dumper": "^1.7",
-        "symfony/console": "^5.4|^6.0"
+        "yiisoft/definitions": "^3.0"
     },
     "require-dev": {
         "league/container": "^4.2",
@@ -50,11 +48,15 @@
         "vimeo/psalm": "^5.26",
         "yiisoft/injector": "^1.0",
         "yiisoft/test-support": "^3.0",
-        "yiisoft/config": "^1.3"
+        "yiisoft/config": "^1.3",
+        "yiisoft/var-dumper": "^1.7",
+        "symfony/console": "^5.4|^6.0"
     },
     "suggest": {
         "yiisoft/injector": "^1.0",
-        "phpbench/phpbench": "To run benchmarks."
+        "phpbench/phpbench": "To run benchmarks.",
+        "symfony/console": "For debug:commands command",
+        "symfony/var-dumper": "For debug:commands command"
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
