@@ -19,7 +19,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
  * General tests for PSR-11 composite container.
  * To be extended for specific containers.
  */
-abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTest
+abstract class CompositePsrContainerTestAbstract extends PsrContainerTestAbstract
 {
     public function createCompositeContainer(ContainerInterface $attachedContainer): ContainerInterface
     {

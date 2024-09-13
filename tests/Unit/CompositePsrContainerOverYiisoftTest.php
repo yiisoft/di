@@ -16,7 +16,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 /**
  * Test the CompositeContainer over Yiisoft Container.
  */
-final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainerTest
+final class CompositePsrContainerOverYiisoftTest extends CompositePsrContainerTestAbstract
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {

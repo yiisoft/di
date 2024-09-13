@@ -41,7 +41,7 @@
         "league/container": "^4.2",
         "maglnet/composer-require-checker": "^4.2",
         "phpbench/phpbench": "^1.2.0",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^10.5",
         "rector/rector": "^1.2",
         "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
