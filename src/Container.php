@@ -40,7 +40,7 @@ final class Container implements ContainerInterface
     /**
      * @var DefinitionStorage Storage of object definitions.
      */
-    private DefinitionStorage $definitions;
+    private readonly DefinitionStorage $definitions;
 
     /**
      * @var array Used to collect IDs of objects instantiated during build
@@ -51,7 +51,7 @@ final class Container implements ContainerInterface
     /**
      * @var bool $validate If definitions should be validated.
      */
-    private bool $validate;
+    private readonly bool $validate;
 
     private array $instances = [];
 

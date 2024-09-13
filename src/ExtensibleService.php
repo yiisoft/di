@@ -29,8 +29,8 @@ final class ExtensibleService implements DefinitionInterface
      * @param mixed $definition Definition to allow registering extensions for.
      */
     public function __construct(
-        private mixed $definition,
-        private string $id
+        private readonly mixed $definition,
+        private readonly string $id
     ) {
     }
 

@@ -12,7 +12,7 @@ use Psr\Container\ContainerInterface;
  */
 class EngineFactory
 {
-    public function __construct(private ContainerInterface $container)
+    public function __construct(private readonly ContainerInterface $container)
     {
     }
 

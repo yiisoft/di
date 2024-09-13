@@ -34,7 +34,7 @@ and configure classes resolving dependencies.
 
 ## Requirements
 
-- PHP 8.0 or higher.
+- PHP 8.1 or higher.
 - `Multibyte String` PHP extension.
 
 ## Installation

@@ -171,10 +171,6 @@ final class ContainerTest extends TestCase
      */
     public function testUnionTypes(string $class): void
     {
-        if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped('Union types are not supported before PHP 8');
-        }
-
         $container = new Container(ContainerConfig::create());
 
         $this->assertTrue($container->has($class));
@@ -204,10 +200,6 @@ final class ContainerTest extends TestCase
      */
     public function testClassExistButIsNotResolvableWithUnionTypes(string $class): void
     {
-        if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped('Union types are not supported before PHP 8');
-        }
-
         $container = new Container(ContainerConfig::create());
 
         $this->assertFalse($container->has($class));
@@ -693,7 +685,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke([$factory, 'create']),
+                'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke($factory->create(...)),
             ]);
         $container = new Container($config);
 
@@ -760,7 +752,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'car' => [CarFactory::class, 'create'],
+                'car' => CarFactory::create(...),
             ]);
         $container = new Container($config);
 

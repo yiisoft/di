@@ -27,7 +27,7 @@ final class StateResetter
      * @param ContainerInterface $container Container to reset.
      */
     public function __construct(
-        private ContainerInterface $container
+        private readonly ContainerInterface $container
     ) {
     }
 

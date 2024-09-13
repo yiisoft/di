@@ -23,10 +23,6 @@ final class TagReferenceTest extends TestCase
         $reflection = new \ReflectionClass(TagReference::class);
         $reflectionMethod = $reflection->getConstructor();
         $this->assertTrue($reflectionMethod->isPrivate());
-        if (PHP_VERSION_ID < 81000) {
-            $reflectionMethod->setAccessible(true);
-        }
-
         $reflectionMethod->invoke($reflection->newInstanceWithoutConstructor());
     }
 

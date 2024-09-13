@@ -6,7 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 final class UnionTypeInConstructorSecondTypeInParamResolvable
 {
-    public function __construct(private EngineInterface|EngineMarkOne $engine)
+    public function __construct(private readonly EngineInterface|EngineMarkOne $engine)
     {
     }
 }

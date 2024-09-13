@@ -11,7 +11,7 @@ use function func_get_args;
  */
 class ConstructorTestClass
 {
-    private array $allParameters;
+    private readonly array $allParameters;
 
     /**
      * ConstructorTestClass constructor.
