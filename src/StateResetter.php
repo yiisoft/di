@@ -74,7 +74,6 @@ final class StateResetter
                 );
             }
 
-            /** @var mixed $instance */
             $instance = $this->container->get($serviceId);
             if (!is_object($instance)) {
                 throw new InvalidArgumentException(

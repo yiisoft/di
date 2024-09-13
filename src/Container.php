@@ -207,7 +207,6 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
@@ -237,7 +236,6 @@ final class Container implements ContainerInterface
      */
     private function addDefinitions(array $config): void
     {
-        /** @var mixed $definition */
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
                 throw new InvalidConfigException(
@@ -296,10 +294,7 @@ final class Container implements ContainerInterface
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
         if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            /** @var mixed $class */
             $class = $definition['class'];
-
-            /** @var mixed $constructorArguments */
             $constructorArguments = $definition['__construct()'];
 
             /**
@@ -331,7 +326,6 @@ final class Container implements ContainerInterface
      */
     private function validateMeta(array $meta): void
     {
-        /** @var mixed $value */
         foreach ($meta as $key => $value) {
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
@@ -413,7 +407,6 @@ final class Container implements ContainerInterface
                         )
                     );
                 }
-                /** @var mixed $service */
                 foreach ($services as $service) {
                     if (!is_string($service)) {
                         throw new InvalidConfigException(
@@ -505,7 +498,6 @@ final class Container implements ContainerInterface
 
             $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
 
-            /** @var mixed $object */
             $object = $definition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
@@ -520,7 +512,6 @@ final class Container implements ContainerInterface
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {
-                /** @var mixed */
                 $services[] = $this->get($service);
             }
         }
@@ -535,7 +526,6 @@ final class Container implements ContainerInterface
     private function addProviders(array $providers): void
     {
         $extensions = [];
-        /** @var mixed $provider */
         foreach ($providers as $provider) {
             $providerInstance = $this->buildProvider($provider);
             $extensions[] = $providerInstance->getExtensions();
@@ -543,7 +533,6 @@ final class Container implements ContainerInterface
         }
 
         foreach ($extensions as $providerExtensions) {
-            /** @var mixed $extension */
             foreach ($providerExtensions as $id => $extension) {
                 if (!is_string($id)) {
                     throw new InvalidConfigException(
@@ -568,7 +557,6 @@ final class Container implements ContainerInterface
                     );
                 }
 
-                /** @var mixed $definition */
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition, $id);

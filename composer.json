@@ -32,7 +32,7 @@
         }
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-mbstring": "*",
         "psr/container": "^1.1|^2.0",
         "yiisoft/definitions": "^3.0"
@@ -45,7 +45,7 @@
         "rector/rector": "^1.2",
         "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.30|^5.7",
+        "vimeo/psalm": "^5.26",
         "yiisoft/injector": "^1.0",
         "yiisoft/test-support": "^3.0"
     },
