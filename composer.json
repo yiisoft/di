@@ -56,7 +56,7 @@
         "yiisoft/injector": "^1.0",
         "phpbench/phpbench": "To run benchmarks.",
         "symfony/console": "For debug:commands command",
-        "symfony/var-dumper": "For debug:commands command"
+        "yiisoft/var-dumper": "For debug:commands command"
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
