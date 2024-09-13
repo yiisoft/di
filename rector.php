@@ -26,6 +26,6 @@ return static function (RectorConfig $rectorConfig): void {
         ClosureToArrowFunctionRector::class,
         FirstClassCallableRector::class => [
             __DIR__ . '/tests/Unit/Helpers/DefinitionParserTest.php',
-        ]
+        ],
     ]);
 };
