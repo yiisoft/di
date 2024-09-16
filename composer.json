@@ -53,8 +53,6 @@
         "symfony/console": "^5.4|^6.0|^7.0"
     },
     "suggest": {
-        "yiisoft/injector": "^1.0",
-        "phpbench/phpbench": "To run benchmarks.",
         "symfony/console": "For debug:container command",
         "yiisoft/var-dumper": "For debug:container command"
     },
