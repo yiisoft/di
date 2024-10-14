@@ -73,7 +73,7 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param bool $validate Whether definitions should be validated immediately.
      */
-    public function withValidate(bool $validate): self
+    public function withValidate(bool $validate = true): self
     {
         $new = clone $this;
         $new->validate = $validate;
@@ -106,7 +106,7 @@ final class ContainerConfig implements ContainerConfigInterface
      * @param bool $useStrictMode If the automatic addition of definition when class exists and can be resolved
      * is disabled.
      */
-    public function withStrictMode(bool $useStrictMode): self
+    public function withStrictMode(bool $useStrictMode = true): self
     {
         $new = clone $this;
         $new->useStrictMode = $useStrictMode;

@@ -6,6 +6,8 @@
 - Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
 - Enh #364: Minor refactoring to improve performance of container (@samdark)
 - Enh #375: Raise minimum PHP version to `^8.1` and refactor code (@vjik)
+- Enh #376: Add default value `true` for parameter of `ContainerConfig::withStrictMode()` and
+ `ContainerConfig::withValidate()` methods (@vjik)
 
 ## 1.2.1 December 23, 2022
 
