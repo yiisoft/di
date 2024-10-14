@@ -1,6 +1,6 @@
 # Yii Dependency Injection Change Log
 
-## 1.3.0 under development
+## 1.3.0 October 14, 2024
 
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
 - Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
