@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.3.1 under development
+
+- no changes in this release.
+
 ## 1.3.0 October 14, 2024
 
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
