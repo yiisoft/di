@@ -133,6 +133,23 @@ $container = new Container($config);
 $object = $container->get('engine_one');
 ```
 
+## Using class aliases for specific configuration
+
+To define another instance of a class with specific configuration, you can
+use native PHP `class_alias()`:
+
+```php
+class_alias(Yiisoft\Db\Pgsql\Connection::class, 'MyPgSql');
+
+$config = ContainerConfig::create()                                                                                                                                                     
+    ->withDefinitions([
+        MyPgSql::class => [ ... ]
+    ]);                                                                                                                                                                                 
+
+$container = new Container($config);
+$object = $container->get(MyPgSql::class);
+```
+
 ## Composite containers
 
 A composite container combines many containers in a single container. When
