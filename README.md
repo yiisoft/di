@@ -150,6 +150,18 @@ $container = new Container($config);
 $object = $container->get(MyPgSql::class);
 ```
 
+It could be then conveniently used by type-hinting:
+
+```php
+final class MyService
+{
+    public function __construct(MyPgSql $myPgSql)
+    {
+        // ...    
+    }
+} 
+```
+
 ## Composite containers
 
 A composite container combines many containers in a single container. When
