@@ -17,8 +17,8 @@ final class TagReferenceResolveTest extends TestCase
             ContainerConfig::create()
                 ->withDefinitions([
                     Main::class => [
-                        '$data' => TagReference::to('letters')
-                    ]
+                        '$data' => TagReference::to('letters'),
+                    ],
                 ])
                 ->withTags([
                     'letters' => [A::class, B::class],
