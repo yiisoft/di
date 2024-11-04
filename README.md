@@ -338,14 +338,6 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
-Now you can get tagged services from the container in the following way:
-
-```php
-$container->get(\Yiisoft\Di\Reference\TagReference::to('car'));
-```
-
-The result is an array that has two instances: `BlueCarService` and `RedCarService`.
-
 Another way to tag services is setting tags via container constructor:
 
 ```php
@@ -365,6 +357,30 @@ $config = ContainerConfig::create()
     ]);
 
 $container = new Container($config);
+```
+
+### Tagged services getting
+
+Now you can get tagged services from the container in the following way:
+
+```php
+$container->get(\Yiisoft\Di\Reference\TagReference::makeId('car'));
+```
+
+The result is an array that has two instances: `BlueCarService` and `RedCarService`.
+
+### Usage tagged services in configuration
+
+Use `TagReference` to get tagged services in configuration:
+
+```php
+[
+    Garage::class => [
+        '__construct()' => [
+            \Yiisoft\Di\Reference\TagReference::to('car'),
+        ],    
+    ],
+],
 ```
 
 ## Resetting services state
