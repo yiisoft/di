@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di\Tests\Unit\Reference;
+namespace Yiisoft\Di\Tests\Unit\Reference\TagReference;
 
 use Error;
 use InvalidArgumentException;
@@ -68,5 +68,10 @@ final class TagReferenceTest extends TestCase
         $result = $reference->resolve($spyContainer);
 
         $this->assertEquals('tag@test', $result);
+    }
+
+    public function testId(): void
+    {
+        $this->assertSame('tag@test', TagReference::id('test'));
     }
 }

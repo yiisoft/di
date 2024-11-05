@@ -2,7 +2,7 @@
 
 ## 1.3.1 under development
 
-- no changes in this release.
+- New #380: Add `TagReference::id()` method (@vjik)
 
 ## 1.3.0 October 14, 2024
 

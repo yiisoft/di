@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di\Reference;
 
+use InvalidArgumentException;
 use Yiisoft\Definitions\Reference;
 
+use function sprintf;
+
 /**
- * TagReference is a helper class used to specify a reference to a tag.
+ * Helper class used to specify a reference to a tag.
  * For example, `TagReference::to('my-tag')` specifies a reference to all services that are tagged with `tag@my-tag`.
  */
 final class TagReference
@@ -20,13 +23,18 @@ final class TagReference
 
     public static function to(string $tag): Reference
     {
-        return Reference::to(self::PREFIX . $tag);
+        return Reference::to(self::id($tag));
+    }
+
+    public static function id(string $tag): string
+    {
+        return self::PREFIX . $tag;
     }
 
     public static function extractTagFromAlias(string $alias): string
     {
         if (!str_starts_with($alias, self::PREFIX)) {
-            throw new \InvalidArgumentException(sprintf('Alias "%s" is not a tag alias.', $alias));
+            throw new InvalidArgumentException(sprintf('Alias "%s" is not a tag alias.', $alias));
         }
         return substr($alias, 4);
     }
