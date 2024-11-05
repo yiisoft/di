@@ -361,7 +361,7 @@ $container = new Container($config);
 
 ### Getting tagged services
 
-Now you can get tagged services from the container in the following way:
+You can get tagged services from the container in the following way:
 
 ```php
 $container->get(\Yiisoft\Di\Reference\TagReference::makeId('car'));
