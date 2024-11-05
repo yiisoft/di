@@ -10,7 +10,7 @@ use Yiisoft\Definitions\Reference;
 use function sprintf;
 
 /**
- * `TagReference` is a helper class used to specify a reference to a tag.
+ * Helper class used to specify a reference to a tag.
  * For example, `TagReference::to('my-tag')` specifies a reference to all services that are tagged with `tag@my-tag`.
  */
 final class TagReference
