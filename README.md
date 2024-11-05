@@ -369,7 +369,7 @@ $container->get(\Yiisoft\Di\Reference\TagReference::makeId('car'));
 
 The result is an array that has two instances: `BlueCarService` and `RedCarService`.
 
-### Usage tagged services in configuration
+### Using tagged services in configuration
 
 Use `TagReference` to get tagged services in configuration:
 
