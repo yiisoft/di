@@ -359,7 +359,7 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
-### Tagged services getting
+### Getting tagged services
 
 Now you can get tagged services from the container in the following way:
 
