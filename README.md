@@ -364,7 +364,7 @@ $container = new Container($config);
 You can get tagged services from the container in the following way:
 
 ```php
-$container->get(\Yiisoft\Di\Reference\TagReference::makeId('car'));
+$container->get(\Yiisoft\Di\Reference\TagReference::id('car'));
 ```
 
 The result is an array that has two instances: `BlueCarService` and `RedCarService`.

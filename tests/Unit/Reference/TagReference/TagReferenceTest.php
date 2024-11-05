@@ -70,8 +70,8 @@ final class TagReferenceTest extends TestCase
         $this->assertEquals('tag@test', $result);
     }
 
-    public function testMakeId(): void
+    public function testId(): void
     {
-        $this->assertSame('tag@test', TagReference::makeId('test'));
+        $this->assertSame('tag@test', TagReference::id('test'));
     }
 }

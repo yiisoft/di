@@ -23,7 +23,7 @@ final class TagReference
 
     public static function to(string $tag): Reference
     {
-        return Reference::to(self::makeId($tag));
+        return Reference::to(self::id($tag));
     }
 
     public static function id(string $tag): string
