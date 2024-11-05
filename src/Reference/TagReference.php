@@ -26,7 +26,7 @@ final class TagReference
         return Reference::to(self::makeId($tag));
     }
 
-    public static function makeId(string $tag): string
+    public static function id(string $tag): string
     {
         return self::PREFIX . $tag;
     }
