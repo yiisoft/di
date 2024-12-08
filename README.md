@@ -31,6 +31,7 @@ and configure classes resolving dependencies.
 - Has state resetter for long-running workers serving many requests, such as [RoadRunner](https://roadrunner.dev/)
   or [Swoole](https://www.swoole.co.uk/).
 - Supports container delegates.
+- Does auto-wiring.
 
 ## Requirements
 
