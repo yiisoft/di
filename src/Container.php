@@ -10,11 +10,13 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Definitions\Helpers\DefinitionValidator;
+use Yiisoft\Definitions\LazyDefinition;
 use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Reference\TagReference;
@@ -30,12 +32,15 @@ use function is_string;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
+ *
+ * @psalm-import-type MethodOrPropertyItem from ArrayDefinition
  */
 final class Container implements ContainerInterface
 {
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
-    private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+    private const META_LAZY = 'lazy';
+    private const ALLOWED_META = [self::META_TAGS, self::META_RESET, self::META_LAZY];
 
     /**
      * @var DefinitionStorage Storage of object definitions.
@@ -213,7 +218,7 @@ final class Container implements ContainerInterface
             $this->validateMeta($meta);
         }
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @psalm-var array{reset?:Closure,lazy?:bool,tags?:string[]} $meta
          */
 
         if (isset($meta[self::META_TAGS])) {
@@ -221,6 +226,9 @@ final class Container implements ContainerInterface
         }
         if (isset($meta[self::META_RESET])) {
             $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+        }
+        if (isset($meta[self::META_LAZY]) && $meta[self::META_LAZY] === true) {
+            $definition = $this->decorateLazy($id, $definition);
         }
 
         unset($this->instances[$id]);
@@ -605,5 +613,53 @@ final class Container implements ContainerInterface
         }
 
         return $providerInstance;
+    }
+
+    private function decorateLazy(string $id, mixed $definition): DefinitionInterface
+    {
+        $class = class_exists($id) || interface_exists($id) ? $id : null;
+
+        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+            /**
+             * @psalm-var array{
+             *     class: class-string|null,
+             *     '__construct()': array,
+             *     methodsAndProperties: array<string, MethodOrPropertyItem>
+             * } $definition
+            */
+            if (empty($class)) {
+                $class = $definition[ArrayDefinition::CLASS_NAME];
+            }
+            $this->checkClassOnNullForLazyService($class, $id, $definition);
+            $preparedDefinition = ArrayDefinition::fromPreparedData(
+                $definition[ArrayDefinition::CLASS_NAME] ?? $class,
+                $definition[ArrayDefinition::CONSTRUCTOR],
+                $definition['methodsAndProperties'],
+            );
+        } else {
+            $this->checkClassOnNullForLazyService($class, $id, $definition);
+            $preparedDefinition = $definition;
+        }
+
+
+
+        return new LazyDefinition($preparedDefinition, $class);
+    }
+
+    /**
+     * @psalm-param class-string|null $class
+     * @psalm-assert class-string $class
+     */
+    private function checkClassOnNullForLazyService(?string $class, string $id, mixed $definition): void
+    {
+        if (empty($class)) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'Invalid definition: lazy services are only available with array definitions or references. Got type "%s" for definition ID: "%s"',
+                    get_debug_type($definition),
+                    $id,
+                )
+            );
+        }
     }
 }

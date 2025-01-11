@@ -35,11 +35,12 @@
         "php": "^8.1",
         "ext-mbstring": "*",
         "psr/container": "^1.1|^2.0",
-        "yiisoft/definitions": "^3.0"
+        "yiisoft/definitions": "dev-lazy-definition"
     },
     "require-dev": {
         "league/container": "^4.2",
         "maglnet/composer-require-checker": "^4.2",
+        "friendsofphp/proxy-manager-lts": "^1.0",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^10.5",
         "rector/rector": "^2.0",
@@ -51,7 +52,8 @@
     },
     "suggest": {
         "yiisoft/injector": "^1.0",
-        "phpbench/phpbench": "To run benchmarks."
+        "phpbench/phpbench": "To run benchmarks.",
+        "friendsofphp/proxy-manager-lts": "Install this package if you want to use lazy loading."
     },
     "provide": {
         "psr/container-implementation": "1.0.0"
