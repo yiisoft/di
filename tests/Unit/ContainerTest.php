@@ -60,7 +60,6 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
  */
 final class ContainerTest extends TestCase
 {
-
     public function testCanCreateWihtoutConfig(): void
     {
         $this->expectNotToPerformAssertions();

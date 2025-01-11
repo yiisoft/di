@@ -76,7 +76,7 @@ final class Container implements ContainerInterface
      */
     public function __construct(?ContainerConfigInterface $config = null)
     {
-        if (is_null($config)) {
+        if (null === $config) {
             $config = ContainerConfig::create();
         }
 
