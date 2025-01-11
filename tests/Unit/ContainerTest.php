@@ -60,6 +60,14 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
  */
 final class ContainerTest extends TestCase
 {
+
+    public function testCanCreateWihtoutConfig(): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $cont = new Container();
+    }
+
     public function testSettingScalars(): void
     {
         $this->expectException(InvalidConfigException::class);
@@ -89,7 +97,7 @@ final class ContainerTest extends TestCase
 
     public function testNullableClassDependency(): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->expectException(NotFoundException::class);
         $container->get(NullableConcreteDependency::class);
@@ -111,7 +119,7 @@ final class ContainerTest extends TestCase
 
     public function testOptionalNotResolvableClassDependency(): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->assertTrue($container->has(OptionalConcreteDependency::class));
         $service = $container->get(OptionalConcreteDependency::class);
@@ -168,14 +176,14 @@ final class ContainerTest extends TestCase
     #[DataProvider('dataUnionTypes')]
     public function testUnionTypes(string $class): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->assertTrue($container->has($class));
     }
 
     public function testClassExistsButIsNotResolvable(): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->assertFalse($container->has('non_existing'));
         $this->assertFalse($container->has(Car::class));
@@ -195,14 +203,14 @@ final class ContainerTest extends TestCase
     #[DataProvider('dataClassExistButIsNotResolvableWithUnionTypes')]
     public function testClassExistButIsNotResolvableWithUnionTypes(string $class): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->assertFalse($container->has($class));
     }
 
     public function testWithoutDefinition(): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $hasEngine = $container->has(EngineMarkOne::class);
         $this->assertTrue($hasEngine);
@@ -213,7 +221,7 @@ final class ContainerTest extends TestCase
 
     public function testCircularClassDependencyWithoutDefinition(): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
         $this->expectException(CircularReferenceException::class);
         $container->get(Chicken::class);
     }
@@ -612,7 +620,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         // Build an object
         $container->get(ColorPink::class);
@@ -639,7 +647,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
         try {
             // Build an object
             $container->get('test');
@@ -948,7 +956,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectException(NotFoundException::class);
 
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
         $container->get('non_existing');
     }
 
@@ -1233,16 +1241,16 @@ final class ContainerTest extends TestCase
 
         $config = ContainerConfig::create()
             ->withDefinitions([
-                ContainerInterface::class => new Container(ContainerConfig::create()),
+                ContainerInterface::class => new Container(),
             ])
             ->withDelegates([
                 function (ContainerInterface $container) use (&$firstContainer): ContainerInterface {
                     $firstContainer = $container;
-                    return new Container(ContainerConfig::create());
+                    return new Container();
                 },
                 function (ContainerInterface $container) use (&$secondContainer): ContainerInterface {
                     $secondContainer = $container;
-                    return new Container(ContainerConfig::create());
+                    return new Container();
                 },
             ]);
         $originalContainer = new Container($config);
@@ -1619,7 +1627,7 @@ final class ContainerTest extends TestCase
             public function getDefinitions(): array
             {
                 return [
-                    ContainerInterface::class => static fn (ContainerInterface $container) => new Container(ContainerConfig::create()),
+                    ContainerInterface::class => static fn (ContainerInterface $container) => new Container(),
                 ];
             }
 

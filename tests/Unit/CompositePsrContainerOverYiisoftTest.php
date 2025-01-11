@@ -110,9 +110,9 @@ final class CompositePsrContainerOverYiisoftTest extends CompositePsrContainerTe
     {
         $compositeContainer = new CompositeContainer();
 
-        $container1 = new Container(ContainerConfig::create());
+        $container1 = new Container();
         $container1Id = spl_object_id($container1);
-        $container2 = new Container(ContainerConfig::create());
+        $container2 = new Container();
         $container2Id = spl_object_id($container2);
 
         $compositeContainer->attach($container1);

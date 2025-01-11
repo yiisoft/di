@@ -66,7 +66,7 @@ final class ServiceProviderTest extends TestCase
 
     private function ensureProviderRegisterDefinitions($provider): void
     {
-        $container = new Container(ContainerConfig::create());
+        $container = new Container();
 
         $this->assertFalse(
             $container->has(Car::class),
