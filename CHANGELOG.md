@@ -3,7 +3,7 @@
 ## 1.3.1 under development
 
 - New #380: Add `TagReference::id()` method (@vjik)
-- Enh #384: Make `Container` constructor param optional (@np25071984)
+- Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
 
 ## 1.3.0 October 14, 2024
 
