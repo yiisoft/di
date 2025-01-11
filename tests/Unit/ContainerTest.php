@@ -64,7 +64,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        $cont = new Container();
+        new Container();
     }
 
     public function testSettingScalars(): void
