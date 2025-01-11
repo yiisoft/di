@@ -76,9 +76,7 @@ final class Container implements ContainerInterface
      */
     public function __construct(?ContainerConfigInterface $config = null)
     {
-        if (null === $config) {
-            $config = ContainerConfig::create();
-        }
+        $config ??= ContainerConfig::create();
 
         $this->definitions = new DefinitionStorage(
             [
