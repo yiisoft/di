@@ -74,8 +74,10 @@ final class Container implements ContainerInterface
      *
      * @throws InvalidConfigException If configuration is not valid.
      */
-    public function __construct(ContainerConfigInterface $config)
+    public function __construct(?ContainerConfigInterface $config = null)
     {
+        $config ??= ContainerConfig::create();
+
         $this->definitions = new DefinitionStorage(
             [
                 ContainerInterface::class => $this,

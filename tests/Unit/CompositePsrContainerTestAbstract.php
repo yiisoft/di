@@ -136,7 +136,7 @@ abstract class CompositePsrContainerTestAbstract extends PsrContainerTestAbstrac
     public function testDelegateLookup(): void
     {
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container(ContainerConfig::create());
+        $firstContainer = new Container();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -155,7 +155,7 @@ abstract class CompositePsrContainerTestAbstract extends PsrContainerTestAbstrac
     public function testDelegateLookupUnionTypes(): void
     {
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container(ContainerConfig::create());
+        $firstContainer = new Container();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
