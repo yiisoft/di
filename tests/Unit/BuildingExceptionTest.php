@@ -15,6 +15,8 @@ final class BuildingExceptionTest extends TestCase
         $exception = new BuildingException('test', new RuntimeException('i am angry'));
 
         $this->assertSame('Caught unhandled error "i am angry" while building "test".', $exception->getMessage());
+        $this->assertSame('Couldn\'t build requested object.', $exception->getName());
+        $this->assertSame('See (https://github.com/yiisoft/di)[https://github.com/yiisoft/di] for more documentation.', $exception->getSolution());
     }
 
     public function testEmptyMessage(): void

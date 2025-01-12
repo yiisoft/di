@@ -7,12 +7,13 @@ namespace Yiisoft\Di;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Throwable;
+use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 /**
  * It wraps all exceptions that don't implement `ContainerExceptionInterface` during the build process.
  * Also adds building context for more understanding.
  */
-final class BuildingException extends Exception implements ContainerExceptionInterface
+final class BuildingException extends Exception implements ContainerExceptionInterface, FriendlyExceptionInterface
 {
     /**
      * @param string $id ID of the definition or name of the class that wasn't found.
@@ -31,5 +32,17 @@ final class BuildingException extends Exception implements ContainerExceptionInt
         );
 
         parent::__construct($message, 0, $previous);
+    }
+
+    public function getName(): string
+    {
+        return 'Couldn\'t build requested object.';
+    }
+
+    public function getSolution(): ?string
+    {
+        return <<<SOLUTION
+            See (https://github.com/yiisoft/di)[https://github.com/yiisoft/di] for more documentation.
+            SOLUTION;
     }
 }

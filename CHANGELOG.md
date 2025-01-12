@@ -4,6 +4,7 @@
 
 - New #380: Add `TagReference::id()` method (@vjik)
 - Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
+- Enh #324: Make `BuildingException` friendly (@np25071984)
 
 ## 1.3.0 October 14, 2024
 
