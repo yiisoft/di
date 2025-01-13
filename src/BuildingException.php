@@ -20,7 +20,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
      * @param string[] $buildStack Stack of IDs of services requested definition or class that wasn't found.
      */
     public function __construct(
-        private string $id,
+        private readonly string $id,
         Throwable $error,
         array $buildStack = [],
         Throwable $previous = null,
