@@ -16,7 +16,8 @@ final class BuildingExceptionTest extends TestCase
 
         $this->assertSame('Caught unhandled error "i am angry" while building "test".', $exception->getMessage());
         $this->assertSame('Unable to build object requested.', $exception->getName());
-        $this->assertSame(<<<SOLUTION
+        $this->assertSame(
+            <<<SOLUTION
             Ensure that either a service with ID "x" is defined or such class exists and is autoloadable.
 
             Ensure that configuration for service with ID "x" is correct.
