@@ -14,6 +14,15 @@ final class NotFoundExceptionTest extends TestCase
         $exception = new NotFoundException('test');
 
         $this->assertSame('test', $exception->getId());
+        $this->assertSame('No difinition or class found for "test" ID.', $exception->getName());
+        $this->assertSame(
+            <<<SOLUTION
+            Ensure that either a service with ID "test" is defined or such class exists and is autoloadable.
+
+            Ensure that configuration for service with ID "test" is correct.
+            SOLUTION,
+            $exception->getSolution()
+        );
     }
 
     public function testMessage(): void
