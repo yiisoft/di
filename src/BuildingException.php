@@ -42,7 +42,9 @@ final class BuildingException extends Exception implements ContainerExceptionInt
     public function getSolution(): ?string
     {
         return <<<SOLUTION
-            See (https://github.com/yiisoft/di)[https://github.com/yiisoft/di] for more documentation.
+            Ensure that either a service with ID "x" is defined or such class exists and is autoloadable.
+
+            Ensure that configuration for service with ID "x" is correct.
             SOLUTION;
     }
 }
