@@ -36,7 +36,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
 
     public function getName(): string
     {
-        return 'Couldn\'t build requested object.';
+        return 'Unable to build object requested.';
     }
 
     public function getSolution(): ?string
