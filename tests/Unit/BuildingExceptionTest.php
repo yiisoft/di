@@ -15,6 +15,15 @@ final class BuildingExceptionTest extends TestCase
         $exception = new BuildingException('test', new RuntimeException('i am angry'));
 
         $this->assertSame('Caught unhandled error "i am angry" while building "test".', $exception->getMessage());
+        $this->assertSame('Unable to build "test" object.', $exception->getName());
+        $this->assertSame(
+            <<<SOLUTION
+            Ensure that either a service with ID "test" is defined or such class exists and is autoloadable.
+
+            Ensure that configuration for service with ID "test" is correct.
+            SOLUTION,
+            $exception->getSolution()
+        );
     }
 
     public function testEmptyMessage(): void

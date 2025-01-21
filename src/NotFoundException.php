@@ -7,11 +7,12 @@ namespace Yiisoft\Di;
 use Exception;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
+use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 /**
  * `NotFoundException` is thrown when no definition or class was found in the container for a given ID.
  */
-final class NotFoundException extends Exception implements NotFoundExceptionInterface
+final class NotFoundException extends Exception implements NotFoundExceptionInterface, FriendlyExceptionInterface
 {
     /**
      * @param string $id ID of the definition or name of the class that was not found.
@@ -48,5 +49,19 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
     public function getBuildStack(): array
     {
         return $this->buildStack;
+    }
+
+    public function getName(): string
+    {
+        return sprintf('No definition or class found for "%s" ID.', $this->id);
+    }
+
+    public function getSolution(): ?string
+    {
+        $solution = <<<SOLUTION
+            Ensure that either a service with ID "%1\$s" is defined or such class exists and is autoloadable.
+            SOLUTION;
+
+        return sprintf($solution, $this->id);
     }
 }
