@@ -11,6 +11,7 @@
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
 - Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
 - Enh #364: Minor refactoring to improve performance of container (@samdark)
+- New #372: Add `debug:container` console command (@samdark, @xepozz)
 - Enh #375: Raise minimum PHP version to `^8.1` and refactor code (@vjik)
 - Enh #376: Add default value `true` for parameter of `ContainerConfig::withStrictMode()` and
  `ContainerConfig::withValidate()` methods (@vjik)

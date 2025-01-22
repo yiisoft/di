@@ -538,6 +538,11 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
+## Configuration debugging
+
+If you use the package with Yii3, `./yii debug:container` command is available.
+It shows information about container.
+
 ## Documentation
 
 - [Internals](docs/internals.md)
