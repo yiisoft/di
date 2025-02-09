@@ -70,6 +70,16 @@ final class Container implements ContainerInterface
     private bool $useResettersFromMeta = true;
 
     /**
+     * @var array<string, mixed> Normalized definitions cache
+     */
+    private array $normalizedDefinitions = [];
+
+    /**
+     * @var int Number of normalized definitions before cache is cleared
+     */
+    private const MAX_NORMALIZED_DEFINITIONS = 100;
+
+    /**
      * @param ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException If configuration is not valid.
@@ -492,10 +502,7 @@ final class Container implements ContainerInterface
      */
     private function build(string $id)
     {
-        if (TagReference::isTagAlias($id)) {
-            return $this->getTaggedServices($id);
-        }
-
+        // Fast path: check for circular reference first as it's the most critical
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
@@ -509,15 +516,28 @@ final class Container implements ContainerInterface
             );
         }
 
+        // Less common case: tag alias
+        if (TagReference::isTagAlias($id)) {
+            return $this->getTaggedServices($id);
+        }
+
+        // Check if definition exists
+        if (!$this->definitions->has($id)) {
+            throw new NotFoundException($id, $this->definitions->getBuildStack());
+        }
+
         $this->building[$id] = 1;
         try {
-            if (!$this->definitions->has($id)) {
-                throw new NotFoundException($id, $this->definitions->getBuildStack());
+            // Use cached normalized definition if available
+            if (!isset($this->normalizedDefinitions[$id])) {
+                // Clear cache if it gets too large to prevent memory issues
+                if (count($this->normalizedDefinitions) >= self::MAX_NORMALIZED_DEFINITIONS) {
+                    $this->normalizedDefinitions = [];
+                }
+                $this->normalizedDefinitions[$id] = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
             }
 
-            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-
-            $object = $definition->resolve($this->get(ContainerInterface::class));
+            $object = $this->normalizedDefinitions[$id]->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
         }
