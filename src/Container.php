@@ -314,26 +314,24 @@ final class Container implements ContainerInterface
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
-        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            $class = $definition['class'];
-            $constructorArguments = $definition['__construct()'];
-
-            /**
-             * @var array $methodsAndProperties Is always array for prepared array definition data.
-             *
-             * @see DefinitionParser::parse()
-             */
-            $methodsAndProperties = $definition['methodsAndProperties'];
-
-            $definition = array_merge(
-                $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
-                [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
-                // extract only value from parsed definition method
-                array_map(static fn (array $data): mixed => $data[2], $methodsAndProperties),
-            );
+        // Skip validation for common simple cases
+        if (is_string($definition) || $definition instanceof ContainerInterface || $definition instanceof Closure) {
+            return;
         }
 
-        if ($definition instanceof ExtensibleService) {
+        if (is_array($definition)) {
+            if (isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+                $class = $definition['class'];
+                $constructorArguments = $definition['__construct()'];
+                $methodsAndProperties = $definition['methodsAndProperties'];
+
+                $definition = array_merge(
+                    $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
+                    [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
+                    array_map(static fn (array $data): mixed => $data[2], $methodsAndProperties),
+                );
+            }
+        } elseif ($definition instanceof ExtensibleService) {
             throw new InvalidConfigException(
                 'Invalid definition. ExtensibleService is only allowed in provider extensions.'
             );
