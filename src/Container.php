@@ -20,7 +20,6 @@ use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Reference\TagReference;
 
-use function array_key_exists;
 use function array_keys;
 use function implode;
 use function in_array;
