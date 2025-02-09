@@ -140,65 +140,80 @@ final class Container implements ContainerInterface
      */
     public function get(string $id)
     {
-        if (!array_key_exists($id, $this->instances)) {
-            try {
-                try {
-                    $this->instances[$id] = $this->build($id);
-                } catch (NotFoundExceptionInterface $exception) {
-                    if (!$this->delegates->has($id)) {
-                        if ($exception instanceof NotFoundException) {
-                            if ($id !== $exception->getId()) {
-                                $buildStack = $exception->getBuildStack();
-                                array_unshift($buildStack, $id);
-                                throw new NotFoundException($exception->getId(), $buildStack);
-                            }
-                            throw $exception;
-                        }
-                        throw new NotFoundException($id, [$id], previous: $exception);
-                    }
-
-                    /** @psalm-suppress MixedReturnStatement */
-                    return $this->delegates->get($id);
-                }
-            } catch (Throwable $e) {
-                if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
-                    throw $e;
-                }
-                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+        // Fast path: check if instance exists
+        if (isset($this->instances[$id])) {
+            if ($id === StateResetter::class) {
+                return $this->prepareStateResetter($id);
             }
+            return $this->instances[$id];
+        }
+
+        try {
+            $this->instances[$id] = $this->build($id);
+        } catch (NotFoundExceptionInterface $exception) {
+            if (!$this->delegates->has($id)) {
+                if ($exception instanceof NotFoundException) {
+                    if ($id !== $exception->getId()) {
+                        $buildStack = $exception->getBuildStack();
+                        array_unshift($buildStack, $id);
+                        throw new NotFoundException($exception->getId(), $buildStack);
+                    }
+                    throw $exception;
+                }
+                throw new NotFoundException($id, [$id], previous: $exception);
+            }
+
+            /** @psalm-suppress MixedReturnStatement */
+            return $this->delegates->get($id);
+        } catch (Throwable $e) {
+            if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
+                throw $e;
+            }
+            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
         }
 
         if ($id === StateResetter::class) {
-            $delegatesResetter = null;
-            if ($this->delegates->has(StateResetter::class)) {
-                $delegatesResetter = $this->delegates->get(StateResetter::class);
-            }
-
-            /** @var StateResetter $mainResetter */
-            $mainResetter = $this->instances[$id];
-
-            if ($this->useResettersFromMeta) {
-                /** @var StateResetter[] $resetters */
-                $resetters = [];
-                foreach ($this->resetters as $serviceId => $callback) {
-                    if (isset($this->instances[$serviceId])) {
-                        $resetters[$serviceId] = $callback;
-                    }
-                }
-                if ($delegatesResetter !== null) {
-                    $resetters[] = $delegatesResetter;
-                }
-                $mainResetter->setResetters($resetters);
-            } elseif ($delegatesResetter !== null) {
-                $resetter = new StateResetter($this->get(ContainerInterface::class));
-                $resetter->setResetters([$mainResetter, $delegatesResetter]);
-
-                return $resetter;
-            }
+            return $this->prepareStateResetter($id);
         }
 
         /** @psalm-suppress MixedReturnStatement */
         return $this->instances[$id];
+    }
+
+    /**
+     * @param string $id
+     * @return mixed
+     */
+    private function prepareStateResetter(string $id)
+    {
+        $delegatesResetter = null;
+        if ($this->delegates->has(StateResetter::class)) {
+            $delegatesResetter = $this->delegates->get(StateResetter::class);
+        }
+
+        /** @var StateResetter $mainResetter */
+        $mainResetter = $this->instances[$id];
+
+        if ($this->useResettersFromMeta) {
+            /** @var StateResetter[] $resetters */
+            $resetters = [];
+            foreach ($this->resetters as $serviceId => $callback) {
+                if (isset($this->instances[$serviceId])) {
+                    $resetters[$serviceId] = $callback;
+                }
+            }
+            if ($delegatesResetter !== null) {
+                $resetters[] = $delegatesResetter;
+            }
+            $mainResetter->setResetters($resetters);
+        } elseif ($delegatesResetter !== null) {
+            $resetter = new StateResetter($this->get(ContainerInterface::class));
+            $resetter->setResetters([$mainResetter, $delegatesResetter]);
+
+            return $resetter;
+        }
+
+        return $mainResetter;
     }
 
     /**
