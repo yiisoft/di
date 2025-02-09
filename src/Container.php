@@ -152,36 +152,35 @@ final class Container implements ContainerInterface
     {
         // Fast path: check if instance exists
         if (isset($this->instances[$id])) {
-            if ($id === StateResetter::class) {
-                return $this->prepareStateResetter($id);
-            }
-            return $this->instances[$id];
+            return $id === StateResetter::class ? $this->prepareStateResetter($id) : $this->instances[$id];
         }
 
         try {
             $this->instances[$id] = $this->build($id);
-        } catch (NotFoundExceptionInterface $exception) {
-            if (!$this->delegates->has($id)) {
-                if ($exception instanceof NotFoundException) {
-                    if ($id !== $exception->getId()) {
-                        $buildStack = $exception->getBuildStack();
-                        array_unshift($buildStack, $id);
-                        throw new NotFoundException($exception->getId(), $buildStack);
-                    }
-                    throw $exception;
-                }
-                throw new NotFoundException($id, [$id], previous: $exception);
+        } catch (NotFoundException $exception) {
+            // Fast path: if the exception ID matches the requested ID, no need to modify stack
+            if ($exception->getId() === $id) {
+                // Try delegates before giving up
+                return $this->delegates->has($id) ? $this->delegates->get($id) : throw $exception;
             }
 
-            /** @psalm-suppress MixedReturnStatement */
-            return $this->delegates->get($id);
-        } catch (Throwable $e) {
-            if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
+            // Add current ID to build stack for better error reporting
+            $buildStack = $exception->getBuildStack();
+            array_unshift($buildStack, $id);
+            throw new NotFoundException($exception->getId(), $buildStack);
+        } catch (NotFoundExceptionInterface $exception) {
+            // Try delegates before giving up
+            return $this->delegates->has($id) ? $this->delegates->get($id) : throw new NotFoundException($id, [$id], previous: $exception);
+        } catch (ContainerExceptionInterface $e) {
+            if (!$e instanceof InvalidConfigException) {
                 throw $e;
             }
             throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+        } catch (Throwable $e) {
+            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
         }
 
+        // Handle StateResetter for newly built instances
         if ($id === StateResetter::class) {
             return $this->prepareStateResetter($id);
         }
