@@ -103,16 +103,20 @@ final class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
+        try {
+            if ($this->definitions->has($id)) {
+                return true;
+            }
+        } catch (CircularReferenceException) {
+            return true;
+        }
+
         if (TagReference::isTagAlias($id)) {
             $tag = TagReference::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
         }
 
-        try {
-            return $this->definitions->has($id);
-        } catch (CircularReferenceException) {
-            return true;
-        }
+        return false;
     }
 
     /**
