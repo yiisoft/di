@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
+use Yiisoft\Definitions\DefinitionInterface;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -237,15 +238,26 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
+        // Skip parsing if already a valid definition
+        if ($definition instanceof DefinitionInterface) {
+            $this->addDefinitionToStorage($id, $definition);
+            unset($this->instances[$id]);
+            return;
+        }
+
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
-            $this->validateMeta($meta);
+            // Only validate meta if it's not empty
+            if ($meta !== []) {
+                $this->validateMeta($meta);
+            }
         }
         /**
          * @psalm-var array{reset?:Closure,tags?:string[]} $meta
          */
 
+        // Process meta only if it has tags or reset callback
         if (isset($meta[self::META_TAGS])) {
             $this->setDefinitionTags($id, $meta[self::META_TAGS]);
         }
@@ -253,7 +265,11 @@ final class Container implements ContainerInterface
             $this->setDefinitionResetter($id, $meta[self::META_RESET]);
         }
 
-        unset($this->instances[$id]);
+        // Only unset instance if it exists
+        if (isset($this->instances[$id])) {
+            unset($this->instances[$id]);
+        }
+
         $this->addDefinitionToStorage($id, $definition);
     }
 
@@ -489,7 +505,7 @@ final class Container implements ContainerInterface
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id The interface or an alias name that was previously registered.
+     * @param string $id The interface or the alias name that was previously registered.
      *
      * @throws InvalidConfigException
      * @throws NotFoundExceptionInterface
