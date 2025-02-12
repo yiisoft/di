@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
-use Yiisoft\Definitions\DefinitionInterface;
+use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -70,12 +70,12 @@ final class Container implements ContainerInterface
     private bool $useResettersFromMeta = true;
 
     /**
-     * @var array<string, mixed> Normalized definitions cache
+     * @var array<string, mixed> Normalized definitions cache.
      */
     private array $normalizedDefinitions = [];
 
     /**
-     * @var int Number of normalized definitions before cache is cleared
+     * @var int Number of normalized definitions before the cache is cleared.
      */
     private const MAX_NORMALIZED_DEFINITIONS = 100;
 
