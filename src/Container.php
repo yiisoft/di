@@ -149,7 +149,7 @@ final class Container implements ContainerInterface
      */
     public function get(string $id)
     {
-        // Fast path: check if instance exists
+        // Fast path: check if instance exists.
         if (isset($this->instances[$id])) {
             return $id === StateResetter::class ? $this->prepareStateResetter($id) : $this->instances[$id];
         }
@@ -157,13 +157,13 @@ final class Container implements ContainerInterface
         try {
             $this->instances[$id] = $this->build($id);
         } catch (NotFoundException $exception) {
-            // Fast path: if the exception ID matches the requested ID, no need to modify stack
+            // Fast path: if the exception ID matches the requested ID, no need to modify stack.
             if ($exception->getId() === $id) {
-                // Try delegates before giving up
+                // Try delegates before giving up.
                 return $this->delegates->has($id) ? $this->delegates->get($id) : throw $exception;
             }
 
-            // Add current ID to build stack for better error reporting
+            // Add current ID to build stack for better error reporting.
             $buildStack = $exception->getBuildStack();
             array_unshift($buildStack, $id);
             throw new NotFoundException($exception->getId(), $buildStack);
@@ -179,7 +179,7 @@ final class Container implements ContainerInterface
             throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
         }
 
-        // Handle StateResetter for newly built instances
+        // Handle StateResetter for newly built instances.
         if ($id === StateResetter::class) {
             return $this->prepareStateResetter($id);
         }
@@ -239,7 +239,7 @@ final class Container implements ContainerInterface
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
-            // Only validate meta if it's not empty
+            // Only validate meta if it's not empty.
             if ($meta !== []) {
                 $this->validateMeta($meta);
             }
@@ -248,7 +248,7 @@ final class Container implements ContainerInterface
          * @psalm-var array{reset?:Closure,tags?:string[]} $meta
          */
 
-        // Process meta only if it has tags or reset callback
+        // Process meta only if it has tags or reset callback.
         if (isset($meta[self::META_TAGS])) {
             $this->setDefinitionTags($id, $meta[self::META_TAGS]);
         }
@@ -256,10 +256,7 @@ final class Container implements ContainerInterface
             $this->setDefinitionResetter($id, $meta[self::META_RESET]);
         }
 
-        // Only unset instance if it exists
-        if (isset($this->instances[$id])) {
-            unset($this->instances[$id]);
-        }
+        unset($this->instances[$id]);
 
         $this->addDefinitionToStorage($id, $definition);
     }
@@ -330,7 +327,7 @@ final class Container implements ContainerInterface
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
-        // Skip validation for common simple cases
+        // Skip validation for common simple cases.
         if (is_string($definition) || $definition instanceof ContainerInterface || $definition instanceof Closure) {
             return;
         }
@@ -508,7 +505,7 @@ final class Container implements ContainerInterface
      */
     private function build(string $id)
     {
-        // Fast path: check for circular reference first as it's the most critical
+        // Fast path: check for circular reference first as it's the most critical.
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
@@ -522,21 +519,21 @@ final class Container implements ContainerInterface
             );
         }
 
-        // Less common case: tag alias
+        // Less common case: tag alias.
         if (TagReference::isTagAlias($id)) {
             return $this->getTaggedServices($id);
         }
 
-        // Check if definition exists
+        // Check if the definition exists.
         if (!$this->definitions->has($id)) {
             throw new NotFoundException($id, $this->definitions->getBuildStack());
         }
 
         $this->building[$id] = 1;
         try {
-            // Use cached normalized definition if available
+            // Use cached normalized definition if available.
             if (!isset($this->normalizedDefinitions[$id])) {
-                // Clear cache if it gets too large to prevent memory issues
+                // Clear cache if it gets too large to prevent memory issues.
                 if (count($this->normalizedDefinitions) >= self::MAX_NORMALIZED_DEFINITIONS) {
                     $this->normalizedDefinitions = [];
                 }
