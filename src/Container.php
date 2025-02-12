@@ -10,7 +10,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
-use Yiisoft\Definitions\Contract\DefinitionInterface;
 use Yiisoft\Definitions\DefinitionStorage;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -237,13 +236,6 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        // Skip parsing if already a valid definition
-        if ($definition instanceof DefinitionInterface) {
-            $this->addDefinitionToStorage($id, $definition);
-            unset($this->instances[$id]);
-            return;
-        }
-
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
