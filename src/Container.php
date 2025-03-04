@@ -52,6 +52,9 @@ final class Container implements ContainerInterface
      */
     private readonly bool $validate;
 
+    /**
+     * @var array Cached instances.
+     */
     private array $instances = [];
 
     private CompositeContainer $delegates;
@@ -141,7 +144,10 @@ final class Container implements ContainerInterface
     {
         // Fast path: check if instance exists.
         if (isset($this->instances[$id])) {
-            return $id === StateResetter::class ? $this->prepareStateResetter() : $this->instances[$id];
+            if ($id === StateResetter::class) {
+                return $this->prepareStateResetter();
+            }
+            return $this->instances[$id];
         }
 
         try {
@@ -150,7 +156,10 @@ final class Container implements ContainerInterface
             // Fast path: if the exception ID matches the requested ID, no need to modify stack.
             if ($exception->getId() === $id) {
                 // Try delegates before giving up.
-                return $this->delegates->has($id) ? $this->delegates->get($id) : throw $exception;
+                if ($this->delegates->has($id)) {
+                    return $this->delegates->get($id);
+                }
+                throw $exception;
             }
 
             // Add current ID to build stack for better error reporting.
@@ -159,7 +168,11 @@ final class Container implements ContainerInterface
             throw new NotFoundException($exception->getId(), $buildStack);
         } catch (NotFoundExceptionInterface $exception) {
             // Try delegates before giving up
-            return $this->delegates->has($id) ? $this->delegates->get($id) : throw new NotFoundException($id, [$id], previous: $exception);
+            if ($this->delegates->has($id)) {
+                return $this->delegates->get($id);
+            }
+
+            throw new NotFoundException($id, [$id], previous: $exception);
         } catch (ContainerExceptionInterface $e) {
             if (!$e instanceof InvalidConfigException) {
                 throw $e;
@@ -323,6 +336,8 @@ final class Container implements ContainerInterface
             if (isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
                 $class = $definition['class'];
                 $constructorArguments = $definition['__construct()'];
+
+                /** @psalm-var array<string,mixed> $methodsAndProperties */
                 $methodsAndProperties = $definition['methodsAndProperties'];
 
                 $definition = array_merge(
