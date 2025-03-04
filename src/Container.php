@@ -151,7 +151,7 @@ final class Container implements ContainerInterface
     {
         // Fast path: check if instance exists.
         if (isset($this->instances[$id])) {
-            return $id === StateResetter::class ? $this->prepareStateResetter($id) : $this->instances[$id];
+            return $id === StateResetter::class ? $this->prepareStateResetter() : $this->instances[$id];
         }
 
         try {
@@ -181,18 +181,14 @@ final class Container implements ContainerInterface
 
         // Handle StateResetter for newly built instances.
         if ($id === StateResetter::class) {
-            return $this->prepareStateResetter($id);
+            return $this->prepareStateResetter();
         }
 
         /** @psalm-suppress MixedReturnStatement */
         return $this->instances[$id];
     }
 
-    /**
-     * @param string $id
-     * @return mixed
-     */
-    private function prepareStateResetter(string $id)
+    private function prepareStateResetter(): StateResetter
     {
         $delegatesResetter = null;
         if ($this->delegates->has(StateResetter::class)) {
@@ -200,7 +196,7 @@ final class Container implements ContainerInterface
         }
 
         /** @var StateResetter $mainResetter */
-        $mainResetter = $this->instances[$id];
+        $mainResetter = $this->instances[StateResetter::class];
 
         if ($this->useResettersFromMeta) {
             /** @var StateResetter[] $resetters */
