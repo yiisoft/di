@@ -69,17 +69,7 @@ final class Container implements ContainerInterface
     private bool $useResettersFromMeta = true;
 
     /**
-     * @var array<string, mixed> Normalized definitions cache.
-     */
-    private array $normalizedDefinitions = [];
-
-    /**
-     * @var int Number of normalized definitions before the cache is cleared.
-     */
-    private const MAX_NORMALIZED_DEFINITIONS = 100;
-
-    /**
-     * @param ContainerConfigInterface $config Container configuration.
+     * @param ?ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException If configuration is not valid.
      */
@@ -292,6 +282,8 @@ final class Container implements ContainerInterface
     private function setDelegates(array $delegates): void
     {
         $this->delegates = new CompositeContainer();
+
+        /** @var ContainerInterface $container */
         $container = $this->get(ContainerInterface::class);
 
         foreach ($delegates as $delegate) {
@@ -301,7 +293,6 @@ final class Container implements ContainerInterface
                 );
             }
 
-            /** @var ContainerInterface */
             $delegate = $delegate($container);
 
             if (!$delegate instanceof ContainerInterface) {
@@ -324,7 +315,7 @@ final class Container implements ContainerInterface
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
         // Skip validation for common simple cases.
-        if (is_string($definition) || $definition instanceof ContainerInterface || $definition instanceof Closure) {
+        if ($definition instanceof ContainerInterface || $definition instanceof Closure) {
             return;
         }
 
@@ -477,7 +468,7 @@ final class Container implements ContainerInterface
      *
      * @see $definitions
      */
-    private function addDefinitionToStorage(string $id, $definition): void
+    private function addDefinitionToStorage(string $id, mixed $definition): void
     {
         $this->definitions->set($id, $definition);
 
@@ -499,7 +490,7 @@ final class Container implements ContainerInterface
      *
      * @internal
      */
-    private function build(string $id)
+    private function build(string $id): mixed
     {
         // Fast path: check for circular reference first as it's the most critical.
         if (isset($this->building[$id])) {
@@ -527,16 +518,8 @@ final class Container implements ContainerInterface
 
         $this->building[$id] = 1;
         try {
-            // Use cached normalized definition if available.
-            if (!isset($this->normalizedDefinitions[$id])) {
-                // Clear cache if it gets too large to prevent memory issues.
-                if (count($this->normalizedDefinitions) >= self::MAX_NORMALIZED_DEFINITIONS) {
-                    $this->normalizedDefinitions = [];
-                }
-                $this->normalizedDefinitions[$id] = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-            }
-
-            $object = $this->normalizedDefinitions[$id]->resolve($this->get(ContainerInterface::class));
+            $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+            $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
         }
