@@ -143,7 +143,7 @@ final class Container implements ContainerInterface
     public function get(string $id)
     {
         // Fast path: check if instance exists.
-        if (isset($this->instances[$id])) {
+        if (array_key_exists($id, $this->instances)) {
             if ($id === StateResetter::class) {
                 return $this->prepareStateResetter();
             }
