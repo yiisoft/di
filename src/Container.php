@@ -300,7 +300,6 @@ final class Container implements ContainerInterface
     {
         $this->delegates = new CompositeContainer();
 
-        /** @var ContainerInterface $container */
         $container = $this->get(ContainerInterface::class);
 
         foreach ($delegates as $delegate) {
