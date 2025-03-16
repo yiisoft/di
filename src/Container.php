@@ -19,6 +19,7 @@ use Yiisoft\Di\Helpers\DefinitionNormalizer;
 use Yiisoft\Di\Helpers\DefinitionParser;
 use Yiisoft\Di\Reference\TagReference;
 
+use function array_key_exists;
 use function array_keys;
 use function implode;
 use function in_array;
@@ -54,6 +55,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var array Cached instances.
+     * @psalm-var array<string, mixed>
      */
     private array $instances = [];
 
@@ -67,6 +69,7 @@ final class Container implements ContainerInterface
 
     /**
      * @var Closure[]
+     * @psalm-var array<string, Closure>
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
@@ -134,11 +137,13 @@ final class Container implements ContainerInterface
      * @throws NotInstantiableException
      * @throws BuildingException
      *
-     * @return mixed|object An instance of the requested interface.
+     * @return mixed An instance of the requested interface.
      *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
+     *
+     * @psalm-suppress MixedReturnStatement `mixed` is correct return type for this method.
      */
     public function get(string $id)
     {
@@ -187,7 +192,6 @@ final class Container implements ContainerInterface
             return $this->prepareStateResetter();
         }
 
-        /** @psalm-suppress MixedReturnStatement */
         return $this->instances[$id];
     }
 
