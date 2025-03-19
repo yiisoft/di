@@ -2016,4 +2016,31 @@ final class ContainerTest extends TestCase
             $exception->getPrevious()
         );
     }
+
+    public function testExceptionInDelegate(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDelegates([
+                static fn () => new SimpleContainer(
+                    factory: static fn () => throw new RuntimeException('Error in delegate'),
+                ),
+            ]),
+        );
+
+        $exception = null;
+        try {
+            $container->get('identifier');
+        } catch (Throwable $exception) {
+        }
+
+        $this->assertInstanceOf(BuildingException::class, $exception);
+        $this->assertSame(
+            'Caught unhandled error "Error in delegate" while building "identifier".',
+            $exception->getMessage(),
+        );
+
+        $previous = $exception->getPrevious();
+        $this->assertInstanceOf(RuntimeException::class, $previous);
+        $this->assertSame('Error in delegate', $previous->getMessage());
+    }
 }
