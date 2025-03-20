@@ -103,11 +103,43 @@ final class CompositeContainer implements ContainerInterface
 
     public function has($id): bool
     {
+        /** @psalm-suppress TypeDoesNotContainType */
+        if (!is_string($id)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'ID must be a string, %s given.',
+                    get_debug_type($id)
+                )
+            );
+        }
+
+        if ($id === StateResetter::class) {
+            foreach ($this->containers as $container) {
+                if ($container->has(StateResetter::class)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (TagReference::isTagAlias($id)) {
+            foreach ($this->containers as $container) {
+                if (!$container instanceof Container) {
+                    continue;
+                }
+                if ($container->has($id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 return true;
             }
         }
+
         return false;
     }
 

@@ -121,7 +121,11 @@ final class Container implements ContainerInterface
             return isset($this->tags[$tag]);
         }
 
-        return false;
+        try {
+            return $this->delegates->has($id);
+        } catch (Throwable $e) {
+            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+        }
     }
 
     /**
@@ -161,8 +165,12 @@ final class Container implements ContainerInterface
             // Fast path: if the exception ID matches the requested ID, no need to modify stack.
             if ($exception->getId() === $id) {
                 // Try delegates before giving up.
-                if ($this->delegates->has($id)) {
-                    return $this->delegates->get($id);
+                try {
+                    if ($this->delegates->has($id)) {
+                        return $this->delegates->get($id);
+                    }
+                } catch (Throwable $e) {
+                    throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
                 }
                 throw $exception;
             }
@@ -173,8 +181,12 @@ final class Container implements ContainerInterface
             throw new NotFoundException($exception->getId(), $buildStack);
         } catch (NotFoundExceptionInterface $exception) {
             // Try delegates before giving up
-            if ($this->delegates->has($id)) {
-                return $this->delegates->get($id);
+            try {
+                if ($this->delegates->has($id)) {
+                    return $this->delegates->get($id);
+                }
+            } catch (Throwable $e) {
+                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
             }
 
             throw new NotFoundException($id, [$id], previous: $exception);
