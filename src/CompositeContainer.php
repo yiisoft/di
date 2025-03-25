@@ -114,12 +114,7 @@ final class CompositeContainer implements ContainerInterface
         }
 
         if ($id === StateResetter::class) {
-            foreach ($this->containers as $container) {
-                if ($container->has(StateResetter::class)) {
-                    return true;
-                }
-            }
-            return false;
+            return true;
         }
 
         if (TagReference::isTagAlias($id)) {
