@@ -147,7 +147,7 @@ final class Container implements ContainerInterface
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
      *
-     * @psalm-suppress MixedReturnStatement `mixed` is correct return type for this method.
+     * @psalm-suppress MixedReturnStatement `mixed` is a correct return type for this method.
      */
     public function get(string $id)
     {
@@ -352,12 +352,17 @@ final class Container implements ContainerInterface
                 $class = $definition['class'];
                 $constructorArguments = $definition['__construct()'];
 
-                /** @psalm-var array<string,mixed> $methodsAndProperties */
+                /**
+                 * @var array $methodsAndProperties Is always array for prepared array definition data.
+                 * @see DefinitionParser::parse()
+                 * @psalm-var array<string,mixed> $methodsAndProperties
+                 */
                 $methodsAndProperties = $definition['methodsAndProperties'];
 
                 $definition = array_merge(
                     $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                     [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
+                    // extract only value from parsed definition method
                     array_map(static fn (array $data): mixed => $data[2], $methodsAndProperties),
                 );
             }
