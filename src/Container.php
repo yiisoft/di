@@ -121,11 +121,7 @@ final class Container implements ContainerInterface
             return isset($this->tags[$tag]);
         }
 
-        try {
-            return $this->delegates->has($id);
-        } catch (Throwable $e) {
-            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
-        }
+        return false;
     }
 
     /**
