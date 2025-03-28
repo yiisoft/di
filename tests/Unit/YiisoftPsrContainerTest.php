@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use Psr\Container\ContainerInterface;
-
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 
