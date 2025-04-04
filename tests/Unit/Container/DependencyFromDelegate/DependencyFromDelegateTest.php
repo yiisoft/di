@@ -30,7 +30,7 @@ final class DependencyFromDelegateTest extends TestCase
                 ->withDelegates([
                     static fn () => new SimpleContainer([
                         Car::class => new Car(new Engine()),
-                    ])
+                    ]),
                 ])
         );
 
@@ -54,7 +54,7 @@ final class DependencyFromDelegateTest extends TestCase
                             ->withDefinitions([
                                 'car' => Car::class,
                             ])
-                    )
+                    ),
                 ])
         );
 
