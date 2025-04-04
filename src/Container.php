@@ -27,6 +27,7 @@ use function is_array;
 use function is_callable;
 use function is_object;
 use function is_string;
+use function sprintf;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.

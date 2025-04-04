@@ -55,6 +55,9 @@ use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
+use function PHPUnit\Framework\assertInstanceOf;
+use function PHPUnit\Framework\assertSame;
+
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
  */
@@ -2069,5 +2072,16 @@ final class ContainerTest extends TestCase
         $previous = $exception->getPrevious();
         $this->assertInstanceOf(RuntimeException::class, $previous);
         $this->assertSame('Error in delegate', $previous->getMessage());
+    }
+
+    public function testGetStateResetterTwice(): void
+    {
+        $container = new Container();
+
+        $resetter1 = $container->get(StateResetter::class);
+        $resetter2 = $container->get(StateResetter::class);
+
+        assertInstanceOf(StateResetter::class, $resetter1);
+        assertSame($resetter1, $resetter2);
     }
 }
