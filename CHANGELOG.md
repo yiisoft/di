@@ -6,6 +6,8 @@
 - Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
 - Enh #324: Make `BuildingException` and `NotFoundException` friendly (@np25071984)
 - Enh #387: Improve container performance (@samdark)
+- Chg #390: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
+- Bug #390: Explicitly mark nullable parameters (@vjik)
 
 ## 1.3.0 October 14, 2024
 

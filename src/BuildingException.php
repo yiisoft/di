@@ -23,7 +23,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
         private readonly string $id,
         Throwable $error,
         array $buildStack = [],
-        Throwable $previous = null,
+        ?Throwable $previous = null,
     ) {
         $message = sprintf(
             'Caught unhandled error "%s" while building "%s".',

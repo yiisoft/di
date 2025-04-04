@@ -16,7 +16,7 @@ class EngineFactory
     {
     }
 
-    public function createByName(string $name = null): EngineInterface
+    public function createByName(?string $name = null): EngineInterface
     {
         if ($name === EngineMarkOne::NAME) {
             return $this->container->get(EngineMarkOne::class);
