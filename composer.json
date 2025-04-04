@@ -39,7 +39,7 @@
         "yiisoft/friendly-exception": "^1.1.0"
     },
     "require-dev": {
-        "league/container": "^4.2",
+        "league/container": "^5.0",
         "maglnet/composer-require-checker": "^4.2",
         "phpbench/phpbench": "^1.2.0",
         "phpunit/phpunit": "^10.5",
