@@ -11,6 +11,7 @@ use Throwable;
 use Yiisoft\Di\Reference\TagReference;
 
 use function is_string;
+use function sprintf;
 
 /**
  * A composite container for use with containers that support the delegate lookup feature.
