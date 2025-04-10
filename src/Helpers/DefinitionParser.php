@@ -75,38 +75,35 @@ final class DefinitionParser
             return [$definition, []];
         }
 
-        // Array definition
+        // Array definition. Process everything in one loop.
         $meta = [];
         $class = null;
         $constructorArguments = [];
         $methodsAndProperties = [];
         foreach ($definition as $key => $value) {
-            if (is_string($key)) {
-                // Class
-                if ($key === ArrayDefinition::CLASS_NAME) {
-                    $class = $value;
-                    continue;
-                }
-
-                // Constructor arguments
-                if ($key === ArrayDefinition::CONSTRUCTOR) {
-                    $constructorArguments = $value;
-                    continue;
-                }
-
-                // Methods and properties
-                if (count($methodArray = explode('()', $key, 2)) === 2) {
-                    $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
-                    continue;
-                }
-                if (count($propertyArray = explode('$', $key, 2)) === 2) {
-                    $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
-                    continue;
-                }
+            if (!is_string($key)) {
+                $meta[$key] = $value;
+                continue;
             }
 
-            $meta[$key] = $value;
+            // Class
+            if ($key === ArrayDefinition::CLASS_NAME) {
+                $class = $value;
+            } elseif ($key === ArrayDefinition::CONSTRUCTOR) {
+                // Constructor arguments
+                $constructorArguments = $value;
+            } elseif (count($methodArray = explode('()', $key, 2)) === 2) {
+                // Methods
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_METHOD, $methodArray[0], $value];
+            } elseif (count($propertyArray = explode('$', $key, 2)) === 2) {
+                // Properties
+                $methodsAndProperties[$key] = [ArrayDefinition::TYPE_PROPERTY, $propertyArray[1], $value];
+            } else {
+                // Metadata
+                $meta[$key] = $value;
+            }
         }
+
         return [
             [
                 'class' => $class,
