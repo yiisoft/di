@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.4.1 under development
+
+- no changes in this release.
+
 ## 1.4.0 May 30, 2025
 
 - New #380: Add `TagReference::id()` method (@vjik)
