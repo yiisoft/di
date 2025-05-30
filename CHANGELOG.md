@@ -1,12 +1,12 @@
 # Yii Dependency Injection Change Log
 
-## 1.3.1 under development
+## 1.4.0 May 30, 2025
 
 - New #380: Add `TagReference::id()` method (@vjik)
-- Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
-- Enh #324: Make `BuildingException` and `NotFoundException` friendly (@np25071984)
-- Enh #387: Improve container performance (@samdark)
 - Chg #390: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
+- Enh #324: Make `BuildingException` and `NotFoundException` friendly (@np25071984)
+- Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
+- Enh #387: Improve container performance (@samdark)
 - Bug #390: Explicitly mark nullable parameters (@vjik)
 
 ## 1.3.0 October 14, 2024
