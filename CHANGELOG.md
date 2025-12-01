@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.4.2 under development
+
+- no changes in this release.
+
 ## 1.4.1 December 01, 2025
 
 - Enh #393: Add PHP 8.5 support (@vjik)
