@@ -22,11 +22,12 @@ name: mutation test
 
 jobs:
   mutation:
-    uses: yiisoft/actions/.github/workflows/roave-infection.yml@master
+    uses: yiisoft/actions/.github/workflows/infection.yml@master
     with:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['8.3']
+        ['8.5']
+      infection-args: "--ignore-msi-with-no-mutations"
     secrets:
       STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
