@@ -328,6 +328,7 @@ Here's an example of using the decorator pattern to add logging to an existing m
 
 ```php
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 use Yiisoft\Di\ServiceProviderInterface;
 
 interface MailerInterface 
@@ -340,7 +341,7 @@ class Mailer implements MailerInterface
     public function send(string $to, string $subject, string $body): void 
     {
         // Original mailer implementation
-        mail($to, $subject, $body);
+        // Sends email via SMTP or external service
     }
 }
 
