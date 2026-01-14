@@ -11,7 +11,7 @@ final class VariadicConstructor
     public function __construct(
         private $first,
         private readonly EngineInterface $engine,
-        ...$parameters
+        ...$parameters,
     ) {
         $this->parameters = $parameters;
     }

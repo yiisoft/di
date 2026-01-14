@@ -22,7 +22,7 @@ final class TagReferenceResolveTest extends TestCase
                 ])
                 ->withTags([
                     'letters' => [A::class, B::class],
-                ])
+                ]),
         );
 
         $main = $container->get(Main::class);

@@ -9,6 +9,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Throwable;
 use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
+use function sprintf;
+
 /**
  * It wraps all exceptions that don't implement `ContainerExceptionInterface` during the build process.
  * Also adds building context for more understanding.
@@ -28,7 +30,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
         $message = sprintf(
             'Caught unhandled error "%s" while building "%s".',
             $error->getMessage() === '' ? $error::class : $error->getMessage(),
-            implode('" -> "', $buildStack === [] ? [$id] : $buildStack)
+            implode('" -> "', $buildStack === [] ? [$id] : $buildStack),
         );
 
         parent::__construct($message, 0, $previous);

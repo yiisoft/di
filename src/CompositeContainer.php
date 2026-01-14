@@ -37,8 +37,8 @@ final class CompositeContainer implements ContainerInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'ID must be a string, %s given.',
-                    get_debug_type($id)
-                )
+                    get_debug_type($id),
+                ),
             );
         }
 
@@ -91,7 +91,7 @@ final class CompositeContainer implements ContainerInterface
                 if (!$hasException) {
                     $exceptions[] = [
                         new RuntimeException(
-                            'Container "has()" returned false, but no exception was thrown from "get()".'
+                            'Container "has()" returned false, but no exception was thrown from "get()".',
                         ),
                         $container,
                     ];
@@ -109,8 +109,8 @@ final class CompositeContainer implements ContainerInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'ID must be a string, %s given.',
-                    get_debug_type($id)
-                )
+                    get_debug_type($id),
+                ),
             );
         }
 

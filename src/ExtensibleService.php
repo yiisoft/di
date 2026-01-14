@@ -30,9 +30,8 @@ final class ExtensibleService implements DefinitionInterface
      */
     public function __construct(
         private readonly mixed $definition,
-        private readonly string $id
-    ) {
-    }
+        private readonly string $id,
+    ) {}
 
     /**
      * Add an extension.
