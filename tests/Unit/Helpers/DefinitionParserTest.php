@@ -26,11 +26,11 @@ final class DefinitionParserTest extends TestCase
     public function testParseArrayCallableDefinition(): void
     {
         $definition = [
-            'definition' => [StaticFactory::class, 'create'],
+            'definition' => StaticFactory::create(...),
             'tags' => ['one', 'two'],
         ];
         [$definition, $meta] = DefinitionParser::parse($definition);
-        $this->assertSame([StaticFactory::class, 'create'], $definition);
+        $this->assertSame(StaticFactory::create(...), $definition);
         $this->assertSame(['tags' => ['one', 'two']], $meta);
     }
 
