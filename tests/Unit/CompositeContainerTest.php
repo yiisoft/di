@@ -27,7 +27,7 @@ final class CompositeContainerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
-            '/^ID must be a string, (integer|int) given\.$/'
+            '/^ID must be a string, (integer|int) given\.$/',
         );
         $container->get(42);
     }
@@ -70,10 +70,10 @@ final class CompositeContainerTest extends TestCase
 
         $this->expectException(CompositeNotFoundException::class);
         $this->expectExceptionMessageMatches(
-            '/No definition or class found or resolvable in composite container/'
+            '/No definition or class found or resolvable in composite container/',
         );
         $this->expectExceptionMessageMatches(
-            '/Container "has\(\)" returned false, but no exception was thrown from "get\(\)"\./'
+            '/Container "has\(\)" returned false, but no exception was thrown from "get\(\)"\./',
         );
         $compositeContainer->get('test');
     }

@@ -12,9 +12,7 @@ class EngineMarkOne implements EngineInterface
     public const NAME = 'Mark One';
     public const NUMBER = 1;
 
-    public function __construct(private int $number = self::NUMBER)
-    {
-    }
+    public function __construct(private int $number = self::NUMBER) {}
 
     public function getName(): string
     {

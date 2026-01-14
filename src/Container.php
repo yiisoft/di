@@ -89,7 +89,7 @@ final class Container implements ContainerInterface
                 ContainerInterface::class => $this,
                 StateResetter::class => StateResetter::class,
             ],
-            $config->useStrictMode()
+            $config->useStrictMode(),
         );
         $this->validate = $config->shouldValidate();
         $this->setTags($config->getTags());
@@ -287,8 +287,8 @@ final class Container implements ContainerInterface
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
-                        get_debug_type($id)
-                    )
+                        get_debug_type($id),
+                    ),
                 );
             }
             /** @var string $id */
@@ -314,7 +314,7 @@ final class Container implements ContainerInterface
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
-                    'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
+                    'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".',
                 );
             }
 
@@ -322,7 +322,7 @@ final class Container implements ContainerInterface
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
-                    'Delegate callable must return an object that implements ContainerInterface.'
+                    'Delegate callable must return an object that implements ContainerInterface.',
                 );
             }
 
@@ -360,12 +360,12 @@ final class Container implements ContainerInterface
                     $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
                     [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
                     // extract only value from parsed definition method
-                    array_map(static fn (array $data): mixed => $data[2], $methodsAndProperties),
+                    array_map(static fn(array $data): mixed => $data[2], $methodsAndProperties),
                 );
             }
         } elseif ($definition instanceof ExtensibleService) {
             throw new InvalidConfigException(
-                'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+                'Invalid definition. ExtensibleService is only allowed in provider extensions.',
             );
         }
 
@@ -385,7 +385,7 @@ final class Container implements ContainerInterface
                         $key,
                         $key,
                         $key,
-                    )
+                    ),
                 );
             }
 
@@ -408,8 +408,8 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: tags should be array of strings, %s given.',
-                    get_debug_type($tags)
-                )
+                    get_debug_type($tags),
+                ),
             );
         }
 
@@ -429,8 +429,8 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: "reset" should be closure, %s given.',
-                    get_debug_type($reset)
-                )
+                    get_debug_type($reset),
+                ),
             );
         }
     }
@@ -446,16 +446,16 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should be string, %s given.',
-                            $tag
-                        )
+                            $tag,
+                        ),
                     );
                 }
                 if (!is_array($services)) {
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should contain array of service IDs, %s given.',
-                            get_debug_type($services)
-                        )
+                            get_debug_type($services),
+                        ),
                     );
                 }
                 foreach ($services as $service) {
@@ -463,8 +463,8 @@ final class Container implements ContainerInterface
                         throw new InvalidConfigException(
                             sprintf(
                                 'Invalid tags configuration: service should be defined as class string, %s given.',
-                                get_debug_type($service)
-                            )
+                                get_debug_type($service),
+                            ),
                         );
                     }
                 }
@@ -533,8 +533,8 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Circular reference to "%s" detected while building: %s.',
                     $id,
-                    implode(', ', array_keys($this->building))
-                )
+                    implode(', ', array_keys($this->building)),
+                ),
             );
         }
 
@@ -589,7 +589,7 @@ final class Container implements ContainerInterface
             foreach ($providerExtensions as $id => $extension) {
                 if (!is_string($id)) {
                     throw new InvalidConfigException(
-                        sprintf('Extension key must be a service ID as string, %s given.', $id)
+                        sprintf('Extension key must be a service ID as string, %s given.', $id),
                     );
                 }
 
@@ -605,8 +605,8 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Extension of service should be callable, %s given.',
-                            get_debug_type($extension)
-                        )
+                            get_debug_type($extension),
+                        ),
                     );
                 }
 
@@ -637,8 +637,8 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    get_debug_type($provider)
-                )
+                    get_debug_type($provider),
+                ),
             );
         }
 
@@ -652,8 +652,8 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    get_debug_type($providerInstance)
-                )
+                    get_debug_type($providerInstance),
+                ),
             );
         }
 

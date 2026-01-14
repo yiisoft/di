@@ -39,7 +39,7 @@ class ContainerMethodHasBench
 
         $this->container = new Container(
             ContainerConfig::create()
-                ->withDefinitions($definitions)
+                ->withDefinitions($definitions),
         );
     }
 

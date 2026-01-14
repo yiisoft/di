@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 
 use function is_int;
 use function is_object;
+use function sprintf;
 
 /**
  * State resetter allows resetting state of the services that are currently stored in the container and have "reset"
@@ -27,9 +28,8 @@ final class StateResetter
      * @param ContainerInterface $container Container to reset.
      */
     public function __construct(
-        private readonly ContainerInterface $container
-    ) {
-    }
+        private readonly ContainerInterface $container,
+    ) {}
 
     /**
      * Reset the container.
@@ -59,7 +59,7 @@ final class StateResetter
                     throw new InvalidArgumentException(sprintf(
                         'State resetter object should be instance of "%s", "%s" given.',
                         self::class,
-                        get_debug_type($callback)
+                        get_debug_type($callback),
                     ));
                 }
                 $this->resetters[] = $callback;
@@ -68,9 +68,9 @@ final class StateResetter
 
             if (!$callback instanceof Closure) {
                 throw new InvalidArgumentException(
-                    'Callback for state resetter should be closure in format ' .
-                    '`function (ContainerInterface $container): void`. ' .
-                    'Got "' . get_debug_type($callback) . '".'
+                    'Callback for state resetter should be closure in format '
+                    . '`function (ContainerInterface $container): void`. '
+                    . 'Got "' . get_debug_type($callback) . '".',
                 );
             }
 
@@ -79,7 +79,7 @@ final class StateResetter
                 throw new InvalidArgumentException(
                     'State resetter supports resetting objects only. Container returned '
                     . get_debug_type($instance)
-                    . '.'
+                    . '.',
                 );
             }
 

@@ -16,9 +16,7 @@ final class ContainerConfig implements ContainerConfigInterface
     private array $delegates = [];
     private bool $useStrictMode = false;
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function create(): self
     {

@@ -28,10 +28,10 @@ final class DependencyFromDelegateTest extends TestCase
                     Car::class => Car::class,
                 ])
                 ->withDelegates([
-                    static fn () => new SimpleContainer([
+                    static fn() => new SimpleContainer([
                         Car::class => new Car(new Engine()),
                     ]),
-                ])
+                ]),
         );
 
         $car = $container->get(Car::class);
@@ -49,13 +49,13 @@ final class DependencyFromDelegateTest extends TestCase
                     'car' => Car::class,
                 ])
                 ->withDelegates([
-                    static fn () => new Container(
+                    static fn() => new Container(
                         ContainerConfig::create()
                             ->withDefinitions([
                                 'car' => Car::class,
-                            ])
+                            ]),
                     ),
-                ])
+                ]),
         );
 
         $exception = null;
