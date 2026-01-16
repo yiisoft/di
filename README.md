@@ -86,7 +86,7 @@ return [
         // call the constructor, pass named argument "amount"
         '__construct()' => [
             'amount' => 42,
-        ], 
+        ],
         
         // set a public property
         '$name' => 'Alex',
