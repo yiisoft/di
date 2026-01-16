@@ -97,7 +97,7 @@ return [
     
     // closure for complicated cases
     AnotherServiceInterface::class => static function(ConnectionInterface $db) {
-        return new MyService($db);
+        return new AnotherService($db);
     },
     
     // factory
