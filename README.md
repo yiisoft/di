@@ -273,6 +273,9 @@ contain a `getDefinitions()` and `getExtensions()` methods. It should only provi
 and therefore should only contain code related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to a database.
 
+The `getExtensions()` method allows implementing the decorator pattern by wrapping existing services
+with additional functionality.
+
 A typical service provider could look like:
 
 ```php
@@ -340,6 +343,72 @@ $container = new Container($config);
 
 When you add a service provider, DI calls its `getDefinitions()` and `getExtensions()` methods
 *immediately* and both services and their extensions get registered into the container.
+
+### Using service providers for decorator pattern
+
+Service provider extensions are a powerful feature that allows implementing the decorator pattern.
+This lets you wrap existing services with additional functionality without modifying their original implementation.
+
+Here's an example of using the decorator pattern to add logging to an existing mailer service:
+
+```php
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Yiisoft\Di\ServiceProviderInterface;
+
+interface MailerInterface 
+{
+    public function send(string $to, string $subject, string $body): void;
+}
+
+class Mailer implements MailerInterface 
+{
+    public function send(string $to, string $subject, string $body): void 
+    {
+        // Original mailer implementation
+        // Sends email via SMTP or external service
+    }
+}
+
+class LoggingMailerDecorator implements MailerInterface 
+{
+    public function __construct(
+        private MailerInterface $mailer,
+        private LoggerInterface $logger
+    ) {
+    }
+    
+    public function send(string $to, string $subject, string $body): void 
+    {
+        $this->logger->info("Sending email to {$to}");
+        $this->mailer->send($to, $subject, $body);
+        $this->logger->info("Email sent to {$to}");
+    }
+}
+
+class MailerDecoratorProvider implements ServiceProviderInterface 
+{
+    public function getDefinitions(): array 
+    {
+        return [];
+    }
+    
+    public function getExtensions(): array 
+    {
+        return [
+            MailerInterface::class => static function (ContainerInterface $container, MailerInterface $mailer) {
+                // Wrap the original mailer with logging decorator
+                return new LoggingMailerDecorator($mailer, $container->get(LoggerInterface::class));
+            }
+        ];
+    }
+}
+```
+
+In this example, the extension receives the original `MailerInterface` instance and wraps it with
+`LoggingMailerDecorator`, which adds logging before and after sending emails. The decorator pattern
+allows you to add cross-cutting concerns like logging, caching, or monitoring without changing the
+original service implementation.
 
 ## Container tags
 
