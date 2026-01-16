@@ -6,7 +6,5 @@ namespace Yiisoft\Di\Tests\Support;
 
 final class UnionTypeInConstructorParamNotResolvable
 {
-    public function __construct(private readonly EngineInterface|ColorInterface $param)
-    {
-    }
+    public function __construct(private readonly EngineInterface|ColorInterface $param) {}
 }

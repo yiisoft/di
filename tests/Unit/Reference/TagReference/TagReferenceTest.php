@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Reference\TagReference;
+use ReflectionClass;
 
 final class TagReferenceTest extends TestCase
 {
@@ -20,7 +21,7 @@ final class TagReferenceTest extends TestCase
 
     public function testConstructor(): void
     {
-        $reflection = new \ReflectionClass(TagReference::class);
+        $reflection = new ReflectionClass(TagReference::class);
         $reflectionMethod = $reflection->getConstructor();
         $this->assertTrue($reflectionMethod->isPrivate());
         $reflectionMethod->invoke($reflection->newInstanceWithoutConstructor());
@@ -53,7 +54,7 @@ final class TagReferenceTest extends TestCase
     public function testReference(): void
     {
         $reference = TagReference::to('test');
-        $spyContainer = new class () implements ContainerInterface {
+        $spyContainer = new class implements ContainerInterface {
             public function get($id)
             {
                 return $id;
