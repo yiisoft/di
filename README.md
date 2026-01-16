@@ -104,7 +104,7 @@ return [
     MyObjectInterface::class => fn () => MyFactory::create('args'),
     
     // static call
-    MyObjectInterface2::class => [MyFactory::class, 'create'],    
+    MyObjectInterface2::class => [MyFactory::class, 'create'],
     
     // direct instance
     MyInterface::class => new MyClass(),
