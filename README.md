@@ -96,7 +96,7 @@ return [
     ],
     
     // closure for complicated cases
-    MyServiceInterface::class => static function(ConnectionInterface $db) {
+    AnotherServiceInterface::class => static function(ConnectionInterface $db) {
         return new MyService($db);
     },
     
