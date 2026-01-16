@@ -35,7 +35,7 @@
         "php": "8.1 - 8.5",
         "ext-mbstring": "*",
         "psr/container": "^1.1 || ^2.0",
-        "yiisoft/definitions": "dev-parameter-name-binding"
+        "yiisoft/definitions": "dev-parameter-name-binding",
         "yiisoft/friendly-exception": "^1.1.0"
     },
     "require-dev": {
