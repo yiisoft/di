@@ -76,17 +76,39 @@ You could store the definitions in a `.php` file that returns an array:
 
 ```php
 return [
+    // resolve EngineMarkOne dependencies automatically
     EngineInterface::class => EngineMarkOne::class,
-    'full_definition' => [
-        'class' => EngineMarkOne::class,
-        '__construct()' => [42], 
-        '$propertyName' => 'value',
-        'setX()' => [42],
+    
+    // full definition
+    MyServiceInterface::class => [
+        'class' => MyService::class,
+        
+        // call the constructor, pass named argument "amount"
+        '__construct()' => [
+            'amount' => 42,
+            'db' => Reference::to(SecondaryConnection::class), // instance of another dependency
+        ],
+        
+        // set a public property
+        '$name' => 'Alex',
+        
+        // call a public method
+        'setDiscount()' => [10],
     ],
-    'closure' => fn (SomeFactory $factory) => $factory->create('args'),
-    'static_call_preferred' => fn () => MyFactory::create('args'),
-    'static_call_supported' => [MyFactory::class, 'create'],
-    'object' => new MyClass(),
+    
+    // closure for complicated cases
+    AnotherServiceInterface::class => static function(ConnectionInterface $db) {
+        return new AnotherService($db);
+    },
+    
+    // factory
+    MyObjectInterface::class => fn () => MyFactory::create('args'),
+    
+    // static call
+    MyObjectInterface2::class => [MyFactory::class, 'create'],
+    
+    // direct instance
+    MyInterface::class => new MyClass(),
 ];
 ```
 
