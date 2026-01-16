@@ -345,7 +345,7 @@ $container = new Container($config);
 
 Name binding is a way to bind a name to a definition. It is used to resolve a definition not by its class name but by a name.
 
-Set a definitions with a specific name. It may be typed or untyped reference like:
+Set definitions with a specific name. It may be typed or untyped reference like:
 1. `'$serviceName' => $definition`
 2. `Service::class . ' $serviceName' => $definition`
 
