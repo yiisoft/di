@@ -33,6 +33,9 @@ and configure classes resolving dependencies.
 - Supports container delegates.
 - Does auto-wiring.
 
+> [!NOTE]
+> The container contains only shared instances. If you need a factory, use the dedicated [yiisoft/factory](https://github.com/yiisoft/factory) package.
+
 ## Requirements
 
 - PHP 8.1 - 8.5.
