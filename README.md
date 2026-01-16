@@ -357,7 +357,7 @@ return [
 ]
 ```
 
-So now you can resolve a definition by its name:
+So now you can resolve a definition by parameter name:
 
 ```php
 class MyService
