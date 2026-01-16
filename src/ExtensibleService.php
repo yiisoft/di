@@ -10,7 +10,7 @@ use Yiisoft\Di\Helpers\DefinitionNormalizer;
 
 /**
  * @internal A wrapper for a service definition that allows registering extensions.
- * An extension is a callable that returns a modified service object:
+ * An extension is callable that returns a modified service object:
  *
  * ```php
  * static function (ContainerInterface $container, $service) {
@@ -29,15 +29,14 @@ final class ExtensibleService implements DefinitionInterface
      * @param mixed $definition Definition to allow registering extensions for.
      */
     public function __construct(
-        private mixed $definition,
-        private string $id
-    ) {
-    }
+        private readonly mixed $definition,
+        private readonly string $id,
+    ) {}
 
     /**
      * Add an extension.
      *
-     * An extension is a callable that returns a modified service object:
+     * An extension is callable that returns a modified service object:
      *
      * ```php
      * static function (ContainerInterface $container, $service) {
@@ -54,18 +53,15 @@ final class ExtensibleService implements DefinitionInterface
 
     public function resolve(ContainerInterface $container): mixed
     {
-        /** @var mixed $service */
         $service = DefinitionNormalizer::normalize($this->definition, $this->id)
             ->resolve($container);
 
         foreach ($this->extensions as $extension) {
-            /** @var mixed $result */
             $result = $extension($container->get(ContainerInterface::class), $service);
             if ($result === null) {
                 continue;
             }
 
-            /** @var mixed $service */
             $service = $result;
         }
 

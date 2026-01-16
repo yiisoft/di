@@ -9,7 +9,5 @@ namespace Yiisoft\Di\Tests\Support;
  */
 class GearBox
 {
-    public function __construct(private int $maxGear = 5)
-    {
-    }
+    public function __construct(private readonly int $maxGear = 5) {}
 }

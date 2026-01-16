@@ -17,7 +17,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
  * General tests for PSR-11 container.
  * To be extended for specific containers.
  */
-abstract class AbstractPsrContainerTest extends TestCase
+abstract class PsrContainerTestAbstract extends TestCase
 {
     abstract public function createContainer(array $definitions = []): ContainerInterface;
 

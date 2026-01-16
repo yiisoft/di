@@ -15,29 +15,40 @@
     "license": "BSD-3-Clause",
     "support": {
         "issues": "https://github.com/yiisoft/di/issues?state=open",
+        "source": "https://github.com/yiisoft/di",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "ircs://irc.libera.chat:6697/yii",
-        "chat": "https://t.me/yii3en",
-        "source": "https://github.com/yiisoft/di"
+        "chat": "https://t.me/yii3en"
     },
+    "funding": [
+        {
+            "type": "opencollective",
+            "url": "https://opencollective.com/yiisoft"
+        },
+        {
+            "type": "github",
+            "url": "https://github.com/sponsors/yiisoft"
+        }
+    ],
     "require": {
-        "php": "^8.0",
+        "php": "8.1 - 8.5",
         "ext-mbstring": "*",
-        "psr/container": "^1.1|^2.0",
+        "psr/container": "^1.1 || ^2.0",
         "yiisoft/definitions": "dev-parameter-name-binding"
+        "yiisoft/friendly-exception": "^1.1.0"
     },
     "require-dev": {
-        "league/container": "^4.2",
-        "maglnet/composer-require-checker": "^4.2",
-        "phpbench/phpbench": "^1.2.0",
-        "phpunit/phpunit": "^9.5",
-        "rector/rector": "^1.0.0",
-        "roave/infection-static-analysis-plugin": "^1.25",
-        "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.30|^5.7",
-        "yiisoft/injector": "^1.0",
-        "yiisoft/test-support": "^3.0"
+        "friendsofphp/php-cs-fixer": "^3.92.5",
+        "bamarni/composer-bin-plugin": "^1.8.3",
+        "league/container": "^5.1.0",
+        "maglnet/composer-require-checker": "^4.7.1",
+        "phpbench/phpbench": "^1.4.1",
+        "phpunit/phpunit": "^10.5.46",
+        "rector/rector": "^2.0.17",
+        "spatie/phpunit-watcher": "^1.24",
+        "yiisoft/injector": "^1.2.1",
+        "yiisoft/test-support": "^3.1"
     },
     "suggest": {
         "yiisoft/injector": "^1.0",
@@ -63,10 +74,17 @@
     "scripts-descriptions": {
         "test": "Run all tests"
     },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "target-directory": "tools",
+            "forward-command": true
+        }
+    },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "infection/extension-installer": true,
+            "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true
         }
     }

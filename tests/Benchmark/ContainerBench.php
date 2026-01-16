@@ -19,6 +19,8 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NullableConcreteDependency;
 use Yiisoft\Di\Tests\Support\PropertyTestClass;
 use Yiisoft\Definitions\Reference;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
 
 /**
  * @Iterations(5)
@@ -60,7 +62,7 @@ class ContainerBench
 
     /**
      * Load the bulk of the definitions.
-     * These all refer to a service that is not yet defined but must be defined in the bench.
+     * These all refer to a service that is not yet defined but must be defined in the benchmark.
      */
     public function before(): void
     {
@@ -76,62 +78,62 @@ class ContainerBench
         shuffle($this->randomIndexes);
 
         $this->composite = new CompositeContainer();
-        // We attach the dummy containers multiple times, to see what would happen if we have lots of them.
+        // Attach the dummy containers multiple times, to see what would happen if there are lots of them.
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions2)
-            )
+                    ->withDefinitions($definitions2),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions3)
-            )
+                    ->withDefinitions($definitions3),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions2)
-            )
+                    ->withDefinitions($definitions2),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions3)
-            )
+                    ->withDefinitions($definitions3),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions2)
-            )
+                    ->withDefinitions($definitions2),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions3)
-            )
+                    ->withDefinitions($definitions3),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions2)
-            )
+                    ->withDefinitions($definitions2),
+            ),
         );
         $this->composite->attach(
             new Container(
                 ContainerConfig::create()
-                    ->withDefinitions($definitions3)
-            )
+                    ->withDefinitions($definitions3),
+            ),
         );
     }
 
     /**
      * @Groups({"construct"})
      *
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     * @throws \Yiisoft\Definitions\Exception\NotInstantiableException
+     * @throws InvalidConfigException
+     * @throws NotInstantiableException
      */
     public function benchConstruct(): void
     {
@@ -141,7 +143,7 @@ class ContainerBench
         }
         $container = new Container(
             ContainerConfig::create()
-                ->withDefinitions($definitions)
+                ->withDefinitions($definitions),
         );
     }
 
@@ -160,7 +162,7 @@ class ContainerBench
         }
         $container = new Container(
             ContainerConfig::create()
-                ->withDefinitions($definitions)
+                ->withDefinitions($definitions),
         );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
@@ -184,7 +186,7 @@ class ContainerBench
         }
         $container = new Container(
             ContainerConfig::create()
-                ->withDefinitions($definitions)
+                ->withDefinitions($definitions),
         );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
             // Do array lookup.
@@ -208,7 +210,7 @@ class ContainerBench
         }
         $container = new Container(
             ContainerConfig::create()
-                ->withDefinitions($definitions)
+                ->withDefinitions($definitions),
         );
         $this->composite->attach($container);
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {

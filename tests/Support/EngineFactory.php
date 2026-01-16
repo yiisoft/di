@@ -12,11 +12,9 @@ use Psr\Container\ContainerInterface;
  */
 class EngineFactory
 {
-    public function __construct(private ContainerInterface $container)
-    {
-    }
+    public function __construct(private readonly ContainerInterface $container) {}
 
-    public function createByName(string $name = null): EngineInterface
+    public function createByName(?string $name = null): EngineInterface
     {
         if ($name === EngineMarkOne::NAME) {
             return $this->container->get(EngineMarkOne::class);

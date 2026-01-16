@@ -1,9 +1,31 @@
 # Yii Dependency Injection Change Log
 
-## 1.2.2 under development
+## 1.4.2 under development
+
+- Enh #397: Explicitly import functions in "use" section (@mspirkov)
+
+## 1.4.1 December 01, 2025
+
+- Enh #393: Add PHP 8.5 support (@vjik)
+
+## 1.4.0 May 30, 2025
+
+- New #380: Add `TagReference::id()` method (@vjik)
+- Chg #390: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
+- Enh #324: Make `BuildingException` and `NotFoundException` friendly (@np25071984)
+- Enh #384: Make `$config` parameter in `Container` constructor optional (@np25071984)
+- Enh #387: Improve container performance (@samdark)
+- Bug #390: Explicitly mark nullable parameters (@vjik)
+
+## 1.3.0 October 14, 2024
 
 - Enh #352: Support parameters name binding (@xepozz)
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
+- Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
+- Enh #364: Minor refactoring to improve performance of container (@samdark)
+- Enh #375: Raise minimum PHP version to `^8.1` and refactor code (@vjik)
+- Enh #376: Add default value `true` for parameter of `ContainerConfig::withStrictMode()` and
+ `ContainerConfig::withValidate()` methods (@vjik)
 
 ## 1.2.1 December 23, 2022
 

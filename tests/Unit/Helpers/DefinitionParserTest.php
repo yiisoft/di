@@ -13,7 +13,7 @@ final class DefinitionParserTest extends TestCase
 {
     public function testParseCallableDefinition(): void
     {
-        $fn = static fn () => new EngineMarkOne();
+        $fn = static fn() => new EngineMarkOne();
         $definition = [
             'definition' => $fn,
             'tags' => ['one', 'two'],

@@ -11,9 +11,10 @@ class Car
 {
     public ColorInterface $color;
 
-    public function __construct(private EngineInterface $engine, private array $moreEngines = [])
-    {
-    }
+    public function __construct(
+        private readonly EngineInterface $engine,
+        private readonly array $moreEngines = [],
+    ) {}
 
     public function setColor(ColorInterface $color): self
     {

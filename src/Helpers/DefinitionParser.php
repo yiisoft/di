@@ -46,15 +46,13 @@ use function is_string;
  */
 final class DefinitionParser
 {
-    private const DEFINITION_META = 'definition';
-
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
+    private const DEFINITION_META = 'definition';
 
     /**
      * @param mixed $definition Definition to parse.
      *
-     * @return array Definition parsed into array of a special structure.
-     *
+     * @return array Definition parsed into an array of a special structure.
      * @psalm-return array{mixed,array}
      */
     public static function parse(mixed $definition): array
@@ -65,7 +63,6 @@ final class DefinitionParser
 
         // Dedicated definition
         if (isset($definition[self::DEFINITION_META])) {
-            /** @var mixed $newDefinition */
             $newDefinition = $definition[self::DEFINITION_META];
             unset($definition[self::DEFINITION_META]);
 
@@ -82,19 +79,16 @@ final class DefinitionParser
         $class = null;
         $constructorArguments = [];
         $methodsAndProperties = [];
-        /** @var mixed $value */
         foreach ($definition as $key => $value) {
             if (is_string($key)) {
                 // Class
                 if ($key === ArrayDefinition::CLASS_NAME) {
-                    /** @var mixed $class */
                     $class = $value;
                     continue;
                 }
 
                 // Constructor arguments
                 if ($key === ArrayDefinition::CONSTRUCTOR) {
-                    /** @var mixed $constructorArguments */
                     $constructorArguments = $value;
                     continue;
                 }
@@ -110,7 +104,6 @@ final class DefinitionParser
                 }
             }
 
-            /** @var mixed */
             $meta[$key] = $value;
         }
         return [

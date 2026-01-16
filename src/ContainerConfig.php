@@ -16,9 +16,7 @@ final class ContainerConfig implements ContainerConfigInterface
     private array $delegates = [];
     private bool $useStrictMode = false;
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function create(): self
     {
@@ -73,7 +71,7 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param bool $validate Whether definitions should be validated immediately.
      */
-    public function withValidate(bool $validate): self
+    public function withValidate(bool $validate = true): self
     {
         $new = clone $this;
         $new->validate = $validate;
@@ -88,7 +86,7 @@ final class ContainerConfig implements ContainerConfigInterface
     /**
      * @param array $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
-     * in case a service can not be found in primary container.
+     * in case a service can't be found in primary container.
      */
     public function withDelegates(array $delegates): self
     {
@@ -106,7 +104,7 @@ final class ContainerConfig implements ContainerConfigInterface
      * @param bool $useStrictMode If the automatic addition of definition when class exists and can be resolved
      * is disabled.
      */
-    public function withStrictMode(bool $useStrictMode): self
+    public function withStrictMode(bool $useStrictMode = true): self
     {
         $new = clone $this;
         $new->useStrictMode = $useStrictMode;

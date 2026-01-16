@@ -27,6 +27,7 @@ use function is_array;
 use function is_callable;
 use function is_object;
 use function is_string;
+use function sprintf;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -40,7 +41,7 @@ final class Container implements ContainerInterface
     /**
      * @var DefinitionStorage Storage of object definitions.
      */
-    private DefinitionStorage $definitions;
+    private readonly DefinitionStorage $definitions;
 
     /**
      * @var array Used to collect IDs of objects instantiated during build
@@ -51,8 +52,12 @@ final class Container implements ContainerInterface
     /**
      * @var bool $validate If definitions should be validated.
      */
-    private bool $validate;
+    private readonly bool $validate;
 
+    /**
+     * @var array Cached instances.
+     * @psalm-var array<string, mixed>
+     */
     private array $instances = [];
 
     private CompositeContainer $delegates;
@@ -65,23 +70,26 @@ final class Container implements ContainerInterface
 
     /**
      * @var Closure[]
+     * @psalm-var array<string, Closure>
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
 
     /**
-     * @param ContainerConfigInterface $config Container configuration.
+     * @param ?ContainerConfigInterface $config Container configuration.
      *
      * @throws InvalidConfigException If configuration is not valid.
      */
-    public function __construct(ContainerConfigInterface $config)
+    public function __construct(?ContainerConfigInterface $config = null)
     {
+        $config ??= ContainerConfig::create();
+
         $this->definitions = new DefinitionStorage(
             [
                 ContainerInterface::class => $this,
                 StateResetter::class => StateResetter::class,
             ],
-            $config->useStrictMode()
+            $config->useStrictMode(),
         );
         $this->validate = $config->shouldValidate();
         $this->setTags($config->getTags());
@@ -101,22 +109,26 @@ final class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
+        try {
+            if ($this->definitions->has($id)) {
+                return true;
+            }
+        } catch (CircularReferenceException) {
+            return true;
+        }
+
         if (TagReference::isTagAlias($id)) {
             $tag = TagReference::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
         }
 
-        try {
-            return $this->definitions->has($id);
-        } catch (CircularReferenceException) {
-            return true;
-        }
+        return false;
     }
 
     /**
      * Returns an instance by either interface name or alias.
      *
-     * Same instance of the class will be returned each time this method is called.
+     * The same instance of the class will be returned each time this method is called.
      *
      * @param string $id The interface or an alias name that was previously registered.
      *
@@ -126,65 +138,102 @@ final class Container implements ContainerInterface
      * @throws NotInstantiableException
      * @throws BuildingException
      *
-     * @return mixed|object An instance of the requested interface.
+     * @return mixed An instance of the requested interface.
      *
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
+     *
+     * @psalm-suppress MixedReturnStatement `mixed` is a correct return type for this method.
      */
     public function get(string $id)
     {
-        if (!array_key_exists($id, $this->instances)) {
-            try {
-                try {
-                    $this->instances[$id] = $this->build($id);
-                } catch (NotFoundExceptionInterface $e) {
-                    if (!$this->delegates->has($id)) {
-                        throw $e;
-                    }
+        // Fast path: check if instance exists.
+        if (array_key_exists($id, $this->instances)) {
+            if ($id === StateResetter::class) {
+                return $this->prepareStateResetter();
+            }
+            return $this->instances[$id];
+        }
 
-                    /** @psalm-suppress MixedReturnStatement */
+        try {
+            $this->instances[$id] = $this->build($id);
+        } catch (NotFoundException $exception) {
+            // Fast path: if the exception ID matches the requested ID, no need to modify stack.
+            if ($exception->getId() === $id) {
+                // Try delegates before giving up.
+                try {
+                    if ($this->delegates->has($id)) {
+                        return $this->delegates->get($id);
+                    }
+                } catch (Throwable $e) {
+                    throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+                }
+                throw $exception;
+            }
+
+            // Add current ID to build stack for better error reporting.
+            $buildStack = $exception->getBuildStack();
+            array_unshift($buildStack, $id);
+            throw new NotFoundException($exception->getId(), $buildStack);
+        } catch (NotFoundExceptionInterface $exception) {
+            // Try delegates before giving up
+            try {
+                if ($this->delegates->has($id)) {
                     return $this->delegates->get($id);
                 }
             } catch (Throwable $e) {
-                if ($e instanceof ContainerExceptionInterface && !$e instanceof InvalidConfigException) {
-                    throw $e;
-                }
                 throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
             }
+
+            throw new NotFoundException($id, [$id], previous: $exception);
+        } catch (ContainerExceptionInterface $e) {
+            if (!$e instanceof InvalidConfigException) {
+                throw $e;
+            }
+            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+        } catch (Throwable $e) {
+            throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
         }
 
+        // Handle StateResetter for newly built instances.
         if ($id === StateResetter::class) {
-            $delegatesResetter = null;
-            if ($this->delegates->has(StateResetter::class)) {
-                $delegatesResetter = $this->delegates->get(StateResetter::class);
-            }
-
-            /** @var StateResetter $mainResetter */
-            $mainResetter = $this->instances[$id];
-
-            if ($this->useResettersFromMeta) {
-                /** @var StateResetter[] $resetters */
-                $resetters = [];
-                foreach ($this->resetters as $serviceId => $callback) {
-                    if (isset($this->instances[$serviceId])) {
-                        $resetters[$serviceId] = $callback;
-                    }
-                }
-                if ($delegatesResetter !== null) {
-                    $resetters[] = $delegatesResetter;
-                }
-                $mainResetter->setResetters($resetters);
-            } elseif ($delegatesResetter !== null) {
-                $resetter = new StateResetter($this->get(ContainerInterface::class));
-                $resetter->setResetters([$mainResetter, $delegatesResetter]);
-
-                return $resetter;
-            }
+            return $this->prepareStateResetter();
         }
 
-        /** @psalm-suppress MixedReturnStatement */
         return $this->instances[$id];
+    }
+
+    private function prepareStateResetter(): StateResetter
+    {
+        $delegatesResetter = null;
+        if ($this->delegates->has(StateResetter::class)) {
+            $delegatesResetter = $this->delegates->get(StateResetter::class);
+        }
+
+        /** @var StateResetter $mainResetter */
+        $mainResetter = $this->instances[StateResetter::class];
+
+        if ($this->useResettersFromMeta) {
+            /** @var StateResetter[] $resetters */
+            $resetters = [];
+            foreach ($this->resetters as $serviceId => $callback) {
+                if (isset($this->instances[$serviceId])) {
+                    $resetters[$serviceId] = $callback;
+                }
+            }
+            if ($delegatesResetter !== null) {
+                $resetters[] = $delegatesResetter;
+            }
+            $mainResetter->setResetters($resetters);
+        } elseif ($delegatesResetter !== null) {
+            $resetter = new StateResetter($this->get(ContainerInterface::class));
+            $resetter->setResetters([$mainResetter, $delegatesResetter]);
+
+            return $resetter;
+        }
+
+        return $mainResetter;
     }
 
     /**
@@ -199,16 +248,19 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        /** @var mixed $definition */
         [$definition, $meta] = DefinitionParser::parse($definition);
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
-            $this->validateMeta($meta);
+            // Only validate meta if it's not empty.
+            if ($meta !== []) {
+                $this->validateMeta($meta);
+            }
         }
         /**
          * @psalm-var array{reset?:Closure,tags?:string[]} $meta
          */
 
+        // Process meta only if it has tags or reset callback.
         if (isset($meta[self::META_TAGS])) {
             $this->setDefinitionTags($id, $meta[self::META_TAGS]);
         }
@@ -217,6 +269,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
+
         $this->addDefinitionToStorage($id, $definition);
     }
 
@@ -229,14 +282,13 @@ final class Container implements ContainerInterface
      */
     private function addDefinitions(array $config): void
     {
-        /** @var mixed $definition */
         foreach ($config as $id => $definition) {
             if ($this->validate && !is_string($id)) {
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
-                        get_debug_type($id)
-                    )
+                        get_debug_type($id),
+                    ),
                 );
             }
             /** @var string $id */
@@ -248,29 +300,29 @@ final class Container implements ContainerInterface
     /**
      * Set container delegates.
      *
-     * Each delegate must is a callable in format "function (ContainerInterface $container): ContainerInterface".
-     * The container instance returned is used in case a service can not be found in primary container.
+     * Each delegate must be a callable in format `function (ContainerInterface $container): ContainerInterface`.
+     * The container instance returned is used in case a service can't be found in primary container.
      *
      * @throws InvalidConfigException
      */
     private function setDelegates(array $delegates): void
     {
         $this->delegates = new CompositeContainer();
+
         $container = $this->get(ContainerInterface::class);
 
         foreach ($delegates as $delegate) {
             if (!$delegate instanceof Closure) {
                 throw new InvalidConfigException(
-                    'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
+                    'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".',
                 );
             }
 
-            /** @var ContainerInterface */
             $delegate = $delegate($container);
 
             if (!$delegate instanceof ContainerInterface) {
                 throw new InvalidConfigException(
-                    'Delegate callable must return an object that implements ContainerInterface.'
+                    'Delegate callable must return an object that implements ContainerInterface.',
                 );
             }
 
@@ -287,31 +339,33 @@ final class Container implements ContainerInterface
      */
     private function validateDefinition(mixed $definition, ?string $id = null): void
     {
-        if (is_array($definition) && isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
-            /** @var mixed $class */
-            $class = $definition['class'];
-
-            /** @var mixed $constructorArguments */
-            $constructorArguments = $definition['__construct()'];
-
-            /**
-             * @var array $methodsAndProperties Is always array for prepared array definition data.
-             *
-             * @see DefinitionParser::parse()
-             */
-            $methodsAndProperties = $definition['methodsAndProperties'];
-
-            $definition = array_merge(
-                $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
-                [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
-                // extract only value from parsed definition method
-                array_map(fn (array $data): mixed => $data[2], $methodsAndProperties),
-            );
+        // Skip validation for common simple cases.
+        if ($definition instanceof ContainerInterface || $definition instanceof Closure) {
+            return;
         }
 
-        if ($definition instanceof ExtensibleService) {
+        if (is_array($definition)) {
+            if (isset($definition[DefinitionParser::IS_PREPARED_ARRAY_DEFINITION_DATA])) {
+                $class = $definition['class'];
+                $constructorArguments = $definition['__construct()'];
+
+                /**
+                 * @var array $methodsAndProperties Is always array for prepared array definition data.
+                 * @see DefinitionParser::parse()
+                 * @psalm-var array<string,mixed> $methodsAndProperties
+                 */
+                $methodsAndProperties = $definition['methodsAndProperties'];
+
+                $definition = array_merge(
+                    $class === null ? [] : [ArrayDefinition::CLASS_NAME => $class],
+                    [ArrayDefinition::CONSTRUCTOR => $constructorArguments],
+                    // extract only value from parsed definition method
+                    array_map(static fn(array $data): mixed => $data[2], $methodsAndProperties),
+                );
+            }
+        } elseif ($definition instanceof ExtensibleService) {
             throw new InvalidConfigException(
-                'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+                'Invalid definition. ExtensibleService is only allowed in provider extensions.',
             );
         }
 
@@ -323,7 +377,6 @@ final class Container implements ContainerInterface
      */
     private function validateMeta(array $meta): void
     {
-        /** @var mixed $value */
         foreach ($meta as $key => $value) {
             if (!in_array($key, self::ALLOWED_META, true)) {
                 throw new InvalidConfigException(
@@ -332,7 +385,7 @@ final class Container implements ContainerInterface
                         $key,
                         $key,
                         $key,
-                    )
+                    ),
                 );
             }
 
@@ -355,8 +408,8 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: tags should be array of strings, %s given.',
-                    get_debug_type($tags)
-                )
+                    get_debug_type($tags),
+                ),
             );
         }
 
@@ -376,8 +429,8 @@ final class Container implements ContainerInterface
             throw new InvalidConfigException(
                 sprintf(
                     'Invalid definition: "reset" should be closure, %s given.',
-                    get_debug_type($reset)
-                )
+                    get_debug_type($reset),
+                ),
             );
         }
     }
@@ -393,26 +446,25 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should be string, %s given.',
-                            $tag
-                        )
+                            $tag,
+                        ),
                     );
                 }
                 if (!is_array($services)) {
                     throw new InvalidConfigException(
                         sprintf(
                             'Invalid tags configuration: tag should contain array of service IDs, %s given.',
-                            get_debug_type($services)
-                        )
+                            get_debug_type($services),
+                        ),
                     );
                 }
-                /** @var mixed $service */
                 foreach ($services as $service) {
                     if (!is_string($service)) {
                         throw new InvalidConfigException(
                             sprintf(
                                 'Invalid tags configuration: service should be defined as class string, %s given.',
-                                get_debug_type($service)
-                            )
+                                get_debug_type($service),
+                            ),
                         );
                     }
                 }
@@ -448,7 +500,7 @@ final class Container implements ContainerInterface
      *
      * @see $definitions
      */
-    private function addDefinitionToStorage(string $id, $definition): void
+    private function addDefinitionToStorage(string $id, mixed $definition): void
     {
         $this->definitions->set($id, $definition);
 
@@ -460,22 +512,19 @@ final class Container implements ContainerInterface
     /**
      * Creates new instance by either interface name or alias.
      *
-     * @param string $id The interface or an alias name that was previously registered.
+     * @param string $id The interface or the alias name that was previously registered.
      *
      * @throws InvalidConfigException
      * @throws NotFoundExceptionInterface
      * @throws CircularReferenceException
      *
-     * @return mixed|object New built instance of the specified class.
+     * @return mixed|object New-built instance of the specified class.
      *
      * @internal
      */
-    private function build(string $id)
+    private function build(string $id): mixed
     {
-        if (TagReference::isTagAlias($id)) {
-            return $this->getTaggedServices($id);
-        }
-
+        // Fast path: check for circular reference first as it's the most critical.
         if (isset($this->building[$id])) {
             if ($id === ContainerInterface::class) {
                 return $this;
@@ -484,15 +533,25 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Circular reference to "%s" detected while building: %s.',
                     $id,
-                    implode(', ', array_keys($this->building))
-                )
+                    implode(', ', array_keys($this->building)),
+                ),
             );
+        }
+
+        // Less common case: tag alias.
+        if (TagReference::isTagAlias($id)) {
+            return $this->getTaggedServices($id);
+        }
+
+        // Check if the definition exists.
+        if (!$this->definitions->has($id)) {
+            throw new NotFoundException($id, $this->definitions->getBuildStack());
         }
 
         $this->building[$id] = 1;
         try {
-            /** @var mixed $object */
-            $object = $this->buildInternal($id);
+            $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+            $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
         }
@@ -506,29 +565,11 @@ final class Container implements ContainerInterface
         $services = [];
         if (isset($this->tags[$tag])) {
             foreach ($this->tags[$tag] as $service) {
-                /** @var mixed */
                 $services[] = $this->get($service);
             }
         }
 
         return $services;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws InvalidConfigException
-     *
-     * @return mixed|object
-     */
-    private function buildInternal(string $id)
-    {
-        if ($this->definitions->has($id)) {
-            $definition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-
-            return $definition->resolve($this->get(ContainerInterface::class));
-        }
-
-        throw new NotFoundException($id, $this->definitions->getBuildStack());
     }
 
     /**
@@ -538,7 +579,6 @@ final class Container implements ContainerInterface
     private function addProviders(array $providers): void
     {
         $extensions = [];
-        /** @var mixed $provider */
         foreach ($providers as $provider) {
             $providerInstance = $this->buildProvider($provider);
             $extensions[] = $providerInstance->getExtensions();
@@ -546,11 +586,10 @@ final class Container implements ContainerInterface
         }
 
         foreach ($extensions as $providerExtensions) {
-            /** @var mixed $extension */
             foreach ($providerExtensions as $id => $extension) {
                 if (!is_string($id)) {
                     throw new InvalidConfigException(
-                        sprintf('Extension key must be a service ID as string, %s given.', $id)
+                        sprintf('Extension key must be a service ID as string, %s given.', $id),
                     );
                 }
 
@@ -566,12 +605,11 @@ final class Container implements ContainerInterface
                     throw new InvalidConfigException(
                         sprintf(
                             'Extension of service should be callable, %s given.',
-                            get_debug_type($extension)
-                        )
+                            get_debug_type($extension),
+                        ),
                     );
                 }
 
-                /** @var mixed $definition */
                 $definition = $this->definitions->get($id);
                 if (!$definition instanceof ExtensibleService) {
                     $definition = new ExtensibleService($definition, $id);
@@ -599,8 +637,8 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be a class name or an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    get_debug_type($provider)
-                )
+                    get_debug_type($provider),
+                ),
             );
         }
 
@@ -614,8 +652,8 @@ final class Container implements ContainerInterface
                 sprintf(
                     'Service provider should be an instance of %s. %s given.',
                     ServiceProviderInterface::class,
-                    get_debug_type($providerInstance)
-                )
+                    get_debug_type($providerInstance),
+                ),
             );
         }
 

@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Di\Tests\Unit\Reference;
+namespace Yiisoft\Di\Tests\Unit\Reference\TagReference;
 
 use Error;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Yiisoft\Di\Reference\TagReference;
+use ReflectionClass;
 
 final class TagReferenceTest extends TestCase
 {
@@ -20,13 +21,9 @@ final class TagReferenceTest extends TestCase
 
     public function testConstructor(): void
     {
-        $reflection = new \ReflectionClass(TagReference::class);
+        $reflection = new ReflectionClass(TagReference::class);
         $reflectionMethod = $reflection->getConstructor();
         $this->assertTrue($reflectionMethod->isPrivate());
-        if (PHP_VERSION_ID < 81000) {
-            $reflectionMethod->setAccessible(true);
-        }
-
         $reflectionMethod->invoke($reflection->newInstanceWithoutConstructor());
     }
 
@@ -57,7 +54,7 @@ final class TagReferenceTest extends TestCase
     public function testReference(): void
     {
         $reference = TagReference::to('test');
-        $spyContainer = new class () implements ContainerInterface {
+        $spyContainer = new class implements ContainerInterface {
             public function get($id)
             {
                 return $id;
@@ -72,5 +69,10 @@ final class TagReferenceTest extends TestCase
         $result = $reference->resolve($spyContainer);
 
         $this->assertEquals('tag@test', $result);
+    }
+
+    public function testId(): void
+    {
+        $this->assertSame('tag@test', TagReference::id('test'));
     }
 }

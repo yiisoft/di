@@ -19,7 +19,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
  * General tests for PSR-11 composite container.
  * To be extended for specific containers.
  */
-abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTest
+abstract class CompositePsrContainerTestAbstract extends PsrContainerTestAbstract
 {
     public function createCompositeContainer(ContainerInterface $attachedContainer): ContainerInterface
     {
@@ -136,7 +136,7 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
     public function testDelegateLookup(): void
     {
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container(ContainerConfig::create());
+        $firstContainer = new Container();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -154,12 +154,8 @@ abstract class AbstractCompositePsrContainerTest extends AbstractPsrContainerTes
 
     public function testDelegateLookupUnionTypes(): void
     {
-        if (PHP_VERSION_ID < 80000) {
-            $this->markTestSkipped('Union types are not supported before PHP 8');
-        }
-
         $compositeContainer = new CompositeContainer();
-        $firstContainer = new Container(ContainerConfig::create());
+        $firstContainer = new Container();
 
         $config = ContainerConfig::create()
             ->withDefinitions([

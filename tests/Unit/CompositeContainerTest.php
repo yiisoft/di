@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;
@@ -13,6 +14,10 @@ use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NonPsrContainer;
+use Yiisoft\Test\Support\Container\SimpleContainer;
+
+use function PHPUnit\Framework\assertFalse;
+use function PHPUnit\Framework\assertSame;
 
 final class CompositeContainerTest extends TestCase
 {
@@ -22,7 +27,7 @@ final class CompositeContainerTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
-            '/^ID must be a string, (integer|int) given\.$/'
+            '/^ID must be a string, (integer|int) given\.$/',
         );
         $container->get(42);
     }
@@ -65,11 +70,44 @@ final class CompositeContainerTest extends TestCase
 
         $this->expectException(CompositeNotFoundException::class);
         $this->expectExceptionMessageMatches(
-            '/No definition or class found or resolvable in composite container/'
+            '/No definition or class found or resolvable in composite container/',
         );
         $this->expectExceptionMessageMatches(
-            '/Container "has\(\)" returned false, but no exception was thrown from "get\(\)"\./'
+            '/Container "has\(\)" returned false, but no exception was thrown from "get\(\)"\./',
         );
         $compositeContainer->get('test');
+    }
+
+    public function testHasNoString(): void
+    {
+        $container = new CompositeContainer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('ID must be a string, bool given.');
+        $container->has(true);
+    }
+
+    #[TestWith([true, 'engine'])]
+    #[TestWith([false, 'other'])]
+    public function testHasTag(bool $expected, string $tag): void
+    {
+        $container = new CompositeContainer();
+
+        $container->attach(
+            new Container(
+                ContainerConfig::create()->withTags(['engine' => []]),
+            ),
+        );
+
+        assertSame($expected, $container->has('tag@' . $tag));
+    }
+
+    public function testHasTagWithoutYiiContainer(): void
+    {
+        $container = new CompositeContainer();
+
+        $container->attach(new SimpleContainer());
+
+        assertFalse($container->has('tag@engine'));
     }
 }

@@ -3,6 +3,7 @@
     errorLevel="1"
     findUnusedBaselineEntry="true"
     findUnusedCode="false"
+    ensureOverrideAttribute="false"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
@@ -14,10 +15,6 @@
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
-        <InvalidCatch>
-            <errorLevel type="suppress">
-                <referencedClass name="Psr\Container\NotFoundExceptionInterface" />
-            </errorLevel>
-        </InvalidCatch>
+        <MixedAssignment errorLevel="suppress" />
     </issueHandlers>
 </psalm>

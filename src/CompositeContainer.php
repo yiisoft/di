@@ -11,6 +11,7 @@ use Throwable;
 use Yiisoft\Di\Reference\TagReference;
 
 use function is_string;
+use function sprintf;
 
 /**
  * A composite container for use with containers that support the delegate lookup feature.
@@ -36,8 +37,8 @@ final class CompositeContainer implements ContainerInterface
             throw new InvalidArgumentException(
                 sprintf(
                     'ID must be a string, %s given.',
-                    get_debug_type($id)
-                )
+                    get_debug_type($id),
+                ),
             );
         }
 
@@ -90,7 +91,7 @@ final class CompositeContainer implements ContainerInterface
                 if (!$hasException) {
                     $exceptions[] = [
                         new RuntimeException(
-                            'Container "has()" returned false, but no exception was thrown from "get()".'
+                            'Container "has()" returned false, but no exception was thrown from "get()".',
                         ),
                         $container,
                     ];
@@ -103,11 +104,38 @@ final class CompositeContainer implements ContainerInterface
 
     public function has($id): bool
     {
+        /** @psalm-suppress TypeDoesNotContainType */
+        if (!is_string($id)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'ID must be a string, %s given.',
+                    get_debug_type($id),
+                ),
+            );
+        }
+
+        if ($id === StateResetter::class) {
+            return true;
+        }
+
+        if (TagReference::isTagAlias($id)) {
+            foreach ($this->containers as $container) {
+                if (!$container instanceof Container) {
+                    continue;
+                }
+                if ($container->has($id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
                 return true;
             }
         }
+
         return false;
     }
 

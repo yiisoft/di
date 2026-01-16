@@ -6,10 +6,13 @@ namespace Yiisoft\Di\Tests\Support;
 
 final class VariadicConstructor
 {
-    private array $parameters;
+    private readonly array $parameters;
 
-    public function __construct(private $first, private EngineInterface $engine, ...$parameters)
-    {
+    public function __construct(
+        private $first,
+        private readonly EngineInterface $engine,
+        ...$parameters,
+    ) {
         $this->parameters = $parameters;
     }
 

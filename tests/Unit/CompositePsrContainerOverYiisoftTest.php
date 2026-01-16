@@ -16,7 +16,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 /**
  * Test the CompositeContainer over Yiisoft Container.
  */
-final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrContainerTest
+final class CompositePsrContainerOverYiisoftTest extends CompositePsrContainerTestAbstract
 {
     public function createContainer(iterable $definitions = []): ContainerInterface
     {
@@ -110,16 +110,16 @@ final class CompositePsrContainerOverYiisoftTest extends AbstractCompositePsrCon
     {
         $compositeContainer = new CompositeContainer();
 
-        $container1 = new Container(ContainerConfig::create());
+        $container1 = new Container();
         $container1Id = spl_object_id($container1);
-        $container2 = new Container(ContainerConfig::create());
+        $container2 = new Container();
         $container2Id = spl_object_id($container2);
 
         $compositeContainer->attach($container1);
         $compositeContainer->attach($container2);
 
         $this->expectException(CompositeNotFoundException::class);
-        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    1. Container Yiisoft\Di\Container #$container1Id: No definition or class found or resolvable for \"test\" while building \"test\".\n    2. Container Yiisoft\Di\Container #$container2Id: No definition or class found or resolvable for \"test\" while building \"test\".");
+        $this->expectExceptionMessage("No definition or class found or resolvable in composite container:\n    1. Container Yiisoft\Di\Container #$container1Id: No definition or class found or resolvable for \"test\" while building it.\n    2. Container Yiisoft\Di\Container #$container2Id: No definition or class found or resolvable for \"test\" while building it.");
         $compositeContainer->get('test');
     }
 }
