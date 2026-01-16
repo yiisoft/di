@@ -19,6 +19,7 @@
 
 ## 1.3.0 October 14, 2024
 
+- Enh #352: Support parameters name binding (@xepozz)
 - Enh #353: Add shortcut for tag reference #333 (@xepozz)
 - Enh #356: Improve usage `NotFoundException` for cases with definitions (@vjik)
 - Enh #364: Minor refactoring to improve performance of container (@samdark)
