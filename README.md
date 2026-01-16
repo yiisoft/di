@@ -86,6 +86,7 @@ return [
         // call the constructor, pass named argument "amount"
         '__construct()' => [
             'amount' => 42,
+            'db' => Reference::to(SecondaryConnection::class), // instance of another dependency
         ],
         
         // set a public property
