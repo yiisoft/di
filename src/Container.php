@@ -301,8 +301,10 @@ final class Container implements ContainerInterface
      */
     private function addDefinitions(array $config): void
     {
+        $this->hasCache = [];
+
         foreach ($config as $id => $definition) {
-            if ($this->validate && !is_string($id)) {
+            if (!is_string($id)) {
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
@@ -338,7 +340,6 @@ final class Container implements ContainerInterface
             }
 
             unset($this->instances[$id]);
-            $this->hasCache = [];
 
             $this->definitions->set($id, $definition);
 
@@ -401,6 +402,14 @@ final class Container implements ContainerInterface
     private function prepareDefinitionsWithoutValidation(array $config, array $definitions): array
     {
         foreach ($config as $id => $definition) {
+            if (!is_string($id)) {
+                throw new InvalidConfigException(
+                    sprintf(
+                        'Key must be a string. %s given.',
+                        get_debug_type($id),
+                    ),
+                );
+            }
             /** @var string $id */
             if (is_array($definition)) {
                 [$definition, $meta] = DefinitionParser::parse($definition);

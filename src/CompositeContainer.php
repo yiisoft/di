@@ -6,6 +6,7 @@ namespace Yiisoft\Di;
 
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Throwable;
 use Yiisoft\Di\Reference\TagReference;
@@ -79,8 +80,16 @@ final class CompositeContainer implements ContainerInterface
         }
 
         if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
-            /** @psalm-suppress MixedReturnStatement */
-            return $this->containers[$this->lookupCache[$id]]->get($id);
+            $index = $this->lookupCache[$id];
+            $container = $this->containers[$index];
+            if ($container->has($id)) {
+                try {
+                    /** @psalm-suppress MixedReturnStatement */
+                    return $container->get($id);
+                } catch (NotFoundExceptionInterface) {
+                }
+            }
+            unset($this->lookupCache[$id]);
         }
 
         foreach ($this->containers as $index => $container) {
@@ -144,7 +153,11 @@ final class CompositeContainer implements ContainerInterface
         }
 
         if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
-            return true;
+            $index = $this->lookupCache[$id];
+            if ($this->containers[$index]->has($id)) {
+                return true;
+            }
+            unset($this->lookupCache[$id]);
         }
 
         foreach ($this->containers as $index => $container) {

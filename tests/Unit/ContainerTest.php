@@ -110,6 +110,52 @@ final class ContainerTest extends TestCase
         $container->get(Car::class);
     }
 
+    public function testIntegerKeysWithoutValidation(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Key must be a string. int given.');
+
+        new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                    ],
+                ]),
+        );
+    }
+
+    public function testIntegerKeysInProviderWithoutValidation(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Key must be a string. int given.');
+
+        $provider = new class implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                    ],
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withProviders([$provider]),
+        );
+    }
+
     public function testNullableClassDependency(): void
     {
         $container = new Container();
