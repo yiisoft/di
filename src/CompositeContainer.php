@@ -26,6 +26,13 @@ final class CompositeContainer implements ContainerInterface
     private array $containers = [];
 
     /**
+     * Index of a container where a service ID was previously found.
+     *
+     * @psalm-var array<string, int>
+     */
+    private array $lookupCache = [];
+
+    /**
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
      * @psalm-return ($id is class-string ? T : mixed)
@@ -71,8 +78,14 @@ final class CompositeContainer implements ContainerInterface
             return array_merge(...$tags);
         }
 
-        foreach ($this->containers as $container) {
+        if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
+            /** @psalm-suppress MixedReturnStatement */
+            return $this->containers[$this->lookupCache[$id]]->get($id);
+        }
+
+        foreach ($this->containers as $index => $container) {
             if ($container->has($id)) {
+                $this->lookupCache[$id] = (int) $index;
                 /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
@@ -130,8 +143,13 @@ final class CompositeContainer implements ContainerInterface
             return false;
         }
 
-        foreach ($this->containers as $container) {
+        if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
+            return true;
+        }
+
+        foreach ($this->containers as $index => $container) {
             if ($container->has($id)) {
+                $this->lookupCache[$id] = (int) $index;
                 return true;
             }
         }
@@ -155,6 +173,7 @@ final class CompositeContainer implements ContainerInterface
         foreach ($this->containers as $i => $c) {
             if ($container === $c) {
                 unset($this->containers[$i]);
+                $this->lookupCache = [];
             }
         }
     }
