@@ -310,7 +310,39 @@ final class Container implements ContainerInterface
             }
             /** @var string $id */
 
-            $this->addDefinition($id, $definition);
+            if (is_array($definition)) {
+                [$definition, $meta] = DefinitionParser::parse($definition);
+            } else {
+                $meta = [];
+            }
+
+            if ($this->validate) {
+                $this->validateDefinition($definition, $id);
+                // Only validate meta if it's not empty.
+                if ($meta !== []) {
+                    $this->validateMeta($meta);
+                }
+            }
+            /**
+             * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+             */
+
+            // Process meta only if it has tags or reset callback.
+            if (isset($meta[self::META_TAGS])) {
+                $this->setDefinitionTags($id, $meta[self::META_TAGS]);
+            }
+            if (isset($meta[self::META_RESET])) {
+                $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+            }
+
+            unset($this->instances[$id]);
+            $this->hasCache = [];
+
+            $this->definitions->set($id, $definition);
+
+            if ($id === StateResetter::class) {
+                $this->useResettersFromMeta = false;
+            }
         }
     }
 
