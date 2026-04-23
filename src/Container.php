@@ -350,8 +350,12 @@ final class Container implements ContainerInterface
 
     private function prepareDefinitions(array $config, array $definitions): array
     {
+        if (!$this->validate) {
+            return $this->prepareDefinitionsWithoutValidation($config, $definitions);
+        }
+
         foreach ($config as $id => $definition) {
-            if ($this->validate && !is_string($id)) {
+            if (!is_string($id)) {
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
@@ -367,12 +371,10 @@ final class Container implements ContainerInterface
                 $meta = [];
             }
 
-            if ($this->validate) {
-                $this->validateDefinition($definition, $id);
-                // Only validate meta if it's not empty.
-                if ($meta !== []) {
-                    $this->validateMeta($meta);
-                }
+            $this->validateDefinition($definition, $id);
+            // Only validate meta if it's not empty.
+            if ($meta !== []) {
+                $this->validateMeta($meta);
             }
             /**
              * @psalm-var array{reset?:Closure,tags?:string[]} $meta
@@ -384,6 +386,36 @@ final class Container implements ContainerInterface
             }
             if (isset($meta[self::META_RESET])) {
                 $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+            }
+
+            if ($id === StateResetter::class) {
+                $this->useResettersFromMeta = false;
+            }
+
+            $definitions[$id] = $definition;
+        }
+
+        return $definitions;
+    }
+
+    private function prepareDefinitionsWithoutValidation(array $config, array $definitions): array
+    {
+        foreach ($config as $id => $definition) {
+            /** @var string $id */
+            if (is_array($definition)) {
+                [$definition, $meta] = DefinitionParser::parse($definition);
+
+                /**
+                 * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+                 */
+
+                // Process meta only if it has tags or reset callback.
+                if (isset($meta[self::META_TAGS])) {
+                    $this->setDefinitionTags($id, $meta[self::META_TAGS]);
+                }
+                if (isset($meta[self::META_RESET])) {
+                    $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+                }
             }
 
             if ($id === StateResetter::class) {
