@@ -8,6 +8,7 @@ use Closure;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\DefinitionStorage;
@@ -561,14 +562,15 @@ final class Container implements ContainerInterface
             return $this->getTaggedServices($id);
         }
 
-        // Check if the definition exists.
-        if (!$this->definitions->has($id)) {
+        try {
+            $definition = $this->definitions->get($id);
+        } catch (RuntimeException) {
             throw new NotFoundException($id, $this->definitions->getBuildStack());
         }
 
         $this->building[$id] = 1;
         try {
-            $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+            $normalizedDefinition = DefinitionNormalizer::normalize($definition, $id);
             $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);
