@@ -71,6 +71,25 @@ class TypicalUsageBench
     }
 
     /**
+     * Measures first resolution of an autowired object graph by class name without eager definition validation.
+     *
+     * @Groups({"lookup", "autowire", "typical", "no-validation"})
+     * @Revs(100)
+     */
+    public function benchAutowireObjectGraphWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    EngineInterface::class => EngineMarkOne::class,
+                ]),
+        );
+
+        $container->get(Car::class);
+    }
+
+    /**
      * Measures explicit array definitions with constructor, setter, and reference resolution.
      *
      * @Groups({"lookup", "definition", "typical"})
@@ -95,6 +114,31 @@ class TypicalUsageBench
     }
 
     /**
+     * Measures explicit array definitions with constructor, setter, and reference resolution without eager validation.
+     *
+     * @Groups({"lookup", "definition", "typical", "no-validation"})
+     * @Revs(100)
+     */
+    public function benchArrayDefinitionObjectGraphWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    EngineInterface::class => EngineMarkOne::class,
+                    ColorInterface::class => ColorRed::class,
+                    'car' => [
+                        'class' => Car::class,
+                        '__construct()' => [Reference::to(EngineInterface::class)],
+                        'setColor()' => [Reference::to(ColorInterface::class)],
+                    ],
+                ]),
+        );
+
+        $container->get('car');
+    }
+
+    /**
      * Measures first resolution of a callable factory definition.
      *
      * @Groups({"lookup", "factory", "typical"})
@@ -104,6 +148,26 @@ class TypicalUsageBench
     {
         $container = new Container(
             ContainerConfig::create()
+                ->withDefinitions([
+                    ColorInterface::class => ColorRed::class,
+                    'car' => [CarFactory::class, 'createWithColor'],
+                ]),
+        );
+
+        $container->get('car');
+    }
+
+    /**
+     * Measures first resolution of a callable factory definition without eager validation.
+     *
+     * @Groups({"lookup", "factory", "typical", "no-validation"})
+     * @Revs(100)
+     */
+    public function benchFactoryDefinitionWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
                 ->withDefinitions([
                     ColorInterface::class => ColorRed::class,
                     'car' => [CarFactory::class, 'createWithColor'],
@@ -143,6 +207,36 @@ class TypicalUsageBench
     }
 
     /**
+     * Measures collecting all services registered under a tag without eager validation.
+     *
+     * @Groups({"lookup", "tag", "typical", "no-validation"})
+     * @Revs(100)
+     */
+    public function benchTaggedServicesWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                    ],
+                    EngineMarkTwo::class => [
+                        'class' => EngineMarkTwo::class,
+                        'tags' => ['engine'],
+                    ],
+                    'engine-reference' => [
+                        'definition' => Reference::to(EngineMarkOne::class),
+                        'tags' => ['engine'],
+                    ],
+                ]),
+        );
+
+        $container->get(TagReference::id('engine'));
+    }
+
+    /**
      * Measures fallback through delegates configured on the container.
      *
      * @Groups({"lookup", "delegate", "typical"})
@@ -155,6 +249,31 @@ class TypicalUsageBench
                 ->withDelegates([
                     static fn(ContainerInterface $container): ContainerInterface => new Container(
                         ContainerConfig::create()
+                            ->withDefinitions([
+                                EngineInterface::class => EngineMarkOne::class,
+                            ]),
+                    ),
+                ]),
+        );
+
+        $container->get(EngineInterface::class);
+    }
+
+    /**
+     * Measures fallback through delegates configured on the container without eager validation.
+     *
+     * @Groups({"lookup", "delegate", "typical", "no-validation"})
+     * @Revs(100)
+     */
+    public function benchDelegateFallbackWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDelegates([
+                    static fn(ContainerInterface $container): ContainerInterface => new Container(
+                        ContainerConfig::create()
+                            ->withValidate(false)
                             ->withDefinitions([
                                 EngineInterface::class => EngineMarkOne::class,
                             ]),
