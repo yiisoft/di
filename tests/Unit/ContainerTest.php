@@ -57,6 +57,7 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
 
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertSame;
+use function count;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
