@@ -259,7 +259,12 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        [$definition, $meta] = DefinitionParser::parse($definition);
+        if (is_array($definition)) {
+            [$definition, $meta] = DefinitionParser::parse($definition);
+        } else {
+            $meta = [];
+        }
+
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
             // Only validate meta if it's not empty.
