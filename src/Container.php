@@ -408,6 +408,10 @@ final class Container implements ContainerInterface
     {
         $this->delegates = new CompositeContainer();
 
+        if ($delegates === []) {
+            return;
+        }
+
         $container = $this->get(ContainerInterface::class);
 
         foreach ($delegates as $delegate) {
