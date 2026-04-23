@@ -149,8 +149,7 @@ final class MutableContainer implements ContainerInterface
 {
     public function __construct(
         public array $definitions,
-    ) {
-    }
+    ) {}
 
     public function get($id)
     {
