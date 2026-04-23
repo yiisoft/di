@@ -63,6 +63,11 @@ final class Container implements ContainerInterface
     private CompositeContainer $delegates;
 
     /**
+     * @psalm-var array<string, bool>
+     */
+    private array $hasCache = [];
+
+    /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      * @psalm-var array<string, list<string>>
      */
@@ -109,20 +114,24 @@ final class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
+        if (array_key_exists($id, $this->hasCache)) {
+            return $this->hasCache[$id];
+        }
+
         try {
             if ($this->definitions->has($id)) {
-                return true;
+                return $this->hasCache[$id] = true;
             }
         } catch (CircularReferenceException) {
-            return true;
+            return $this->hasCache[$id] = true;
         }
 
         if (TagReference::isTagAlias($id)) {
             $tag = TagReference::extractTagFromAlias($id);
-            return isset($this->tags[$tag]);
+            return $this->hasCache[$id] = isset($this->tags[$tag]);
         }
 
-        return false;
+        return $this->hasCache[$id] = false;
     }
 
     /**
@@ -269,6 +278,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
+        $this->hasCache = [];
 
         $this->addDefinitionToStorage($id, $definition);
     }
