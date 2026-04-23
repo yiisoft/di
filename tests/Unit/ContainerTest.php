@@ -156,6 +156,67 @@ final class ContainerTest extends TestCase
         );
     }
 
+    public function testMetadataWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                        'reset' => function (): void {
+                            $this->number = 7;
+                        },
+                    ],
+                    StateResetter::class => StateResetter::class,
+                ]),
+        );
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+    }
+
+    public function testMetadataInProviderDefinitions(): void
+    {
+        $provider = new class implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                        'reset' => function (): void {
+                            $this->number = 7;
+                        },
+                    ],
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        $container = new Container(
+            ContainerConfig::create()
+                ->withProviders([$provider]),
+        );
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(42);
+        $container->get(StateResetter::class)->reset();
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertSame(7, $engine->getNumber());
+        $this->assertIsArray($engines);
+        $this->assertSame($engine, $engines[0]);
+    }
+
     public function testNullableClassDependency(): void
     {
         $container = new Container();
@@ -729,6 +790,33 @@ final class ContainerTest extends TestCase
         } catch (CircularReferenceException) {
             $this->fail('Circular reference detected false positively.');
         }
+    }
+
+    public function testAddDefinitionWithMetadata(): void
+    {
+        $container = new Container();
+
+        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
+            $container,
+            EngineMarkOne::class,
+            [
+                'class' => EngineMarkOne::class,
+                'tags' => ['engine'],
+                'reset' => function (): void {
+                    $this->number = 7;
+                },
+            ],
+        );
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(42);
+        $container->get(StateResetter::class)->reset();
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertSame(7, $engine->getNumber());
+        $this->assertIsArray($engines);
+        $this->assertSame($engine, $engines[0]);
     }
 
     public function testCallable(): void
