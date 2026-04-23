@@ -148,6 +148,25 @@ class ContainerBench
     }
 
     /**
+     * @Groups({"construct", "no-validation"})
+     *
+     * @throws InvalidConfigException
+     * @throws NotInstantiableException
+     */
+    public function benchConstructWithoutValidation(): void
+    {
+        $definitions = [];
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
+            $definitions["service$i"] = PropertyTestClass::class;
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions($definitions),
+        );
+    }
+
+    /**
      * @Groups({"lookup"})
      * @ParamProviders({"provideDefinitions"})
      */
@@ -172,6 +191,31 @@ class ContainerBench
     }
 
     /**
+     * @Groups({"lookup", "no-validation"})
+     * @ParamProviders({"provideDefinitions"})
+     */
+    public function benchSequentialLookupsWithoutValidation($params): void
+    {
+        $definitions = [];
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
+            $definitions["service$i"] = $params['serviceClass'];
+        }
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions($definitions),
+        );
+        for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
+            // Do array lookup.
+            $index = $this->indexes[$i];
+            $container->get("service$index");
+        }
+    }
+
+    /**
      * @Groups({"lookup"})
      * @ParamProviders({"provideDefinitions"})
      */
@@ -186,6 +230,31 @@ class ContainerBench
         }
         $container = new Container(
             ContainerConfig::create()
+                ->withDefinitions($definitions),
+        );
+        for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {
+            // Do array lookup.
+            $index = $this->randomIndexes[$i];
+            $container->get("service$index");
+        }
+    }
+
+    /**
+     * @Groups({"lookup", "no-validation"})
+     * @ParamProviders({"provideDefinitions"})
+     */
+    public function benchRandomLookupsWithoutValidation($params): void
+    {
+        $definitions = [];
+        for ($i = 0; $i < self::SERVICE_COUNT; $i++) {
+            $definitions["service$i"] = $params['serviceClass'];
+        }
+        if (isset($params['otherDefinitions'])) {
+            $definitions = array_merge($definitions, $params['otherDefinitions']);
+        }
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
                 ->withDefinitions($definitions),
         );
         for ($i = 0; $i < self::SERVICE_COUNT / 2; $i++) {

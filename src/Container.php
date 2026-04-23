@@ -28,6 +28,7 @@ use function is_callable;
 use function is_object;
 use function is_string;
 use function sprintf;
+use function trim;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -351,6 +352,13 @@ final class Container implements ContainerInterface
     {
         // Skip validation for common simple cases.
         if ($definition instanceof ContainerInterface || $definition instanceof Closure) {
+            return;
+        }
+
+        if (is_string($definition)) {
+            if (trim($definition) === '') {
+                throw new InvalidConfigException('Invalid definition: class name must be a non-empty string.');
+            }
             return;
         }
 

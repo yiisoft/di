@@ -83,6 +83,19 @@ final class ContainerTest extends TestCase
         $container->get('scalar');
     }
 
+    public function testEmptyStringDefinition(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Invalid definition: class name must be a non-empty string.');
+
+        new Container(
+            ContainerConfig::create()
+                ->withDefinitions([
+                    'empty' => '',
+                ]),
+        );
+    }
+
     public function testIntegerKeys(): void
     {
         $this->expectException(InvalidConfigException::class);
