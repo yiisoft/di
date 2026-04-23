@@ -39,6 +39,7 @@ final class Container implements ContainerInterface
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
     private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
+    private const HAS_CACHE_LIMIT = 1024;
 
     /**
      * @var DefinitionStorage Storage of object definitions.
@@ -132,10 +133,19 @@ final class Container implements ContainerInterface
 
         if (TagReference::isTagAlias($id)) {
             $tag = TagReference::extractTagFromAlias($id);
-            return $this->hasCache[$id] = isset($this->tags[$tag]);
+            return $this->cacheHasResult($id, isset($this->tags[$tag]));
         }
 
-        return $this->hasCache[$id] = false;
+        return $this->cacheHasResult($id, false);
+    }
+
+    private function cacheHasResult(string $id, bool $result): bool
+    {
+        if (count($this->hasCache) >= self::HAS_CACHE_LIMIT) {
+            $this->hasCache = [];
+        }
+
+        return $this->hasCache[$id] = $result;
     }
 
     /**

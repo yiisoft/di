@@ -287,6 +287,19 @@ final class ContainerTest extends TestCase
         $this->assertSame($expected, $container->has($id));
     }
 
+    public function testHasCacheIsBounded(): void
+    {
+        $container = new Container();
+
+        for ($i = 0; $i < 1_100; $i++) {
+            $container->has('missing-service-' . $i);
+        }
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertLessThanOrEqual(1024, $cacheSize);
+    }
+
     public static function dataUnionTypes(): array
     {
         return [
