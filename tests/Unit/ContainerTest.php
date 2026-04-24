@@ -54,6 +54,7 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Test\Support\Container\SimpleContainer;
+use InvalidArgumentException;
 
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertSame;
@@ -344,7 +345,7 @@ final class ContainerTest extends TestCase
 
     public function testHasCacheLimitCanNotBeNegative(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Has cache limit must be greater than or equal to 0.');
 
         ContainerConfig::create()

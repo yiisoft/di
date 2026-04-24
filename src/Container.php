@@ -141,19 +141,6 @@ final class Container implements ContainerInterface
         return $this->cacheHasResult($id, false);
     }
 
-    private function cacheHasResult(string $id, bool $result): bool
-    {
-        if ($this->hasCacheLimit === 0) {
-            return $result;
-        }
-
-        if (count($this->hasCache) >= $this->hasCacheLimit) {
-            $this->hasCache = [];
-        }
-
-        return $this->hasCache[$id] = $result;
-    }
-
     /**
      * Returns an instance by either interface name or alias.
      *
@@ -231,6 +218,19 @@ final class Container implements ContainerInterface
         }
 
         return $this->instances[$id];
+    }
+
+    private function cacheHasResult(string $id, bool $result): bool
+    {
+        if ($this->hasCacheLimit === 0) {
+            return $result;
+        }
+
+        if (count($this->hasCache) >= $this->hasCacheLimit) {
+            $this->hasCache = [];
+        }
+
+        return $this->hasCache[$id] = $result;
     }
 
     private function prepareStateResetter(): StateResetter
