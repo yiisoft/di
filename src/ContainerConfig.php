@@ -4,15 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use InvalidArgumentException;
+
 /**
  * Container configuration.
  */
 final class ContainerConfig implements ContainerConfigInterface
 {
+    public const DEFAULT_HAS_CACHE_LIMIT = 1024;
+
     private array $definitions = [];
     private array $providers = [];
     private array $tags = [];
     private bool $validate = true;
+    private int $hasCacheLimit = self::DEFAULT_HAS_CACHE_LIMIT;
     private array $delegates = [];
     private bool $useStrictMode = false;
 
@@ -81,6 +86,25 @@ final class ContainerConfig implements ContainerConfigInterface
     public function shouldValidate(): bool
     {
         return $this->validate;
+    }
+
+    /**
+     * @param int $limit Maximum number of cached `has()` results. `0` disables the cache.
+     */
+    public function withHasCacheLimit(int $limit): self
+    {
+        if ($limit < 0) {
+            throw new InvalidArgumentException('Has cache limit must be greater than or equal to 0.');
+        }
+
+        $new = clone $this;
+        $new->hasCacheLimit = $limit;
+        return $new;
+    }
+
+    public function getHasCacheLimit(): int
+    {
+        return $this->hasCacheLimit;
     }
 
     /**

@@ -290,15 +290,65 @@ final class ContainerTest extends TestCase
 
     public function testHasCacheIsBounded(): void
     {
-        $container = new Container();
+        $definitions = [];
+        for ($i = 0; $i < 1_100; $i++) {
+            $definitions['existing-service-' . $i] = EngineMarkOne::class;
+        }
+
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions),
+        );
+
+        $this->assertSame(1024, ContainerConfig::create()->getHasCacheLimit());
 
         for ($i = 0; $i < 1_100; $i++) {
             $container->has('missing-service-' . $i);
+            $container->has('existing-service-' . $i);
         }
 
         $cacheSize = (fn(): int => count($this->hasCache))->call($container);
 
         $this->assertLessThanOrEqual(1024, $cacheSize);
+    }
+
+    public function testHasCacheLimitIsConfigurable(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withHasCacheLimit(2),
+        );
+
+        $container->has('missing-service-1');
+        $container->has('missing-service-2');
+        $container->has('missing-service-3');
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertSame(1, $cacheSize);
+    }
+
+    public function testHasCacheCanBeDisabled(): void
+    {
+        $config = ContainerConfig::create()
+            ->withHasCacheLimit(0);
+        $container = new Container($config);
+
+        $this->assertSame(0, $config->getHasCacheLimit());
+        $this->assertFalse($container->has('missing-service'));
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertSame(0, $cacheSize);
+    }
+
+    public function testHasCacheLimitCanNotBeNegative(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Has cache limit must be greater than or equal to 0.');
+
+        ContainerConfig::create()
+            ->withHasCacheLimit(-1);
     }
 
     public static function dataUnionTypes(): array

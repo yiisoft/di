@@ -2,6 +2,7 @@
 
 ## 1.4.2 under development
 
+- Enh #400: Improve container performance and make `has()` cache limit configurable (@samdark)
 - Enh #397: Explicitly import functions in "use" section (@mspirkov)
 
 ## 1.4.1 December 01, 2025

@@ -30,6 +30,11 @@ interface ContainerConfigInterface
     public function shouldValidate(): bool;
 
     /**
+     * @return int Maximum number of cached `has()` results. `0` disables the cache.
+     */
+    public function getHasCacheLimit(): int;
+
+    /**
      * @return array Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can't be found in primary container.

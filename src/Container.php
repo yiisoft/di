@@ -22,6 +22,7 @@ use Yiisoft\Di\Reference\TagReference;
 
 use function array_key_exists;
 use function array_keys;
+use function count;
 use function implode;
 use function in_array;
 use function is_array;
@@ -30,7 +31,6 @@ use function is_object;
 use function is_string;
 use function sprintf;
 use function trim;
-use function count;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -40,7 +40,6 @@ final class Container implements ContainerInterface
     private const META_TAGS = 'tags';
     private const META_RESET = 'reset';
     private const ALLOWED_META = [self::META_TAGS, self::META_RESET];
-    private const HAS_CACHE_LIMIT = 1024;
 
     /**
      * @var DefinitionStorage Storage of object definitions.
@@ -57,6 +56,7 @@ final class Container implements ContainerInterface
      * @var bool $validate If definitions should be validated.
      */
     private readonly bool $validate;
+    private readonly int $hasCacheLimit;
 
     /**
      * @var array Cached instances.
@@ -94,6 +94,7 @@ final class Container implements ContainerInterface
         $config ??= ContainerConfig::create();
 
         $this->validate = $config->shouldValidate();
+        $this->hasCacheLimit = $config->getHasCacheLimit();
         $this->setTags($config->getTags());
 
         $definitions = $this->prepareDefinitions(
@@ -126,10 +127,10 @@ final class Container implements ContainerInterface
 
         try {
             if ($this->definitions->has($id)) {
-                return $this->hasCache[$id] = true;
+                return $this->cacheHasResult($id, true);
             }
         } catch (CircularReferenceException) {
-            return $this->hasCache[$id] = true;
+            return $this->cacheHasResult($id, true);
         }
 
         if (TagReference::isTagAlias($id)) {
@@ -138,6 +139,19 @@ final class Container implements ContainerInterface
         }
 
         return $this->cacheHasResult($id, false);
+    }
+
+    private function cacheHasResult(string $id, bool $result): bool
+    {
+        if ($this->hasCacheLimit === 0) {
+            return $result;
+        }
+
+        if (count($this->hasCache) >= $this->hasCacheLimit) {
+            $this->hasCache = [];
+        }
+
+        return $this->hasCache[$id] = $result;
     }
 
     /**
@@ -217,15 +231,6 @@ final class Container implements ContainerInterface
         }
 
         return $this->instances[$id];
-    }
-
-    private function cacheHasResult(string $id, bool $result): bool
-    {
-        if (count($this->hasCache) >= self::HAS_CACHE_LIMIT) {
-            $this->hasCache = [];
-        }
-
-        return $this->hasCache[$id] = $result;
     }
 
     private function prepareStateResetter(): StateResetter
