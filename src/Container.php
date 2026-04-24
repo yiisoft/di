@@ -8,6 +8,7 @@ use Closure;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Throwable;
 use Yiisoft\Definitions\ArrayDefinition;
 use Yiisoft\Definitions\DefinitionStorage;
@@ -21,6 +22,7 @@ use Yiisoft\Di\Reference\TagReference;
 
 use function array_key_exists;
 use function array_keys;
+use function count;
 use function implode;
 use function in_array;
 use function is_array;
@@ -28,6 +30,7 @@ use function is_callable;
 use function is_object;
 use function is_string;
 use function sprintf;
+use function trim;
 
 /**
  * Container implements a [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container.
@@ -53,6 +56,7 @@ final class Container implements ContainerInterface
      * @var bool $validate If definitions should be validated.
      */
     private readonly bool $validate;
+    private readonly int $hasCacheLimit;
 
     /**
      * @var array Cached instances.
@@ -61,6 +65,11 @@ final class Container implements ContainerInterface
     private array $instances = [];
 
     private CompositeContainer $delegates;
+
+    /**
+     * @psalm-var array<string, bool>
+     */
+    private array $hasCache = [];
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
@@ -84,16 +93,19 @@ final class Container implements ContainerInterface
     {
         $config ??= ContainerConfig::create();
 
-        $this->definitions = new DefinitionStorage(
+        $this->validate = $config->shouldValidate();
+        $this->hasCacheLimit = $config->getHasCacheLimit();
+        $this->setTags($config->getTags());
+
+        $definitions = $this->prepareDefinitions(
+            $config->getDefinitions(),
             [
                 ContainerInterface::class => $this,
                 StateResetter::class => StateResetter::class,
             ],
-            $config->useStrictMode(),
         );
-        $this->validate = $config->shouldValidate();
-        $this->setTags($config->getTags());
-        $this->addDefinitions($config->getDefinitions());
+        $this->definitions = new DefinitionStorage($definitions, $config->useStrictMode());
+
         $this->addProviders($config->getProviders());
         $this->setDelegates($config->getDelegates());
     }
@@ -109,20 +121,24 @@ final class Container implements ContainerInterface
      */
     public function has(string $id): bool
     {
+        if (array_key_exists($id, $this->hasCache)) {
+            return $this->hasCache[$id];
+        }
+
         try {
             if ($this->definitions->has($id)) {
-                return true;
+                return $this->cacheHasResult($id, true);
             }
         } catch (CircularReferenceException) {
-            return true;
+            return $this->cacheHasResult($id, true);
         }
 
         if (TagReference::isTagAlias($id)) {
             $tag = TagReference::extractTagFromAlias($id);
-            return isset($this->tags[$tag]);
+            return $this->cacheHasResult($id, isset($this->tags[$tag]));
         }
 
-        return false;
+        return $this->cacheHasResult($id, false);
     }
 
     /**
@@ -204,6 +220,19 @@ final class Container implements ContainerInterface
         return $this->instances[$id];
     }
 
+    private function cacheHasResult(string $id, bool $result): bool
+    {
+        if ($this->hasCacheLimit === 0) {
+            return $result;
+        }
+
+        if (count($this->hasCache) >= $this->hasCacheLimit) {
+            $this->hasCache = [];
+        }
+
+        return $this->hasCache[$id] = $result;
+    }
+
     private function prepareStateResetter(): StateResetter
     {
         $delegatesResetter = null;
@@ -248,7 +277,12 @@ final class Container implements ContainerInterface
      */
     private function addDefinition(string $id, mixed $definition): void
     {
-        [$definition, $meta] = DefinitionParser::parse($definition);
+        if (is_array($definition)) {
+            [$definition, $meta] = DefinitionParser::parse($definition);
+        } else {
+            $meta = [];
+        }
+
         if ($this->validate) {
             $this->validateDefinition($definition, $id);
             // Only validate meta if it's not empty.
@@ -269,6 +303,7 @@ final class Container implements ContainerInterface
         }
 
         unset($this->instances[$id]);
+        $this->hasCache = [];
 
         $this->addDefinitionToStorage($id, $definition);
     }
@@ -282,8 +317,10 @@ final class Container implements ContainerInterface
      */
     private function addDefinitions(array $config): void
     {
+        $this->hasCache = [];
+
         foreach ($config as $id => $definition) {
-            if ($this->validate && !is_string($id)) {
+            if (!is_string($id)) {
                 throw new InvalidConfigException(
                     sprintf(
                         'Key must be a string. %s given.',
@@ -293,8 +330,127 @@ final class Container implements ContainerInterface
             }
             /** @var string $id */
 
-            $this->addDefinition($id, $definition);
+            if (is_array($definition)) {
+                [$definition, $meta] = DefinitionParser::parse($definition);
+            } else {
+                $meta = [];
+            }
+
+            if ($this->validate) {
+                $this->validateDefinition($definition, $id);
+                // Only validate meta if it's not empty.
+                if ($meta !== []) {
+                    $this->validateMeta($meta);
+                }
+            }
+            /**
+             * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+             */
+
+            // Process meta only if it has tags or reset callback.
+            if (isset($meta[self::META_TAGS])) {
+                $this->setDefinitionTags($id, $meta[self::META_TAGS]);
+            }
+            if (isset($meta[self::META_RESET])) {
+                $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+            }
+
+            unset($this->instances[$id]);
+
+            $this->definitions->set($id, $definition);
+
+            if ($id === StateResetter::class) {
+                $this->useResettersFromMeta = false;
+            }
         }
+    }
+
+    private function prepareDefinitions(array $config, array $definitions): array
+    {
+        if (!$this->validate) {
+            return $this->prepareDefinitionsWithoutValidation($config, $definitions);
+        }
+
+        foreach ($config as $id => $definition) {
+            if (!is_string($id)) {
+                throw new InvalidConfigException(
+                    sprintf(
+                        'Key must be a string. %s given.',
+                        get_debug_type($id),
+                    ),
+                );
+            }
+            /** @var string $id */
+
+            if (is_array($definition)) {
+                [$definition, $meta] = DefinitionParser::parse($definition);
+            } else {
+                $meta = [];
+            }
+
+            $this->validateDefinition($definition, $id);
+            // Only validate meta if it's not empty.
+            if ($meta !== []) {
+                $this->validateMeta($meta);
+            }
+            /**
+             * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+             */
+
+            // Process meta only if it has tags or reset callback.
+            if (isset($meta[self::META_TAGS])) {
+                $this->setDefinitionTags($id, $meta[self::META_TAGS]);
+            }
+            if (isset($meta[self::META_RESET])) {
+                $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+            }
+
+            if ($id === StateResetter::class) {
+                $this->useResettersFromMeta = false;
+            }
+
+            $definitions[$id] = $definition;
+        }
+
+        return $definitions;
+    }
+
+    private function prepareDefinitionsWithoutValidation(array $config, array $definitions): array
+    {
+        foreach ($config as $id => $definition) {
+            if (!is_string($id)) {
+                throw new InvalidConfigException(
+                    sprintf(
+                        'Key must be a string. %s given.',
+                        get_debug_type($id),
+                    ),
+                );
+            }
+            /** @var string $id */
+            if (is_array($definition)) {
+                [$definition, $meta] = DefinitionParser::parse($definition);
+
+                /**
+                 * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+                 */
+
+                // Process meta only if it has tags or reset callback.
+                if (isset($meta[self::META_TAGS])) {
+                    $this->setDefinitionTags($id, $meta[self::META_TAGS]);
+                }
+                if (isset($meta[self::META_RESET])) {
+                    $this->setDefinitionResetter($id, $meta[self::META_RESET]);
+                }
+            }
+
+            if ($id === StateResetter::class) {
+                $this->useResettersFromMeta = false;
+            }
+
+            $definitions[$id] = $definition;
+        }
+
+        return $definitions;
     }
 
     /**
@@ -308,6 +464,10 @@ final class Container implements ContainerInterface
     private function setDelegates(array $delegates): void
     {
         $this->delegates = new CompositeContainer();
+
+        if ($delegates === []) {
+            return;
+        }
 
         $container = $this->get(ContainerInterface::class);
 
@@ -341,6 +501,13 @@ final class Container implements ContainerInterface
     {
         // Skip validation for common simple cases.
         if ($definition instanceof ContainerInterface || $definition instanceof Closure) {
+            return;
+        }
+
+        if (is_string($definition)) {
+            if (trim($definition) === '') {
+                throw new InvalidConfigException('Invalid definition: class name must be a non-empty string.');
+            }
             return;
         }
 
@@ -543,14 +710,15 @@ final class Container implements ContainerInterface
             return $this->getTaggedServices($id);
         }
 
-        // Check if the definition exists.
-        if (!$this->definitions->has($id)) {
+        try {
+            $definition = $this->definitions->get($id);
+        } catch (RuntimeException) {
             throw new NotFoundException($id, $this->definitions->getBuildStack());
         }
 
         $this->building[$id] = 1;
         try {
-            $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
+            $normalizedDefinition = DefinitionNormalizer::normalize($definition, $id);
             $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
         } finally {
             unset($this->building[$id]);

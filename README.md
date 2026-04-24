@@ -617,6 +617,20 @@ $config = ContainerConfig::create()
 $container = new Container($config);
 ```
 
+The container caches `has()` results to speed up repeated lookups. The cache is limited to 1024 entries by default.
+If your application checks many dynamic service IDs in a long-running process, you can adjust the limit or disable the
+cache:
+
+```php
+use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+
+$config = ContainerConfig::create()
+    ->withHasCacheLimit(0); // Disable `has()` cache.
+
+$container = new Container($config);
+```
+
 ## Strict mode
 
 Container may work in a strict mode, that's when you should define everything in the container explicitly.

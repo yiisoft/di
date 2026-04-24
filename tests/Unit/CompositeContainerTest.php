@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
@@ -14,8 +15,10 @@ use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NonPsrContainer;
+use Yiisoft\Test\Support\Container\Exception\NotFoundException;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
+use function array_key_exists;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertSame;
 
@@ -109,5 +112,56 @@ final class CompositeContainerTest extends TestCase
         $container->attach(new SimpleContainer());
 
         assertFalse($container->has('tag@engine'));
+    }
+
+    public function testHasRechecksCachedContainer(): void
+    {
+        $container = new CompositeContainer();
+        $delegate = new MutableContainer([
+            'engine' => new EngineMarkOne(),
+        ]);
+
+        $container->attach($delegate);
+
+        $this->assertTrue($container->has('engine'));
+        unset($delegate->definitions['engine']);
+
+        assertFalse($container->has('engine'));
+    }
+
+    public function testGetFallsBackWhenCachedContainerNoLongerHasDefinition(): void
+    {
+        $container = new CompositeContainer();
+        $firstDelegate = new MutableContainer(['engine' => new EngineMarkOne()]);
+        $secondDelegate = new MutableContainer(['engine' => new EngineMarkTwo()]);
+
+        $container->attach($firstDelegate);
+        $container->attach($secondDelegate);
+
+        $this->assertInstanceOf(EngineMarkOne::class, $container->get('engine'));
+        unset($firstDelegate->definitions['engine']);
+
+        $this->assertInstanceOf(EngineMarkTwo::class, $container->get('engine'));
+    }
+}
+
+final class MutableContainer implements ContainerInterface
+{
+    public function __construct(
+        public array $definitions,
+    ) {}
+
+    public function get($id)
+    {
+        if (!$this->has($id)) {
+            throw new NotFoundException($id);
+        }
+
+        return $this->definitions[$id];
+    }
+
+    public function has($id): bool
+    {
+        return array_key_exists($id, $this->definitions);
     }
 }

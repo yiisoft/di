@@ -6,6 +6,7 @@ namespace Yiisoft\Di;
 
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Throwable;
 use Yiisoft\Di\Reference\TagReference;
@@ -24,6 +25,13 @@ final class CompositeContainer implements ContainerInterface
      * @var ContainerInterface[] The list of containers.
      */
     private array $containers = [];
+
+    /**
+     * Index of a container where a service ID was previously found.
+     *
+     * @psalm-var array<string, int>
+     */
+    private array $lookupCache = [];
 
     /**
      * @psalm-template T
@@ -71,8 +79,22 @@ final class CompositeContainer implements ContainerInterface
             return array_merge(...$tags);
         }
 
-        foreach ($this->containers as $container) {
+        if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
+            $index = $this->lookupCache[$id];
+            $container = $this->containers[$index];
             if ($container->has($id)) {
+                try {
+                    /** @psalm-suppress MixedReturnStatement */
+                    return $container->get($id);
+                } catch (NotFoundExceptionInterface) {
+                }
+            }
+            unset($this->lookupCache[$id]);
+        }
+
+        foreach ($this->containers as $index => $container) {
+            if ($container->has($id)) {
+                $this->lookupCache[$id] = (int) $index;
                 /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
@@ -130,8 +152,17 @@ final class CompositeContainer implements ContainerInterface
             return false;
         }
 
-        foreach ($this->containers as $container) {
+        if (isset($this->lookupCache[$id], $this->containers[$this->lookupCache[$id]])) {
+            $index = $this->lookupCache[$id];
+            if ($this->containers[$index]->has($id)) {
+                return true;
+            }
+            unset($this->lookupCache[$id]);
+        }
+
+        foreach ($this->containers as $index => $container) {
             if ($container->has($id)) {
+                $this->lookupCache[$id] = (int) $index;
                 return true;
             }
         }
@@ -155,6 +186,7 @@ final class CompositeContainer implements ContainerInterface
         foreach ($this->containers as $i => $c) {
             if ($container === $c) {
                 unset($this->containers[$i]);
+                $this->lookupCache = [];
             }
         }
     }

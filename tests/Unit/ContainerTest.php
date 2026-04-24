@@ -54,9 +54,11 @@ use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Injector\Injector;
 use Yiisoft\Test\Support\Container\SimpleContainer;
+use InvalidArgumentException;
 
 use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertSame;
+use function count;
 
 /**
  * ContainerTest contains tests for \Yiisoft\Di\Container
@@ -83,6 +85,19 @@ final class ContainerTest extends TestCase
         $container->get('scalar');
     }
 
+    public function testEmptyStringDefinition(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Invalid definition: class name must be a non-empty string.');
+
+        new Container(
+            ContainerConfig::create()
+                ->withDefinitions([
+                    'empty' => '',
+                ]),
+        );
+    }
+
     public function testIntegerKeys(): void
     {
         $this->expectException(InvalidConfigException::class);
@@ -95,6 +110,113 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $container->get(Car::class);
+    }
+
+    public function testIntegerKeysWithoutValidation(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Key must be a string. int given.');
+
+        new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                    ],
+                ]),
+        );
+    }
+
+    public function testIntegerKeysInProviderWithoutValidation(): void
+    {
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Key must be a string. int given.');
+
+        $provider = new class implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                    ],
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withProviders([$provider]),
+        );
+    }
+
+    public function testMetadataWithoutValidation(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withValidate(false)
+                ->withDefinitions([
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                        'reset' => function (): void {
+                            $this->number = 7;
+                        },
+                    ],
+                    StateResetter::class => StateResetter::class,
+                ]),
+        );
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+    }
+
+    public function testMetadataInProviderDefinitions(): void
+    {
+        $provider = new class implements ServiceProviderInterface {
+            public function getDefinitions(): array
+            {
+                return [
+                    EngineMarkOne::class => [
+                        'class' => EngineMarkOne::class,
+                        'tags' => ['engine'],
+                        'reset' => function (): void {
+                            $this->number = 7;
+                        },
+                    ],
+                ];
+            }
+
+            public function getExtensions(): array
+            {
+                return [];
+            }
+        };
+
+        $container = new Container(
+            ContainerConfig::create()
+                ->withProviders([$provider]),
+        );
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(42);
+        $container->get(StateResetter::class)->reset();
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertSame(7, $engine->getNumber());
+        $this->assertIsArray($engines);
+        $this->assertSame($engine, $engines[0]);
     }
 
     public function testNullableClassDependency(): void
@@ -165,6 +287,69 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $this->assertSame($expected, $container->has($id));
+    }
+
+    public function testHasCacheIsBounded(): void
+    {
+        $definitions = [];
+        for ($i = 0; $i < 1_100; $i++) {
+            $definitions['existing-service-' . $i] = EngineMarkOne::class;
+        }
+
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDefinitions($definitions),
+        );
+
+        $this->assertSame(1024, ContainerConfig::create()->getHasCacheLimit());
+
+        for ($i = 0; $i < 1_100; $i++) {
+            $container->has('missing-service-' . $i);
+            $container->has('existing-service-' . $i);
+        }
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertLessThanOrEqual(1024, $cacheSize);
+    }
+
+    public function testHasCacheLimitIsConfigurable(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withHasCacheLimit(2),
+        );
+
+        $container->has('missing-service-1');
+        $container->has('missing-service-2');
+        $container->has('missing-service-3');
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertSame(1, $cacheSize);
+    }
+
+    public function testHasCacheCanBeDisabled(): void
+    {
+        $config = ContainerConfig::create()
+            ->withHasCacheLimit(0);
+        $container = new Container($config);
+
+        $this->assertSame(0, $config->getHasCacheLimit());
+        $this->assertFalse($container->has('missing-service'));
+
+        $cacheSize = (fn(): int => count($this->hasCache))->call($container);
+
+        $this->assertSame(0, $cacheSize);
+    }
+
+    public function testHasCacheLimitCanNotBeNegative(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Has cache limit must be greater than or equal to 0.');
+
+        ContainerConfig::create()
+            ->withHasCacheLimit(-1);
     }
 
     public static function dataUnionTypes(): array
@@ -670,6 +855,33 @@ final class ContainerTest extends TestCase
         } catch (CircularReferenceException) {
             $this->fail('Circular reference detected false positively.');
         }
+    }
+
+    public function testAddDefinitionWithMetadata(): void
+    {
+        $container = new Container();
+
+        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
+            $container,
+            EngineMarkOne::class,
+            [
+                'class' => EngineMarkOne::class,
+                'tags' => ['engine'],
+                'reset' => function (): void {
+                    $this->number = 7;
+                },
+            ],
+        );
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(42);
+        $container->get(StateResetter::class)->reset();
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertSame(7, $engine->getNumber());
+        $this->assertIsArray($engines);
+        $this->assertSame($engine, $engines[0]);
     }
 
     public function testCallable(): void

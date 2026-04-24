@@ -11,6 +11,14 @@ use Yiisoft\Di\Tests\Support\StaticFactory;
 
 final class DefinitionParserTest extends TestCase
 {
+    public function testParseNonArrayDefinition(): void
+    {
+        [$definition, $meta] = DefinitionParser::parse(EngineMarkOne::class);
+
+        $this->assertSame(EngineMarkOne::class, $definition);
+        $this->assertSame([], $meta);
+    }
+
     public function testParseCallableDefinition(): void
     {
         $fn = static fn() => new EngineMarkOne();
