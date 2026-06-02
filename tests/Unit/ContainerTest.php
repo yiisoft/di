@@ -167,6 +167,55 @@ final class ContainerTest extends TestCase
         $this->assertSame($expected, $container->has($id));
     }
 
+    public function testHasDelegate(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDelegates([
+                    static fn(ContainerInterface $container) => new SimpleContainer([
+                        'id' => 'value',
+                        'tag@missing' => 'value',
+                    ]),
+                ]),
+        );
+
+        $this->assertTrue($container->has('id'));
+        $this->assertFalse($container->has('tag@missing'));
+        $this->assertSame('value', $container->get('id'));
+    }
+
+    public function testHasDelegateWithTagsConfigured(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withTags([
+                    'engine' => [EngineMarkOne::class],
+                ])
+                ->withDelegates([
+                    static fn(ContainerInterface $container) => new SimpleContainer([
+                        'id' => 'value',
+                        'tag@missing' => 'value',
+                    ]),
+                ]),
+        );
+
+        $this->assertTrue($container->has('id'));
+        $this->assertFalse($container->has('tag@missing'));
+    }
+
+    public function testHasWithTagsConfigured(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withTags([
+                    'engine' => [EngineMarkOne::class],
+                ]),
+        );
+
+        $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has('tag@missing'));
+    }
+
     public static function dataUnionTypes(): array
     {
         return [
@@ -2060,6 +2109,33 @@ final class ContainerTest extends TestCase
         $exception = null;
         try {
             $container->get('identifier');
+        } catch (Throwable $exception) {
+        }
+
+        $this->assertInstanceOf(BuildingException::class, $exception);
+        $this->assertSame(
+            'Caught unhandled error "Error in delegate" while building "identifier".',
+            $exception->getMessage(),
+        );
+
+        $previous = $exception->getPrevious();
+        $this->assertInstanceOf(RuntimeException::class, $previous);
+        $this->assertSame('Error in delegate', $previous->getMessage());
+    }
+
+    public function testExceptionOnHasInDelegateInHas(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDelegates([
+                static fn(ContainerInterface $container) => new SimpleContainer(
+                    hasCallback: static fn() => throw new RuntimeException('Error in delegate'),
+                ),
+            ]),
+        );
+
+        $exception = null;
+        try {
+            $container->has('identifier');
         } catch (Throwable $exception) {
         }
 

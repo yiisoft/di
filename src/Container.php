@@ -61,12 +61,14 @@ final class Container implements ContainerInterface
     private array $instances = [];
 
     private CompositeContainer $delegates;
+    private bool $hasDelegates = false;
 
     /**
      * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      * @psalm-var array<string, list<string>>
      */
     private array $tags;
+    private bool $hasTags = false;
 
     /**
      * @var Closure[]
@@ -117,9 +119,25 @@ final class Container implements ContainerInterface
             return true;
         }
 
+        if (!$this->hasTags && !$this->hasDelegates) {
+            return false;
+        }
+
         if (TagReference::isTagAlias($id)) {
+            if (!$this->hasTags) {
+                return false;
+            }
+
             $tag = TagReference::extractTagFromAlias($id);
             return isset($this->tags[$tag]);
+        }
+
+        if ($this->hasDelegates) {
+            try {
+                return $this->delegates->has($id);
+            } catch (Throwable $e) {
+                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+            }
         }
 
         return false;
@@ -327,6 +345,7 @@ final class Container implements ContainerInterface
             }
 
             $this->delegates->attach($delegate);
+            $this->hasDelegates = true;
         }
         $this->definitions->setDelegateContainer($this->delegates);
     }
@@ -473,6 +492,7 @@ final class Container implements ContainerInterface
         /** @psalm-var array<string, list<string>> $tags */
 
         $this->tags = $tags;
+        $this->hasTags = $tags !== [];
     }
 
     /**
@@ -483,6 +503,7 @@ final class Container implements ContainerInterface
         foreach ($tags as $tag) {
             if (!isset($this->tags[$tag]) || !in_array($id, $this->tags[$tag], true)) {
                 $this->tags[$tag][] = $id;
+                $this->hasTags = true;
             }
         }
     }
