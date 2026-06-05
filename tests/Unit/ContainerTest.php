@@ -16,6 +16,7 @@ use Yiisoft\Di\BuildingException;
 use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\ContainerException;
 use Yiisoft\Di\ExtensibleService;
 use Yiisoft\Di\NotFoundException;
 use Yiisoft\Di\StateResetter;
@@ -2123,7 +2124,7 @@ final class ContainerTest extends TestCase
         $this->assertSame('Error in delegate', $previous->getMessage());
     }
 
-    public function testExceptionOnHasInDelegateInHas(): void
+    public function testContainerExceptionOnHasInDelegateInHas(): void
     {
         $container = new Container(
             ContainerConfig::create()->withDelegates([
@@ -2139,9 +2140,9 @@ final class ContainerTest extends TestCase
         } catch (Throwable $exception) {
         }
 
-        $this->assertInstanceOf(BuildingException::class, $exception);
+        $this->assertInstanceOf(ContainerException::class, $exception);
         $this->assertSame(
-            'Caught unhandled error "Error in delegate" while building "identifier".',
+            'Caught unhandled error "Error in delegate" while checking if container has "identifier".',
             $exception->getMessage(),
         );
 

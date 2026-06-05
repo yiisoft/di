@@ -108,6 +108,8 @@ final class Container implements ContainerInterface
      * @return bool Whether the container is able to provide instance of class specified.
      *
      * @see addDefinition()
+     *
+     * @throws ContainerException
      */
     public function has(string $id): bool
     {
@@ -136,7 +138,7 @@ final class Container implements ContainerInterface
             try {
                 return $this->delegates->has($id);
             } catch (Throwable $e) {
-                throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
+                throw new ContainerException($id, $e, $e);
             }
         }
 
