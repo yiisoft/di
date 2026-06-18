@@ -24,9 +24,11 @@ on:
 
 name: Composer require checker
 
+permissions:
+  contents: read
 jobs:
   composer-require-checker:
-    uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@master
+    uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
     with:
       os: >-
         ['ubuntu-latest']
