@@ -20,8 +20,5 @@ concurrency:
 jobs:
   rector:
     uses: yiisoft/actions/.github/workflows/rector-cs.yml@master
-    secrets:
-      token: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
     with:
-      repository: ${{ github.event.pull_request.head.repo.full_name }}
       php: '8.1'
