@@ -26,7 +26,7 @@ permissions:
   contents: read
 jobs:
   phpunit:
-    uses: yiisoft/actions/.github/workflows/phpunit.yml@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
+    uses: yiisoft/actions/.github/workflows/phpunit.yml@master
     secrets:
       codecovToken: ${{ secrets.CODECOV_TOKEN }}
     with:
