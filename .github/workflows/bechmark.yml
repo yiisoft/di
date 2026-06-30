@@ -21,6 +21,8 @@ on:
 
 name: bechmark
 
+permissions:
+  contents: read
 jobs:
   phpbench:
     uses: yiisoft/actions/.github/workflows/phpbench.yml@master

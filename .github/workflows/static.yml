@@ -22,6 +22,8 @@ on:
 
 name: static analysis
 
+permissions:
+  contents: read
 jobs:
   psalm:
     uses: yiisoft/actions/.github/workflows/psalm.yml@master

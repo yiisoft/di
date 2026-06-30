@@ -22,6 +22,8 @@ on:
 
 name: build
 
+permissions:
+  contents: read
 jobs:
   phpunit:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master

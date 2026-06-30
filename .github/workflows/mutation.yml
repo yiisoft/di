@@ -20,6 +20,8 @@ on:
 
 name: mutation test
 
+permissions:
+  contents: read
 jobs:
   mutation:
     uses: yiisoft/actions/.github/workflows/infection.yml@master
