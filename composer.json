@@ -39,6 +39,7 @@
         "yiisoft/friendly-exception": "^1.1.0"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.92.5",
         "bamarni/composer-bin-plugin": "^1.8.3",
         "league/container": "^5.1.0",
         "maglnet/composer-require-checker": "^4.7.1",

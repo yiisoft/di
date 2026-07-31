@@ -18,6 +18,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   composer-require-checker:
     uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@master

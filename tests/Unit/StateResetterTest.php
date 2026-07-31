@@ -19,7 +19,7 @@ final class StateResetterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'State resetter object should be instance of "' . StateResetter::class . '", "stdClass" given.'
+            'State resetter object should be instance of "' . StateResetter::class . '", "stdClass" given.',
         );
         $resetter->setResetters([
             new stdClass(),
@@ -32,9 +32,9 @@ final class StateResetterTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Callback for state resetter should be closure in format ' .
-            '`function (ContainerInterface $container): void`. ' .
-            'Got "' . StateResetter::class . '".'
+            'Callback for state resetter should be closure in format '
+            . '`function (ContainerInterface $container): void`. '
+            . 'Got "' . StateResetter::class . '".',
         );
         $resetter->setResetters([
             Car::class => $resetter,
@@ -46,16 +46,15 @@ final class StateResetterTest extends TestCase
         $resetter = new StateResetter(
             new SimpleContainer([
                 'value' => 42,
-            ])
+            ]),
         );
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
-            '/^State resetter supports resetting objects only\. Container returned (integer|int)\.$/'
+            '/^State resetter supports resetting objects only\. Container returned (integer|int)\.$/',
         );
         $resetter->setResetters([
-            'value' => static function () {
-            },
+            'value' => static function () {},
         ]);
     }
 }

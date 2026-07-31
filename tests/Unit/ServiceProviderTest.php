@@ -36,70 +36,6 @@ final class ServiceProviderTest extends TestCase
         $this->ensureProviderRegisterExtensions(new CarExtensionProvider());
     }
 
-    private function ensureProviderRegisterExtensions($provider): void
-    {
-        $config = ContainerConfig::create()
-            ->withDefinitions([
-                Car::class => Car::class,
-                EngineInterface::class => EngineMarkOne::class,
-                'sport_car' => SportCar::class,
-            ])
-            ->withProviders([$provider]);
-        $container = new Container($config);
-
-        $this->assertTrue($container->has(Car::class));
-        $this->assertTrue($container->has(EngineInterface::class));
-        $this->assertInstanceOf(Car::class, $container->get(Car::class));
-        $this->assertInstanceOf(
-            ColorRed::class,
-            $container
-                ->get(Car::class)
-                ->getColor(),
-        );
-        $this->assertInstanceOf(
-            EngineMarkTwo::class,
-            $container
-                ->get(Car::class)
-                ->getEngine(),
-        );
-    }
-
-    private function ensureProviderRegisterDefinitions($provider): void
-    {
-        $container = new Container();
-
-        $this->assertFalse(
-            $container->has(Car::class),
-            'Container should not have Car registered before service provider added due to autoload fallback.'
-        );
-        $this->assertFalse(
-            $container->has('car'),
-            'Container should not have "car" registered before service provider added.'
-        );
-        $this->assertFalse(
-            $container->has(EngineInterface::class),
-            'Container should not have EngineInterface registered before service provider added.'
-        );
-
-        $config = ContainerConfig::create()
-            ->withDefinitions([
-                Car::class => Car::class,
-                'sport_car' => SportCar::class,
-            ])
-            ->withProviders([$provider]);
-        $container = new Container($config);
-
-        // ensure addProvider invoked ServiceProviderInterface::register
-        $this->assertTrue(
-            $container->has('car'),
-            'CarProvider should have registered "car" once it was added to container.'
-        );
-        $this->assertTrue(
-            $container->has(EngineInterface::class),
-            'CarProvider should have registered EngineInterface once it was added to container.'
-        );
-    }
-
     public function testNotExistedExtension(): void
     {
         $this->expectException(InvalidConfigException::class);
@@ -173,7 +109,7 @@ final class ServiceProviderTest extends TestCase
                 ],
             ])
             ->withProviders([
-                new class () implements ServiceProviderInterface {
+                new class implements ServiceProviderInterface {
                     public function getDefinitions(): array
                     {
                         return [];
@@ -182,7 +118,7 @@ final class ServiceProviderTest extends TestCase
                     public function getExtensions(): array
                     {
                         return [
-                            'method_test' => static fn (ContainerInterface $container, MethodTestClass $class) => $class,
+                            'method_test' => static fn(ContainerInterface $container, MethodTestClass $class) => $class,
                         ];
                     }
                 },
@@ -193,5 +129,69 @@ final class ServiceProviderTest extends TestCase
         /** @var MethodTestClass $object */
         $object = $container->get('method_test');
         $this->assertSame(42, $object->getValue());
+    }
+
+    private function ensureProviderRegisterExtensions($provider): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                EngineInterface::class => EngineMarkOne::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([$provider]);
+        $container = new Container($config);
+
+        $this->assertTrue($container->has(Car::class));
+        $this->assertTrue($container->has(EngineInterface::class));
+        $this->assertInstanceOf(Car::class, $container->get(Car::class));
+        $this->assertInstanceOf(
+            ColorRed::class,
+            $container
+                ->get(Car::class)
+                ->getColor(),
+        );
+        $this->assertInstanceOf(
+            EngineMarkTwo::class,
+            $container
+                ->get(Car::class)
+                ->getEngine(),
+        );
+    }
+
+    private function ensureProviderRegisterDefinitions($provider): void
+    {
+        $container = new Container();
+
+        $this->assertFalse(
+            $container->has(Car::class),
+            'Container should not have Car registered before service provider added due to autoload fallback.',
+        );
+        $this->assertFalse(
+            $container->has('car'),
+            'Container should not have "car" registered before service provider added.',
+        );
+        $this->assertFalse(
+            $container->has(EngineInterface::class),
+            'Container should not have EngineInterface registered before service provider added.',
+        );
+
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                Car::class => Car::class,
+                'sport_car' => SportCar::class,
+            ])
+            ->withProviders([$provider]);
+        $container = new Container($config);
+
+        // ensure addProvider invoked ServiceProviderInterface::register
+        $this->assertTrue(
+            $container->has('car'),
+            'CarProvider should have registered "car" once it was added to container.',
+        );
+        $this->assertTrue(
+            $container->has(EngineInterface::class),
+            'CarProvider should have registered EngineInterface once it was added to container.',
+        );
     }
 }

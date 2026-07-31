@@ -6,9 +6,7 @@ namespace Yiisoft\Di\Tests\Support;
 
 class OptionalConcreteDependency
 {
-    public function __construct(private readonly ?Car $car = null)
-    {
-    }
+    public function __construct(private readonly ?Car $car = null) {}
 
     public function getCar(): ?Car
     {

@@ -2,7 +2,8 @@
 
 ## 1.4.2 under development
 
-- no changes in this release.
+- Bug #401: Fix delegate lookup in `Container::has()` (@samdark)
+- Enh #397: Explicitly import functions in "use" section (@mspirkov)
 
 ## 1.4.1 December 01, 2025
 

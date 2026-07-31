@@ -9,6 +9,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
 use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
+use function sprintf;
+
 /**
  * `NotFoundException` is thrown when no definition or class was found in the container for a given ID.
  */

@@ -33,6 +33,9 @@ and configure classes resolving dependencies.
 - Supports container delegates.
 - Does auto-wiring.
 
+> [!NOTE]
+> The container contains only shared instances. If you need a factory, use the dedicated [yiisoft/factory](https://github.com/yiisoft/factory) package.
+
 ## Requirements
 
 - PHP 8.1 - 8.5.
@@ -73,17 +76,39 @@ You could store the definitions in a `.php` file that returns an array:
 
 ```php
 return [
+    // resolve EngineMarkOne dependencies automatically
     EngineInterface::class => EngineMarkOne::class,
-    'full_definition' => [
-        'class' => EngineMarkOne::class,
-        '__construct()' => [42], 
-        '$propertyName' => 'value',
-        'setX()' => [42],
+    
+    // full definition
+    MyServiceInterface::class => [
+        'class' => MyService::class,
+        
+        // call the constructor, pass named argument "amount"
+        '__construct()' => [
+            'amount' => 42,
+            'db' => Reference::to(SecondaryConnection::class), // instance of another dependency
+        ],
+        
+        // set a public property
+        '$name' => 'Alex',
+        
+        // call a public method
+        'setDiscount()' => [10],
     ],
-    'closure' => fn (SomeFactory $factory) => $factory->create('args'),
-    'static_call_preferred' => fn () => MyFactory::create('args'),
-    'static_call_supported' => [MyFactory::class, 'create'],
-    'object' => new MyClass(),
+    
+    // closure for complicated cases
+    AnotherServiceInterface::class => static function(ConnectionInterface $db) {
+        return new AnotherService($db);
+    },
+    
+    // factory
+    MyObjectInterface::class => fn () => MyFactory::create('args'),
+    
+    // static call
+    MyObjectInterface2::class => [MyFactory::class, 'create'],
+    
+    // direct instance
+    MyInterface::class => new MyClass(),
 ];
 ```
 
@@ -248,6 +273,9 @@ contain a `getDefinitions()` and `getExtensions()` methods. It should only provi
 and therefore should only contain code related to this task. It should *never*
 implement any business logic or other functionality such as environment bootstrap or applying changes to a database.
 
+The `getExtensions()` method allows implementing the decorator pattern by wrapping existing services
+with additional functionality.
+
 A typical service provider could look like:
 
 ```php
@@ -315,6 +343,72 @@ $container = new Container($config);
 
 When you add a service provider, DI calls its `getDefinitions()` and `getExtensions()` methods
 *immediately* and both services and their extensions get registered into the container.
+
+### Using service providers for decorator pattern
+
+Service provider extensions are a powerful feature that allows implementing the decorator pattern.
+This lets you wrap existing services with additional functionality without modifying their original implementation.
+
+Here's an example of using the decorator pattern to add logging to an existing mailer service:
+
+```php
+use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
+use Yiisoft\Di\ServiceProviderInterface;
+
+interface MailerInterface 
+{
+    public function send(string $to, string $subject, string $body): void;
+}
+
+class Mailer implements MailerInterface 
+{
+    public function send(string $to, string $subject, string $body): void 
+    {
+        // Original mailer implementation
+        // Sends email via SMTP or external service
+    }
+}
+
+class LoggingMailerDecorator implements MailerInterface 
+{
+    public function __construct(
+        private MailerInterface $mailer,
+        private LoggerInterface $logger
+    ) {
+    }
+    
+    public function send(string $to, string $subject, string $body): void 
+    {
+        $this->logger->info("Sending email to {$to}");
+        $this->mailer->send($to, $subject, $body);
+        $this->logger->info("Email sent to {$to}");
+    }
+}
+
+class MailerDecoratorProvider implements ServiceProviderInterface 
+{
+    public function getDefinitions(): array 
+    {
+        return [];
+    }
+    
+    public function getExtensions(): array 
+    {
+        return [
+            MailerInterface::class => static function (ContainerInterface $container, MailerInterface $mailer) {
+                // Wrap the original mailer with logging decorator
+                return new LoggingMailerDecorator($mailer, $container->get(LoggerInterface::class));
+            }
+        ];
+    }
+}
+```
+
+In this example, the extension receives the original `MailerInterface` instance and wraps it with
+`LoggingMailerDecorator`, which adds logging before and after sending emails. The decorator pattern
+allows you to add cross-cutting concerns like logging, caching, or monitoring without changing the
+original service implementation.
 
 ## Container tags
 

@@ -46,9 +46,8 @@ use function is_string;
  */
 final class DefinitionParser
 {
-    private const DEFINITION_META = 'definition';
-
     public const IS_PREPARED_ARRAY_DEFINITION_DATA = 'isPreparedArrayDefinitionData';
+    private const DEFINITION_META = 'definition';
 
     /**
      * @param mixed $definition Definition to parse.

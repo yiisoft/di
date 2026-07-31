@@ -17,9 +17,7 @@ final class TagReference
 {
     private const PREFIX = 'tag@';
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function to(string $tag): Reference
     {

@@ -17,6 +17,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   roave_bc_check:
     uses: yiisoft/actions/.github/workflows/bc.yml@master

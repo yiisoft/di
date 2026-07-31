@@ -28,16 +28,30 @@ final class DependencyFromDelegateTest extends TestCase
                     Car::class => Car::class,
                 ])
                 ->withDelegates([
-                    static fn () => new SimpleContainer([
+                    static fn() => new SimpleContainer([
                         Car::class => new Car(new Engine()),
                     ]),
-                ])
+                ]),
         );
 
         $car = $container->get(Car::class);
 
         assertInstanceOf(Car::class, $car);
         assertInstanceOf(Engine::class, $car->engine);
+    }
+
+    public function testHasDefinitionWithDependencyInDelegate(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDelegates([
+                    static fn(ContainerInterface $container) => new SimpleContainer([
+                        EngineInterface::class => new Engine(),
+                    ]),
+                ]),
+        );
+
+        $this->assertTrue($container->has(Car::class));
     }
 
     public function testNotFoundInDelegate(): void
@@ -49,13 +63,13 @@ final class DependencyFromDelegateTest extends TestCase
                     'car' => Car::class,
                 ])
                 ->withDelegates([
-                    static fn () => new Container(
+                    static fn() => new Container(
                         ContainerConfig::create()
                             ->withDefinitions([
                                 'car' => Car::class,
-                            ])
+                            ]),
                     ),
-                ])
+                ]),
         );
 
         $exception = null;

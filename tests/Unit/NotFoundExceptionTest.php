@@ -19,7 +19,7 @@ final class NotFoundExceptionTest extends TestCase
             <<<SOLUTION
             Ensure that either a service with ID "test" is defined or such class exists and is autoloadable.
             SOLUTION,
-            $exception->getSolution()
+            $exception->getSolution(),
         );
     }
 
@@ -36,7 +36,7 @@ final class NotFoundExceptionTest extends TestCase
 
         $this->assertSame(
             'No definition or class found or resolvable for "test" while building "a" -> "b" -> "test".',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
     }
 

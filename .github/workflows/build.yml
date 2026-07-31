@@ -19,6 +19,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   phpunit:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master

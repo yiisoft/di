@@ -111,7 +111,7 @@ final class ContainerTest extends TestCase
             ContainerConfig::create()
                 ->withDefinitions([
                     EngineInterface::class => EngineMarkOne::class,
-                ])
+                ]),
         );
 
         $this->assertTrue($container->has(OptionalConcreteDependency::class));
@@ -165,6 +165,55 @@ final class ContainerTest extends TestCase
         $container = new Container($config);
 
         $this->assertSame($expected, $container->has($id));
+    }
+
+    public function testHasDelegate(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withDelegates([
+                    static fn(ContainerInterface $container) => new SimpleContainer([
+                        'id' => 'value',
+                        'tag@missing' => 'value',
+                    ]),
+                ]),
+        );
+
+        $this->assertTrue($container->has('id'));
+        $this->assertFalse($container->has('tag@missing'));
+        $this->assertSame('value', $container->get('id'));
+    }
+
+    public function testHasDelegateWithTagsConfigured(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withTags([
+                    'engine' => [EngineMarkOne::class],
+                ])
+                ->withDelegates([
+                    static fn(ContainerInterface $container) => new SimpleContainer([
+                        'id' => 'value',
+                        'tag@missing' => 'value',
+                    ]),
+                ]),
+        );
+
+        $this->assertTrue($container->has('id'));
+        $this->assertFalse($container->has('tag@missing'));
+    }
+
+    public function testHasWithTagsConfigured(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()
+                ->withTags([
+                    'engine' => [EngineMarkOne::class],
+                ]),
+        );
+
+        $this->assertFalse($container->has('non_existing'));
+        $this->assertFalse($container->has('tag@missing'));
     }
 
     public static function dataUnionTypes(): array
@@ -380,7 +429,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'Caught unhandled error "Arguments indexed both by name and by position are not allowed in the same array." while building "test".'
+            'Caught unhandled error "Arguments indexed both by name and by position are not allowed in the same array." while building "test".',
         );
         $container->get('test');
     }
@@ -419,7 +468,7 @@ final class ContainerTest extends TestCase
 
     public function testClosureInConstructor(): void
     {
-        $color = static fn () => new ColorPink();
+        $color = static fn() => new ColorPink();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -442,7 +491,7 @@ final class ContainerTest extends TestCase
                 'car' => [
                     'class' => Car::class,
                     '__construct()' => [
-                        DynamicReference::to(static fn (EngineInterface $engine) => $engine),
+                        DynamicReference::to(static fn(EngineInterface $engine) => $engine),
                     ],
                 ],
                 EngineInterface::class => EngineMarkTwo::class,
@@ -457,7 +506,7 @@ final class ContainerTest extends TestCase
     public function testKeepClosureDefinition(): void
     {
         $engine = new EngineMarkOne();
-        $closure = static fn (EngineInterface $engine) => $engine;
+        $closure = static fn(EngineInterface $engine) => $engine;
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -474,7 +523,7 @@ final class ContainerTest extends TestCase
 
     public function testClosureInProperty(): void
     {
-        $color = static fn () => new ColorPink();
+        $color = static fn() => new ColorPink();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -499,7 +548,7 @@ final class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    '$color' => DynamicReference::to(fn () => $color),
+                    '$color' => DynamicReference::to(fn() => $color),
                 ],
             ]);
         $container = new Container($config);
@@ -510,7 +559,7 @@ final class ContainerTest extends TestCase
 
     public function testClosureInMethodCall(): void
     {
-        $color = static fn () => new ColorPink();
+        $color = static fn() => new ColorPink();
 
         $config = ContainerConfig::create()
             ->withDefinitions([
@@ -536,7 +585,7 @@ final class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 'car' => [
                     'class' => Car::class,
-                    'setColor()' => [DynamicReference::to(fn () => $color)],
+                    'setColor()' => [DynamicReference::to(fn() => $color)],
                 ],
             ]);
         $container = new Container($config);
@@ -628,10 +677,10 @@ final class ContainerTest extends TestCase
         $container->get(ColorPink::class);
 
         // set definition to container
-        (fn (string $id, $definition) => $this->addDefinition($id, $definition))->call(
+        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
             $container,
             ColorPink::class,
-            ColorPink::class
+            ColorPink::class,
         );
 
         try {
@@ -658,10 +707,10 @@ final class ContainerTest extends TestCase
         }
 
         // set definition to container
-        (fn (string $id, $definition) => $this->addDefinition($id, $definition))->call(
+        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
             $container,
             'test',
-            ColorPink::class
+            ColorPink::class,
         );
 
         try {
@@ -677,7 +726,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'test' => fn (ContainerInterface $container) => $container->get(EngineInterface::class),
+                'test' => fn(ContainerInterface $container) => $container->get(EngineInterface::class),
             ]);
         $container = new Container($config);
 
@@ -690,7 +739,7 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineInterface::class => EngineMarkOne::class,
-                'car' => fn (CarFactory $factory, Injector $injector) => $injector->invoke($factory->create(...)),
+                'car' => fn(CarFactory $factory, Injector $injector) => $injector->invoke($factory->create(...)),
             ]);
         $container = new Container($config);
 
@@ -704,8 +753,8 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'engine1' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkOne::NAME),
-                'engine2' => fn (EngineFactory $factory) => $factory->createByName(EngineMarkTwo::NAME),
+                'engine1' => fn(EngineFactory $factory) => $factory->createByName(EngineMarkOne::NAME),
+                'engine2' => fn(EngineFactory $factory) => $factory->createByName(EngineMarkTwo::NAME),
             ]);
         $container = new Container($config);
         $engine1 = $container->get('engine1');
@@ -720,13 +769,13 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'car1' => fn (CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName(
+                'car1' => fn(CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName(
                     $engineFactory,
-                    EngineMarkOne::NAME
+                    EngineMarkOne::NAME,
                 ),
-                'car2' => fn (CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName(
+                'car2' => fn(CarFactory $carFactory, EngineFactory $engineFactory) => $carFactory->createByEngineName(
                     $engineFactory,
-                    EngineMarkTwo::NAME
+                    EngineMarkTwo::NAME,
                 ),
             ]);
         $container = new Container($config);
@@ -966,7 +1015,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDefinitions([
-                'container' => static fn (ContainerInterface $container) => $container,
+                'container' => static fn(ContainerInterface $container) => $container,
             ]);
         $container = new Container($config);
 
@@ -1001,11 +1050,11 @@ final class ContainerTest extends TestCase
         $config = ContainerConfig::create()
             ->withDefinitions([
                 EngineMarkOne::class => [
-                    'definition' => fn () => new EngineMarkOne(),
+                    'definition' => fn() => new EngineMarkOne(),
                     'tags' => ['engine'],
                 ],
                 EngineMarkTwo::class => [
-                    'definition' => fn () => new EngineMarkTwo(),
+                    'definition' => fn() => new EngineMarkTwo(),
                     'tags' => ['engine'],
                 ],
             ]);
@@ -1367,7 +1416,7 @@ final class ContainerTest extends TestCase
                 ],
             ])
             ->withProviders([
-                new class () implements ServiceProviderInterface {
+                new class implements ServiceProviderInterface {
                     public function getDefinitions(): array
                     {
                         return [
@@ -1412,7 +1461,7 @@ final class ContainerTest extends TestCase
                 ],
             ])
             ->withProviders([
-                new class () implements ServiceProviderInterface {
+                new class implements ServiceProviderInterface {
                     public function getDefinitions(): array
                     {
                         return [];
@@ -1423,7 +1472,7 @@ final class ContainerTest extends TestCase
                         return [
                             StateResetter::class => static function (
                                 ContainerInterface $container,
-                                StateResetter $resetter
+                                StateResetter $resetter,
                             ) {
                                 $resetter->setResetters([
                                     EngineInterface::class => function () {
@@ -1465,7 +1514,7 @@ final class ContainerTest extends TestCase
                 ColorInterface::class => $color,
                 Car::class => [
                     'class' => Car::class,
-                    'setColor()' => [DynamicReference::to(fn () => $color)],
+                    'setColor()' => [DynamicReference::to(fn() => $color)],
                     'reset' => function (ContainerInterface $container) {
                         $this->color = $container->get(ColorInterface::class);
                     },
@@ -1592,12 +1641,12 @@ final class ContainerTest extends TestCase
 
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
-        $provider = new class () implements ServiceProviderInterface {
+        $provider = new class implements ServiceProviderInterface {
             public function getDefinitions(): array
             {
                 return [
                     // wrapping container with proxy class
-                    ContainerInterface::class => static fn (ContainerInterface $container) => $container,
+                    ContainerInterface::class => static fn(ContainerInterface $container) => $container,
                 ];
             }
 
@@ -1609,7 +1658,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(BuildingException::class);
         $this->expectExceptionMessage(
-            'Caught unhandled error "RuntimeException" while building "Yiisoft\Di\Tests\Support\B".'
+            'Caught unhandled error "RuntimeException" while building "Yiisoft\Di\Tests\Support\B".',
         );
 
         $config = ContainerConfig::create()
@@ -1625,11 +1674,11 @@ final class ContainerTest extends TestCase
 
     public function testDifferentContainerWithProviders(): void
     {
-        $provider = new class () implements ServiceProviderInterface {
+        $provider = new class implements ServiceProviderInterface {
             public function getDefinitions(): array
             {
                 return [
-                    ContainerInterface::class => static fn (ContainerInterface $container) => new Container(),
+                    ContainerInterface::class => static fn(ContainerInterface $container) => new Container(),
                 ];
             }
 
@@ -1652,7 +1701,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?'
+            'Invalid definition: metadata "setId" is not allowed. Did you mean "setId()" or "$setId"?',
         );
 
         $config = ContainerConfig::create()
@@ -1669,7 +1718,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
+            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?',
         );
 
         $config = ContainerConfig::create()
@@ -1686,7 +1735,7 @@ final class ContainerTest extends TestCase
     {
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?'
+            'Invalid definition: metadata "dev" is not allowed. Did you mean "dev()" or "$dev"?',
         );
 
         $config = ContainerConfig::create()
@@ -1738,7 +1787,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".'
+            'Delegate must be callable in format "function (ContainerInterface $container): ContainerInterface".',
         );
         new Container($config);
     }
@@ -1747,12 +1796,12 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withDelegates([
-                static fn (ContainerInterface $container) => 42,
+                static fn(ContainerInterface $container) => 42,
             ]);
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Delegate callable must return an object that implements ContainerInterface.'
+            'Delegate callable must return an object that implements ContainerInterface.',
         );
         new Container($config);
     }
@@ -1766,7 +1815,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition. ExtensibleService is only allowed in provider extensions.'
+            'Invalid definition. ExtensibleService is only allowed in provider extensions.',
         );
         new Container($config);
     }
@@ -1782,7 +1831,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid tag. Expected a string, got 42.'
+            'Invalid tag. Expected a string, got 42.',
         );
         new Container($config);
     }
@@ -1796,7 +1845,7 @@ final class ContainerTest extends TestCase
         $this->expectExceptionMessageMatches(
             '/^Service provider should be a class name or an instance of '
             . preg_quote(ServiceProviderInterface::class, '/')
-            . '\. (integer|int) given\.$/'
+            . '\. (integer|int) given\.$/',
         );
         new Container($config);
     }
@@ -1808,8 +1857,8 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Service provider should be an instance of ' . ServiceProviderInterface::class . '.' .
-            ' stdClass given.'
+            'Service provider should be an instance of ' . ServiceProviderInterface::class . '.'
+            . ' stdClass given.',
         );
         new Container($config);
     }
@@ -1840,7 +1889,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withProviders([
-                new class () implements ServiceProviderInterface {
+                new class implements ServiceProviderInterface {
                     public function getDefinitions(): array
                     {
                         return [];
@@ -1849,7 +1898,7 @@ final class ContainerTest extends TestCase
                     public function getExtensions(): array
                     {
                         return [
-                            23 => static fn (ContainerInterface $container, StateResetter $resetter) => $resetter,
+                            23 => static fn(ContainerInterface $container, StateResetter $resetter) => $resetter,
                         ];
                     }
                 },
@@ -1864,7 +1913,7 @@ final class ContainerTest extends TestCase
     {
         $config = ContainerConfig::create()
             ->withProviders([
-                new class () implements ServiceProviderInterface {
+                new class implements ServiceProviderInterface {
                     public function getDefinitions(): array
                     {
                         return [];
@@ -1897,7 +1946,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: "reset" should be closure, int given.'
+            'Invalid definition: "reset" should be closure, int given.',
         );
         new Container($config);
     }
@@ -1915,7 +1964,7 @@ final class ContainerTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Invalid definition: tags should be array of strings, string given.'
+            'Invalid definition: tags should be array of strings, string given.',
         );
         new Container($config);
     }
@@ -1988,7 +2037,7 @@ final class ContainerTest extends TestCase
             . SportCar::class
             . '" -> "'
             . EngineInterface::class
-            . '".'
+            . '".',
         );
         $container->get(SportCar::class);
     }
@@ -2012,11 +2061,11 @@ final class ContainerTest extends TestCase
         $this->assertInstanceOf(NotFoundException::class, $exception);
         $this->assertSame(
             'No definition or class found or resolvable for "' . SportCar::class . '" while building it.',
-            $exception->getMessage()
+            $exception->getMessage(),
         );
         $this->assertInstanceOf(
             \Yiisoft\Test\Support\Container\Exception\NotFoundException::class,
-            $exception->getPrevious()
+            $exception->getPrevious(),
         );
     }
 
@@ -2024,8 +2073,8 @@ final class ContainerTest extends TestCase
     {
         $container = new Container(
             ContainerConfig::create()->withDelegates([
-                static fn () => new SimpleContainer(
-                    factory: static fn () => throw new RuntimeException('Error in delegate'),
+                static fn() => new SimpleContainer(
+                    factory: static fn() => throw new RuntimeException('Error in delegate'),
                 ),
             ]),
         );
@@ -2051,8 +2100,8 @@ final class ContainerTest extends TestCase
     {
         $container = new Container(
             ContainerConfig::create()->withDelegates([
-                static fn () => new SimpleContainer(
-                    hasCallback: static fn () => throw new RuntimeException('Error in delegate'),
+                static fn() => new SimpleContainer(
+                    hasCallback: static fn() => throw new RuntimeException('Error in delegate'),
                 ),
             ]),
         );
@@ -2072,6 +2121,26 @@ final class ContainerTest extends TestCase
         $previous = $exception->getPrevious();
         $this->assertInstanceOf(RuntimeException::class, $previous);
         $this->assertSame('Error in delegate', $previous->getMessage());
+    }
+
+    public function testExceptionOnHasInDelegateInHas(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDelegates([
+                static fn(ContainerInterface $container) => new SimpleContainer(
+                    hasCallback: static fn() => throw new RuntimeException('Error in delegate'),
+                ),
+            ]),
+        );
+
+        $exception = null;
+        try {
+            $container->has('identifier');
+        } catch (Throwable $exception) {
+        }
+
+        $this->assertInstanceOf(RuntimeException::class, $exception);
+        $this->assertSame('Error in delegate', $exception->getMessage());
     }
 
     public function testGetStateResetterTwice(): void

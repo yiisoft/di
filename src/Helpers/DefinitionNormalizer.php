@@ -30,7 +30,7 @@ final class DefinitionNormalizer
             return ArrayDefinition::fromPreparedData(
                 $definition['class'] ?? $id,
                 $definition['__construct()'],
-                $definition['methodsAndProperties']
+                $definition['methodsAndProperties'],
             );
         }
 

@@ -22,7 +22,7 @@ final class BuildingExceptionTest extends TestCase
 
             Ensure that configuration for service with ID "test" is correct.
             SOLUTION,
-            $exception->getSolution()
+            $exception->getSolution(),
         );
     }
 
