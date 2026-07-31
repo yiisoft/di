@@ -6,7 +6,7 @@ on:
       - 'src/**'
       - 'tests/**'
       - 'rector.php'
-      - 'phpcs.xml.dist'
+      - '.php-cs-fixer.dist.php'
       - 'composer.json'
       - '.github/workflows/rector-cs.yml'
 
