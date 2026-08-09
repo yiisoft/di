@@ -2,7 +2,7 @@
 
 ## 1.4.2 under development
 
-- Chg #409: Remove unused `ext-mbstring` from `composer.json` requirements (@vjik)
+- Enh #409: Remove unused `ext-mbstring` from `composer.json` requirements (@vjik)
 - Bug #401: Fix delegate lookup in `Container::has()` (@samdark)
 - Enh #397: Explicitly import functions in "use" section (@mspirkov)
 
