@@ -20,7 +20,7 @@ use function sprintf;
 final class StateResetter
 {
     /**
-     * @var Closure[]|self[]
+     * @var array<Closure|self|null>
      */
     private array $resetters = [];
 
@@ -37,6 +37,9 @@ final class StateResetter
     public function reset(): void
     {
         foreach ($this->resetters as $resetter) {
+            if ($resetter === null) {
+                continue;
+            }
             if ($resetter instanceof self) {
                 $resetter->reset();
                 continue;
@@ -49,10 +52,14 @@ final class StateResetter
      * @param Closure[]|self[] $resetters Array of reset callbacks. Each callback has access to the private and
      * protected properties of the service instance, so you can set the initial state of the service efficiently
      * without creating a new instance.
+     * @param string[] $serviceOrder Service IDs in reset order, including services not yet instantiated.
      */
-    public function setResetters(array $resetters): void
+    public function setResetters(array $resetters, array $serviceOrder = []): void
     {
         $this->resetters = [];
+        foreach ($serviceOrder as $serviceId) {
+            $this->resetters['service:' . $serviceId] = null;
+        }
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
                 if (!$callback instanceof self) {
@@ -74,17 +81,27 @@ final class StateResetter
                 );
             }
 
-            $instance = $this->container->get($serviceId);
-            if (!is_object($instance)) {
-                throw new InvalidArgumentException(
-                    'State resetter supports resetting objects only. Container returned '
-                    . get_debug_type($instance)
-                    . '.',
-                );
-            }
-
-            /** @var Closure */
-            $this->resetters[] = $callback->bindTo($instance, $instance::class);
+            $this->addResetter($serviceId, $callback);
         }
+    }
+
+    /**
+     * Adds or replaces the reset callback for a service.
+     *
+     * The callback has access to the private and protected properties of the service instance.
+     */
+    public function addResetter(string $serviceId, Closure $callback): void
+    {
+        $instance = $this->container->get($serviceId);
+        if (!is_object($instance)) {
+            throw new InvalidArgumentException(
+                'State resetter supports resetting objects only. Container returned '
+                . get_debug_type($instance)
+                . '.',
+            );
+        }
+
+        /** @var Closure */
+        $this->resetters['service:' . $serviceId] = $callback->bindTo($instance, $instance::class);
     }
 }

@@ -215,6 +215,20 @@ final class Container implements ContainerInterface
             return $this->prepareStateResetter();
         }
 
+        if (
+            $this->useResettersFromMeta
+            && isset($this->resetters[$id], $this->instances[StateResetter::class])
+        ) {
+            /** @var StateResetter $resetter */
+            $resetter = $this->instances[StateResetter::class];
+            try {
+                $resetter->addResetter($id, $this->resetters[$id]);
+            } catch (Throwable $exception) {
+                unset($this->instances[$id]);
+                throw $exception;
+            }
+        }
+
         return $this->instances[$id];
     }
 
@@ -239,7 +253,7 @@ final class Container implements ContainerInterface
             if ($delegatesResetter !== null) {
                 $resetters[] = $delegatesResetter;
             }
-            $mainResetter->setResetters($resetters);
+            $mainResetter->setResetters($resetters, array_keys($this->resetters));
         } elseif ($delegatesResetter !== null) {
             $resetter = new StateResetter($this->get(ContainerInterface::class));
             $resetter->setResetters([$mainResetter, $delegatesResetter]);

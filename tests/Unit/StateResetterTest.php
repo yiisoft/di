@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use stdClass;
 use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\Car;
+use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
 final class StateResetterTest extends TestCase
@@ -56,5 +57,21 @@ final class StateResetterTest extends TestCase
         $resetter->setResetters([
             'value' => static function () {},
         ]);
+    }
+
+    public function testNumericServiceIdDoesNotReplaceNestedResetter(): void
+    {
+        $service = new EngineMarkOne(0);
+        $container = new SimpleContainer(['service' => $service, '0' => $service]);
+        $nested = new StateResetter($container);
+        $callback = function () {
+            $this->number++;
+        };
+        $nested->setResetters(['service' => $callback]);
+        $resetter = new StateResetter($container);
+        $resetter->setResetters([$nested]);
+        $resetter->addResetter('0', $callback);
+        $resetter->reset();
+        $this->assertSame(2, $service->getNumber());
     }
 }
