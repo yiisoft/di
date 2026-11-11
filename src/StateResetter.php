@@ -74,17 +74,27 @@ final class StateResetter
                 );
             }
 
-            $instance = $this->container->get($serviceId);
-            if (!is_object($instance)) {
-                throw new InvalidArgumentException(
-                    'State resetter supports resetting objects only. Container returned '
-                    . get_debug_type($instance)
-                    . '.',
-                );
-            }
-
-            /** @var Closure */
-            $this->resetters[] = $callback->bindTo($instance, $instance::class);
+            $this->addResetter($serviceId, $callback);
         }
+    }
+
+    /**
+     * Adds or replaces the reset callback for a service.
+     *
+     * The callback has access to the private and protected properties of the service instance.
+     */
+    public function addResetter(string $serviceId, Closure $callback): void
+    {
+        $instance = $this->container->get($serviceId);
+        if (!is_object($instance)) {
+            throw new InvalidArgumentException(
+                'State resetter supports resetting objects only. Container returned '
+                . get_debug_type($instance)
+                . '.',
+            );
+        }
+
+        /** @var Closure */
+        $this->resetters[$serviceId] = $callback->bindTo($instance, $instance::class);
     }
 }
