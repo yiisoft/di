@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -677,7 +678,9 @@ final class ContainerTest extends TestCase
         $container->get(ColorPink::class);
 
         // set definition to container
-        ($this->addDefinition(...))->call(
+        (function (string $id, $definition): void {
+            $this->addDefinition($id, $definition);
+        })->call(
             $container,
             ColorPink::class,
             ColorPink::class,
@@ -707,7 +710,9 @@ final class ContainerTest extends TestCase
         }
 
         // set definition to container
-        ($this->addDefinition(...))->call(
+        (function (string $id, $definition): void {
+            $this->addDefinition($id, $definition);
+        })->call(
             $container,
             'test',
             ColorPink::class,
@@ -2153,4 +2158,66 @@ final class ContainerTest extends TestCase
         assertInstanceOf(StateResetter::class, $resetter1);
         assertSame($resetter1, $resetter2);
     }
+
+    public function testPreviouslyRetrievedResetterResetsNewService(): void
+    {
+        $container = new Container(ContainerConfig::create()->withDefinitions([
+            EngineMarkOne::class => [
+                'class' => EngineMarkOne::class,
+                'reset' => function () {
+                    $this->number = 42;
+                },
+            ],
+        ]));
+        $resetter = $container->get(StateResetter::class);
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(45);
+        $resetter->reset();
+
+        $this->assertSame(42, $engine->getNumber());
+    }
+    public function testLateServicesResetInDefinitionOrder(): void
+    {
+        $state = (object) ['value' => 0];
+        $container = new Container(ContainerConfig::create()->withDefinitions([
+            'first' => [
+                'class' => EngineMarkOne::class,
+                'reset' => function () use ($state) {
+                    $state->value = 1;
+                },
+            ],
+            'second' => [
+                'class' => EngineMarkOne::class,
+                'reset' => function () use ($state) {
+                    $state->value *= 2;
+                },
+            ],
+        ]));
+        $resetter = $container->get(StateResetter::class);
+        $container->get('second');
+        $container->get('first');
+        $resetter->reset();
+        $this->assertSame(2, $state->value);
+    }
+
+    public function testFailedResetterRegistrationDoesNotCacheService(): void
+    {
+        $container = new Container(ContainerConfig::create()->withDefinitions([
+            'value' => [
+                'definition' => static fn() => 42,
+                'reset' => function () {},
+            ],
+        ]));
+        $container->get(StateResetter::class);
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            try {
+                $container->get('value');
+                $this->fail('An invalid resettable service must not be returned.');
+            } catch (InvalidArgumentException $exception) {
+                $this->assertStringContainsString('resetting objects only', $exception->getMessage());
+            }
+        }
+    }
+
 }
