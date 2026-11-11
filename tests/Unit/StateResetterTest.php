@@ -58,6 +58,7 @@ final class StateResetterTest extends TestCase
             'value' => static function () {},
         ]);
     }
+
     public function testNumericServiceIdDoesNotReplaceNestedResetter(): void
     {
         $service = new EngineMarkOne(0);
@@ -73,5 +74,4 @@ final class StateResetterTest extends TestCase
         $resetter->reset();
         $this->assertSame(2, $service->getNumber());
     }
-
 }

@@ -2177,6 +2177,7 @@ final class ContainerTest extends TestCase
 
         $this->assertSame(42, $engine->getNumber());
     }
+
     public function testLateServicesResetInDefinitionOrder(): void
     {
         $state = (object) ['value' => 0];
@@ -2219,5 +2220,4 @@ final class ContainerTest extends TestCase
             }
         }
     }
-
 }
