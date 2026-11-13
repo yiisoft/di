@@ -228,7 +228,7 @@ final class Container implements ContainerInterface
                 // at reset time, not at the time the state resetter is obtained from the container.
                 = function (ContainerInterface $container): void {
                     foreach ($this->resetters as $id => $callback) {
-                        if (!isset($this->instances[$id])) {
+                        if (!array_key_exists($id, $this->instances)) {
                             // The service is not instantiated yet, so there is nothing to reset.
                             continue;
                         }
@@ -250,6 +250,9 @@ final class Container implements ContainerInterface
         }
         if ($this->hasDelegates) {
             $resetters[] = function (): void {
+                // No `has()` check is needed: `CompositeContainer::get()` never throws for
+                // `StateResetter::class`. When no delegate provides a state resetter,
+                // it returns an empty one, making the reset below a no-op.
                 $this->delegates->get(StateResetter::class)->reset();
             };
         }

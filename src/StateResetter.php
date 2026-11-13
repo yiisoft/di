@@ -32,7 +32,8 @@ final class StateResetter
      * protected properties of the service, and you can set the initial state of the service efficiently without
      * creating a new instance. A callback with an integer key is called as is, with the container passed to the
      * state resetter as the first argument. A `StateResetter` instance with an integer key is reset by calling
-     * its `reset()` method.
+     * its `reset()` method. Numeric-string service IDs are not supported as keys: PHP casts them to integer
+     * array keys, so they are treated as raw callbacks.
      * @psalm-param array<int|string, Closure|self> $resetters
      */
     public function __construct(
@@ -64,7 +65,8 @@ final class StateResetter
      * protected properties of the service, and you can set the initial state of the service efficiently without
      * creating a new instance. A callback with an integer key is called as is, with the container passed to the
      * state resetter as the first argument. A `StateResetter` instance with an integer key is reset by calling
-     * its `reset()` method.
+     * its `reset()` method. Numeric-string service IDs are not supported as keys: PHP casts them to integer
+     * array keys, so they are treated as raw callbacks.
      * @psalm-param array<int|string, Closure|self> $resetters
      */
     public function withAddedResetters(array $resetters): self
@@ -80,7 +82,8 @@ final class StateResetter
      * protected properties of the service, and you can set the initial state of the service efficiently without
      * creating a new instance. A callback with an integer key is called as is, with the container passed to the
      * state resetter as the first argument. A `StateResetter` instance with an integer key is reset by calling
-     * its `reset()` method.
+     * its `reset()` method. Numeric-string service IDs are not supported as keys: PHP casts them to integer
+     * array keys, so they are treated as raw callbacks.
      * @psalm-param array<int|string, Closure|self> $resetters
      *
      * @deprecated Use the constructor instead. It will be removed in the next major version.

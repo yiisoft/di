@@ -7,6 +7,7 @@ namespace Yiisoft\Di\Tests\Unit;
 use ArrayIterator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -1740,12 +1741,14 @@ final class ContainerTest extends TestCase
         $this->assertSame(0, $buildsCount);
     }
 
-    public function testResetNonObjectService(): void
+    #[TestWith([42, 'int'])]
+    #[TestWith([null, 'null'])]
+    public function testResetNonObjectService(mixed $value, string $debugType): void
     {
         $container = new Container(
             ContainerConfig::create()->withDefinitions([
                 'value' => [
-                    'definition' => static fn() => 42,
+                    'definition' => static fn(): mixed => $value,
                     'reset' => static function () {},
                 ],
             ]),
@@ -1754,7 +1757,9 @@ final class ContainerTest extends TestCase
         $container->get('value');
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('State resetter supports resetting objects only. Container returned int.');
+        $this->expectExceptionMessage(
+            'State resetter supports resetting objects only. Container returned ' . $debugType . '.',
+        );
         $resetter->reset();
     }
 
