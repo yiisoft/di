@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di\Tests\Unit;
 
 use ArrayIterator;
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -1639,6 +1640,170 @@ final class ContainerTest extends TestCase
         );
     }
 
+    public function testPreviouslyRetrievedResetterResetsNewService(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'reset' => function () {
+                        $this->number = 42;
+                    },
+                ],
+            ]),
+        );
+        $resetter = $container->get(StateResetter::class);
+
+        $engine = $container->get(EngineMarkOne::class);
+        $engine->setNumber(45);
+
+        $resetter->reset();
+
+        $this->assertSame(42, $engine->getNumber());
+    }
+
+    public function testPreviouslyRetrievedResetterResetsNewServiceInDelegates(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static function (ContainerInterface $container) {
+                    $config = ContainerConfig::create()
+                        ->withDefinitions([
+                            EngineInterface::class => [
+                                'class' => EngineMarkOne::class,
+                                'setNumber()' => [42],
+                                'reset' => function () {
+                                    $this->number = 42;
+                                },
+                            ],
+                        ]);
+                    return new Container($config);
+                },
+            ]);
+        $container = new Container($config);
+        $resetter = $container->get(StateResetter::class);
+
+        $engine = $container->get(EngineInterface::class);
+        $engine->setNumber(45);
+
+        $resetter->reset();
+
+        $this->assertSame(42, $engine->getNumber());
+    }
+
+    public function testLateServicesResetInDefinitionOrder(): void
+    {
+        $state = (object) ['value' => 0];
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                'first' => [
+                    'class' => EngineMarkOne::class,
+                    'reset' => function () use ($state) {
+                        $state->value = 1;
+                    },
+                ],
+                'second' => [
+                    'class' => EngineMarkOne::class,
+                    'reset' => function () use ($state) {
+                        $state->value *= 2;
+                    },
+                ],
+            ]),
+        );
+        $resetter = $container->get(StateResetter::class);
+
+        $container->get('second');
+        $container->get('first');
+        $resetter->reset();
+
+        $this->assertSame(2, $state->value);
+    }
+
+    public function testResetterDoesNotBuildNonInstantiatedServices(): void
+    {
+        $buildsCount = 0;
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                'engine' => [
+                    'definition' => static function () use (&$buildsCount) {
+                        $buildsCount++;
+                        return new EngineMarkOne();
+                    },
+                    'reset' => static function () {},
+                ],
+            ]),
+        );
+        $resetter = $container->get(StateResetter::class);
+
+        $resetter->reset();
+
+        $this->assertSame(0, $buildsCount);
+    }
+
+    public function testResetNonObjectService(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                'value' => [
+                    'definition' => static fn() => 42,
+                    'reset' => static function () {},
+                ],
+            ]),
+        );
+        $resetter = $container->get(StateResetter::class);
+        $container->get('value');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('State resetter supports resetting objects only. Container returned int.');
+        $resetter->reset();
+    }
+
+    public function testResetterRedefinition(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                'engine' => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => function () {
+                        $this->number = 42;
+                    },
+                ],
+            ])
+            ->withProviders([
+                new class implements ServiceProviderInterface {
+                    public function getDefinitions(): array
+                    {
+                        return [
+                            'engine' => [
+                                'class' => EngineMarkTwo::class,
+                                'setNumber()' => [43],
+                                'reset' => function () {
+                                    $this->number = 43;
+                                },
+                            ],
+                        ];
+                    }
+
+                    public function getExtensions(): array
+                    {
+                        return [];
+                    }
+                },
+            ]);
+        $container = new Container($config);
+
+        $engine = $container->get('engine');
+        $this->assertInstanceOf(EngineMarkTwo::class, $engine);
+        $engine->setNumber(45);
+
+        $container
+            ->get(StateResetter::class)
+            ->reset();
+
+        $this->assertSame(43, $engine->getNumber());
+    }
+
     public function testCircularReferenceExceptionWhileResolvingProviders(): void
     {
         $provider = new class implements ServiceProviderInterface {
@@ -2146,6 +2311,49 @@ final class ContainerTest extends TestCase
     public function testGetStateResetterTwice(): void
     {
         $container = new Container();
+
+        $resetter1 = $container->get(StateResetter::class);
+        $resetter2 = $container->get(StateResetter::class);
+
+        assertInstanceOf(StateResetter::class, $resetter1);
+        assertSame($resetter1, $resetter2);
+    }
+
+    public function testGetCustomStateResetterTwiceWithDelegates(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static function (ContainerInterface $container) {
+                    $config = ContainerConfig::create()
+                        ->withDefinitions([
+                            EngineInterface::class => [
+                                'class' => EngineMarkOne::class,
+                                'setNumber()' => [42],
+                                'reset' => function () {
+                                    $this->number = 42;
+                                },
+                            ],
+                        ]);
+                    return new Container($config);
+                },
+            ])
+            ->withDefinitions([
+                Car::class => [
+                    'class' => Car::class,
+                    'setColor()' => [new ColorPink()],
+                ],
+                StateResetter::class => [
+                    'class' => StateResetter::class,
+                    'setResetters()' => [
+                        [
+                            Car::class => function () {
+                                $this->color = new ColorPink();
+                            },
+                        ],
+                    ],
+                ],
+            ]);
+        $container = new Container($config);
 
         $resetter1 = $container->get(StateResetter::class);
         $resetter2 = $container->get(StateResetter::class);

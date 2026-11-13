@@ -46,18 +46,21 @@ final class StateResetter
     }
 
     /**
-     * @param Closure[]|self[] $resetters Array of reset callbacks. Each callback has access to the private and
-     * protected properties of the service instance, so you can set the initial state of the service efficiently
-     * without creating a new instance.
+     * @param Closure[]|self[] $resetters Array of reset callbacks. A callback with a string key is bound
+     * to the service instance with the corresponding ID, so it has access to the private and protected
+     * properties of the service, and you can set the initial state of the service efficiently without
+     * creating a new instance. A callback with an integer key is called as is, with the container passed
+     * to the state resetter as the first argument.
+     * @psalm-param array<int|string, Closure|self> $resetters
      */
     public function setResetters(array $resetters): void
     {
         $this->resetters = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
-                if (!$callback instanceof self) {
+                if (!$callback instanceof self && !$callback instanceof Closure) {
                     throw new InvalidArgumentException(sprintf(
-                        'State resetter object should be instance of "%s", "%s" given.',
+                        'State resetter should be an instance of "%s" or a closure, "%s" given.',
                         self::class,
                         get_debug_type($callback),
                     ));

@@ -1,10 +1,12 @@
 # Yii Dependency Injection Change Log
 
-## 1.4.2 under development
+## 1.5.0 under development
 
+- Enh #411: Allow closures with integer keys as resetters in `StateResetter::setResetters()` (@vjik)
 - Enh #409: Remove unused `ext-mbstring` from `composer.json` requirements (@vjik)
-- Bug #401: Fix delegate lookup in `Container::has()` (@samdark)
 - Enh #397: Explicitly import functions in "use" section (@mspirkov)
+- Bug #411: Fix previously retrieved `StateResetter` instances missing services created later (@vjik, @samdark)
+- Bug #401: Fix delegate lookup in `Container::has()` (@samdark)
 
 ## 1.4.1 December 01, 2025
 
