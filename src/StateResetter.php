@@ -20,13 +20,26 @@ use function sprintf;
 final class StateResetter
 {
     /**
+     * @var Closure[]|self[]
+     * @psalm-param array<int|string, Closure|self>
+     */
+    private array $resetters;
+
+    /**
      * @param ContainerInterface $container Container to reset.
-     * @param Closure[]|self[] $resetters
+     * @param Closure[]|self[] $resetters Array of reset callbacks. A callback with a string key is bound
+     * to the service instance with the corresponding ID, so it has access to the private and protected
+     * properties of the service, and you can set the initial state of the service efficiently without
+     * creating a new instance. A callback with an integer key is called as is, with the container passed
+     * to the state resetter as the first argument.
+     * @psalm-param array<int|string, Closure|self> $resetters
      */
     public function __construct(
         private readonly ContainerInterface $container,
-        private array $resetters = [],
-    ) {}
+        array $resetters = [],
+    ) {
+        $this->resetters = $this->prepareResetters($resetters);
+    }
 
     /**
      * Reset the container.
@@ -43,6 +56,8 @@ final class StateResetter
     }
 
     /**
+     * Returns a new instance with the specified resetters added to the existing ones.
+     *
      * @param Closure[]|self[] $resetters Array of reset callbacks. A callback with a string key is bound
      * to the service instance with the corresponding ID, so it has access to the private and protected
      * properties of the service, and you can set the initial state of the service efficiently without
@@ -50,9 +65,38 @@ final class StateResetter
      * to the state resetter as the first argument.
      * @psalm-param array<int|string, Closure|self> $resetters
      */
+    public function withAddedResetters(array $resetters): self
+    {
+        $new = clone $this;
+        $new->resetters = [...$new->resetters, ...$this->prepareResetters($resetters)];
+        return $new;
+    }
+
+    /**
+     * @param Closure[]|self[] $resetters Array of reset callbacks. A callback with a string key is bound
+     * to the service instance with the corresponding ID, so it has access to the private and protected
+     * properties of the service, and you can set the initial state of the service efficiently without
+     * creating a new instance. A callback with an integer key is called as is, with the container passed
+     * to the state resetter as the first argument.
+     * @psalm-param array<int|string, Closure|self> $resetters
+     *
+     * @deprecated Use the constructor instead. It will be removed in the next major version.
+     */
     public function setResetters(array $resetters): void
     {
-        $this->resetters = [];
+        $this->resetters = $this->prepareResetters($resetters);
+    }
+
+    /**
+     * @param Closure[]|self[] $resetters Array of reset callbacks.
+     * @psalm-param array<int|string, Closure|self> $resetters
+     *
+     * @return Closure[]|self[] The processed reset callbacks.
+     * @psalm-return list<Closure|self>
+     */
+    private function prepareResetters(array $resetters): array
+    {
+        $result = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
                 if (!$callback instanceof self && !$callback instanceof Closure) {
@@ -62,7 +106,7 @@ final class StateResetter
                         get_debug_type($callback),
                     ));
                 }
-                $this->resetters[] = $callback;
+                $result[] = $callback;
                 continue;
             }
 
@@ -84,7 +128,8 @@ final class StateResetter
             }
 
             /** @var Closure */
-            $this->resetters[] = $callback->bindTo($instance, $instance::class);
+            $result[] = $callback->bindTo($instance, $instance::class);
         }
+        return $result;
     }
 }

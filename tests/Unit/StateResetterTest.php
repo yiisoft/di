@@ -98,4 +98,83 @@ final class StateResetterTest extends TestCase
 
         $this->assertSame(11, $service->getNumber());
     }
+
+    public function testResettersAreProcessedInConstructor(): void
+    {
+        $service = new EngineMarkOne(0);
+        $container = new SimpleContainer(['service' => $service]);
+        $resetter = new StateResetter($container, [
+            'service' => function () {
+                $this->number++;
+            },
+        ]);
+
+        $resetter->reset();
+
+        $this->assertSame(1, $service->getNumber());
+    }
+
+    public function testInvalidResettersInConstructor(): void
+    {
+        $container = new SimpleContainer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'State resetter should be an instance of "' . StateResetter::class . '" or a closure, "stdClass" given.',
+        );
+        new StateResetter($container, [new stdClass()]);
+    }
+
+    public function testInvalidResettersInWithAddedResetters(): void
+    {
+        $container = new SimpleContainer();
+        $resetter = new StateResetter($container);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'State resetter should be an instance of "' . StateResetter::class . '" or a closure, "stdClass" given.',
+        );
+        $resetter->withAddedResetters([new stdClass()]);
+    }
+
+    public function testWithAddedResetters(): void
+    {
+        $service = new EngineMarkOne(0);
+        $container = new SimpleContainer(['service' => $service]);
+        $original = new StateResetter($container);
+        $resetter = $original->withAddedResetters([
+            'service' => function () {
+                $this->number++;
+            },
+        ]);
+
+        $this->assertNotSame($original, $resetter);
+
+        $resetter->reset();
+        $this->assertSame(1, $service->getNumber());
+
+        $original->reset();
+        $this->assertSame(1, $service->getNumber());
+    }
+
+    public function testWithAddedResettersAccumulate(): void
+    {
+        $service = new EngineMarkOne(0);
+        $container = new SimpleContainer(['service' => $service]);
+        $resetter = (new StateResetter($container))
+            ->withAddedResetters([
+                'service' => function () {
+                    $this->number++;
+                },
+            ])
+            ->withAddedResetters([
+                'service' => function () use ($service) {
+                    $service->setNumber($service->getNumber() + 10);
+                },
+            ]);
+
+        $resetter->reset();
+
+        $this->assertSame(11, $service->getNumber());
+    }
 }

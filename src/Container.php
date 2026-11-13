@@ -223,10 +223,10 @@ final class Container implements ContainerInterface
         $resetters = [];
 
         if ($this->useResettersFromMeta) {
-            $resetters[] =
+            $resetters[]
                 // The callback is executed on each reset, so resetters and service instances are collected
                 // at reset time, not at the time the state resetter is obtained from the container.
-                function (ContainerInterface $container): void {
+                = function (ContainerInterface $container): void {
                     foreach ($this->resetters as $id => $callback) {
                         if (!isset($this->instances[$id])) {
                             // The service is not instantiated yet, so there is nothing to reset.
@@ -256,7 +256,7 @@ final class Container implements ContainerInterface
 
         return $resetters === []
             ? $mainResetter
-            : new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
+            : $mainResetter->withAddedResetters($resetters);
     }
 
     /**

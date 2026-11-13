@@ -484,8 +484,7 @@ applications with tools like [Swoole](https://www.swoole.co.uk/) or [RoadRunner]
 reset the state of such services every request. For this purpose you can use `StateResetter` with resetters callbacks:
 
 ```php
-$resetter = new StateResetter($container);
-$resetter->setResetters([
+$resetter = new StateResetter($container, [
     MyServiceInterface::class => function () {
         $this->reset(); // a method of MyServiceInterface
     },
@@ -494,6 +493,30 @@ $resetter->setResetters([
 
 The callback has access to the private and protected properties of the service instance,
 so you can set the initial state of the service efficiently without creating a new instance.
+
+A callback with an integer key is called as is, with the container passed as the first argument:
+
+```php
+$resetter = new StateResetter($container, [
+    MyServiceInterface::class => function () {
+        $this->reset(); // a method of MyServiceInterface
+    },
+    static function (ContainerInterface $container): void {
+        // ...
+    },
+]);
+```
+
+To get a new state resetter with additional resetters, use `withAddedResetters()`. The original state resetter
+is not modified:
+
+```php
+$resetter = $resetter->withAddedResetters([
+    MyOtherServiceInterface::class => function () {
+        $this->reset(); // a method of MyOtherServiceInterface
+    },
+]);
+```
 
 You should trigger the reset itself after each request-response cycle. For RoadRunner, it would look like the following:
 
@@ -534,6 +557,10 @@ $container = new Container($config);
 
 Note: resetters from definitions work only if you don't set `StateResetter` in definition or service providers.
 
+Resetters from definitions are evaluated at reset time: a state resetter obtained from the container resets
+all services that are instantiated by the time `reset()` is called, including those created after the state
+resetter itself was obtained. Services that are not instantiated yet are skipped — the reset does not build them.
+
 ### Configuring `StateResetter` manually
 
 To manually add resetters or in case you use Yii DI composite container with a third party container that doesn't support state reset natively, you could configure state resetter separately. The following example is PHP-DI:
@@ -543,13 +570,11 @@ MyServiceInterface::class => function () {
     // ...
 },
 StateResetter::class => function (ContainerInterface $container) {
-    $resetter = new StateResetter($container);
-    $resetter->setResetters([
+    return new StateResetter($container, [
         MyServiceInterface::class => function () {
             $this->reset(); // a method of MyServiceInterface
         },
     ]);
-    return $resetter;
 }
 ```
 
