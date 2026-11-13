@@ -248,18 +248,19 @@ final class Container implements ContainerInterface
                     }
                 };
         }
-        if ($this->hasDelegates) {
-            $resetters[] = function (): void {
-                // No `has()` check is needed: `CompositeContainer::get()` never throws for
-                // `StateResetter::class`. When no delegate provides a state resetter,
-                // it returns an empty one, making the reset below a no-op.
-                $this->delegates->get(StateResetter::class)->reset();
-            };
-        }
 
-        return $resetters === []
-            ? $mainResetter
-            : $mainResetter->withAddedResetters($resetters);
+        $resetters[] = function (): void {
+            if (!$this->hasDelegates) {
+                return;
+            }
+
+            // No `has()` check is needed: `CompositeContainer::get()` never throws for
+            // `StateResetter::class`. When no delegate provides a state resetter,
+            // it returns an empty one, making the reset below a no-op.
+            $this->delegates->get(StateResetter::class)->reset();
+        };
+
+        return $mainResetter->withAddedResetters($resetters);
     }
 
     /**

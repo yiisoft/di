@@ -1692,6 +1692,38 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testResetterResolvedDuringDelegateSetup(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDelegates([
+                static function (ContainerInterface $container) {
+                    // Resolve the parent's state resetter while delegates are being set up
+                    $container->get(StateResetter::class);
+                    $delegateConfig = ContainerConfig::create()
+                        ->withDefinitions([
+                            EngineInterface::class => [
+                                'class' => EngineMarkOne::class,
+                                'setNumber()' => [42],
+                                'reset' => function () {
+                                    $this->number = 42;
+                                },
+                            ],
+                        ]);
+                    return new Container($delegateConfig);
+                },
+            ]);
+        $container = new Container($config);
+
+        $engine = $container->get(EngineInterface::class);
+        $engine->setNumber(45);
+
+        $container
+            ->get(StateResetter::class)
+            ->reset();
+
+        $this->assertSame(42, $engine->getNumber());
+    }
+
     public function testLateServicesResetInDefinitionOrder(): void
     {
         $state = (object) ['value' => 0];
