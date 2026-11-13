@@ -508,17 +508,6 @@ $resetter = new StateResetter($container, [
 ]);
 ```
 
-To get a new state resetter with additional resetters, use `withAddedResetters()`. The original state resetter
-is not modified:
-
-```php
-$resetter = $resetter->withAddedResetters([
-    MyOtherServiceInterface::class => function () {
-        $this->reset(); // a method of MyOtherServiceInterface
-    },
-]);
-```
-
 You should trigger the reset itself after each request-response cycle. For RoadRunner, it would look like the following:
 
 ```php

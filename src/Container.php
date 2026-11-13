@@ -260,7 +260,7 @@ final class Container implements ContainerInterface
             $this->delegates->get(StateResetter::class)->reset();
         };
 
-        return $mainResetter->withAddedResetters($resetters);
+        return new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
     }
 
     /**

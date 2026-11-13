@@ -1724,6 +1724,34 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testCustomResetterMutationAfterRetrieve(): void
+    {
+        $service = new EngineMarkOne(0);
+        $custom = new StateResetter(new SimpleContainer(['engine' => $service]));
+
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                StateResetter::class => $custom,
+            ]),
+        );
+        $service->setNumber(45);
+
+        // The state resetter is prepared and cached by the container first
+        $resetter = $container->get(StateResetter::class);
+
+        // Then the original object is mutated — `setResetters()` is deprecated but still supported,
+        // and the mutation must be visible to the container's state resetter
+        $custom->setResetters([
+            'engine' => function () {
+                $this->number = 42;
+            },
+        ]);
+
+        $resetter->reset();
+
+        $this->assertSame(42, $service->getNumber());
+    }
+
     public function testLateServicesResetInDefinitionOrder(): void
     {
         $state = (object) ['value' => 0];

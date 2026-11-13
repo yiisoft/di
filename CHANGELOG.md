@@ -2,7 +2,6 @@
 
 ## 1.5.0 under development
 
-- New #411: Add `StateResetter::withAddedResetters()` (@vjik)
 - Chg #411: Deprecate `StateResetter::setResetters()`, use the constructor instead (@vjik)
 - Enh #411: Allow closures with integer keys as resetters in `StateResetter::setResetters()` (@vjik)
 - Enh #409: Remove unused `ext-mbstring` from `composer.json` requirements (@vjik)
