@@ -11,6 +11,7 @@ use Yiisoft\Di\CompositeContainer;
 use Yiisoft\Di\CompositeNotFoundException;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\StateResetter;
 use Yiisoft\Di\Tests\Support\EngineMarkOne;
 use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NonPsrContainer;
@@ -18,6 +19,7 @@ use Yiisoft\Test\Support\Container\SimpleContainer;
 
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertSame;
+use function PHPUnit\Framework\assertTrue;
 
 final class CompositeContainerTest extends TestCase
 {
@@ -109,5 +111,12 @@ final class CompositeContainerTest extends TestCase
         $container->attach(new SimpleContainer());
 
         assertFalse($container->has('tag@engine'));
+    }
+
+    public function testHasStateResetter(): void
+    {
+        $container = new CompositeContainer();
+
+        assertTrue($container->has(StateResetter::class));
     }
 }
