@@ -220,62 +220,43 @@ final class Container implements ContainerInterface
 
     private function prepareStateResetter(StateResetter $mainResetter): StateResetter
     {
-        if (!$this->useResettersFromMeta) {
-            if ($this->hasDelegates) {
-                $resetter = new StateResetter($this->get(ContainerInterface::class));
-                $resetter->setResetters([$mainResetter, $this->getDelegatesResetterCallback()]);
+        $resetters = [];
 
-                return $resetter;
-            }
+        if ($this->useResettersFromMeta) {
+            $resetters[] =
+                // The callback is executed on each reset, so resetters and service instances are collected
+                // at reset time, not at the time the state resetter is obtained from the container.
+                function (ContainerInterface $container): void {
+                    foreach ($this->resetters as $id => $callback) {
+                        if (!isset($this->instances[$id])) {
+                            // The service is not instantiated yet, so there is nothing to reset.
+                            continue;
+                        }
 
-            return $mainResetter;
+                        $instance = $this->instances[$id];
+                        if (!is_object($instance)) {
+                            throw new InvalidArgumentException(
+                                'State resetter supports resetting objects only. Container returned '
+                                . get_debug_type($instance)
+                                . '.',
+                            );
+                        }
+
+                        /** @var Closure */
+                        $callback = $callback->bindTo($instance, $instance::class);
+                        $callback($container);
+                    }
+                };
         }
-
-        $resetters = [
-            // The callback is executed on each reset, so resetters and service instances are collected
-            // at reset time, not at the time the state resetter is obtained from the container.
-            function (ContainerInterface $container): void {
-                foreach ($this->resetters as $id => $callback) {
-                    if (!isset($this->instances[$id])) {
-                        // The service is not instantiated yet, so there is nothing to reset.
-                        continue;
-                    }
-
-                    $instance = $this->instances[$id];
-                    if (!is_object($instance)) {
-                        throw new InvalidArgumentException(
-                            'State resetter supports resetting objects only. Container returned '
-                            . get_debug_type($instance)
-                            . '.',
-                        );
-                    }
-
-                    /** @var Closure */
-                    $callback = $callback->bindTo($instance, $instance::class);
-                    $callback($container);
-                }
-            },
-        ];
         if ($this->hasDelegates) {
-            $resetters[] = $this->getDelegatesResetterCallback();
+            $resetters[] = function (): void {
+                $this->delegates->get(StateResetter::class)->reset();
+            };
         }
-        $mainResetter->setResetters($resetters);
 
-        return $mainResetter;
-    }
-
-    /**
-     * Returns a callback that resets the state of the delegate containers. The callback is executed on each reset,
-     * so the state resetters of the delegate containers are resolved at reset time, not at the time the state
-     * resetter is obtained from the container.
-     *
-     * @return Closure
-     */
-    private function getDelegatesResetterCallback(): Closure
-    {
-        return function (): void {
-            $this->delegates->get(StateResetter::class)->reset();
-        };
+        return $resetters === []
+            ? $mainResetter
+            : new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
     }
 
     /**

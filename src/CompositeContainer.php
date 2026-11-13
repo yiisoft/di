@@ -49,10 +49,7 @@ final class CompositeContainer implements ContainerInterface
                     $resetters[] = $container->get(StateResetter::class);
                 }
             }
-            $stateResetter = new StateResetter($this);
-            $stateResetter->setResetters($resetters);
-
-            return $stateResetter;
+            return new StateResetter($this, $resetters);
         }
 
         if (TagReference::isTagAlias($id)) {

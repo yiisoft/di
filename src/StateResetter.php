@@ -20,15 +20,12 @@ use function sprintf;
 final class StateResetter
 {
     /**
-     * @var Closure[]|self[]
-     */
-    private array $resetters = [];
-
-    /**
      * @param ContainerInterface $container Container to reset.
+     * @param Closure[]|self[] $resetters
      */
     public function __construct(
         private readonly ContainerInterface $container,
+        private array $resetters = [],
     ) {}
 
     /**
