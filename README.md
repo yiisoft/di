@@ -494,7 +494,8 @@ $resetter = new StateResetter($container, [
 The callback has access to the private and protected properties of the service instance,
 so you can set the initial state of the service efficiently without creating a new instance.
 
-A callback with an integer key is called as is, with the container passed as the first argument:
+A callback with an integer key is called as is, with the container passed as the first argument.
+A `StateResetter` instance with an integer key is reset by calling its `reset()` method:
 
 ```php
 $resetter = new StateResetter($container, [
