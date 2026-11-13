@@ -678,7 +678,7 @@ final class ContainerTest extends TestCase
         $container->get(ColorPink::class);
 
         // set definition to container
-        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
+        ($this->addDefinition(...))->call(
             $container,
             ColorPink::class,
             ColorPink::class,
@@ -708,7 +708,7 @@ final class ContainerTest extends TestCase
         }
 
         // set definition to container
-        (fn(string $id, $definition) => $this->addDefinition($id, $definition))->call(
+        ($this->addDefinition(...))->call(
             $container,
             'test',
             ColorPink::class,
