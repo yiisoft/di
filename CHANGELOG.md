@@ -9,6 +9,7 @@
 - Bug #401: Fix delegate lookup in `Container::has()` (@samdark)
 - Enh #397: Explicitly import functions in "use" section (@mspirkov)
 - Bug #411: Fix previously retrieved `StateResetter` instances missing services created later (@vjik, @samdark)
+- Bug #411: Fix `CompositeContainer` to return the same `StateResetter` instance on each `get()` call (@vjik)
 
 ## 1.4.1 December 01, 2025
 

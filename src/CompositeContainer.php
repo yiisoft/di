@@ -25,6 +25,8 @@ final class CompositeContainer implements ContainerInterface
      */
     private array $containers = [];
 
+    private ?StateResetter $stateResetter = null;
+
     /**
      * @psalm-template T
      * @psalm-param string|class-string<T> $id
@@ -43,13 +45,18 @@ final class CompositeContainer implements ContainerInterface
         }
 
         if ($id === StateResetter::class) {
-            $resetters = [];
-            foreach ($this->containers as $container) {
-                if ($container->has(StateResetter::class)) {
-                    $resetters[] = $container->get(StateResetter::class);
-                }
-            }
-            return new StateResetter($this, $resetters);
+            return $this->stateResetter ??= new StateResetter($this, [
+                function (): void {
+                    foreach ($this->containers as $container) {
+                        if ($container->has(StateResetter::class)) {
+                            $resetter = $container->get(StateResetter::class);
+                            if ($resetter instanceof StateResetter) {
+                                $resetter->reset();
+                            }
+                        }
+                    }
+                },
+            ]);
         }
 
         if (TagReference::isTagAlias($id)) {
