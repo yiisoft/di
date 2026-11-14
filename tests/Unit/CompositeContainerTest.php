@@ -17,6 +17,7 @@ use Yiisoft\Di\Tests\Support\EngineMarkTwo;
 use Yiisoft\Di\Tests\Support\NonPsrContainer;
 use Yiisoft\Test\Support\Container\SimpleContainer;
 
+use function PHPUnit\Framework\assertInstanceOf;
 use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertSame;
 use function PHPUnit\Framework\assertTrue;
@@ -118,5 +119,20 @@ final class CompositeContainerTest extends TestCase
         $container = new CompositeContainer();
 
         assertTrue($container->has(StateResetter::class));
+    }
+
+    /**
+     * According to PSR-11, two successive calls to `get()` with the same identifier should return the same object.
+     */
+    public function testGetStateResetterTwice(): void
+    {
+        $compositeContainer = new CompositeContainer();
+        $compositeContainer->attach(new Container(ContainerConfig::create()));
+
+        $resetter1 = $compositeContainer->get(StateResetter::class);
+        $resetter2 = $compositeContainer->get(StateResetter::class);
+
+        assertInstanceOf(StateResetter::class, $resetter1);
+        assertSame($resetter1, $resetter2);
     }
 }

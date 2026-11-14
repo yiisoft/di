@@ -2373,6 +2373,9 @@ final class ContainerTest extends TestCase
         $this->assertSame('Error in delegate', $exception->getMessage());
     }
 
+    /**
+     * According to PSR-11, two successive calls to `get()` with the same identifier should return the same object.
+     */
     public function testGetStateResetterTwice(): void
     {
         $container = new Container();
