@@ -493,6 +493,7 @@ $resetter = new StateResetter($container, [
 
 The callback has access to the private and protected properties of the service instance,
 so you can set the initial state of the service efficiently without creating a new instance.
+The callback must not be declared `static` — a static closure cannot be bound to a service instance, so the reset fails.
 
 A callback with an integer key is called as is, with the container passed as the first argument.
 A `StateResetter` instance with an integer key is reset by calling its `reset()` method:
@@ -546,6 +547,9 @@ $container = new Container($config);
 ```
 
 Note: resetters from definitions work only if you don't set `StateResetter` in definition or service providers.
+
+The "reset" callback must not be declared `static` — a static closure cannot be bound to a service instance,
+so the reset fails.
 
 Resetters from definitions are evaluated at reset time: a state resetter obtained from the container resets
 all services that are instantiated by the time `reset()` is called, including those created after the state
