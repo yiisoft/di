@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Di;
 
 use Closure;
+use InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -164,9 +165,6 @@ final class Container implements ContainerInterface
     {
         // Fast path: check if instance exists.
         if (array_key_exists($id, $this->instances)) {
-            if ($id === StateResetter::class) {
-                return $this->prepareStateResetter();
-            }
             return $this->instances[$id];
         }
 
@@ -210,44 +208,75 @@ final class Container implements ContainerInterface
             throw new BuildingException($id, $e, $this->definitions->getBuildStack(), $e);
         }
 
-        // Handle StateResetter for newly built instances.
+        // Prepare StateResetter after it is built.
         if ($id === StateResetter::class) {
-            return $this->prepareStateResetter();
+            /** @var StateResetter $resetter */
+            $resetter = $this->instances[$id];
+            $this->instances[$id] = $this->prepareStateResetter($resetter);
         }
 
         return $this->instances[$id];
     }
 
-    private function prepareStateResetter(): StateResetter
+    private function prepareStateResetter(StateResetter $mainResetter): StateResetter
     {
-        $delegatesResetter = null;
-        if ($this->delegates->has(StateResetter::class)) {
-            $delegatesResetter = $this->delegates->get(StateResetter::class);
-        }
-
-        /** @var StateResetter $mainResetter */
-        $mainResetter = $this->instances[StateResetter::class];
+        $resetters = [];
 
         if ($this->useResettersFromMeta) {
-            /** @var StateResetter[] $resetters */
-            $resetters = [];
-            foreach ($this->resetters as $serviceId => $callback) {
-                if (isset($this->instances[$serviceId])) {
-                    $resetters[$serviceId] = $callback;
-                }
-            }
-            if ($delegatesResetter !== null) {
-                $resetters[] = $delegatesResetter;
-            }
-            $mainResetter->setResetters($resetters);
-        } elseif ($delegatesResetter !== null) {
-            $resetter = new StateResetter($this->get(ContainerInterface::class));
-            $resetter->setResetters([$mainResetter, $delegatesResetter]);
+            /**
+             * Resetter callbacks bound to service instances, as `[service instance, callback]` pairs,
+             * keyed by service ID. A callback is bound to the service instance once and retained, so its
+             * local state (closure `static` variables) survives across resets.
+             *
+             * @var array[] `[service instance, callback]` pairs, keyed by service ID.
+             * @psalm-var array<int|string, array{object, Closure}>
+             */
+            $boundResetters = [];
 
-            return $resetter;
+            // The callback is executed on each reset, so resetters and service instances are collected
+            // at reset time, not at the time the state resetter is obtained from the container.
+            $resetters[] = function (ContainerInterface $container) use (&$boundResetters): void {
+                foreach ($this->resetters as $id => $callback) {
+                    if (!array_key_exists($id, $this->instances)) {
+                        // The service is not instantiated yet, so there is nothing to reset.
+                        continue;
+                    }
+
+                    $instance = $this->instances[$id];
+
+                    if (isset($boundResetters[$id]) && $boundResetters[$id][0] === $instance) {
+                        $boundResetters[$id][1]($container);
+                        continue;
+                    }
+
+                    if (!is_object($instance)) {
+                        throw new InvalidArgumentException(
+                            'State resetter supports resetting objects only. Container returned '
+                            . get_debug_type($instance)
+                            . '.',
+                        );
+                    }
+
+                    /** @var Closure */
+                    $bound = $callback->bindTo($instance, $instance::class);
+                    $boundResetters[$id] = [$instance, $bound];
+                    $bound($container);
+                }
+            };
         }
 
-        return $mainResetter;
+        $resetters[] = function (): void {
+            if (!$this->hasDelegates) {
+                return;
+            }
+
+            // No `has()` check is needed: `CompositeContainer::get()` never throws for
+            // `StateResetter::class`. When no delegate provides a state resetter,
+            // it returns an empty one, making the reset below a no-op.
+            $this->delegates->get(StateResetter::class)->reset();
+        };
+
+        return new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
     }
 
     /**

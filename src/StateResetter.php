@@ -21,15 +21,27 @@ final class StateResetter
 {
     /**
      * @var Closure[]|self[]
+     * @psalm-param array<int|string, Closure|self>
      */
-    private array $resetters = [];
+    private array $resetters;
 
     /**
      * @param ContainerInterface $container Container to reset.
+     * @param Closure[]|self[] $resetters Array of reset callbacks or state resetters. A callback with a string
+     * key is bound to the service instance with the corresponding ID, so it has access to the private and
+     * protected properties of the service, and you can set the initial state of the service efficiently without
+     * creating a new instance. A callback with an integer key is called as is, with the container passed to the
+     * state resetter as the first argument. A `StateResetter` instance with an integer key is reset by calling
+     * its `reset()` method. Numeric-string service IDs are not supported as keys: PHP casts them to integer
+     * array keys, so they are treated as raw callbacks.
+     * @psalm-param array<int|string, Closure|self> $resetters
      */
     public function __construct(
         private readonly ContainerInterface $container,
-    ) {}
+        array $resetters = [],
+    ) {
+        $this->resetters = $this->prepareResetters($resetters);
+    }
 
     /**
      * Reset the container.
@@ -46,23 +58,42 @@ final class StateResetter
     }
 
     /**
-     * @param Closure[]|self[] $resetters Array of reset callbacks. Each callback has access to the private and
-     * protected properties of the service instance, so you can set the initial state of the service efficiently
-     * without creating a new instance.
+     * @param Closure[]|self[] $resetters Array of reset callbacks or state resetters. A callback with a string
+     * key is bound to the service instance with the corresponding ID, so it has access to the private and
+     * protected properties of the service, and you can set the initial state of the service efficiently without
+     * creating a new instance. A callback with an integer key is called as is, with the container passed to the
+     * state resetter as the first argument. A `StateResetter` instance with an integer key is reset by calling
+     * its `reset()` method. Numeric-string service IDs are not supported as keys: PHP casts them to integer
+     * array keys, so they are treated as raw callbacks.
+     * @psalm-param array<int|string, Closure|self> $resetters
+     *
+     * @deprecated Use the constructor instead. It will be removed in the next major version.
      */
     public function setResetters(array $resetters): void
     {
-        $this->resetters = [];
+        $this->resetters = $this->prepareResetters($resetters);
+    }
+
+    /**
+     * @param Closure[]|self[] $resetters Array of reset callbacks or state resetters.
+     * @psalm-param array<int|string, Closure|self> $resetters
+     *
+     * @return Closure[]|self[] The processed resetters.
+     * @psalm-return list<Closure|self>
+     */
+    private function prepareResetters(array $resetters): array
+    {
+        $result = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
-                if (!$callback instanceof self) {
+                if (!$callback instanceof self && !$callback instanceof Closure) {
                     throw new InvalidArgumentException(sprintf(
-                        'State resetter object should be instance of "%s", "%s" given.',
+                        'State resetter should be an instance of "%s" or a closure, "%s" given.',
                         self::class,
                         get_debug_type($callback),
                     ));
                 }
-                $this->resetters[] = $callback;
+                $result[] = $callback;
                 continue;
             }
 
@@ -84,7 +115,8 @@ final class StateResetter
             }
 
             /** @var Closure */
-            $this->resetters[] = $callback->bindTo($instance, $instance::class);
+            $result[] = $callback->bindTo($instance, $instance::class);
         }
+        return $result;
     }
 }
