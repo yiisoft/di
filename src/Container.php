@@ -223,10 +223,19 @@ final class Container implements ContainerInterface
         $resetters = [];
 
         if ($this->useResettersFromMeta) {
-            $resetters[]
-                // The callback is executed on each reset, so resetters and service instances are collected
-                // at reset time, not at the time the state resetter is obtained from the container.
-                = function (ContainerInterface $container): void {
+            /**
+             * Resetter callbacks bound to service instances, as `[service instance, callback]` pairs,
+             * keyed by service ID. A callback is bound to the service instance once and retained, so its
+             * local state (closure `static` variables) survives across resets.
+             *
+             * @var array[] `[service instance, callback]` pairs, keyed by service ID.
+             * @psalm-var array<int|string, array{object, Closure}>
+             */
+            $boundResetters = [];
+
+            // The callback is executed on each reset, so resetters and service instances are collected
+            // at reset time, not at the time the state resetter is obtained from the container.
+            $resetters[] = function (ContainerInterface $container) use (&$boundResetters): void {
                     foreach ($this->resetters as $id => $callback) {
                         if (!array_key_exists($id, $this->instances)) {
                             // The service is not instantiated yet, so there is nothing to reset.
@@ -234,6 +243,12 @@ final class Container implements ContainerInterface
                         }
 
                         $instance = $this->instances[$id];
+
+                        if (isset($boundResetters[$id]) && $boundResetters[$id][0] === $instance) {
+                            $boundResetters[$id][1]($container);
+                            continue;
+                        }
+
                         if (!is_object($instance)) {
                             throw new InvalidArgumentException(
                                 'State resetter supports resetting objects only. Container returned '
@@ -243,8 +258,9 @@ final class Container implements ContainerInterface
                         }
 
                         /** @var Closure */
-                        $callback = $callback->bindTo($instance, $instance::class);
-                        $callback($container);
+                        $bound = $callback->bindTo($instance, $instance::class);
+                        $boundResetters[$id] = [$instance, $bound];
+                        $bound($container);
                     }
                 };
         }
