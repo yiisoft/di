@@ -1663,6 +1663,38 @@ final class ContainerTest extends TestCase
         $this->assertSame(42, $engine->getNumber());
     }
 
+    public function testResetterCallbackStaticStateIsKeptBetweenResets(): void
+    {
+        $container = new Container(
+            ContainerConfig::create()->withDefinitions([
+                EngineMarkOne::class => [
+                    'class' => EngineMarkOne::class,
+                    'setNumber()' => [42],
+                    'reset' => function () {
+                        // The callback caches the initial number on the first reset
+                        // and restores it on every subsequent reset.
+                        static $initialNumber = null;
+                        if ($initialNumber === null) {
+                            $initialNumber = $this->number;
+                        }
+                        $this->number = $initialNumber;
+                    },
+                ],
+            ]),
+        );
+
+        $engine = $container->get(EngineMarkOne::class);
+        $resetter = $container->get(StateResetter::class);
+
+        $resetter->reset();
+        $this->assertSame(42, $engine->getNumber());
+
+        $engine->setNumber(99);
+
+        $resetter->reset();
+        $this->assertSame(42, $engine->getNumber());
+    }
+
     public function testPreviouslyRetrievedResetterResetsNewServiceInDelegates(): void
     {
         $config = ContainerConfig::create()
