@@ -49,10 +49,7 @@ final class CompositeContainer implements ContainerInterface
                 function (): void {
                     foreach ($this->containers as $container) {
                         if ($container->has(StateResetter::class)) {
-                            $resetter = $container->get(StateResetter::class);
-                            if ($resetter instanceof StateResetter) {
-                                $resetter->reset();
-                            }
+                            $container->get(StateResetter::class)->reset();
                         }
                     }
                 },
