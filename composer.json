@@ -43,7 +43,7 @@
         "league/container": "^5.1.0",
         "phpbench/phpbench": "^1.4.1",
         "phpunit/phpunit": "^10.5.46",
-        "rector/rector": "^2.0.17",
+        "rector/rector": "^2.8.5",
         "shipmonk/composer-dependency-analyser": "^1.8",
         "spatie/phpunit-watcher": "^1.24",
         "yiisoft/injector": "^1.2.1",
