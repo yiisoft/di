@@ -146,7 +146,7 @@ final class CompositeContainerTest extends TestCase
         $compositeContainer = new CompositeContainer();
         $compositeContainer->attach(
             new class ($engine) implements ContainerInterface {
-                public function __construct(private EngineMarkOne $engine) {}
+                public function __construct(private readonly EngineMarkOne $engine) {}
 
                 public function get($id)
                 {
