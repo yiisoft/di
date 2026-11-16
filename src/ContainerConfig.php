@@ -12,7 +12,7 @@ use Closure;
 final class ContainerConfig implements ContainerConfigInterface
 {
     /**
-     * @var array<int|string, mixed>
+     * @var array<string, mixed>
      */
     private array $definitions = [];
 
@@ -42,7 +42,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array<int|string, mixed> $definitions Definitions to put into container.
+     * @param array<string, mixed> $definitions Definitions to put into container.
      */
     public function withDefinitions(array $definitions): self
     {
@@ -52,7 +52,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @return array<int|string, mixed> Definitions to put into container.
+     * @return array<string, mixed> Definitions to put into container.
      */
     public function getDefinitions(): array
     {

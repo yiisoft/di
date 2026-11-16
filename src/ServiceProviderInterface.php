@@ -39,7 +39,7 @@ interface ServiceProviderInterface
      * - Should only return definitions for the Container preventing any side effects.
      * - Should be idempotent.
      *
-     * @return array<int|string, mixed> Definitions for the container. Each array key is the name of the service (usually it is
+     * @return array<string, mixed> Definitions for the container. Each array key is the name of the service (usually it is
      * an interface name), and a corresponding value is a service definition.
      */
     public function getDefinitions(): array;

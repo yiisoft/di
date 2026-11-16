@@ -312,7 +312,7 @@ final class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      *
-     * @param array<int|string, mixed> $config Definitions indexed by their IDs.
+     * @param array<string, mixed> $config Definitions indexed by their IDs.
      *
      * @throws InvalidConfigException
      */

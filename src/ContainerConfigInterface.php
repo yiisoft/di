@@ -12,7 +12,7 @@ use Closure;
 interface ContainerConfigInterface
 {
     /**
-     * @return array<int|string, mixed> Definitions to put into container.
+     * @return array<string, mixed> Definitions to put into container.
      */
     public function getDefinitions(): array;
 
