@@ -7,6 +7,7 @@ namespace Yiisoft\Di;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Throwable;
 
 use function sprintf;
 
@@ -17,9 +18,8 @@ use function sprintf;
 final class CompositeNotFoundException extends Exception implements NotFoundExceptionInterface
 {
     /**
-     * @param array $exceptions Container exceptions in [throwable, container] format.
-     *
-     * @psalm-param list<array{\Throwable,ContainerInterface}> $exceptions
+     * @param list<array{Throwable,ContainerInterface}> $exceptions Container exceptions
+     * in [throwable, container] format.
      */
     public function __construct(array $exceptions)
     {

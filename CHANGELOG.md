@@ -2,6 +2,7 @@
 
 ## 1.5.0 under development
 
+- Chg #412: Replace Psalm with PHPStan (@vjik)
 - Chg #411: Deprecate `StateResetter::setResetters()`, use the constructor instead (@vjik)
 - New #411: Add `$resetters` parameter to `StateResetter` constructor (@vjik)
 - Enh #411: Allow closures with integer keys as resetters in `StateResetter::setResetters()` (@vjik)
@@ -10,6 +11,8 @@
 - Enh #397: Explicitly import functions in "use" section (@mspirkov)
 - Bug #411: Fix previously retrieved `StateResetter` instances missing services created later (@vjik, @samdark)
 - Bug #411: Fix `CompositeContainer` to return the same `StateResetter` instance on each `get()` call (@vjik)
+- Enh #412: Narrow `BuildingException::getSolution()` and `NotFoundException::getSolution()` methods result type 
+  to `string` (@vjik)
 
 ## 1.4.1 December 01, 2025
 

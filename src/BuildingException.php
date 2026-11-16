@@ -41,7 +41,7 @@ final class BuildingException extends Exception implements ContainerExceptionInt
         return sprintf('Unable to build "%s" object.', $this->id);
     }
 
-    public function getSolution(): ?string
+    public function getSolution(): string
     {
         $solution = <<<SOLUTION
             Ensure that either a service with ID "%1\$s" is defined or such class exists and is autoloadable.

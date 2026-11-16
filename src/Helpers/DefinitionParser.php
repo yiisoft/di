@@ -52,8 +52,7 @@ final class DefinitionParser
     /**
      * @param mixed $definition Definition to parse.
      *
-     * @return array Definition parsed into an array of a special structure.
-     * @psalm-return array{mixed,array}
+     * @return array{mixed, array<int|string, mixed>} Definition parsed into an array of a special structure.
      */
     public static function parse(mixed $definition): array
     {

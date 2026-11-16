@@ -4,15 +4,33 @@ declare(strict_types=1);
 
 namespace Yiisoft\Di;
 
+use Closure;
+
 /**
  * Container configuration.
  */
 final class ContainerConfig implements ContainerConfigInterface
 {
+    /**
+     * @var array<int|string, mixed>
+     */
     private array $definitions = [];
+
+    /**
+     * @var array<int|string, mixed>
+     */
     private array $providers = [];
+
+    /**
+     * @var array<string, list<string>>
+     */
     private array $tags = [];
+
     private bool $validate = true;
+
+    /**
+     * @var array<int|string, Closure>
+     */
     private array $delegates = [];
     private bool $useStrictMode = false;
 
@@ -24,7 +42,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array $definitions Definitions to put into container.
+     * @param array<int|string, mixed> $definitions Definitions to put into container.
      */
     public function withDefinitions(array $definitions): self
     {
@@ -33,13 +51,16 @@ final class ContainerConfig implements ContainerConfigInterface
         return $new;
     }
 
+    /**
+     * @return array<int|string, mixed> Definitions to put into container.
+     */
     public function getDefinitions(): array
     {
         return $this->definitions;
     }
 
     /**
-     * @param array $providers Service providers to get definitions from.
+     * @param array<int|string, mixed> $providers Service providers to get definitions from.
      */
     public function withProviders(array $providers): self
     {
@@ -48,13 +69,16 @@ final class ContainerConfig implements ContainerConfigInterface
         return $new;
     }
 
+    /**
+     * @return array<int|string, mixed> Service providers to get definitions from.
+     */
     public function getProviders(): array
     {
         return $this->providers;
     }
 
     /**
-     * @param array $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @param array<string, list<string>> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     public function withTags(array $tags): self
     {
@@ -63,6 +87,9 @@ final class ContainerConfig implements ContainerConfigInterface
         return $new;
     }
 
+    /**
+     * @return array<string, list<string>> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     */
     public function getTags(): array
     {
         return $this->tags;
@@ -84,7 +111,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array $delegates Container delegates. Each delegate is a callable in format
+     * @param array<int|string, Closure> $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can't be found in primary container.
      */
@@ -95,6 +122,11 @@ final class ContainerConfig implements ContainerConfigInterface
         return $new;
     }
 
+    /**
+     * @return array<int|string, Closure> Container delegates. Each delegate is a callable in format
+     * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
+     * in case a service can't be found in primary container.
+     */
     public function getDelegates(): array
     {
         return $this->delegates;
