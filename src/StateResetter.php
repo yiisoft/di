@@ -113,7 +113,6 @@ final class StateResetter
              * @var Closure $bound
              */
             $bound = $callback->bindTo($instance, $instance::class);
-            ;
             $result[] = $bound;
         }
         return $result;
