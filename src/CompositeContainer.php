@@ -34,7 +34,7 @@ final class CompositeContainer implements ContainerInterface
      */
     public function get($id)
     {
-        /** @psalm-suppress TypeDoesNotContainType */
+        /** @psalm-suppress TypeDoesNotContainType, DocblockTypeContradiction */
         if (!is_string($id)) {
             throw new InvalidArgumentException(
                 sprintf(

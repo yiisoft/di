@@ -86,6 +86,7 @@ final class StateResetter
         $result = [];
         foreach ($resetters as $serviceId => $callback) {
             if (is_int($serviceId)) {
+                /** @psalm-suppress DocblockTypeContradiction */
                 if (!$callback instanceof self && !$callback instanceof Closure) {
                     throw new InvalidArgumentException(sprintf(
                         'State resetter should be an instance of "%s" or a closure, "%s" given.',
