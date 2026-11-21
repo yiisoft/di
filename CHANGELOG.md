@@ -13,6 +13,7 @@
 - Bug #411: Fix `CompositeContainer` to return the same `StateResetter` instance on each `get()` call (@vjik)
 - Enh #412: Narrow `BuildingException::getSolution()` and `NotFoundException::getSolution()` methods result type 
   to `string` (@vjik)
+- Enh #413: Add PHP 8.6 support (@roxblnfk)
 
 ## 1.4.1 December 01, 2025
 

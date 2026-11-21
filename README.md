@@ -37,7 +37,7 @@ and configure classes resolving dependencies.
 
 ## Requirements
 
-- PHP 8.1 - 8.5.
+- PHP 8.1 - 8.6.
 
 ## Installation
 
