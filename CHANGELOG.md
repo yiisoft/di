@@ -3,6 +3,7 @@
 ## 1.5.0 under development
 
 - Chg #412: Replace Psalm with PHPStan (@vjik)
+- Enh #412: Add a check that the `ContainerInterface::class` definition is a container instance (@vjik)
 - Chg #411: Deprecate `StateResetter::setResetters()`, use the constructor instead (@vjik)
 - New #411: Add `$resetters` parameter to `StateResetter` constructor (@vjik)
 - Enh #411: Allow closures with integer keys as resetters in `StateResetter::setResetters()` (@vjik)

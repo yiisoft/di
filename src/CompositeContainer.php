@@ -28,9 +28,9 @@ final class CompositeContainer implements ContainerInterface
     private ?StateResetter $stateResetter = null;
 
     /**
-     * @template T
-     * @param string|class-string<T> $id
-     * @return ($id is class-string<T> ? T : mixed)
+     * @param string $id
+     *
+     * @return mixed
      */
     public function get($id)
     {

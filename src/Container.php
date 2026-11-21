@@ -142,9 +142,7 @@ final class Container implements ContainerInterface
      *
      * The same instance of the class will be returned each time this method is called.
      *
-     * @template T
-     *
-     * @param string|class-string<T> $id The interface or an alias name that was previously registered.
+     * @param string $id The interface or an alias name that was previously registered.
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -152,7 +150,7 @@ final class Container implements ContainerInterface
      * @throws NotInstantiableException
      * @throws BuildingException
      *
-     * @return ($id is class-string<T> ? T : mixed) An instance of the requested interface.
+     * @return mixed An instance of the requested interface.
      */
     public function get(string $id)
     {
@@ -265,10 +263,12 @@ final class Container implements ContainerInterface
             // No `has()` check is needed: `CompositeContainer::get()` never throws for
             // `StateResetter::class`. When no delegate provides a state resetter,
             // it returns an empty one, making the reset below a no-op.
+            // `CompositeContainer` always returns a `StateResetter` instance for `StateResetter::class`.
+            // @phpstan-ignore method.nonObject
             $this->delegates->get(StateResetter::class)->reset();
         };
 
-        return new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
+        return new StateResetter($this->getDependencyContainer(), [$mainResetter, ...$resetters]);
     }
 
     /**
@@ -553,6 +553,29 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * Returns the container to be used for resolving dependencies. By default, it is the container itself,
+     * but the `ContainerInterface::class` definition may be redefined by the user.
+     *
+     * @throws InvalidConfigException If `ContainerInterface::class` definition is not a container.
+     */
+    private function getDependencyContainer(): ContainerInterface
+    {
+        $container = $this->get(ContainerInterface::class);
+
+        if (!$container instanceof ContainerInterface) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'The "%s" definition must be a container instance, "%s" given.',
+                    ContainerInterface::class,
+                    get_debug_type($container),
+                ),
+            );
+        }
+
+        return $container;
+    }
+
+    /**
      * Creates new instance by either interface name or alias.
      *
      * @param string $id The interface or the alias name that was previously registered.
@@ -594,7 +617,7 @@ final class Container implements ContainerInterface
         $this->building[$id] = 1;
         try {
             $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-            $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
+            $object = $normalizedDefinition->resolve($this->getDependencyContainer());
         } finally {
             unset($this->building[$id]);
         }

@@ -2001,6 +2001,23 @@ final class ContainerTest extends TestCase
         $this->assertNotSame($originalContainer, $container);
     }
 
+    public function testContainerInterfaceRedefinitionToNonContainer(): void
+    {
+        $config = ContainerConfig::create()
+            ->withDefinitions([
+                ContainerInterface::class => new ColorPink(),
+            ]);
+        $container = new Container($config);
+
+        $this->expectException(BuildingException::class);
+        $this->expectExceptionMessage(
+            'Caught unhandled error "The "' . ContainerInterface::class . '" definition must be a container instance, '
+            . '"' . ColorPink::class . '" given." while building "' . ColorRed::class . '".',
+        );
+
+        $container->get(ColorRed::class);
+    }
+
     public function testErrorOnMethodTypo(): void
     {
         $this->expectException(InvalidConfigException::class);
