@@ -45,7 +45,7 @@ final class Container implements ContainerInterface
     private readonly DefinitionStorage $definitions;
 
     /**
-     * @var array Used to collect IDs of objects instantiated during build
+     * @var array<string, int> Used to collect IDs of objects instantiated during build
      * to detect circular references.
      */
     private array $building = [];
@@ -56,8 +56,7 @@ final class Container implements ContainerInterface
     private readonly bool $validate;
 
     /**
-     * @var array Cached instances.
-     * @psalm-var array<string, mixed>
+     * @var array<string, mixed> Cached instances.
      */
     private array $instances = [];
 
@@ -65,15 +64,13 @@ final class Container implements ContainerInterface
     private bool $hasDelegates = false;
 
     /**
-     * @var array Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
-     * @psalm-var array<string, list<string>>
+     * @var array<string, string[]> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     private array $tags;
     private bool $hasTags = false;
 
     /**
-     * @var Closure[]
-     * @psalm-var array<string, Closure>
+     * @var array<string, Closure>
      */
     private array $resetters = [];
     private bool $useResettersFromMeta = true;
@@ -154,12 +151,6 @@ final class Container implements ContainerInterface
      * @throws BuildingException
      *
      * @return mixed An instance of the requested interface.
-     *
-     * @psalm-template T
-     * @psalm-param string|class-string<T> $id
-     * @psalm-return ($id is class-string ? T : mixed)
-     *
-     * @psalm-suppress MixedReturnStatement `mixed` is a correct return type for this method.
      */
     public function get(string $id)
     {
@@ -228,8 +219,7 @@ final class Container implements ContainerInterface
              * keyed by service ID. A callback is bound to the service instance once and retained, so its
              * local state (closure `static` variables) survives across resets.
              *
-             * @var array[] `[service instance, callback]` pairs, keyed by service ID.
-             * @psalm-var array<int|string, array{object, Closure}>
+             * @var array<int|string, array{object, Closure}> `[service instance, callback]` pairs, keyed by service ID.
              */
             $boundResetters = [];
 
@@ -273,10 +263,12 @@ final class Container implements ContainerInterface
             // No `has()` check is needed: `CompositeContainer::get()` never throws for
             // `StateResetter::class`. When no delegate provides a state resetter,
             // it returns an empty one, making the reset below a no-op.
+            // `CompositeContainer` always returns a `StateResetter` instance for `StateResetter::class`.
+            // @phpstan-ignore method.nonObject
             $this->delegates->get(StateResetter::class)->reset();
         };
 
-        return new StateResetter($this->get(ContainerInterface::class), [$mainResetter, ...$resetters]);
+        return new StateResetter($this->getDependencyContainer(), [$mainResetter, ...$resetters]);
     }
 
     /**
@@ -299,8 +291,9 @@ final class Container implements ContainerInterface
                 $this->validateMeta($meta);
             }
         }
+
         /**
-         * @psalm-var array{reset?:Closure,tags?:string[]} $meta
+         * @var array{reset?:Closure,tags?:string[]} $meta
          */
 
         // Process meta only if it has tags or reset callback.
@@ -319,7 +312,7 @@ final class Container implements ContainerInterface
     /**
      * Sets multiple definitions at once.
      *
-     * @param array $config Definitions indexed by their IDs.
+     * @param array<string, mixed> $config Definitions indexed by their IDs.
      *
      * @throws InvalidConfigException
      */
@@ -345,6 +338,8 @@ final class Container implements ContainerInterface
      *
      * Each delegate must be a callable in format `function (ContainerInterface $container): ContainerInterface`.
      * The container instance returned is used in case a service can't be found in primary container.
+     *
+     * @param Closure[] $delegates Container delegates.
      *
      * @throws InvalidConfigException
      */
@@ -394,9 +389,8 @@ final class Container implements ContainerInterface
                 $constructorArguments = $definition['__construct()'];
 
                 /**
-                 * @var array $methodsAndProperties Is always array for prepared array definition data.
+                 * @var array<string, array{string, string, mixed}> $methodsAndProperties Is always array for prepared array definition data.
                  * @see DefinitionParser::parse()
-                 * @psalm-var array<string,mixed> $methodsAndProperties
                  */
                 $methodsAndProperties = $definition['methodsAndProperties'];
 
@@ -417,6 +411,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @param array<int|string, mixed> $meta Definition metadata.
+     *
      * @throws InvalidConfigException
      */
     private function validateMeta(array $meta): void
@@ -480,6 +476,8 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @param array<string, string[]> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     *
      * @throws InvalidConfigException
      */
     private function setTags(array $tags): void
@@ -514,14 +512,13 @@ final class Container implements ContainerInterface
                 }
             }
         }
-        /** @psalm-var array<string, list<string>> $tags */
 
         $this->tags = $tags;
         $this->hasTags = $tags !== [];
     }
 
     /**
-     * @psalm-param string[] $tags
+     * @param string[] $tags
      */
     private function setDefinitionTags(string $id, array $tags): void
     {
@@ -553,6 +550,29 @@ final class Container implements ContainerInterface
         if ($id === StateResetter::class) {
             $this->useResettersFromMeta = false;
         }
+    }
+
+    /**
+     * Returns the container to be used for resolving dependencies. By default, it is the container itself,
+     * but the `ContainerInterface::class` definition may be redefined by the user.
+     *
+     * @throws InvalidConfigException If `ContainerInterface::class` definition is not a container.
+     */
+    private function getDependencyContainer(): ContainerInterface
+    {
+        $container = $this->get(ContainerInterface::class);
+
+        if (!$container instanceof ContainerInterface) {
+            throw new InvalidConfigException(
+                sprintf(
+                    'The "%s" definition must be a container instance, "%s" given.',
+                    ContainerInterface::class,
+                    get_debug_type($container),
+                ),
+            );
+        }
+
+        return $container;
     }
 
     /**
@@ -597,7 +617,7 @@ final class Container implements ContainerInterface
         $this->building[$id] = 1;
         try {
             $normalizedDefinition = DefinitionNormalizer::normalize($this->definitions->get($id), $id);
-            $object = $normalizedDefinition->resolve($this->get(ContainerInterface::class));
+            $object = $normalizedDefinition->resolve($this->getDependencyContainer());
         } finally {
             unset($this->building[$id]);
         }
@@ -605,6 +625,9 @@ final class Container implements ContainerInterface
         return $object;
     }
 
+    /**
+     * @return list<mixed> The tagged services.
+     */
     private function getTaggedServices(string $tagAlias): array
     {
         $tag = TagReference::extractTagFromAlias($tagAlias);
@@ -619,6 +642,9 @@ final class Container implements ContainerInterface
     }
 
     /**
+     * @param mixed[] $providers Service providers. Each provider is a class name
+     * or an instance of {@see ServiceProviderInterface}.
+     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      */
@@ -688,10 +714,6 @@ final class Container implements ContainerInterface
             );
         }
 
-        /**
-         * @psalm-suppress MixedMethodCall Service provider defined as class string
-         * should container public constructor, otherwise throws error.
-         */
         $providerInstance = is_object($provider) ? $provider : new $provider();
         if (!$providerInstance instanceof ServiceProviderInterface) {
             throw new InvalidConfigException(

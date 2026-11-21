@@ -166,10 +166,10 @@ The package tests are checked with [Infection](https://infection.github.io/) mut
 
 ## Static analysis
 
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
+The code is statically analyzed with [PHPStan](https://phpstan.org/). To run static analysis:
 
 ```shell
-./vendor/bin/psalm
+./vendor/bin/phpstan
 ```
 
 ## Code style
