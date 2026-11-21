@@ -71,7 +71,7 @@ final class CompositeContainer implements ContainerInterface
                     /**
                      * `Container::get()` always returns array for tag.
                      *
-                     * @var array<int|string, mixed> $tagServices
+                     * @var mixed[] $tagServices
                      */
                     $tagServices = $container->get($id);
                     array_unshift($tags, $tagServices);

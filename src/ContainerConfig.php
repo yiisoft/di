@@ -17,19 +17,19 @@ final class ContainerConfig implements ContainerConfigInterface
     private array $definitions = [];
 
     /**
-     * @var array<int|string, mixed>
+     * @var mixed[]
      */
     private array $providers = [];
 
     /**
-     * @var array<string, list<string>>
+     * @var array<string, string[]>
      */
     private array $tags = [];
 
     private bool $validate = true;
 
     /**
-     * @var array<int|string, Closure>
+     * @var Closure[]
      */
     private array $delegates = [];
     private bool $useStrictMode = false;
@@ -60,7 +60,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array<int|string, mixed> $providers Service providers to get definitions from.
+     * @param mixed[] $providers Service providers to get definitions from.
      */
     public function withProviders(array $providers): self
     {
@@ -70,7 +70,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @return array<int|string, mixed> Service providers to get definitions from.
+     * @return mixed[] Service providers to get definitions from.
      */
     public function getProviders(): array
     {
@@ -78,7 +78,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array<string, list<string>> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @param array<string, string[]> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     public function withTags(array $tags): self
     {
@@ -88,7 +88,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @return array<string, list<string>> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @return array<string, string[]> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     public function getTags(): array
     {
@@ -111,7 +111,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @param array<int|string, Closure> $delegates Container delegates. Each delegate is a callable in format
+     * @param Closure[] $delegates Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can't be found in primary container.
      */
@@ -123,7 +123,7 @@ final class ContainerConfig implements ContainerConfigInterface
     }
 
     /**
-     * @return array<int|string, Closure> Container delegates. Each delegate is a callable in format
+     * @return Closure[] Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can't be found in primary container.
      */

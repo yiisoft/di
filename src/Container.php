@@ -64,7 +64,7 @@ final class Container implements ContainerInterface
     private bool $hasDelegates = false;
 
     /**
-     * @var array<string, list<string>> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @var array<string, string[]> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     private array $tags;
     private bool $hasTags = false;
@@ -339,7 +339,7 @@ final class Container implements ContainerInterface
      * Each delegate must be a callable in format `function (ContainerInterface $container): ContainerInterface`.
      * The container instance returned is used in case a service can't be found in primary container.
      *
-     * @param array<int|string, Closure> $delegates Container delegates.
+     * @param Closure[] $delegates Container delegates.
      *
      * @throws InvalidConfigException
      */
@@ -476,7 +476,7 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param array<string, list<string>> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @param array<string, string[]> $tags Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      *
      * @throws InvalidConfigException
      */
@@ -619,7 +619,7 @@ final class Container implements ContainerInterface
     }
 
     /**
-     * @param array<int|string, mixed> $providers Service providers. Each provider is a class name
+     * @param mixed[] $providers Service providers. Each provider is a class name
      * or an instance of {@see ServiceProviderInterface}.
      *
      * @throws CircularReferenceException

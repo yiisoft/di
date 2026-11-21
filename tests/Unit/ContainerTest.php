@@ -1165,6 +1165,22 @@ final class ContainerTest extends TestCase
         $this->assertSame(EngineMarkTwo::class, $markTwoEngines[0]::class);
     }
 
+    #[TestWith(['tags' => ['engine' => ['first' => EngineMarkOne::class, 'second' => EngineMarkTwo::class]]])]
+    #[TestWith(['tags' => ['engine' => ['first' => EngineMarkOne::class, 5 => EngineMarkTwo::class]]])]
+    public function testTagsWithStringKeys(array $tags): void
+    {
+        $config = ContainerConfig::create()
+            ->withTags($tags);
+        $container = new Container($config);
+
+        $engines = $container->get('tag@engine');
+
+        $this->assertIsArray($engines);
+        $this->assertCount(2, $engines);
+        $this->assertSame(EngineMarkOne::class, $engines[0]::class);
+        $this->assertSame(EngineMarkTwo::class, $engines[1]::class);
+    }
+
     public function testTagsAsArrayInConstructor(): void
     {
         $config = ContainerConfig::create()

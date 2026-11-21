@@ -17,12 +17,12 @@ interface ContainerConfigInterface
     public function getDefinitions(): array;
 
     /**
-     * @return array<int|string, mixed> Service providers to get definitions from.
+     * @return mixed[] Service providers to get definitions from.
      */
     public function getProviders(): array;
 
     /**
-     * @return array<string, list<string>> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
+     * @return array<string, string[]> Tagged service IDs. The structure is `['tagID' => ['service1', 'service2']]`.
      */
     public function getTags(): array;
 
@@ -32,7 +32,7 @@ interface ContainerConfigInterface
     public function shouldValidate(): bool;
 
     /**
-     * @return array<int|string, Closure> Container delegates. Each delegate is a callable in format
+     * @return Closure[] Container delegates. Each delegate is a callable in format
      * `function (ContainerInterface $container): ContainerInterface`. The container instance returned is used
      * in case a service can't be found in primary container.
      */

@@ -42,7 +42,7 @@
         "friendsofphp/php-cs-fixer": "^3.92.5",
         "league/container": "^5.1.0",
         "phpbench/phpbench": "^1.4.1",
-        "phpstan/phpstan": "^2.3.6",
+        "phpstan/phpstan": "^2.3.7",
         "phpunit/phpunit": "^10.5.46",
         "rector/rector": "^2.8.5",
         "shipmonk/composer-dependency-analyser": "^1.8",
