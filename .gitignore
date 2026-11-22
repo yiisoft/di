@@ -26,7 +26,6 @@ composer.phar
 # PhpUnit
 /phpunit.phar
 /phpunit.xml
-/.phpunit.cache
 
 # Static analysis
 analysis.txt
@@ -35,5 +34,4 @@ analysis.txt
 /coverage
 
 # PHP CS Fixer
-/.php-cs-fixer.cache
 /.php-cs-fixer.php
