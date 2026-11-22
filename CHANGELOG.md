@@ -15,6 +15,7 @@
 - Enh #412: Narrow `BuildingException::getSolution()` and `NotFoundException::getSolution()` methods result type 
   to `string` (@vjik)
 - Enh #413: Add PHP 8.6 support (@roxblnfk)
+- Enh #416: Remove extra development files from the distribution archive (@vjik)
 
 ## 1.4.1 December 01, 2025
 
