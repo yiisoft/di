@@ -1,5 +1,9 @@
 # Yii Dependency Injection Change Log
 
+## 1.5.1 under development
+
+- no changes in this release.
+
 ## 1.5.0 November 22, 2026
 
 - New #411: Add `$resetters` parameter to `StateResetter` constructor (@vjik)
