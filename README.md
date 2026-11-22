@@ -12,7 +12,6 @@
 [![Code coverage](https://codecov.io/gh/yiisoft/di/graph/badge.svg?token=P8W1UTwgQt)](https://codecov.io/gh/yiisoft/di)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdi%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/di/master)
 [![static analysis](https://github.com/yiisoft/di/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/di/actions?query=workflow%3A%22static+analysis%22)
-[![type-coverage](https://shepherd.dev/github/yiisoft/di/coverage.svg)](https://shepherd.dev/github/yiisoft/di)
 
 [PSR-11](https://www.php-fig.org/psr/psr-11/) compatible
 [dependency injection](https://en.wikipedia.org/wiki/Dependency_injection) container that's able to instantiate

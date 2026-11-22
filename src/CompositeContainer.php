@@ -28,13 +28,12 @@ final class CompositeContainer implements ContainerInterface
     private ?StateResetter $stateResetter = null;
 
     /**
-     * @psalm-template T
-     * @psalm-param string|class-string<T> $id
-     * @psalm-return ($id is class-string ? T : mixed)
+     * @param string $id
+     *
+     * @return mixed
      */
     public function get($id)
     {
-        /** @psalm-suppress TypeDoesNotContainType, DocblockTypeContradiction */
         if (!is_string($id)) {
             throw new InvalidArgumentException(
                 sprintf(
@@ -53,6 +52,8 @@ final class CompositeContainer implements ContainerInterface
                     foreach ($this->containers as $index => $container) {
                         if ($container->has(StateResetter::class)) {
                             $resetters[$index] ??= $container->get(StateResetter::class);
+                            // A container that has the `StateResetter` definition returns its instance.
+                            // @phpstan-ignore method.nonObject
                             $resetters[$index]->reset();
                         }
                     }
@@ -67,18 +68,21 @@ final class CompositeContainer implements ContainerInterface
                     continue;
                 }
                 if ($container->has($id)) {
-                    /** @psalm-suppress MixedArgument `Container::get()` always return array for tag */
-                    array_unshift($tags, $container->get($id));
+                    /**
+                     * `Container::get()` always returns array for tag.
+                     *
+                     * @var mixed[] $tagServices
+                     */
+                    $tagServices = $container->get($id);
+                    array_unshift($tags, $tagServices);
                 }
             }
 
-            /** @psalm-suppress MixedArgument `Container::get()` always return array for tag */
             return array_merge(...$tags);
         }
 
         foreach ($this->containers as $container) {
             if ($container->has($id)) {
-                /** @psalm-suppress MixedReturnStatement */
                 return $container->get($id);
             }
         }
@@ -109,7 +113,6 @@ final class CompositeContainer implements ContainerInterface
 
     public function has($id): bool
     {
-        /** @psalm-suppress TypeDoesNotContainType */
         if (!is_string($id)) {
             throw new InvalidArgumentException(
                 sprintf(

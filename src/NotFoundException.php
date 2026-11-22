@@ -58,7 +58,7 @@ final class NotFoundException extends Exception implements NotFoundExceptionInte
         return sprintf('No definition or class found for "%s" ID.', $this->id);
     }
 
-    public function getSolution(): ?string
+    public function getSolution(): string
     {
         $solution = <<<SOLUTION
             Ensure that either a service with ID "%1\$s" is defined or such class exists and is autoloadable.
